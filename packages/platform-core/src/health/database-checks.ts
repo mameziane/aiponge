@@ -20,7 +20,8 @@ export class DatabaseHealthChecker {
    */
   static async executePgHealthCheck(databaseUrl: string): Promise<HealthCheckRow[]> {
     const { Pool } = await import('pg');
-    const isLocal =
+    const sslDisabled =
+      process.env.DATABASE_SSL === 'false' ||
       databaseUrl.includes('localhost') ||
       databaseUrl.includes('127.0.0.1') ||
       databaseUrl.includes('.railway.internal');
@@ -29,7 +30,7 @@ export class DatabaseHealthChecker {
       max: 1,
       idleTimeoutMillis: 1000,
       connectionTimeoutMillis: 5000,
-      ssl: isLocal ? false : { rejectUnauthorized: false },
+      ssl: sslDisabled ? false : { rejectUnauthorized: false },
     });
 
     try {

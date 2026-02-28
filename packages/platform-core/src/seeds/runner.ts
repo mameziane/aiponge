@@ -16,14 +16,17 @@ export async function runSeeds(options: SeedRunnerOptions = {}): Promise<void> {
     throw new Error('DATABASE_URL environment variable is required to run seeds');
   }
 
-  const isLocal =
-    databaseUrl.includes('localhost') || databaseUrl.includes('127.0.0.1') || databaseUrl.includes('.railway.internal');
+  const sslDisabled =
+    process.env.DATABASE_SSL === 'false' ||
+    databaseUrl.includes('localhost') ||
+    databaseUrl.includes('127.0.0.1') ||
+    databaseUrl.includes('.railway.internal');
   const pool = new Pool({
     connectionString: databaseUrl,
     max: 3,
     idleTimeoutMillis: 10000,
     connectionTimeoutMillis: 5000,
-    ssl: isLocal ? false : { rejectUnauthorized: false },
+    ssl: sslDisabled ? false : { rejectUnauthorized: false },
   });
   const db = drizzle(pool);
 
