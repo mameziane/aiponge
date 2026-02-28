@@ -69,6 +69,12 @@
       },
       "responseMapping": {
         "content": "choices[0].message.content"
+      },
+      "healthEndpoint": {
+        "url": "https://api.openai.com/v1/models",
+        "method": "GET",
+        "requiresAuth": true,
+        "isFree": true
       }
     },
     "is_active": true,
@@ -91,17 +97,10 @@
         "headerName": "Authorization"
       },
       "method": "POST",
-      "models": [
-        "dall-e-3",
-        "dall-e-2"
-      ],
+      "models": ["dall-e-3", "dall-e-2"],
       "timeout": 60000,
       "endpoint": "https://api.openai.com/v1/images/generations",
-      "capabilities": [
-        "image_generation",
-        "artwork_creation",
-        "album_covers"
-      ],
+      "capabilities": ["image_generation", "artwork_creation", "album_covers"],
       "requestTemplate": {
         "n": 1,
         "size": "1024x1024",
@@ -113,6 +112,12 @@
       "responseMapping": {
         "imageUrl": "data[0].url",
         "revisedPrompt": "data[0].revised_prompt"
+      },
+      "healthEndpoint": {
+        "url": "https://api.openai.com/v1/models",
+        "method": "GET",
+        "requiresAuth": true,
+        "isFree": true
       }
     },
     "is_active": true,
@@ -137,21 +142,21 @@
       "method": "POST",
       "timeout": 60000,
       "endpoint": "https://api.openai.com/v1/audio/transcriptions",
-      "capabilities": [
-        "audio_transcription",
-        "word_timestamps",
-        "lyrics_timing"
-      ],
+      "capabilities": ["audio_transcription", "word_timestamps", "lyrics_timing"],
       "requestTemplate": {
         "model": "whisper-1",
         "response_format": "verbose_json",
-        "timestamp_granularities": [
-          "word"
-        ]
+        "timestamp_granularities": ["word"]
       },
       "responseMapping": {
         "text": "text",
         "words": "words"
+      },
+      "healthEndpoint": {
+        "url": "https://api.openai.com/v1/models",
+        "method": "GET",
+        "requiresAuth": true,
+        "isFree": true
       }
     },
     "is_active": true,
@@ -174,10 +179,7 @@
         "headerName": "x-api-key"
       },
       "method": "POST",
-      "models": [
-        "claude-sonnet-4-20250514",
-        "claude-3-5-sonnet-20241022"
-      ],
+      "models": ["claude-sonnet-4-20250514", "claude-3-5-sonnet-20241022"],
       "headers": {
         "Content-Type": "application/json"
       },
@@ -215,9 +217,9 @@
       "timeout": 180000,
       "endpoint": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
       "requestTemplate": {
-        "contents": [{"parts": [{"text": "${userPrompt}"}]}],
-        "generationConfig": {"temperature": 0.7, "maxOutputTokens": 8192},
-        "systemInstruction": {"parts": [{"text": "${systemPrompt}"}]}
+        "contents": [{ "parts": [{ "text": "${userPrompt}" }] }],
+        "generationConfig": { "temperature": 0.7, "maxOutputTokens": 8192 },
+        "systemInstruction": { "parts": [{ "text": "${systemPrompt}" }] }
       },
       "responseMapping": {
         "content": "candidates[0].content.parts[0].text"
@@ -247,9 +249,9 @@
       "timeout": 300000,
       "endpoint": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-pro-preview:generateContent",
       "requestTemplate": {
-        "contents": [{"parts": [{"text": "${userPrompt}"}]}],
-        "generationConfig": {"temperature": 0.7, "maxOutputTokens": 8192},
-        "systemInstruction": {"parts": [{"text": "${systemPrompt}"}]}
+        "contents": [{ "parts": [{ "text": "${userPrompt}" }] }],
+        "generationConfig": { "temperature": 0.7, "maxOutputTokens": 8192 },
+        "systemInstruction": { "parts": [{ "text": "${systemPrompt}" }] }
       },
       "responseMapping": {
         "content": "candidates[0].content.parts[0].text"
@@ -280,11 +282,7 @@
       },
       "timeout": 60000,
       "endpoint": "https://api.elevenlabs.io/v1/text-to-speech",
-      "capabilities": [
-        "text_to_speech",
-        "voice_synthesis",
-        "music_generation"
-      ],
+      "capabilities": ["text_to_speech", "voice_synthesis", "music_generation"],
       "requestTemplate": {
         "model_id": "eleven_multilingual_v2"
       }
@@ -308,10 +306,7 @@
         "envVar": "STABILITY_API_KEY"
       },
       "method": "POST",
-      "models": [
-        "stable-diffusion-xl-1024-v1-0",
-        "stable-diffusion-v1-6"
-      ],
+      "models": ["stable-diffusion-xl-1024-v1-0", "stable-diffusion-v1-6"],
       "headers": {
         "Accept": "application/json",
         "Content-Type": "application/json"
@@ -360,9 +355,9 @@
       "timeout": 60000,
       "endpoint": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent",
       "requestTemplate": {
-        "contents": [{"parts": [{"text": "{{prompt}}"}]}],
+        "contents": [{ "parts": [{ "text": "{{prompt}}" }] }],
         "generationConfig": {
-          "imageConfig": {"imageSize": "1K", "aspectRatio": "1:1"},
+          "imageConfig": { "imageSize": "1K", "aspectRatio": "1:1" },
           "responseModalities": ["IMAGE"]
         }
       },
@@ -395,9 +390,9 @@
       "timeout": 120000,
       "endpoint": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent",
       "requestTemplate": {
-        "contents": [{"parts": [{"text": "{{prompt}}"}]}],
+        "contents": [{ "parts": [{ "text": "{{prompt}}" }] }],
         "generationConfig": {
-          "imageConfig": {"imageSize": "2K", "aspectRatio": "1:1"},
+          "imageConfig": { "imageSize": "2K", "aspectRatio": "1:1" },
           "responseModalities": ["IMAGE"]
         }
       },

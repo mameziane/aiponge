@@ -34,9 +34,21 @@ export class DatabaseConnectionFactory {
     return DatabaseConnectionFactory.instance;
   }
 
+  private static getSslConfig(connectionString: string): false | 'require' {
+    if (process.env.DATABASE_SSL === 'false') return false;
+    try {
+      const url = new URL(connectionString);
+      if (url.hostname === 'localhost' || url.hostname === '127.0.0.1' || url.hostname.endsWith('.railway.internal'))
+        return false;
+      if (url.searchParams.get('sslmode') === 'disable') return false;
+    } catch {
+      /* fall through */
+    }
+    return 'require';
+  }
+
   private static getPoolConfig() {
     const connectionString = process.env.USER_DATABASE_URL || process.env.DATABASE_URL || '';
-    const isLocal = connectionString.includes('localhost') || connectionString.includes('127.0.0.1');
 
     return {
       max: parseInt(
@@ -46,7 +58,7 @@ export class DatabaseConnectionFactory {
       ),
       idle_timeout: 300,
       connect_timeout: 10,
-      ssl: isLocal ? (false as const) : ('require' as const),
+      ssl: DatabaseConnectionFactory.getSslConfig(connectionString),
       onnotice: () => {},
       connection: {
         statement_timeout: parseInt(

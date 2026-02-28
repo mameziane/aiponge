@@ -32,11 +32,12 @@ class DatabaseConnectionFactory {
   }
 
   private getSslConfig(connStr: string): false | { rejectUnauthorized: boolean } {
+    if (process.env.DATABASE_SSL === 'false') return false;
     try {
       const url = new URL(connStr);
-      if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+      if (url.hostname === 'localhost' || url.hostname === '127.0.0.1' || url.hostname.endsWith('.railway.internal'))
         return false;
-      }
+      if (url.searchParams.get('sslmode') === 'disable') return false;
     } catch {
       // fall through
     }
