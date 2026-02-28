@@ -88,20 +88,17 @@ interface CacheEntry {
 }
 
 export class MusicApiLyricsTimelineClient {
-  private apiKey: string;
+  private apiKey: string | undefined;
   private cache: Map<string, CacheEntry> = new Map();
   private readonly cacheTtlMs = 60 * 60 * 1000;
 
   constructor() {
-    const apiKey = process.env.MUSICAPI_API_KEY;
-    if (!apiKey) {
-      throw PipelineError.serviceUnavailable(
-        'MusicAPI.ai',
-        new Error('MUSICAPI_API_KEY environment variable is required for lyrics timeline')
-      );
+    this.apiKey = process.env.MUSICAPI_API_KEY;
+    if (!this.apiKey) {
+      logger.warn('MUSICAPI_API_KEY not configured - lyrics timeline features will be unavailable');
+    } else {
+      logger.info('MusicApiLyricsTimelineClient initialized with retry, timeout, and caching');
     }
-    this.apiKey = apiKey;
-    logger.info('MusicApiLyricsTimelineClient initialized with retry, timeout, and caching');
   }
 
   /**
@@ -112,6 +109,15 @@ export class MusicApiLyricsTimelineClient {
    */
   async fetchLyricsTimeline(clipId: string, forceRefresh: boolean = false): Promise<LyricsTimelineResult> {
     const startTime = Date.now();
+
+    if (!this.apiKey) {
+      return {
+        success: false,
+        clipId,
+        error: 'MUSICAPI_API_KEY not configured',
+        processingTimeMs: Date.now() - startTime,
+      };
+    }
 
     if (!forceRefresh) {
       const cached = this.getCachedResult(clipId);
@@ -203,7 +209,7 @@ export class MusicApiLyricsTimelineClient {
         };
       }
 
-      const result = await response.json() as MusicApiLyricsTimelineResponse;
+      const result = (await response.json()) as MusicApiLyricsTimelineResponse;
 
       if (result.code !== 200 || !result.data?.alignment) {
         logger.error('MusicAPI.ai lyrics timeline returned error', {
