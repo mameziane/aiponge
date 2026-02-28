@@ -14,20 +14,21 @@ export function createTestPlaylistsRoutes() {
     try {
       logger.info('🧪 DIRECT TEST ROUTE HIT');
 
-      const sql = getSQLConnection();
-      const result = (await sql`
-        SELECT id, name, visibility, total_tracks 
-        FROM mus_playlists 
-        WHERE visibility IN (${CONTENT_VISIBILITY.PUBLIC}, ${CONTENT_VISIBILITY.SHARED}) AND status = ${PLAYLIST_LIFECYCLE.ACTIVE}
+      const pool = getSQLConnection();
+      const queryResult = await pool.query(
+        `SELECT id, name, visibility, total_tracks
+        FROM mus_playlists
+        WHERE visibility IN ($1, $2) AND status = $3
         ORDER BY updated_at DESC
-        LIMIT 5
-      `) as Record<string, unknown>[];
+        LIMIT 5`,
+        [CONTENT_VISIBILITY.PUBLIC, CONTENT_VISIBILITY.SHARED, PLAYLIST_LIFECYCLE.ACTIVE]
+      );
 
-      logger.info(`✅ Fetched ${result.length} playlists`);
+      logger.info(`Fetched ${queryResult.rows.length} playlists`);
 
       sendSuccess(res, {
-        playlists: result,
-        total: result.length,
+        playlists: queryResult.rows,
+        total: queryResult.rows.length,
       });
     } catch (error) {
       logger.error('Direct test failed', { error: serializeError(error) });

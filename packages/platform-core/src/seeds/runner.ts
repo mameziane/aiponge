@@ -1,5 +1,5 @@
-import { neon } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-http';
+import { Pool } from 'pg';
+import { drizzle } from 'drizzle-orm/node-postgres';
 import type { SeedContext, SeedRunnerOptions } from './types.js';
 import { getOrderedSeeds, getSeedModule } from './registry.js';
 import { ensureSeedHistoryTable, getLastSuccessfulRun, recordSeedRun } from './history.js';
@@ -16,8 +16,15 @@ export async function runSeeds(options: SeedRunnerOptions = {}): Promise<void> {
     throw new Error('DATABASE_URL environment variable is required to run seeds');
   }
 
-  const sql = neon(databaseUrl);
-  const db = drizzle(sql);
+  const isLocal = databaseUrl.includes('localhost') || databaseUrl.includes('127.0.0.1');
+  const pool = new Pool({
+    connectionString: databaseUrl,
+    max: 3,
+    idleTimeoutMillis: 10000,
+    connectionTimeoutMillis: 5000,
+    ssl: isLocal ? false : { rejectUnauthorized: false },
+  });
+  const db = drizzle(pool);
 
   const ctx: SeedContext = { db, databaseUrl, verbose };
 
@@ -127,6 +134,8 @@ export async function runSeeds(options: SeedRunnerOptions = {}): Promise<void> {
   } else {
     log(verbose, '\n✅ All seeds completed successfully\n');
   }
+
+  await pool.end();
 }
 
 function collectDependencies(seedName: string, allSeeds: { name: string; dependencies: string[] }[]): Set<string> {

@@ -10,10 +10,10 @@ import { getSQLConnection, type SQLConnection } from '../../infrastructure/datab
 const logger = getLogger('file-orphan-marker');
 
 export class FileOrphanMarker {
-  private sql: SQLConnection;
+  private pool: SQLConnection;
 
   constructor() {
-    this.sql = getSQLConnection();
+    this.pool = getSQLConnection();
   }
 
   async markAsOrphaned(fileUrl: string): Promise<boolean> {
@@ -26,14 +26,15 @@ export class FileOrphanMarker {
         return false;
       }
 
-      const result = await this.sql`
-        UPDATE stg_files 
+      const result = await this.pool.query(
+        `UPDATE stg_files
         SET status = 'orphaned', orphaned_at = NOW(), updated_at = NOW()
-        WHERE storage_path = ${storagePath} AND status = 'active'
-        RETURNING id
-      `;
+        WHERE storage_path = $1 AND status = 'active'
+        RETURNING id`,
+        [storagePath]
+      );
 
-      if (Array.isArray(result) && result.length > 0) {
+      if (result.rows.length > 0) {
         logger.info('Marked file as orphaned', { storagePath });
         return true;
       }

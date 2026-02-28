@@ -29,8 +29,8 @@ export function createHealthRoutes(): Router {
 
   const checkDatabaseHealth = async (): Promise<{ healthy: boolean; message?: string }> => {
     try {
-      const sql = getSQLConnection();
-      await sql`SELECT 1`;
+      const pool = getSQLConnection();
+      await pool.query('SELECT 1');
       return { healthy: true };
     } catch (error) {
       logger.warn('Database health check failed', { error: error instanceof Error ? error.message : String(error) });
@@ -113,7 +113,7 @@ export function createHealthRoutes(): Router {
         timestamp: new Date().toISOString(),
         uptime: Math.floor(process.uptime()),
         environment: process.env.NODE_ENV || 'development',
-        driver: 'neon-http',
+        driver: 'node-postgres',
         checks: {
           database: 'unknown',
           memory: 'healthy',

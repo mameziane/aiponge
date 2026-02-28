@@ -1,10 +1,10 @@
 #!/usr/bin/env tsx
 /**
  * Master Configuration Generator
- * 
+ *
  * Orchestrates all config generation from the single source of truth:
  * packages/platform-core/src/config/services-definition.ts
- * 
+ *
  * This ensures all configuration files stay in perfect sync.
  */
 
@@ -24,7 +24,7 @@ const generators = [
   },
 ];
 
-function runGenerator(generator: typeof generators[0]) {
+function runGenerator(generator: (typeof generators)[0]) {
   console.log(`\n${'='.repeat(60)}`);
   console.log(`🔧 ${generator.name}`);
   console.log(`   ${generator.description}`);
@@ -33,7 +33,7 @@ function runGenerator(generator: typeof generators[0]) {
   try {
     const projectRoot = resolve(__dirname, '../..');
     const scriptPath = resolve(projectRoot, generator.script);
-    execSync(`tsx ${scriptPath}`, { 
+    execSync(`tsx "${scriptPath}"`, {
       stdio: 'inherit',
       cwd: projectRoot,
     });

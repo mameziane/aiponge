@@ -6,12 +6,12 @@
  */
 
 import { createDatabaseConnectionFactory, createLogger, type SQLConnection } from '@aiponge/platform-core';
-import type { NeonHttpDatabase } from 'drizzle-orm/neon-http';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as schema from '@schema/schema';
 
 const logger = createLogger('ai-config-service-database');
 
-export type DatabaseConnection = NeonHttpDatabase<typeof schema>;
+export type DatabaseConnection = NodePgDatabase<typeof schema>;
 export { SQLConnection };
 
 const factory = createDatabaseConnectionFactory({
@@ -63,17 +63,17 @@ export class DatabaseConnectionFactory {
   }> {
     const startTime = Date.now();
     try {
-      const sql = factory.getSQLConnection();
-      await sql`SELECT 1`;
+      const pool = factory.getSQLConnection();
+      await pool.query('SELECT 1');
 
-      const providerTablesResult = await sql`
-        SELECT COUNT(*) as count 
-        FROM information_schema.tables 
-        WHERE table_schema = 'public' 
-        AND table_name LIKE 'cfg_%'
-      `;
+      const providerTablesResult = await pool.query(
+        `SELECT COUNT(*) as count
+        FROM information_schema.tables
+        WHERE table_schema = 'public'
+        AND table_name LIKE 'cfg_%'`
+      );
 
-      const providerTablesCount = parseInt((providerTablesResult as Array<{ count?: string }>)[0]?.count || '0');
+      const providerTablesCount = parseInt(providerTablesResult.rows[0]?.count || '0');
 
       return {
         status: 'healthy',

@@ -12,7 +12,7 @@ import { TEMPLATE_IDS } from '../constants/template-ids';
 import { TemplateError } from '../../application/errors';
 import { CONTENT_VISIBILITY, type ContentVisibility } from '@aiponge/shared-contracts';
 import type { ContentType } from '../entities/Content';
-import type { NeonHttpDatabase } from 'drizzle-orm/neon-http';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 const logger = getLogger('content-template-service');
 
@@ -107,9 +107,9 @@ export interface TemplateProcessingResult {
 export class ContentTemplateService {
   private templates: Map<string, ContentTemplate> = new Map();
   private templatesByType: Map<string, ContentTemplate[]> = new Map();
-  private db: NeonHttpDatabase<Record<string, unknown>>;
+  private db: NodePgDatabase<Record<string, unknown>>;
 
-  constructor(db: NeonHttpDatabase<Record<string, unknown>>) {
+  constructor(db: NodePgDatabase<Record<string, unknown>>) {
     this.db = db;
     logger.debug('📝 ContentTemplateService initialized with database connection');
   }
@@ -518,9 +518,15 @@ export class ContentTemplateService {
         averageRating: (metadata.averageRating as number) || 0,
         tags,
       },
-      contextAnalysisRules: Array.isArray(dbTemplate.contextAnalysisRules) ? dbTemplate.contextAnalysisRules as ContentTemplate['contextAnalysisRules'] : [],
-      inferenceRules: Array.isArray(dbTemplate.inferenceRules) ? dbTemplate.inferenceRules as ContentTemplate['inferenceRules'] : [],
-      llmCompatibility: Array.isArray(dbTemplate.llmCompatibility) ? dbTemplate.llmCompatibility as ContentTemplate['llmCompatibility'] : [],
+      contextAnalysisRules: Array.isArray(dbTemplate.contextAnalysisRules)
+        ? (dbTemplate.contextAnalysisRules as ContentTemplate['contextAnalysisRules'])
+        : [],
+      inferenceRules: Array.isArray(dbTemplate.inferenceRules)
+        ? (dbTemplate.inferenceRules as ContentTemplate['inferenceRules'])
+        : [],
+      llmCompatibility: Array.isArray(dbTemplate.llmCompatibility)
+        ? (dbTemplate.llmCompatibility as ContentTemplate['llmCompatibility'])
+        : [],
       isActive: Boolean(dbTemplate.isActive),
       visibility: (dbTemplate.visibility as ContentVisibility) ?? CONTENT_VISIBILITY.PERSONAL,
     };

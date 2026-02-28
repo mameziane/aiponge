@@ -242,28 +242,35 @@ function setupErrorHandling(app: express.Application): void {
   setupSentryErrorHandler(app as unknown as Express);
   app.use(errorLoggingMiddleware);
 
-  app.use((err: Error & { type?: string; status?: number; statusCode?: number }, req: Request, res: Response, next: NextFunction) => {
-    const opts = { service: 'ai-config-service', correlationId: getCorrelationId(req) };
+  app.use(
+    (
+      err: Error & { type?: string; status?: number; statusCode?: number },
+      req: Request,
+      res: Response,
+      next: NextFunction
+    ) => {
+      const opts = { service: 'ai-config-service', correlationId: getCorrelationId(req) };
 
-    if (err.type === 'entity.parse.failed') {
-      return StructuredErrors.validation(res, 'Invalid JSON payload', {
-        ...opts,
-        details: { parseError: err.message },
-      });
+      if (err.type === 'entity.parse.failed') {
+        return StructuredErrors.validation(res, 'Invalid JSON payload', {
+          ...opts,
+          details: { parseError: err.message },
+        });
+      }
+
+      if (err.statusCode && err.statusCode >= 400 && err.statusCode < 500) {
+        return StructuredErrors.fromException(res, err, err.message || 'Client error occurred', opts);
+      }
+
+      logger.error('Unhandled error: {}', { data0: err.message, stack: err.stack });
+
+      StructuredErrors.internal(
+        res,
+        process.env.NODE_ENV === 'production' ? 'An internal server error occurred' : err.message,
+        opts
+      );
     }
-
-    if (err.statusCode && err.statusCode >= 400 && err.statusCode < 500) {
-      return StructuredErrors.fromException(res, err, err.message || 'Client error occurred', opts);
-    }
-
-    logger.error('Unhandled error: {}', { data0: err.message, stack: err.stack });
-
-    StructuredErrors.internal(
-      res,
-      process.env.NODE_ENV === 'production' ? 'An internal server error occurred' : err.message,
-      opts
-    );
-  });
+  );
 
   app.use((req: Request, res: Response) => {
     StructuredErrors.notFound(res, `Route ${req.method} ${req.path} not found`, {
@@ -280,8 +287,8 @@ export async function initializeServices(): Promise<void> {
   logger.debug('🔄 Initializing AI Config Service domains...');
 
   try {
-    const sql = getDbFactory().getSQLConnection();
-    await sql`SELECT 1`;
+    const pool = getDbFactory().getSQLConnection();
+    await pool.query('SELECT 1');
     logger.debug('✅ Database connection established');
 
     await initializeProviderProxy({

@@ -4,8 +4,8 @@
  * Eliminates hardcoded connection patterns and provides unified configuration
  */
 
-import { neon, type NeonQueryFunction } from '@neondatabase/serverless';
-import { drizzle, type NeonHttpDatabase } from 'drizzle-orm/neon-http';
+import { Pool } from 'pg';
+import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { unifiedConfig } from '../../config/ConfigurationManager';
 import { getLogger } from '../../config/service-urls';
 import { SystemError } from '../../application/errors';
@@ -14,8 +14,8 @@ import { timeoutHierarchy } from '@aiponge/platform-core';
 const logger = getLogger('system-service-databaseconnectionfactory');
 
 interface DatabaseConnection {
-  db: ReturnType<typeof drizzle>;
-  sql: ReturnType<typeof neon>;
+  db: NodePgDatabase<Record<string, unknown>>;
+  pool: Pool;
 }
 
 class DatabaseConnectionFactory {
@@ -29,6 +29,18 @@ class DatabaseConnectionFactory {
       DatabaseConnectionFactory.instance = new DatabaseConnectionFactory();
     }
     return DatabaseConnectionFactory.instance;
+  }
+
+  private getSslConfig(connStr: string): false | { rejectUnauthorized: boolean } {
+    try {
+      const url = new URL(connStr);
+      if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+        return false;
+      }
+    } catch {
+      // fall through
+    }
+    return { rejectUnauthorized: false };
   }
 
   /**
@@ -48,24 +60,30 @@ class DatabaseConnectionFactory {
     }
 
     let connStr = dbConfig.url;
-    if (!connStr.includes('sslmode=')) {
-      connStr += connStr.includes('?') ? '&sslmode=verify-full' : '?sslmode=verify-full';
-    } else if (connStr.includes('sslmode=require')) {
-      connStr = connStr.replace('sslmode=require', 'sslmode=verify-full');
+    const dbTimeout = timeoutHierarchy.getDatabaseTimeout('system-service');
+
+    // Append statement_timeout
+    if (!connStr.includes('statement_timeout=')) {
+      connStr += connStr.includes('?') ? `&statement_timeout=${dbTimeout}` : `?statement_timeout=${dbTimeout}`;
     }
 
-    const dbTimeout = timeoutHierarchy.getDatabaseTimeout('system-service');
-    const sql = neon(connStr, {
-      fetchOptions: {
-        get signal() {
-          return AbortSignal.timeout(dbTimeout);
-        },
-      },
+    const maxConnections = parseInt(
+      process.env.DATABASE_POOL_MAX || (process.env.NODE_ENV === 'production' ? '20' : '5')
+    );
+
+    const pool = new Pool({
+      connectionString: connStr,
+      max: maxConnections,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 10000,
+      ssl: this.getSslConfig(connStr),
     });
 
-    const db = schema ? drizzle(sql as NeonQueryFunction<boolean, boolean>, { schema: schema as Record<string, unknown> }) : drizzle(sql as NeonQueryFunction<boolean, boolean>);
+    const db = (schema
+      ? drizzle(pool, { schema: schema as Record<string, unknown> })
+      : drizzle(pool)) as unknown as NodePgDatabase<Record<string, unknown>>;
 
-    const connection: DatabaseConnection = { db, sql: sql as ReturnType<typeof neon> };
+    const connection: DatabaseConnection = { db, pool };
     this.connections.set(connectionKey, connection);
 
     logger.debug('Database connection created', { serviceName, dbTimeout });
@@ -73,36 +91,43 @@ class DatabaseConnectionFactory {
   }
 
   /**
-   * Get just the SQL client for services that only need basic connection
+   * Get just the Pool client for services that only need basic connection
    */
-  public getSqlClient(serviceName: string): ReturnType<typeof neon> {
-    return this.getConnection(serviceName).sql;
+  public getSqlClient(serviceName: string): Pool {
+    return this.getConnection(serviceName).pool;
   }
 
   /**
    * Get just the Drizzle ORM instance
    */
-  public getDatabase(serviceName: string, schema?: unknown): ReturnType<typeof drizzle> {
+  public getDatabase(serviceName: string, schema?: unknown): NodePgDatabase<Record<string, unknown>> {
     return this.getConnection(serviceName, schema).db;
   }
 
   /**
-   * Get just the SQL instance for raw queries
+   * Get just the Pool instance for raw queries
    */
-  public getSql(serviceName: string): ReturnType<typeof neon> {
-    return this.getConnection(serviceName).sql;
+  public getSql(serviceName: string): Pool {
+    return this.getConnection(serviceName).pool;
   }
 
   /**
    * Close all connections (for graceful shutdown)
    */
   public async closeAllConnections(): Promise<void> {
-    logger.warn('🔒 Closing all database connections...');
+    logger.warn('Closing all database connections...');
 
-    // HTTP client connections don't require explicit closing
-    // Clear the connections map for cleanup
+    for (const [serviceName, connection] of this.connections) {
+      try {
+        await connection.pool.end();
+        logger.debug(`Connection pool closed for ${serviceName}`);
+      } catch (error) {
+        logger.error(`Failed to close pool for ${serviceName}`, { error });
+      }
+    }
+
     this.connections.clear();
-    logger.warn('All connections cleared');
+    logger.warn('All connections closed');
   }
 
   /**
@@ -113,13 +138,11 @@ class DatabaseConnectionFactory {
 
     for (const [serviceName, connection] of this.connections) {
       try {
-        // Simple query to test connection
-        const sql = connection.sql;
-        await sql`SELECT 1`;
+        await connection.pool.query('SELECT 1');
         health[serviceName] = true;
       } catch (error) {
         health[serviceName] = false;
-        logger.warn('Health check failed for ${serviceName}:', { data: error });
+        logger.warn(`Health check failed for ${serviceName}`, { data: error });
       }
     }
 
@@ -132,10 +155,13 @@ class DatabaseConnectionFactory {
   public getConnectionStats(): Record<string, unknown> {
     const stats: Record<string, unknown> = {};
 
-    for (const [serviceName] of this.connections) {
+    for (const [serviceName, connection] of this.connections) {
       stats[serviceName] = {
-        type: 'http_client',
+        type: 'pool',
         status: 'connected',
+        totalCount: connection.pool.totalCount,
+        idleCount: connection.pool.idleCount,
+        waitingCount: connection.pool.waitingCount,
       };
     }
 
@@ -148,27 +174,22 @@ export const databaseFactory = DatabaseConnectionFactory.getInstance();
 
 // Utility functions for easy access
 export function getDatabaseConnection(serviceName: string, schema?: unknown): DatabaseConnection {
-  // TypeScript optimized
   return databaseFactory.getConnection(serviceName, schema);
 }
 
-export function getDatabaseSqlClient(serviceName: string): ReturnType<typeof neon> {
-  // TypeScript optimized
+export function getDatabaseSqlClient(serviceName: string): Pool {
   return databaseFactory.getSqlClient(serviceName);
 }
 
-export function getDatabase(serviceName: string, schema?: unknown): ReturnType<typeof drizzle> {
-  // TypeScript optimized
+export function getDatabase(serviceName: string, schema?: unknown): NodePgDatabase<Record<string, unknown>> {
   return databaseFactory.getDatabase(serviceName, schema);
 }
 
-export function getDatabaseSql(serviceName: string): ReturnType<typeof neon> {
-  // TypeScript optimized
+export function getDatabaseSql(serviceName: string): Pool {
   return databaseFactory.getSql(serviceName);
 }
 
 // Graceful shutdown helper
 export async function closeAllDatabaseConnections(): Promise<void> {
-  // TypeScript optimized
   await databaseFactory.closeAllConnections();
 }

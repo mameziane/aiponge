@@ -73,12 +73,13 @@ function extractColumnsFromDrizzleTable(table: unknown): Set<string> {
 }
 
 async function fetchDatabaseColumns(sql: SQLConnection): Promise<Map<string, Set<string>>> {
-  const dbColumnsResult = (await sql`
-    SELECT table_name, column_name, data_type
+  const result = await sql.query(
+    `SELECT table_name, column_name, data_type
     FROM information_schema.columns
     WHERE table_schema = 'public'
-    ORDER BY table_name, ordinal_position
-  `) as Array<{ table_name: string; column_name: string; data_type: string }>;
+    ORDER BY table_name, ordinal_position`
+  );
+  const dbColumnsResult = result.rows as Array<{ table_name: string; column_name: string; data_type: string }>;
 
   const dbColumns = new Map<string, Set<string>>();
   for (const row of dbColumnsResult) {

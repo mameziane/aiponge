@@ -29,7 +29,6 @@
   "dependencies": {
     "@aiponge/platform-core": "*",
     "@aiponge/shared-contracts": "*",
-    "@neondatabase/serverless": "^1.0.1",
     "axios": "^1.12.2",
     "bcryptjs": "^3.0.2",
     "compression": "^1.7.4",

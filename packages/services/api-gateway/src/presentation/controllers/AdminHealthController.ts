@@ -167,32 +167,37 @@ export class AdminHealthController extends BaseAggregationController {
     await this.asyncHandler(async (req: Request, res: Response) => {
       const services = await this.getAllServicesAsArray();
 
-      // Check database connection using Neon HTTP
-      let databaseStatus = { connected: false, latencyMs: 0, error: '', driver: 'neon-http' };
+      // Check database connection using pg Pool
+      let databaseStatus = { connected: false, latencyMs: 0, error: '', driver: 'node-postgres' };
       try {
         const dbStart = Date.now();
-        const { neon } = await import('@neondatabase/serverless');
-        let dbUrl = process.env.DATABASE_URL || '';
-        // Ensure SSL mode is set for Neon connections
-        if (dbUrl && !dbUrl.includes('sslmode=')) {
-          dbUrl += dbUrl.includes('?') ? '&sslmode=verify-full' : '?sslmode=verify-full';
-        } else if (dbUrl && dbUrl.includes('sslmode=require')) {
-          dbUrl = dbUrl.replace('sslmode=require', 'sslmode=verify-full');
+        const { Pool } = await import('pg');
+        const dbUrl = process.env.DATABASE_URL || '';
+        const isLocal = dbUrl.includes('localhost') || dbUrl.includes('127.0.0.1');
+        const pool = new Pool({
+          connectionString: dbUrl,
+          max: 1,
+          idleTimeoutMillis: 1000,
+          connectionTimeoutMillis: 5000,
+          ssl: isLocal ? false : { rejectUnauthorized: false },
+        });
+        try {
+          await pool.query('SELECT 1');
+          databaseStatus = {
+            connected: true,
+            latencyMs: Date.now() - dbStart,
+            error: '',
+            driver: 'node-postgres',
+          };
+        } finally {
+          await pool.end();
         }
-        const sql = neon(dbUrl);
-        await sql`SELECT 1`;
-        databaseStatus = {
-          connected: true,
-          latencyMs: Date.now() - dbStart,
-          error: '',
-          driver: 'neon-http',
-        };
       } catch (err) {
         databaseStatus = {
           connected: false,
           latencyMs: 0,
           error: err instanceof Error ? err.message : 'Unknown error',
-          driver: 'neon-http',
+          driver: 'node-postgres',
         };
       }
 
@@ -534,22 +539,29 @@ export class AdminHealthController extends BaseAggregationController {
           const response = await this.httpClient.get(url, requestConfig);
           const data = ((response as Record<string, unknown>)?.data ?? response) as Record<string, unknown>;
 
-          const normalizedAlerts = ((data?.alerts || []) as Array<Record<string, unknown>>).map((a: Record<string, unknown>) => ({
-            type: (((a.component as string) || (a.type as string)) || 'unknown').replace(/-/g, '_'),
-            severity: (a.level as string) || (a.severity as string) || 'warning',
-            message: (a.message as string) || '',
-          }));
+          const normalizedAlerts = ((data?.alerts || []) as Array<Record<string, unknown>>).map(
+            (a: Record<string, unknown>) => ({
+              type: ((a.component as string) || (a.type as string) || 'unknown').replace(/-/g, '_'),
+              severity: (a.level as string) || (a.severity as string) || 'warning',
+              message: (a.message as string) || '',
+            })
+          );
 
-          const normalizedBulkheads = ((data?.bulkheads || []) as Array<Record<string, unknown>>).map((bh: Record<string, unknown>) => ({
-            name: bh.name,
-            maxConcurrent: bh.maxConcurrent || 1,
-            maxQueue: bh.maxQueue || 1,
-            activeConcurrent: bh.running ?? bh.activeConcurrent ?? 0,
-            activeQueue: bh.queued ?? bh.activeQueue ?? 0,
-            concurrentUtilization: Number(bh.utilizationPercent ?? 0) / 100,
-            queueUtilization: Number(bh.queueUtilizationPercent ?? 0) / 100,
-            totalUtilization: Math.max(Number(bh.utilizationPercent ?? 0) / 100, Number(bh.queueUtilizationPercent ?? 0) / 100),
-          }));
+          const normalizedBulkheads = ((data?.bulkheads || []) as Array<Record<string, unknown>>).map(
+            (bh: Record<string, unknown>) => ({
+              name: bh.name,
+              maxConcurrent: bh.maxConcurrent || 1,
+              maxQueue: bh.maxQueue || 1,
+              activeConcurrent: bh.running ?? bh.activeConcurrent ?? 0,
+              activeQueue: bh.queued ?? bh.activeQueue ?? 0,
+              concurrentUtilization: Number(bh.utilizationPercent ?? 0) / 100,
+              queueUtilization: Number(bh.queueUtilizationPercent ?? 0) / 100,
+              totalUtilization: Math.max(
+                Number(bh.utilizationPercent ?? 0) / 100,
+                Number(bh.queueUtilizationPercent ?? 0) / 100
+              ),
+            })
+          );
 
           if (normalizedAlerts.length > 0) {
             hasAlerts = true;

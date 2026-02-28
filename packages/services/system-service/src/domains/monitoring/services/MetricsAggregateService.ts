@@ -28,7 +28,7 @@ export interface QueryMetricAggregateParams {
 }
 
 export class MetricsAggregateService {
-  constructor(private readonly db: ReturnType<typeof import('drizzle-orm/neon-http').drizzle>) {}
+  constructor(private readonly db: import('drizzle-orm/node-postgres').NodePgDatabase<Record<string, unknown>>) {}
 
   async recordAggregate(params: RecordMetricAggregateParams): Promise<MetricsAggregate> {
     const [entry] = await this.db

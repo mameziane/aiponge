@@ -16,8 +16,8 @@
  * });
  */
 
-import { neon } from '@neondatabase/serverless';
-import { drizzle, type NeonHttpDatabase } from 'drizzle-orm/neon-http';
+import { Pool } from 'pg';
+import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { createLogger } from '../logging/logger.js';
 import { serializeError } from '../logging/error-serializer.js';
 import { timeoutHierarchy } from '../config/timeout-hierarchy.js';
@@ -49,7 +49,7 @@ try {
   // OpenTelemetry not installed - tracing disabled
 }
 
-export type SQLConnection = ReturnType<typeof neon>;
+export type SQLConnection = Pool;
 
 export interface DatabaseConfig<TSchema extends Record<string, unknown> = Record<string, unknown>> {
   serviceName: string;
@@ -61,20 +61,20 @@ export interface DatabaseConfig<TSchema extends Record<string, unknown> = Record
 
 export interface DatabaseConnectionFactoryInstance<TSchema extends Record<string, unknown>> {
   getInstance: () => DatabaseConnectionFactoryClass<TSchema>;
-  getDatabase: (mode?: 'read' | 'write') => NeonHttpDatabase<TSchema>;
+  getDatabase: (mode?: 'read' | 'write') => NodePgDatabase<TSchema>;
   getSQLConnection: () => SQLConnection;
   createSQLRepository: <T>(RepositoryClass: new (sql: SQLConnection) => T) => T;
-  createDrizzleRepository: <T>(RepositoryClass: new (db: NeonHttpDatabase<TSchema>) => T) => T;
-  createDrizzleRepositoryRead: <T>(RepositoryClass: new (db: NeonHttpDatabase<TSchema>) => T) => T;
+  createDrizzleRepository: <T>(RepositoryClass: new (db: NodePgDatabase<TSchema>) => T) => T;
+  createDrizzleRepositoryRead: <T>(RepositoryClass: new (db: NodePgDatabase<TSchema>) => T) => T;
   reset: () => void;
   close: () => Promise<void>;
 }
 
 class DatabaseConnectionFactoryClass<TSchema extends Record<string, unknown>> {
   private sqlConnection: SQLConnection | null = null;
-  private dbConnection: NeonHttpDatabase<TSchema> | null = null;
+  private dbConnection: NodePgDatabase<TSchema> | null = null;
   private replicaSqlConnection: SQLConnection | null = null;
-  private replicaDbConnection: NeonHttpDatabase<TSchema> | null = null;
+  private replicaDbConnection: NodePgDatabase<TSchema> | null = null;
   private usesSameConnection = false;
   private isClosed = false;
   private readonly config: Required<Pick<DatabaseConfig<TSchema>, 'serviceName'>> & DatabaseConfig<TSchema>;
@@ -114,30 +114,19 @@ class DatabaseConnectionFactoryClass<TSchema extends Record<string, unknown>> {
       throw error;
     }
 
-    return this.appendConnectionParams(this.usePoolerUrl(connectionString));
+    return this.appendConnectionParams(connectionString);
   }
 
-  private usePoolerUrl(connStr: string): string {
-    if (connStr.includes('.pooler.neon.tech')) {
-      return connStr;
-    }
+  private getSslConfig(connStr: string): false | { rejectUnauthorized: boolean } {
     try {
       const url = new URL(connStr);
-      const host = url.hostname;
-      const neonMatch = host.match(/^([a-z0-9-]+)\.([a-z0-9-]+)\.neon\.tech$/);
-      if (neonMatch) {
-        url.hostname = `${neonMatch[1]}.${neonMatch[2]}.pooler.neon.tech`;
-        this.logger.debug('Using Neon connection pooler for reduced per-query latency', {
-          serviceName: this.config.serviceName,
-        });
-        return url.toString();
+      if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+        return false;
       }
     } catch {
-      this.logger.debug('Could not parse database URL for pooler upgrade, using as-is', {
-        serviceName: this.config.serviceName,
-      });
+      // fall through
     }
-    return connStr;
+    return { rejectUnauthorized: false };
   }
 
   private getReplicaConnectionString(): string {
@@ -151,24 +140,32 @@ class DatabaseConnectionFactoryClass<TSchema extends Record<string, unknown>> {
     }
 
     this.usesSameConnection = false;
-    return this.appendConnectionParams(this.usePoolerUrl(replicaUrl));
+    return this.appendConnectionParams(replicaUrl);
   }
 
   private appendConnectionParams(connStr: string): string {
     const statementTimeout = parseInt(
       process.env.STATEMENT_TIMEOUT_MS || String(timeoutHierarchy.getDatabaseTimeout(this.config.serviceName))
     );
-    if (!connStr.includes('sslmode=')) {
-      connStr += connStr.includes('?') ? '&sslmode=verify-full' : '?sslmode=verify-full';
-    } else if (connStr.includes('sslmode=require')) {
-      connStr = connStr.replace('sslmode=require', 'sslmode=verify-full');
-    }
     if (!connStr.includes('statement_timeout=')) {
       connStr += connStr.includes('?')
         ? `&statement_timeout=${statementTimeout}`
         : `?statement_timeout=${statementTimeout}`;
     }
     return connStr;
+  }
+
+  private createPool(connStr: string): Pool {
+    const maxConnections = parseInt(
+      process.env.DATABASE_POOL_MAX || (process.env.NODE_ENV === 'production' ? '20' : '5')
+    );
+    return new Pool({
+      connectionString: connStr,
+      max: maxConnections,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 10000,
+      ssl: this.getSslConfig(connStr),
+    });
   }
 
   public getSQLConnection(): SQLConnection {
@@ -186,14 +183,17 @@ class DatabaseConnectionFactoryClass<TSchema extends Record<string, unknown>> {
         const connStr = this.getConnectionString();
         const dbType = process.env[this.config.envVarName!] ? 'isolated' : 'shared';
         this.logger.debug(`Using ${dbType} database`);
-        this.sqlConnection = neon(connStr);
-        this.logger.debug(`SQL connection established with ${dbType} database`, {
+        this.sqlConnection = this.createPool(connStr);
+        this.logger.debug(`SQL connection pool established with ${dbType} database`, {
           serviceName: this.config.serviceName,
         });
         if (span) span.setStatus({ code: otelApi!.SpanStatusCode.OK });
       } catch (error: unknown) {
         if (span) {
-          span.setStatus({ code: otelApi!.SpanStatusCode.ERROR, message: error instanceof Error ? error.message : 'unknown' });
+          span.setStatus({
+            code: otelApi!.SpanStatusCode.ERROR,
+            message: error instanceof Error ? error.message : 'unknown',
+          });
           span.recordException(error);
         }
         this.logger.error('SQL connection failed', {
@@ -208,7 +208,7 @@ class DatabaseConnectionFactoryClass<TSchema extends Record<string, unknown>> {
     return this.sqlConnection;
   }
 
-  public getDatabase(mode: 'read' | 'write' = 'write'): NeonHttpDatabase<TSchema> {
+  public getDatabase(mode: 'read' | 'write' = 'write'): NodePgDatabase<TSchema> {
     if (mode === 'read') {
       return this.getReplicaDatabase();
     }
@@ -224,14 +224,17 @@ class DatabaseConnectionFactoryClass<TSchema extends Record<string, unknown>> {
         span.setAttribute('db.service', this.config.serviceName);
       }
       try {
-        const sql = this.getSQLConnection();
-        this.dbConnection = drizzle(sql, { schema: this.config.schema }) as NeonHttpDatabase<TSchema>;
+        const pool = this.getSQLConnection();
+        this.dbConnection = drizzle(pool, { schema: this.config.schema }) as NodePgDatabase<TSchema>;
         this.logger.debug('Drizzle database connection established');
         this.logTracingStatus();
         if (span) span.setStatus({ code: otelApi!.SpanStatusCode.OK });
       } catch (error: unknown) {
         if (span) {
-          span.setStatus({ code: otelApi!.SpanStatusCode.ERROR, message: error instanceof Error ? error.message : 'unknown' });
+          span.setStatus({
+            code: otelApi!.SpanStatusCode.ERROR,
+            message: error instanceof Error ? error.message : 'unknown',
+          });
           span.recordException(error);
         }
         this.logger.error('Drizzle connection failed', {
@@ -246,7 +249,7 @@ class DatabaseConnectionFactoryClass<TSchema extends Record<string, unknown>> {
     return this.dbConnection;
   }
 
-  private getReplicaDatabase(): NeonHttpDatabase<TSchema> {
+  private getReplicaDatabase(): NodePgDatabase<TSchema> {
     const replicaConnStr = this.getReplicaConnectionString();
 
     if (this.usesSameConnection) {
@@ -255,10 +258,10 @@ class DatabaseConnectionFactoryClass<TSchema extends Record<string, unknown>> {
 
     if (!this.replicaDbConnection) {
       try {
-        this.replicaSqlConnection = neon(replicaConnStr);
+        this.replicaSqlConnection = this.createPool(replicaConnStr);
         this.replicaDbConnection = drizzle(this.replicaSqlConnection, {
           schema: this.config.schema,
-        }) as NeonHttpDatabase<TSchema>;
+        }) as NodePgDatabase<TSchema>;
         this.logger.info('Read replica Drizzle connection established');
       } catch (error) {
         this.logger.error('Read replica connection failed, falling back to primary', {
@@ -275,7 +278,7 @@ class DatabaseConnectionFactoryClass<TSchema extends Record<string, unknown>> {
     return new RepositoryClass(sql);
   }
 
-  public createDrizzleRepository<T>(RepositoryClass: new (db: NeonHttpDatabase<TSchema>) => T): T {
+  public createDrizzleRepository<T>(RepositoryClass: new (db: NodePgDatabase<TSchema>) => T): T {
     const db = this.getDatabase();
     return new RepositoryClass(db);
   }
@@ -292,11 +295,13 @@ class DatabaseConnectionFactoryClass<TSchema extends Record<string, unknown>> {
     if (this.isClosed) return;
     this.isClosed = true;
     this.logger.info('Closing database connections', { serviceName: this.config.serviceName });
+    if (this.sqlConnection) await this.sqlConnection.end();
+    if (this.replicaSqlConnection && !this.usesSameConnection) await this.replicaSqlConnection.end();
     this.sqlConnection = null;
     this.dbConnection = null;
     this.replicaSqlConnection = null;
     this.replicaDbConnection = null;
-    this.logger.info('Database connections closed (Neon HTTP — stateless, references released)', {
+    this.logger.info('Database connection pools closed', {
       serviceName: this.config.serviceName,
     });
   }
@@ -330,9 +335,9 @@ export function createDatabaseConnectionFactory<TSchema extends Record<string, u
     getSQLConnection: () => getInstance().getSQLConnection(),
     createSQLRepository: <T>(RepositoryClass: new (sql: SQLConnection) => T) =>
       getInstance().createSQLRepository(RepositoryClass),
-    createDrizzleRepository: <T>(RepositoryClass: new (db: NeonHttpDatabase<TSchema>) => T) =>
+    createDrizzleRepository: <T>(RepositoryClass: new (db: NodePgDatabase<TSchema>) => T) =>
       getInstance().createDrizzleRepository(RepositoryClass),
-    createDrizzleRepositoryRead: <T>(RepositoryClass: new (db: NeonHttpDatabase<TSchema>) => T) =>
+    createDrizzleRepositoryRead: <T>(RepositoryClass: new (db: NodePgDatabase<TSchema>) => T) =>
       new RepositoryClass(getInstance().getDatabase('read')),
     reset: () => {
       const instance = factoryInstances.get(config.serviceName);

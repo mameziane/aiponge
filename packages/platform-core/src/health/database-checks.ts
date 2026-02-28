@@ -1,7 +1,7 @@
 /**
  * Database Health Checks
  *
- * Database connection testing utilities
+ * Database connection testing utilities using standard pg driver
  */
 
 import { ComponentHealth } from './types';
@@ -16,45 +16,17 @@ interface HealthCheckRow {
  */
 export class DatabaseHealthChecker {
   /**
-   * Check if URL is a Neon database URL
-   */
-  static isNeonUrl(connectionString: string): boolean {
-    return (
-      connectionString.includes('neon.database.azure.com') ||
-      connectionString.includes('neon.tech') ||
-      connectionString.includes('ep-') ||
-      connectionString.includes('.pooler.neon.tech')
-    );
-  }
-
-  /**
-   * Execute health check using Neon serverless driver
-   */
-  static async executeNeonHealthCheck(databaseUrl: string): Promise<HealthCheckRow[]> {
-    try {
-      if (typeof global !== 'undefined' && !global.WebSocket) {
-        const ws = await import('ws');
-        (global as unknown as Record<string, unknown>).WebSocket = ws.default;
-      }
-
-      const { neon } = await import('@neondatabase/serverless');
-      const sql = neon(databaseUrl);
-      return (await sql`SELECT 1 as health_check, NOW() as check_time`) as unknown as HealthCheckRow[];
-    } catch (_error) {
-      return this.executePgHealthCheck(databaseUrl);
-    }
-  }
-
-  /**
    * Execute health check using standard pg driver
    */
   static async executePgHealthCheck(databaseUrl: string): Promise<HealthCheckRow[]> {
     const { Pool } = await import('pg');
+    const isLocal = databaseUrl.includes('localhost') || databaseUrl.includes('127.0.0.1');
     const pool = new Pool({
       connectionString: databaseUrl,
       max: 1,
       idleTimeoutMillis: 1000,
       connectionTimeoutMillis: 5000,
+      ssl: isLocal ? false : { rejectUnauthorized: false },
     });
 
     try {
@@ -70,14 +42,7 @@ export class DatabaseHealthChecker {
     }
   }
 
-  /**
-   * Check database health with actual connection test
-   */
-  private static getProvider(databaseUrl: string): string {
-    return this.isNeonUrl(databaseUrl) ? 'neon-postgresql' : 'postgresql';
-  }
-
-  private static buildHealthyResult(databaseUrl: string, responseTime: number, result: HealthCheckRow[]): ComponentHealth {
+  private static buildHealthyResult(responseTime: number, result: HealthCheckRow[]): ComponentHealth {
     return {
       status: 'healthy',
       responseTimeMs: responseTime,
@@ -85,12 +50,12 @@ export class DatabaseHealthChecker {
         configured: true,
         connectionTest: 'passed',
         checkTime: result[0]?.check_time || new Date().toISOString(),
-        provider: this.getProvider(databaseUrl),
+        provider: 'postgresql',
       },
     };
   }
 
-  private static buildUnhealthyResult(databaseUrl: string, responseTime: number): ComponentHealth {
+  private static buildUnhealthyResult(responseTime: number): ComponentHealth {
     return {
       status: 'unhealthy',
       responseTimeMs: responseTime,
@@ -98,12 +63,12 @@ export class DatabaseHealthChecker {
       metadata: {
         configured: true,
         connectionTest: 'failed',
-        provider: this.getProvider(databaseUrl),
+        provider: 'postgresql',
       },
     };
   }
 
-  private static buildErrorResult(databaseUrl: string, responseTime: number, error: unknown): ComponentHealth {
+  private static buildErrorResult(responseTime: number, error: unknown): ComponentHealth {
     const errorMessage = error instanceof Error ? error.message : 'Unknown database error';
     const isTimeout = errorMessage.includes('timeout') || errorMessage.includes('TIMEOUT');
 
@@ -115,7 +80,7 @@ export class DatabaseHealthChecker {
         configured: true,
         connectionTest: 'failed',
         errorType: isTimeout ? 'timeout' : 'unknown',
-        provider: this.getProvider(databaseUrl),
+        provider: 'postgresql',
       },
     };
   }
@@ -142,20 +107,18 @@ export class DatabaseHealthChecker {
         setTimeout(() => reject(new Error('Database health check timeout')), timeoutMs);
       });
 
-      const healthCheckPromise = this.isNeonUrl(databaseUrl)
-        ? this.executeNeonHealthCheck(databaseUrl)
-        : this.executePgHealthCheck(databaseUrl);
+      const healthCheckPromise = this.executePgHealthCheck(databaseUrl);
 
       const result = await Promise.race([healthCheckPromise, timeoutPromise]);
       const responseTime = Date.now() - startTime;
 
       if (result && result.length > 0) {
-        return this.buildHealthyResult(databaseUrl, responseTime, result);
+        return this.buildHealthyResult(responseTime, result);
       } else {
-        return this.buildUnhealthyResult(databaseUrl, responseTime);
+        return this.buildUnhealthyResult(responseTime);
       }
     } catch (error) {
-      return this.buildErrorResult(databaseUrl, Date.now() - startTime, error);
+      return this.buildErrorResult(Date.now() - startTime, error);
     }
   }
 }

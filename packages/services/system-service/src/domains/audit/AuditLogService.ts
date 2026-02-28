@@ -32,7 +32,7 @@ export interface AuditQueryParams {
 }
 
 export class AuditLogService {
-  constructor(private readonly db: ReturnType<typeof import('drizzle-orm/neon-http').drizzle>) {}
+  constructor(private readonly db: import('drizzle-orm/node-postgres').NodePgDatabase<Record<string, unknown>>) {}
 
   async recordAudit(params: RecordAuditParams): Promise<AuditLogEntry> {
     const [entry] = await this.db

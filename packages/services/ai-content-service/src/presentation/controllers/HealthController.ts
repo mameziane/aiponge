@@ -221,8 +221,8 @@ export class HealthController {
 
     try {
       const { getSQLConnection } = await import('../../infrastructure/database/DatabaseConnectionFactory');
-      const sql = getSQLConnection();
-      await sql`SELECT 1`;
+      const pool = getSQLConnection();
+      await pool.query('SELECT 1');
 
       const responseTime = Date.now() - startTime;
 

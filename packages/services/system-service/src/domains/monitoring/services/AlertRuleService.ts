@@ -43,7 +43,7 @@ export interface EvaluationContext {
 }
 
 export class AlertRuleService {
-  constructor(private readonly db: ReturnType<typeof import('drizzle-orm/neon-http').drizzle>) {}
+  constructor(private readonly db: import('drizzle-orm/node-postgres').NodePgDatabase<Record<string, unknown>>) {}
 
   async createRule(params: CreateAlertRuleParams): Promise<AlertRule> {
     const [rule] = await this.db

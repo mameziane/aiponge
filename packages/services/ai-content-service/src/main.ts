@@ -31,13 +31,7 @@ import {
   initResponseHelpers,
 } from '@aiponge/platform-core';
 import { contractRegistry, CURRENT_CONTRACT_VERSION } from '@aiponge/shared-contracts';
-import ws from 'ws';
 import express from 'express';
-
-// Configure Neon to use ws for WebSocket connections
-if (typeof global !== 'undefined') {
-  (global as Record<string, unknown>).WebSocket = ws;
-}
 
 // Configuration
 import { contentServiceConfig, validateConfig } from './config/service-config';
@@ -82,7 +76,6 @@ import { startConfigEventSubscriber } from './infrastructure/events/ConfigEventS
 
 // Database schema
 import * as schema from './schema/content-schema';
-import { drizzle } from 'drizzle-orm/neon-http';
 import { eq } from 'drizzle-orm';
 initSentry('ai-content-service');
 
@@ -168,7 +161,11 @@ async function main(): Promise<void> {
     const templateClient = new TemplateServiceClient();
 
     // Initialize domain services
-    const contentAIService = new ContentAIService(providersServiceClient as unknown as ConstructorParameters<typeof ContentAIService>[0], undefined, templateClient);
+    const contentAIService = new ContentAIService(
+      providersServiceClient as unknown as ConstructorParameters<typeof ContentAIService>[0],
+      undefined,
+      templateClient
+    );
     const contentTemplateService = new ContentTemplateService(getDatabase());
 
     // Initialize use cases

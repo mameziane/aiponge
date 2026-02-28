@@ -6,13 +6,13 @@
  */
 
 import { createDatabaseConnectionFactory, createLogger, type SQLConnection } from '@aiponge/platform-core';
-import type { NeonHttpDatabase } from 'drizzle-orm/neon-http';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as schema from '../../schema/storage-schema';
 
 const logger = createLogger('storage-service-database');
 
 export type DatabaseSchema = typeof schema;
-export type DatabaseConnection = NeonHttpDatabase<DatabaseSchema>;
+export type DatabaseConnection = NodePgDatabase<DatabaseSchema>;
 export { SQLConnection };
 
 const factory = createDatabaseConnectionFactory({
@@ -64,19 +64,19 @@ export class DatabaseConnectionFactory {
   }> {
     const startTime = Date.now();
     try {
-      const sql = factory.getSQLConnection();
-      await sql`SELECT 1`;
+      const pool = factory.getSQLConnection();
+      await pool.query('SELECT 1');
       return {
         status: 'healthy',
         latencyMs: Date.now() - startTime,
-        driver: 'neon-http',
+        driver: 'node-postgres',
       };
     } catch (error) {
       logger.error('Health check failed', { error: error instanceof Error ? error.message : String(error) });
       return {
         status: 'unhealthy',
         latencyMs: Date.now() - startTime,
-        driver: 'neon-http',
+        driver: 'node-postgres',
       };
     }
   }

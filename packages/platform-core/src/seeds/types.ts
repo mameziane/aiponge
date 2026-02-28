@@ -1,7 +1,7 @@
-import type { NeonHttpDatabase } from 'drizzle-orm/neon-http';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 export interface SeedContext {
-  db: NeonHttpDatabase<Record<string, unknown>>;
+  db: NodePgDatabase<Record<string, unknown>>;
   databaseUrl: string;
   verbose: boolean;
 }
