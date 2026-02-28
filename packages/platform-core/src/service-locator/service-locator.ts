@@ -40,17 +40,32 @@ export class ServiceLocator {
       // Load from generated service manifest (CommonJS-compatible).
       // Try two paths: the first works when running from built dist/ (production bundle),
       // the second works when running via tsx directly from src/ (development).
-      let rawManifest: { services: { name: string; port: number; host?: string; healthEndpoint?: string; type?: ServiceDefinition['type']; tier?: ServiceDefinition['tier']; resources?: ServiceDefinition['resources'] }[] } | null = null;
+      let rawManifest: {
+        services: {
+          name: string;
+          port: number;
+          host?: string;
+          healthEndpoint?: string;
+          type?: ServiceDefinition['type'];
+          tier?: ServiceDefinition['tier'];
+          resources?: ServiceDefinition['resources'];
+        }[];
+      } | null = null;
       const candidatePaths = [
-        '../../shared/service-manifest.cjs',   // production: dist/ is 2 levels above packages/shared/
+        '../../shared/service-manifest.cjs', // production: dist/ is 2 levels above packages/shared/
         '../../../shared/service-manifest.cjs', // development: src/service-locator/ is 3 levels above packages/shared/
       ];
       for (const p of candidatePaths) {
-        try { rawManifest = require(p); break; } catch { /* try next */ }
+        try {
+          rawManifest = require(p);
+          break;
+        } catch {
+          /* try next */
+        }
       }
       if (!rawManifest) throw new Error('Service manifest not found at any candidate path');
       const manifest = rawManifest;
-      defaultServices = manifest.services.map((s) => ({
+      defaultServices = manifest.services.map(s => ({
         name: s.name,
         port: s.port,
         host: s.host || this.options.defaultHost,
@@ -130,6 +145,11 @@ export class ServiceLocator {
    */
   static getServiceUrl(serviceName: string): string {
     this.ensureInitialized();
+
+    // Check for explicit URL env var first (e.g. USER_SERVICE_URL for Railway/cloud deployments)
+    const envVar = `${serviceName.toUpperCase().replace(/-/g, '_')}_URL`;
+    const envUrl = process.env[envVar];
+    if (envUrl) return envUrl;
 
     const service = this.services.get(serviceName);
     if (!service) {

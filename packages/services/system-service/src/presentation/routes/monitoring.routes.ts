@@ -6,7 +6,11 @@ import { healthChecks, healthCheckResults, alerts, systemConfig, platformMetrics
 import { eq, desc, gte, and, count } from 'drizzle-orm';
 import { SchedulerRegistry, serializeError, createIntervalScheduler } from '@aiponge/platform-core';
 import type { IntervalScheduler } from '@aiponge/platform-core';
-import { MetricsAggregateService, type MetricType, type AggregationWindow } from '../../domains/monitoring/services/MetricsAggregateService';
+import {
+  MetricsAggregateService,
+  type MetricType,
+  type AggregationWindow,
+} from '../../domains/monitoring/services/MetricsAggregateService';
 import { AlertRuleService } from '../../domains/monitoring/services/AlertRuleService';
 
 const db = getDatabase('monitoring-index');
@@ -67,15 +71,29 @@ async function setSchedulerEnabled(enabled: boolean, userId?: string): Promise<v
   }
 }
 
+function resolveServiceHost(serviceName: string, defaultPort: number): { host: string; port: number } {
+  const envVar = `${serviceName.toUpperCase().replace(/-/g, '_')}_URL`;
+  const urlStr = process.env[envVar];
+  if (urlStr) {
+    try {
+      const url = new URL(urlStr);
+      return { host: url.hostname, port: parseInt(url.port) || defaultPort };
+    } catch {
+      /* fall through */
+    }
+  }
+  return { host: 'localhost', port: defaultPort };
+}
+
 const SERVICES_TO_CHECK = [
-  { name: 'system-service', host: 'localhost', port: 3001, healthEndpoint: '/health' },
-  { name: 'storage-service', host: 'localhost', port: 3002, healthEndpoint: '/health' },
-  { name: 'user-service', host: 'localhost', port: 3003, healthEndpoint: '/health' },
-  { name: 'ai-config-service', host: 'localhost', port: 3004, healthEndpoint: '/health' },
-  { name: 'ai-content-service', host: 'localhost', port: 3005, healthEndpoint: '/health' },
-  { name: 'ai-analytics-service', host: 'localhost', port: 3006, healthEndpoint: '/health' },
-  { name: 'music-service', host: 'localhost', port: 3007, healthEndpoint: '/health' },
-  { name: 'api-gateway', host: 'localhost', port: 8080, healthEndpoint: '/health' },
+  { name: 'system-service', ...resolveServiceHost('system-service', 3001), healthEndpoint: '/health' },
+  { name: 'storage-service', ...resolveServiceHost('storage-service', 3002), healthEndpoint: '/health' },
+  { name: 'user-service', ...resolveServiceHost('user-service', 3003), healthEndpoint: '/health' },
+  { name: 'ai-config-service', ...resolveServiceHost('ai-config-service', 3004), healthEndpoint: '/health' },
+  { name: 'ai-content-service', ...resolveServiceHost('ai-content-service', 3005), healthEndpoint: '/health' },
+  { name: 'ai-analytics-service', ...resolveServiceHost('ai-analytics-service', 3006), healthEndpoint: '/health' },
+  { name: 'music-service', ...resolveServiceHost('music-service', 3007), healthEndpoint: '/health' },
+  { name: 'api-gateway', ...resolveServiceHost('api-gateway', 8080), healthEndpoint: '/health' },
 ];
 
 interface HealthCheckResult {
