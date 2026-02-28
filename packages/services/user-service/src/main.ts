@@ -29,7 +29,11 @@ import { MIGRATION_RETRY_QUEUE } from './infrastructure/schedulers/MigrationRetr
 import { processOrphanedReservationCleanupJob } from './infrastructure/jobs/orphanedReservationCleanupProcessor';
 import { processMigrationRetryJob } from './infrastructure/jobs/migrationRetryProcessor';
 import './infrastructure/jobs/PatternAnalysisJob';
-import { DatabaseConnectionFactory, getDatabase, createDrizzleRepository } from './infrastructure/database/DatabaseConnectionFactory';
+import {
+  DatabaseConnectionFactory,
+  getDatabase,
+  createDrizzleRepository,
+} from './infrastructure/database/DatabaseConnectionFactory';
 import { DrizzleAuditPersister } from './infrastructure/audit/DrizzleAuditPersister.js';
 import * as userSchema from './infrastructure/database/schemas/user-schema';
 import * as profileSchema from './infrastructure/database/schemas/profile-schema';
@@ -68,7 +72,7 @@ logger.info('Starting user-service...', {
 });
 
 const app = express();
-const port = getServicePort('user-service') || 3003;
+const port = Number(process.env.PORT || getServicePort('user-service') || 3003);
 
 // Middleware
 app.use(helmet());
@@ -185,7 +189,9 @@ async function startServer() {
   await validateSchemaAtStartup();
 
   const db = getDatabase();
-  const auditPersister = new DrizzleAuditPersister(db as unknown as ConstructorParameters<typeof DrizzleAuditPersister>[0]);
+  const auditPersister = new DrizzleAuditPersister(
+    db as unknown as ConstructorParameters<typeof DrizzleAuditPersister>[0]
+  );
   initAuditService(auditPersister);
   logger.debug('Audit service initialized with DrizzleAuditPersister');
 

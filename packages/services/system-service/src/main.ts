@@ -82,7 +82,7 @@ async function main(): Promise<void> {
 
   // Get port from ServiceLocator after initialization
   const defaultPort = ServiceLocator.getServicePort('system-service');
-  const PORT = Number(process.env.SYSTEM_SERVICE_PORT || defaultPort);
+  const PORT = Number(process.env.PORT || process.env.SYSTEM_SERVICE_PORT || defaultPort);
 
   try {
     await initTracing({ serviceName: SERVICE_NAME, serviceVersion: '1.0.0' });
