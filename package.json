@@ -4,8 +4,7 @@
   "private": true,
   "packageManager": "npm@11.11.0",
   "engines": {
-    "node": ">=20.19.0",
-    "npm": ">=11.6.3"
+    "node": ">=20.19.0"
   },
   "overrides": {
     "use-latest-callback": "^0.2.1",
