@@ -73,13 +73,25 @@ function extractColumnsFromDrizzleTable(table: unknown): Set<string> {
 }
 
 async function fetchDatabaseColumns(sql: SQLConnection): Promise<Map<string, Set<string>>> {
-  const result = await sql.query(
-    `SELECT table_name, column_name, data_type
+  const queryStr = `SELECT table_name, column_name, data_type
     FROM information_schema.columns
     WHERE table_schema = 'public'
-    ORDER BY table_name, ordinal_position`
-  );
-  const dbColumnsResult = result.rows as Array<{ table_name: string; column_name: string; data_type: string }>;
+    ORDER BY table_name, ordinal_position`;
+
+  let dbColumnsResult: Array<{ table_name: string; column_name: string; data_type: string }>;
+
+  if (typeof (sql as unknown as Record<string, unknown>).query === 'function') {
+    // pg.Pool — returns { rows: [...] }
+    const result = await sql.query(queryStr);
+    dbColumnsResult = result.rows as Array<{ table_name: string; column_name: string; data_type: string }>;
+  } else if (typeof sql === 'function') {
+    // postgres.js — tagged template function with .unsafe() for raw strings
+    dbColumnsResult = (await (
+      sql as unknown as { unsafe: (q: string) => Promise<Array<Record<string, unknown>>> }
+    ).unsafe(queryStr)) as Array<{ table_name: string; column_name: string; data_type: string }>;
+  } else {
+    throw new Error('Unsupported SQL connection type for schema validation');
+  }
 
   const dbColumns = new Map<string, Set<string>>();
   for (const row of dbColumnsResult) {

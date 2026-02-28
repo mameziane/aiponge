@@ -35,6 +35,9 @@ export class DatabaseConnectionFactory {
   }
 
   private static getPoolConfig() {
+    const connectionString = process.env.USER_DATABASE_URL || process.env.DATABASE_URL || '';
+    const isLocal = connectionString.includes('localhost') || connectionString.includes('127.0.0.1');
+
     return {
       max: parseInt(
         process.env.USER_DATABASE_POOL_MAX ||
@@ -43,7 +46,7 @@ export class DatabaseConnectionFactory {
       ),
       idle_timeout: 300,
       connect_timeout: 10,
-      ssl: 'require' as const,
+      ssl: isLocal ? (false as const) : ('require' as const),
       onnotice: () => {},
       connection: {
         statement_timeout: parseInt(
