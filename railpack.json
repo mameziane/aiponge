@@ -1,0 +1,9 @@
+{
+  "$schema": "https://schema.railpack.com",
+  "provider": "node",
+  "steps": {
+    "install": {
+      "commands": ["npm install --include=dev"]
+    }
+  }
+}
