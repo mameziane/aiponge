@@ -1,0 +1,300 @@
+# Docker Compose - Shared Base Definitions
+# Contains infrastructure services and base service configs shared by dev and prod.
+# Usage:
+#   Dev:  docker compose -f docker-compose.common.yml -f docker-compose.yml up
+#   Prod: docker compose -f docker-compose.common.yml -f docker-compose.prod.yml up
+
+x-common-env: &common-env
+  DATABASE_URL: ${DATABASE_URL}
+  REDIS_URL: ${REDIS_URL:-redis://redis:6379}
+  LOG_LEVEL: ${LOG_LEVEL:-info}
+  SHUTDOWN_TIMEOUT_MS: ${SHUTDOWN_TIMEOUT_MS:-30000}
+  STATEMENT_TIMEOUT_MS: ${STATEMENT_TIMEOUT_MS:-30000}
+  DATABASE_POOL_MAX: ${DATABASE_POOL_MAX:-10}
+  KAFKA_BROKERS: kafka:29092
+  EVENT_BUS_PROVIDER: ${EVENT_BUS_PROVIDER:-redis}
+  OTEL_TRACING_ENABLED: ${OTEL_TRACING_ENABLED:-false}
+  OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-http://jaeger:4318/v1/traces}
+
+x-service-healthcheck: &service-healthcheck
+  interval: 30s
+  timeout: 10s
+  retries: 3
+  start_period: 40s
+
+networks:
+  aiponge-network:
+    driver: bridge
+
+services:
+  system-service:
+    container_name: aiponge-system-service
+    ports:
+      - "${SYSTEM_SERVICE_PORT:-3001}:3001"
+    environment:
+      <<: *common-env
+      SERVICE_NAME: system-service
+      PORT: "3001"
+      SYSTEM_DATABASE_URL: ${SYSTEM_DATABASE_URL:-${DATABASE_URL}}
+    networks:
+      - aiponge-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      <<: *service-healthcheck
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+
+  storage-service:
+    container_name: aiponge-storage-service
+    ports:
+      - "${STORAGE_SERVICE_PORT:-3002}:3002"
+    environment:
+      <<: *common-env
+      SERVICE_NAME: storage-service
+      PORT: "3002"
+      STORAGE_DATABASE_URL: ${STORAGE_DATABASE_URL:-${DATABASE_URL}}
+      REDIS_CLUSTER_NODES: ${REDIS_CLUSTER_NODES:-}
+    networks:
+      - aiponge-network
+    depends_on:
+      - system-service
+    restart: unless-stopped
+    healthcheck:
+      <<: *service-healthcheck
+      test: ["CMD", "curl", "-f", "http://localhost:3002/health"]
+
+  user-service:
+    container_name: aiponge-user-service
+    ports:
+      - "${USER_SERVICE_PORT:-3003}:3003"
+    environment:
+      <<: *common-env
+      SERVICE_NAME: user-service
+      PORT: "3003"
+      USER_DATABASE_URL: ${USER_DATABASE_URL:-${DATABASE_URL}}
+      USER_DATABASE_REPLICA_URL: ${USER_DATABASE_REPLICA_URL:-}
+    networks:
+      - aiponge-network
+    depends_on:
+      - system-service
+    restart: unless-stopped
+    healthcheck:
+      <<: *service-healthcheck
+      test: ["CMD", "curl", "-f", "http://localhost:3003/health"]
+
+  ai-config-service:
+    container_name: aiponge-ai-config-service
+    ports:
+      - "${AI_CONFIG_SERVICE_PORT:-3004}:3004"
+    environment:
+      <<: *common-env
+      SERVICE_NAME: ai-config-service
+      PORT: "3004"
+      AI_CONFIG_DATABASE_URL: ${AI_CONFIG_DATABASE_URL:-${DATABASE_URL}}
+      REDIS_CLUSTER_NODES: ${REDIS_CLUSTER_NODES:-}
+      CACHE_TTL_DEFAULT: ${CACHE_TTL_DEFAULT:-300}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+    networks:
+      - aiponge-network
+    depends_on:
+      - system-service
+    restart: unless-stopped
+    healthcheck:
+      <<: *service-healthcheck
+      test: ["CMD", "curl", "-f", "http://localhost:3004/health"]
+
+  ai-content-service:
+    container_name: aiponge-ai-content-service
+    ports:
+      - "${AI_CONTENT_SERVICE_PORT:-3005}:3005"
+    environment:
+      <<: *common-env
+      SERVICE_NAME: ai-content-service
+      PORT: "3005"
+      AI_CONTENT_DATABASE_URL: ${AI_CONTENT_DATABASE_URL:-${DATABASE_URL}}
+    networks:
+      - aiponge-network
+    depends_on:
+      - system-service
+      - ai-config-service
+    restart: unless-stopped
+    healthcheck:
+      <<: *service-healthcheck
+      test: ["CMD", "curl", "-f", "http://localhost:3005/health"]
+
+  ai-analytics-service:
+    container_name: aiponge-ai-analytics-service
+    ports:
+      - "${AI_ANALYTICS_SERVICE_PORT:-3006}:3006"
+    environment:
+      <<: *common-env
+      SERVICE_NAME: ai-analytics-service
+      PORT: "3006"
+      AI_ANALYTICS_DATABASE_URL: ${AI_ANALYTICS_DATABASE_URL:-${DATABASE_URL}}
+      REDIS_CLUSTER_NODES: ${REDIS_CLUSTER_NODES:-}
+    networks:
+      - aiponge-network
+    depends_on:
+      - system-service
+    restart: unless-stopped
+    healthcheck:
+      <<: *service-healthcheck
+      test: ["CMD", "curl", "-f", "http://localhost:3006/health"]
+
+  music-service:
+    container_name: aiponge-music-service
+    ports:
+      - "${MUSIC_SERVICE_PORT:-3007}:3007"
+    environment:
+      <<: *common-env
+      SERVICE_NAME: music-service
+      PORT: "3007"
+      MUSIC_DATABASE_URL: ${MUSIC_DATABASE_URL:-${DATABASE_URL}}
+      REDIS_CLUSTER_NODES: ${REDIS_CLUSTER_NODES:-}
+      QUEUE_WORKER_CONCURRENCY: ${QUEUE_WORKER_CONCURRENCY:-5}
+      CACHE_TTL_DEFAULT: ${CACHE_TTL_DEFAULT:-300}
+      MUSICAPI_API_KEY: ${MUSICAPI_API_KEY}
+      ELEVENLABS_API_KEY: ${ELEVENLABS_API_KEY}
+    networks:
+      - aiponge-network
+    depends_on:
+      - system-service
+      - ai-config-service
+      - storage-service
+    restart: unless-stopped
+    healthcheck:
+      <<: *service-healthcheck
+      test: ["CMD", "curl", "-f", "http://localhost:3007/health"]
+
+  api-gateway:
+    container_name: aiponge-api-gateway
+    ports:
+      - "${API_GATEWAY_PORT:-8080}:8080"
+    environment:
+      <<: *common-env
+      SERVICE_NAME: api-gateway
+      PORT: "8080"
+      SYSTEM_SERVICE_URL: http://system-service:3001
+      STORAGE_SERVICE_URL: http://storage-service:3002
+      USER_SERVICE_URL: http://user-service:3003
+      AI_CONFIG_SERVICE_URL: http://ai-config-service:3004
+      AI_CONTENT_SERVICE_URL: http://ai-content-service:3005
+      AI_ANALYTICS_SERVICE_URL: http://ai-analytics-service:3006
+      MUSIC_SERVICE_URL: http://music-service:3007
+      MAINTENANCE_MODE: ${MAINTENANCE_MODE:-false}
+      MAINTENANCE_RETRY_AFTER: ${MAINTENANCE_RETRY_AFTER:-300}
+      MAINTENANCE_MESSAGE: ${MAINTENANCE_MESSAGE:-}
+      SSE_HEARTBEAT_MS: ${SSE_HEARTBEAT_MS:-30000}
+      RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS:-900000}
+      RATE_LIMIT_MAX_REQUESTS: ${RATE_LIMIT_MAX_REQUESTS:-100}
+      RATE_LIMIT_AUTH_MAX: ${RATE_LIMIT_AUTH_MAX:-20}
+      RATE_LIMIT_STRICT_MAX: ${RATE_LIMIT_STRICT_MAX:-10}
+      RATE_LIMIT_LENIENT_MAX: ${RATE_LIMIT_LENIENT_MAX:-200}
+      BODY_SIZE_LIMIT: ${BODY_SIZE_LIMIT:-10mb}
+      SENTRY_TRACES_SAMPLE_RATE: ${SENTRY_TRACES_SAMPLE_RATE:-0.1}
+      REDIS_CLUSTER_NODES: ${REDIS_CLUSTER_NODES:-}
+      CACHE_TTL_DEFAULT: ${CACHE_TTL_DEFAULT:-300}
+    networks:
+      - aiponge-network
+    depends_on:
+      - system-service
+      - user-service
+      - music-service
+    restart: unless-stopped
+    healthcheck:
+      <<: *service-healthcheck
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: aiponge-postgres
+    ports:
+      - "${POSTGRESQL_PORT:-5432}:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-aiponge}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - aiponge-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    volumes:
+      - zookeeper-data:/var/lib/zookeeper/data
+    networks:
+      - aiponge-network
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "2181"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.0
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    networks:
+      - aiponge-network
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD", "kafka-topics", "--bootstrap-server", "localhost:9092", "--list"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: aiponge-redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    networks:
+      - aiponge-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+  storage-data:
+    driver: local
+  kafka-data:
+    driver: local
+  zookeeper-data:
+    driver: local

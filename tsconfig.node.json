@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    // Node-specific compiler options
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "lib": ["ES2022"],
+    "types": ["node"],
+
+    // Build info for node projects
+    "tsBuildInfoFile": "./node_modules/.cache/typescript/node.tsbuildinfo"
+  }
+}

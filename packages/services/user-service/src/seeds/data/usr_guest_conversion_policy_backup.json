@@ -1,0 +1,11 @@
+[
+  {
+    "id": 1,
+    "policy_name": "default",
+    "songs_threshold": 1,
+    "tracks_threshold": 5,
+    "entries_created_threshold": 3,
+    "cooldown_hours": 24,
+    "is_active": true
+  }
+]

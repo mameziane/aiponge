@@ -1,0 +1,83 @@
+[
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440180",
+    "service_name": "api-gateway",
+    "check_type": "http",
+    "endpoint": "http://localhost:3001/health",
+    "interval_seconds": 30,
+    "timeout_ms": 5000,
+    "retry_count": 2,
+    "is_enabled": true,
+    "metadata": {
+      "critical": true,
+      "alert_on_failure": true
+    }
+  },
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440181",
+    "service_name": "user-service",
+    "check_type": "http",
+    "endpoint": "http://localhost:3003/health",
+    "interval_seconds": 30,
+    "timeout_ms": 5000,
+    "retry_count": 2,
+    "is_enabled": true,
+    "metadata": {
+      "critical": true,
+      "alert_on_failure": true
+    }
+  },
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440182",
+    "service_name": "ai-service",
+    "check_type": "http",
+    "endpoint": "http://localhost:3004/health",
+    "interval_seconds": 60,
+    "timeout_ms": 10000,
+    "retry_count": 1,
+    "is_enabled": true,
+    "metadata": {
+      "critical": false,
+      "alert_on_failure": false
+    }
+  },
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440183",
+    "service_name": "music-service",
+    "check_type": "http",
+    "endpoint": "http://localhost:3005/health",
+    "interval_seconds": 30,
+    "timeout_ms": 5000,
+    "retry_count": 2,
+    "is_enabled": true,
+    "metadata": {
+      "critical": true,
+      "alert_on_failure": true
+    }
+  },
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440184",
+    "service_name": "storage-service",
+    "check_type": "http",
+    "endpoint": "http://localhost:3006/health",
+    "interval_seconds": 45,
+    "timeout_ms": 8000,
+    "retry_count": 2,
+    "is_enabled": true,
+    "metadata": {
+      "critical": false,
+      "alert_on_failure": true
+    }
+  },
+  {
+    "id": "409e35e7-df5f-4417-88e1-de30b8126072",
+    "service_name": "test-crud-service",
+    "check_type": "http",
+    "endpoint": "http://localhost:9999/health",
+    "interval_seconds": 120,
+    "timeout_ms": 10000,
+    "retry_count": 3,
+    "is_enabled": false,
+    "metadata": null
+  }
+]

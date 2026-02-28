@@ -1,0 +1,96 @@
+{
+  "name": "@aiponge/shared-contracts",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "typecheck": "tsc --noEmit",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@aiponge/platform-core": "*",
+    "zod": "^3.22.4"
+  },
+  "exports": {
+    ".": {
+      "react-native": "./src/index.ts",
+      "development": "./src/index.ts",
+      "types": "./src/index.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./events": {
+      "react-native": "./src/events/index.ts",
+      "development": "./src/events/index.ts",
+      "types": "./src/events/index.ts",
+      "import": "./dist/events/index.js",
+      "default": "./dist/events/index.js"
+    },
+    "./credits": {
+      "react-native": "./src/credits/index.ts",
+      "development": "./src/credits/index.ts",
+      "types": "./src/credits/index.ts",
+      "import": "./dist/credits/index.js",
+      "default": "./dist/credits/index.js"
+    },
+    "./providers": {
+      "react-native": "./src/providers/index.ts",
+      "development": "./src/providers/index.ts",
+      "types": "./src/providers/index.ts",
+      "import": "./dist/providers/index.js",
+      "default": "./dist/providers/index.js"
+    },
+    "./templates": {
+      "react-native": "./src/templates/index.ts",
+      "development": "./src/templates/index.ts",
+      "types": "./src/templates/index.ts",
+      "import": "./dist/templates/index.js",
+      "default": "./dist/templates/index.js"
+    },
+    "./common": {
+      "react-native": "./src/common/index.ts",
+      "development": "./src/common/index.ts",
+      "types": "./src/common/index.ts",
+      "import": "./dist/common/index.js",
+      "default": "./dist/common/index.js"
+    },
+    "./storage": {
+      "react-native": "./src/storage/index.ts",
+      "development": "./src/storage/index.ts",
+      "types": "./src/storage/index.ts",
+      "import": "./dist/storage/index.js",
+      "default": "./dist/storage/index.js"
+    },
+    "./api": {
+      "react-native": "./src/api/index.ts",
+      "development": "./src/api/index.ts",
+      "types": "./src/api/index.ts",
+      "import": "./dist/api/index.js",
+      "default": "./dist/api/index.js"
+    },
+    "./api/input-schemas": {
+      "react-native": "./src/api/input-schemas.ts",
+      "development": "./src/api/input-schemas.ts",
+      "types": "./src/api/input-schemas.ts",
+      "import": "./dist/api/input-schemas.js",
+      "default": "./dist/api/input-schemas.js"
+    },
+    "./safety": {
+      "react-native": "./src/safety/index.ts",
+      "development": "./src/safety/index.ts",
+      "types": "./src/safety/index.ts",
+      "import": "./dist/safety/index.js",
+      "default": "./dist/safety/index.js"
+    },
+    "./versioning": {
+      "react-native": "./src/versioning/index.ts",
+      "development": "./src/versioning/index.ts",
+      "types": "./src/versioning/index.ts",
+      "import": "./dist/versioning/index.js",
+      "default": "./dist/versioning/index.js"
+    }
+  }
+}

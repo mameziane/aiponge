@@ -1,0 +1,39 @@
+{
+  "health_check": {
+    "http_req_duration": ["p(95)<200", "p(99)<500"],
+    "http_req_failed": ["rate<0.01"],
+    "http_reqs": ["rate>100"]
+  },
+  "auth_flow": {
+    "http_req_duration": ["p(95)<1000", "p(99)<2000"],
+    "http_req_failed": ["rate<0.05"],
+    "auth_register_duration": ["p(95)<1500"],
+    "auth_login_duration": ["p(95)<800"],
+    "auth_refresh_duration": ["p(95)<300"]
+  },
+  "library_browsing": {
+    "http_req_duration": ["p(95)<500", "p(99)<1500"],
+    "http_req_failed": ["rate<0.05"],
+    "library_list_duration": ["p(95)<600"],
+    "library_detail_duration": ["p(95)<400"]
+  },
+  "music_generation": {
+    "http_req_duration": ["p(95)<2000", "p(99)<5000"],
+    "http_req_failed": ["rate<0.10"],
+    "music_request_duration": ["p(95)<3000"],
+    "music_poll_duration": ["p(95)<500"]
+  },
+  "full_scenario": {
+    "http_req_duration": ["p(95)<1500", "p(99)<3000"],
+    "http_req_failed": ["rate<0.05"],
+    "vus": ["value>0"]
+  },
+  "music_generation_async": {
+    "http_req_duration": ["p(95)<3000", "p(99)<5000"],
+    "http_req_failed": ["rate<0.10"]
+  },
+  "cached_metadata": {
+    "http_req_duration": ["p(95)<100", "p(99)<200"],
+    "http_req_failed": ["rate<0.01"]
+  }
+}

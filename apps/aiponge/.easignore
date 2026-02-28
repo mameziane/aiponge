@@ -1,0 +1,117 @@
+# Node modules and package managers
+node_modules/
+.pnpm-store/
+**/.pnpm-store/
+.local/
+**/.local/
+package-lock.json
+
+# Build outputs and caches
+.expo/
+dist/
+*.tsbuildinfo
+.turbo/
+**/.turbo/
+
+# Version control
+.git/
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment files (EAS uses eas.json secrets)
+.env
+.env.*
+!.env.production
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Infrastructure (not needed for mobile)
+infrastructure/
+
+# Scripts (not needed for mobile build)
+scripts/
+
+# Root shared folder (different from packages/shared)
+shared/
+
+# Tests
+tests/
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+jest.config.*
+coverage/
+
+# Tools
+tools/
+
+# Uploads folder
+uploads/
+
+# Root config files not needed for mobile
+drizzle.config.ts
+eslint.config.js
+eslint-local-rules.js
+turbo.json
+tsconfig.backend.json
+tsconfig.test.json
+tsconfig.node.json
+prod-start.sh
+start-dev.sh
+restart.sh
+create-dev-build.sh
+
+# Backend packages (not needed for mobile app)
+packages/auth-middleware/
+packages/bootstrap/
+packages/config-client/
+packages/correlation/
+packages/errors/
+packages/http-client/
+packages/logger/
+packages/platform-core/
+packages/resilience/
+packages/service-registry/
+
+# All backend services
+packages/services/
+
+# Workspace root directories
+../../node_modules/
+../../.local/
+../../.pnpm-store/
+../../logs/
+../../docs/
+../../infrastructure/
+../../scripts/
+../../shared/
+../../tests/
+../../tools/
+../../uploads/
+../../packages/services/
+../../packages/auth-middleware/
+../../packages/bootstrap/
+../../packages/config-client/
+../../packages/correlation/
+../../packages/errors/
+../../packages/http-client/
+../../packages/logger/
+../../packages/platform-core/
+../../packages/resilience/
+../../packages/service-registry/

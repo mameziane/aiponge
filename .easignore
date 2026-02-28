@@ -1,0 +1,130 @@
+# EAS Build Ignore - Monorepo Root
+# IMPORTANT: Run builds with EAS_NO_VCS=1 for this to work
+
+# Node modules (EAS will reinstall from package.json)
+node_modules/
+**/node_modules/
+
+# Package manager stores
+.pnpm-store/
+**/.pnpm-store/
+.local/
+**/.local/
+
+# Git (large folder)
+.git/
+.git/**
+
+# Build outputs and caches
+dist/
+**/dist/
+*.tsbuildinfo
+**/*.tsbuildinfo
+.turbo/
+**/.turbo/
+coverage/
+
+# Logs
+*.log
+**/*.log
+logs/
+
+# OS files
+.DS_Store
+**/.DS_Store
+Thumbs.db
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Uploads folder (708MB - user uploads not needed for build)
+uploads/
+uploads/**
+
+# Documentation (root level only)
+/docs/
+
+# Infrastructure (Kubernetes, Docker configs)
+/infrastructure/
+
+# Scripts (build scripts not needed in archive)
+/scripts/
+
+# Root shared folder (anchored to root, not packages/shared)
+/shared/
+
+# Tests (root level)
+/tests/
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+jest.config.*
+
+# Tools (root level)
+/tools/
+
+# Root config files not needed for mobile
+drizzle.config.ts
+eslint.config.js
+eslint-local-rules.js
+turbo.json
+tsconfig.backend.json
+tsconfig.test.json
+tsconfig.node.json
+prod-start.sh
+start-dev.sh
+restart.sh
+create-dev-build.sh
+.replit
+replit.nix
+replit.md
+.github/
+# Root app.json and eas.json conflict with apps/aiponge versions
+/app.json
+/eas.json
+
+# Backend packages (not needed for mobile app - 149MB total)
+packages/auth-middleware/
+packages/bootstrap/
+packages/config-client/
+packages/correlation/
+packages/errors/
+packages/http-client/
+packages/logger/
+packages/platform-core/
+packages/resilience/
+packages/service-registry/
+packages/tsconfig.backend.json
+
+# All backend services (8 microservices)
+packages/services/
+
+# Keep packages/shared entirely for types (required by app)
+
+# Expo cache
+.expo/
+**/.expo/
+apps/aiponge/.expo/
+
+# Environment files except production
+.env
+.env.local
+.env.development
+apps/aiponge/.env
+apps/aiponge/.env.local
+apps/aiponge/.env.development
+
+# Large media files (but keep app assets)
+uploads/**/*.mp4
+uploads/**/*.mov
+**/*.zip
+**/*.tar
+**/*.gz
+**/*.rar
+
+# Attached assets from user uploads
+attached_assets/

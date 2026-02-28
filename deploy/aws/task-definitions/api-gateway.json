@@ -1,0 +1,73 @@
+{
+  "family": "aiponge-api-gateway",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024",
+  "executionRoleArn": "arn:aws:iam::ACCOUNT_ID:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::ACCOUNT_ID:role/aiponge-task-role",
+  "containerDefinitions": [
+    {
+      "name": "api-gateway",
+      "image": "ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/aiponge-api-gateway:latest",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 8080,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        { "name": "NODE_ENV", "value": "production" },
+        { "name": "PORT", "value": "8080" },
+        { "name": "SERVICE_NAME", "value": "api-gateway" },
+        { "name": "LOG_LEVEL", "value": "info" },
+        { "name": "SYSTEM_SERVICE_URL", "value": "http://system-service.aiponge.local:3001" },
+        { "name": "STORAGE_SERVICE_URL", "value": "http://storage-service.aiponge.local:3002" },
+        { "name": "USER_SERVICE_URL", "value": "http://user-service.aiponge.local:3003" },
+        { "name": "AI_CONFIG_SERVICE_URL", "value": "http://ai-config-service.aiponge.local:3004" },
+        { "name": "AI_CONTENT_SERVICE_URL", "value": "http://ai-content-service.aiponge.local:3005" },
+        { "name": "AI_ANALYTICS_SERVICE_URL", "value": "http://ai-analytics-service.aiponge.local:3006" },
+        { "name": "MUSIC_SERVICE_URL", "value": "http://music-service.aiponge.local:3007" },
+        { "name": "SHUTDOWN_TIMEOUT_MS", "value": "30000" },
+        { "name": "STATEMENT_TIMEOUT_MS", "value": "30000" },
+        { "name": "MAINTENANCE_MODE", "value": "false" },
+        { "name": "MAINTENANCE_RETRY_AFTER", "value": "300" },
+        { "name": "SSE_HEARTBEAT_MS", "value": "30000" },
+        { "name": "RATE_LIMIT_WINDOW_MS", "value": "900000" },
+        { "name": "RATE_LIMIT_MAX_REQUESTS", "value": "100" },
+        { "name": "RATE_LIMIT_AUTH_MAX", "value": "20" },
+        { "name": "RATE_LIMIT_STRICT_MAX", "value": "10" },
+        { "name": "RATE_LIMIT_LENIENT_MAX", "value": "200" },
+        { "name": "BODY_SIZE_LIMIT", "value": "10mb" },
+        { "name": "SENTRY_TRACES_SAMPLE_RATE", "value": "0.1" },
+        { "name": "CACHE_TTL_DEFAULT", "value": "300" }
+      ],
+      "secrets": [
+        {
+          "name": "REDIS_URL",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:ACCOUNT_ID:secret:aiponge/redis-url"
+        },
+        {
+          "name": "REDIS_CLUSTER_NODES",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:ACCOUNT_ID:secret:aiponge/redis-cluster-nodes"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/aiponge-api-gateway",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "healthCheck": {
+        "command": ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"],
+        "interval": 30,
+        "timeout": 5,
+        "retries": 3,
+        "startPeriod": 60
+      }
+    }
+  ]
+}

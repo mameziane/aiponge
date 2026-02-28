@@ -1,0 +1,42 @@
+{
+  "name": "microservices-integration-tests",
+  "version": "1.0.0",
+  "description": "Comprehensive integration tests for microservices communication validation",
+  "scripts": {
+    "test": "jest --config jest.config.js",
+    "test:verbose": "jest --config jest.config.js --verbose",
+    "test:coverage": "jest --config jest.config.js --coverage",
+    "test:service-discovery": "jest --config jest.config.js --testPathPattern=service-discovery",
+    "test:content-service": "jest --config jest.config.js --testPathPattern=ai-content-service",
+    "test:music-service": "jest --config jest.config.js --testPathPattern=music-service",
+    "test:health": "jest --config jest.config.js --testPathPattern=health-endpoints",
+    "test:api-gateway": "jest --config jest.config.js --testPathPattern=api-gateway",
+    "test:smoke": "jest --config jest.config.js --testPathPattern=smoke-tests",
+    "test:errors": "jest --config jest.config.js --testPathPattern=error-handling",
+    "test:runtime": "jest --config jest.config.js --testPathPattern=runtime-validation",
+    "test:contracts": "jest --config jest.config.js --testPathPattern=shared-contracts"
+  },
+  "keywords": [
+    "microservices",
+    "integration-tests",
+    "ai-services",
+    "service-discovery",
+    "contracts",
+    "validation"
+  ],
+  "author": "aiponge Platform Team",
+  "license": "MIT",
+  "dependencies": {
+    "@aiponge/shared-contracts": "*"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.0",
+    "@types/node": "^20.0.0",
+    "jest": "^29.5.0",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

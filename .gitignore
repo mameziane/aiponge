@@ -1,0 +1,67 @@
+.config/
+.local/
+node_modules/
+.turbo/
+.DS_Store
+server/public
+vite.config.ts.*
+*.tar.gz
+*.timestamp-*
+vite.config.*.mjs
+dist/
+*.tgz
+
+# Environment files - NEVER commit secrets
+.env
+.env.local
+.cache/
+.env.*
+!.env.example
+
+# Auto-generated configuration
+apps/shared/config/generated/
+
+# Runtime logs and build cache
+logs/
+*.log
+.turbo/*.log
+coverage/
+**/coverage/
+
+# Generated media (testing/runtime artifacts)
+public/generated-images/
+public/profile-images/
+uploads/
+
+# Audio/video files (use cloud storage, not git)
+*.mp3
+*.wav
+*.ogg
+*.flac
+*.aac
+*.mp4
+*.webm
+
+# TypeScript build cache
+*.tsbuildinfo
+
+# Expo / EAS
+.expo-shared/
+eas-build-*.json
+
+# React Native / iOS native builds
+ios/Pods/
+ios/build/
+ios/*.xcworkspace/xcuserdata/
+*.jks
+*.hprof
+
+# Railway
+.railway/
+
+# Backup files
+*.backup
+
+# Editor swap files
+*.swp
+*.swo

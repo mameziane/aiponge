@@ -1,0 +1,110 @@
+{
+  "name": "@aiponge/platform-core",
+  "version": "1.0.0",
+  "description": "Shared platform utilities for aiponge microservices",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "node esbuild.config.mjs && tsc --emitDeclarationOnly --declaration",
+    "build:tsc": "tsc --build --force",
+    "dev": "echo 'Development uses source files directly - no compilation needed'",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
+    "prepublishOnly": "npm run clean && npm run build"
+  },
+  "keywords": [
+    "microservices",
+    "platform",
+    "utilities"
+  ],
+  "author": "aiponge Team",
+  "license": "MIT",
+  "dependencies": {
+    "@sentry/node": "^10.38.0",
+    "opossum": "^8.0.0",
+    "express": "^4.18.0",
+    "winston": "^3.8.0",
+    "cors": "^2.8.5",
+    "helmet": "^7.0.0",
+    "ioredis": "^5.4.1",
+    "compression": "^1.7.4",
+    "jsonwebtoken": "^9.0.0",
+    "axios": "^1.4.0",
+    "drizzle-orm": "^0.44.7",
+    "node-cron": "^3.0.3",
+    "pg": "^8.16.3",
+    "prom-client": "^15.1.3",
+    "zod": "^3.22.0",
+    "@neondatabase/serverless": "^1.0.1",
+    "node-fetch": "^3.3.0",
+    "ws": "^8.14.0",
+    "bullmq": "^5.67.3",
+    "kafkajs": "^2.2.4"
+  },
+  "devDependencies": {
+    "@types/compression": "^1.8.1",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/node-cron": "^3.0.11",
+    "@types/opossum": "^8.1.9",
+    "@types/pg": "^8.11.10",
+    "@types/uuid": "^10.0.0",
+    "@types/ws": "^8.18.1"
+  },
+  "peerDependencies": {
+    "express": "^4.18.0"
+  },
+  "exports": {
+    ".": {
+      "react-native": "./src/index.ts",
+      "development": "./src/index.ts",
+      "types": "./src/index.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./bootstrap": {
+      "react-native": "./src/bootstrap/index.ts",
+      "development": "./src/bootstrap/index.ts",
+      "types": "./src/bootstrap/index.ts",
+      "import": "./dist/bootstrap/index.js",
+      "default": "./dist/bootstrap/index.js"
+    },
+    "./health": {
+      "react-native": "./src/health/index.ts",
+      "development": "./src/health/index.ts",
+      "types": "./src/health/index.ts",
+      "import": "./dist/health/index.js",
+      "default": "./dist/health/index.js"
+    },
+    "./logging": {
+      "react-native": "./src/logging/index.ts",
+      "development": "./src/logging/index.ts",
+      "types": "./src/logging/index.ts",
+      "import": "./dist/logging/index.js",
+      "default": "./dist/logging/index.js"
+    },
+    "./error-handling": {
+      "react-native": "./src/error-handling/index.ts",
+      "development": "./src/error-handling/index.ts",
+      "types": "./src/error-handling/index.ts",
+      "import": "./dist/error-handling/index.js",
+      "default": "./dist/error-handling/index.js"
+    },
+    "./http": {
+      "react-native": "./src/http/index.ts",
+      "development": "./src/http/index.ts",
+      "types": "./src/http/index.ts",
+      "import": "./dist/http/index.js",
+      "default": "./dist/http/index.js"
+    },
+    "./config": {
+      "react-native": "./src/config/index.ts",
+      "development": "./src/config/index.ts",
+      "types": "./src/config/index.ts",
+      "import": "./dist/config/index.js",
+      "default": "./dist/config/index.js"
+    }
+  }
+}

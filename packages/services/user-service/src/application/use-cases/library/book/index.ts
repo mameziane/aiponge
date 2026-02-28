@@ -1,0 +1,16 @@
+export {
+  BookService,
+  createBookInputSchema,
+  updateBookInputSchema,
+  type CreateBookInput,
+  type CreateBookResult,
+  type UpdateBookInput,
+  type UpdateBookResult,
+  type DeleteBookResult,
+  type GetBookResult,
+  type ChapterWithEntries,
+  type BookWithChapters,
+  type ListBooksFilter,
+  type BookWithIllustrations,
+  type ListUserBooksResult,
+} from './BookService';

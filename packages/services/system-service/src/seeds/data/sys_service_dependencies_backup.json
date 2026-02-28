@@ -1,0 +1,54 @@
+[
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440170",
+    "service_id": "550e8400-e29b-41d4-a716-446655440160",
+    "dependency_name": "user-service",
+    "dependency_type": "service",
+    "timeout": 5000,
+    "health_check": "/health",
+    "is_required": true,
+    "metadata": {
+      "retry_count": 3,
+      "routing_path": "/api/users"
+    }
+  },
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440171",
+    "service_id": "550e8400-e29b-41d4-a716-446655440160",
+    "dependency_name": "ai-service",
+    "dependency_type": "service",
+    "timeout": 10000,
+    "health_check": "/health",
+    "is_required": true,
+    "metadata": {
+      "retry_count": 2,
+      "routing_path": "/api/ai"
+    }
+  },
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440172",
+    "service_id": "550e8400-e29b-41d4-a716-446655440161",
+    "dependency_name": "postgresql",
+    "dependency_type": "database",
+    "timeout": 3000,
+    "health_check": null,
+    "is_required": true,
+    "metadata": {
+      "database_name": "aiponge_users",
+      "connection_pool": 20
+    }
+  },
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440173",
+    "service_id": "550e8400-e29b-41d4-a716-446655440162",
+    "dependency_name": "openai",
+    "dependency_type": "external_api",
+    "timeout": 30000,
+    "health_check": null,
+    "is_required": true,
+    "metadata": {
+      "rate_limit": 100,
+      "api_endpoint": "https://api.openai.com"
+    }
+  }
+]

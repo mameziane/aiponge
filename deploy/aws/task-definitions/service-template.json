@@ -1,0 +1,59 @@
+{
+  "family": "aiponge-SERVICE_NAME",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::ACCOUNT_ID:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::ACCOUNT_ID:role/aiponge-task-role",
+  "containerDefinitions": [
+    {
+      "name": "SERVICE_NAME",
+      "image": "ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/aiponge-SERVICE_NAME:latest",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": SERVICE_PORT,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        { "name": "NODE_ENV", "value": "production" },
+        { "name": "PORT", "value": "SERVICE_PORT" },
+        { "name": "SERVICE_NAME", "value": "SERVICE_NAME" },
+        { "name": "LOG_LEVEL", "value": "info" },
+        { "name": "SHUTDOWN_TIMEOUT_MS", "value": "30000" },
+        { "name": "STATEMENT_TIMEOUT_MS", "value": "30000" }
+      ],
+      "secrets": [
+        {
+          "name": "DATABASE_URL",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:ACCOUNT_ID:secret:aiponge/SERVICE_NAME-database-url"
+        },
+        {
+          "name": "REDIS_URL",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:ACCOUNT_ID:secret:aiponge/redis-url"
+        },
+        {
+          "name": "REDIS_CLUSTER_NODES",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:ACCOUNT_ID:secret:aiponge/redis-cluster-nodes"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/aiponge-SERVICE_NAME",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "healthCheck": {
+        "command": ["CMD-SHELL", "curl -f http://localhost:SERVICE_PORT/health || exit 1"],
+        "interval": 30,
+        "timeout": 5,
+        "retries": 3,
+        "startPeriod": 60
+      }
+    }
+  ]
+}

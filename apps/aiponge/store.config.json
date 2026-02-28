@@ -1,0 +1,32 @@
+{
+  "configVersion": 0,
+  "apple": {
+    "info": {
+      "en-US": {
+        "title": "aiponge - Music & Mindfulness",
+        "subtitle": "Songs Generator & Wellness",
+        "description": "Transform your ideas or thoughts into personalized AI-generated music and gain deep psychological insights with aiponge. Create songs that reflect your emotions, track your wellness journey, and discover yourself through proven psychological frameworks.\n\nKEY FEATURES:\n\n• AI MUSIC GENERATION\nTurn your thoughts and feelings into beautiful, personalized songs. aiponge understands your emotions and creates music that resonates with your inner world.\n\n• PSYCHOLOGICAL INSIGHTS\nGain deep understanding of your values, beliefs, and emotional patterns through AI-powered analysis based on 29 psychological frameworks including CBT, mindfulness, and positive psychology.\n\n• VOICE-TO-TEXT\nSimply speak your thoughts and our voice recognition transcribes them instantly. Available in 6 languages.\n\n• PERSONAL AI MENTOR\nYour virtual mentor guides you through self-discovery with personalized affirmations and insights inspired by Delphi philosophy: Know Thyself, Nothing in Excess.\n\n• WELLBEING TRACKING\nTrack your emotional journey with our calendar view. See patterns, celebrate progress, and schedule tracks for future listening.\n\n• WELLBEING MUSIC LIBRARY\nAccess a shared library of 20+ AI-generated therapeutic tracks across 4 themed playlists designed for relaxation, focus, and emotional balance.\n\nStart your journey of self-discovery today with aiponge. Listen to your music, understand yourself deeper, and find your inner harmony.",
+        "keywords": "ai music generator,mindfulness app,meditation music,wellbeing music,personal development,self-discovery,wellbeing tracker,mood journal,ai wellbeing,relaxation music,stress relief,mental health app,emotion tracker,psychology,positive affirmations,voice journal",
+        "promotionalText": "Transform your thoughts into personalized music. New: Multi-language lyrics generation in 6 languages!",
+        "marketingUrl": "https://aiponge.com",
+        "privacyPolicyUrl": "https://aiponge.com/privacy",
+        "supportUrl": "https://aiponge.com/support"
+      }
+    },
+    "primaryCategory": "HEALTH_AND_FITNESS",
+    "secondaryCategory": "MUSIC",
+    "copyright": "2025 aiponge Productions"
+  },
+  "android": {
+    "info": {
+      "en-US": {
+        "title": "siponge - Music & Mindfulness",
+        "shortDescription": "Songs Generator & Wellness App - Transform thoughts into personalized songs",
+        "fullDescription": "Transform your thoughts into personalized AI-generated music and gain deep psychological insights with aiponge. Create wellbeing songs that reflect your emotions, track your wellness journey, and discover yourself through proven psychological frameworks.\n\nKEY FEATURES:\n\n★ AI MUSIC GENERATION\nTurn your thoughts and feelings into beautiful, personalized songs. Our AI understands your emotions and creates music that resonates with your inner world.\n\n★ PSYCHOLOGICAL INSIGHTS\nGain deep understanding of your values, beliefs, and emotional patterns through AI-powered analysis based on 29 psychological frameworks including CBT, mindfulness, and positive psychology.\n\n★ VOICE-TO-TEXT\nSimply speak your thoughts and our voice recognition transcribes them instantly. Available in 6 languages.\n\n★ PERSONAL AI MENTOR\nYour virtual mentor guides you through self-discovery with personalized affirmations and insights inspired by Delphi philosophy: Know Thyself, Nothing in Excess.\n\n★ WELLBEING TRACKING\nTrack your emotional journey with our calendar view. See patterns, celebrate progress, and schedule tracks for future listening.\n\n★ WELLBEING MUSIC LIBRARY\nAccess a shared library of 20+ AI-generated tracks across 4 themed playlists designed for relaxation, focus, and emotional balance.\n\nStart your journey of self-discovery today with aiponge. Transform your thoughts into music, understand yourself deeper, and find your inner harmony."
+      }
+    },
+    "category": "HEALTH_AND_FITNESS",
+    "contentRating": "everyone",
+    "tags": ["ai music", "mindfulness", "meditation", "wellness", "self-help", "mood tracker", "relaxation", "stress relief"]
+  }
+}

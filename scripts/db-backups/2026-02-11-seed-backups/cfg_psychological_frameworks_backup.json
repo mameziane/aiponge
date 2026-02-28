@@ -1,0 +1,828 @@
+[
+  {
+    "id": "cbt",
+    "name": "Cognitive Behavioral Therapy",
+    "short_name": "CBT",
+    "category": "cognitive",
+    "description": "Focuses on identifying and changing negative thought patterns.",
+    "key_principles": [
+      "Thoughts influence feelings",
+      "Cognitive restructuring",
+      "Behavioral activation"
+    ],
+    "therapeutic_goals": [
+      "emotional_wellness",
+      "cognitive_development"
+    ],
+    "trigger_patterns": [
+      "negative thinking",
+      "rumination",
+      "catastrophizing",
+      "always",
+      "never",
+      "worst case",
+      "should"
+    ],
+    "song_structure_hint": "Verse explores distorted thought, chorus offers hopeful reframe, bridge provides new perspective",
+    "is_enabled": true,
+    "sort_order": 10,
+    "created_at": "2026-01-20T14:16:45.838351",
+    "updated_at": "2026-01-20T14:16:45.838351"
+  },
+  {
+    "id": "act",
+    "name": "Acceptance and Commitment Therapy",
+    "short_name": "ACT",
+    "category": "mindfulness",
+    "description": "Combines acceptance with commitment to value-based action.",
+    "key_principles": [
+      "Psychological flexibility",
+      "Values clarification",
+      "Committed action"
+    ],
+    "therapeutic_goals": [
+      "acceptance",
+      "values_alignment"
+    ],
+    "trigger_patterns": [
+      "avoidance",
+      "value disconnect",
+      "purpose",
+      "meaning",
+      "authentic",
+      "values"
+    ],
+    "song_structure_hint": "Acknowledge pain in verse, commitment to values in chorus, bridge explores authentic self",
+    "is_enabled": true,
+    "sort_order": 20,
+    "created_at": "2026-01-20T14:16:45.838351",
+    "updated_at": "2026-01-20T14:16:45.838351"
+  },
+  {
+    "id": "dbt",
+    "name": "Dialectical Behavior Therapy",
+    "short_name": "DBT",
+    "category": "behavioral",
+    "description": "Teaches emotion regulation and distress tolerance.",
+    "key_principles": [
+      "Dialectics",
+      "Emotion regulation",
+      "Distress tolerance"
+    ],
+    "therapeutic_goals": [
+      "emotion_regulation",
+      "distress_tolerance"
+    ],
+    "trigger_patterns": [
+      "emotional intensity",
+      "overwhelmed",
+      "out of control",
+      "extreme",
+      "impulsive"
+    ],
+    "song_structure_hint": "Balance opposing emotions throughout, bridge offers grounding coping skill",
+    "is_enabled": true,
+    "sort_order": 30,
+    "created_at": "2026-01-20T14:16:45.838351",
+    "updated_at": "2026-01-20T14:16:45.838351"
+  },
+  {
+    "id": "mbsr",
+    "name": "Mindfulness-Based Stress Reduction",
+    "short_name": "MBSR",
+    "category": "mindfulness",
+    "description": "Uses mindfulness meditation to reduce stress.",
+    "key_principles": [
+      "Present moment awareness",
+      "Non-judgmental observation",
+      "Breath focus"
+    ],
+    "therapeutic_goals": [
+      "stress_reduction",
+      "present_awareness"
+    ],
+    "trigger_patterns": [
+      "stress",
+      "anxiety",
+      "overwhelm",
+      "racing thoughts",
+      "worried",
+      "restless"
+    ],
+    "song_structure_hint": "Slow tempo, repetitive soothing phrases, breath-synced rhythm, gentle instrumentation",
+    "is_enabled": true,
+    "sort_order": 40,
+    "created_at": "2026-01-20T14:16:45.838351",
+    "updated_at": "2026-01-20T14:16:45.838351"
+  },
+  {
+    "id": "mbct",
+    "name": "Mindfulness-Based Cognitive Therapy",
+    "short_name": "MBCT",
+    "category": "mindfulness",
+    "description": "Combines mindfulness with cognitive therapy for depression prevention.",
+    "key_principles": [
+      "Metacognitive awareness",
+      "Decentering",
+      "Recognizing warning signs"
+    ],
+    "therapeutic_goals": [
+      "depression_prevention",
+      "self_awareness"
+    ],
+    "trigger_patterns": [
+      "depression",
+      "recurring negative thoughts",
+      "mood dips",
+      "hopeless",
+      "empty"
+    ],
+    "song_structure_hint": "Gentle acknowledgment of darkness, light building through song progression",
+    "is_enabled": true,
+    "sort_order": 50,
+    "created_at": "2026-01-20T14:16:45.838351",
+    "updated_at": "2026-01-20T14:16:45.838351"
+  },
+  {
+    "id": "positive-psychology",
+    "name": "Positive Psychology",
+    "short_name": "PP",
+    "category": "positive",
+    "description": "Focuses on strengths and factors for a fulfilling life.",
+    "key_principles": [
+      "Character strengths",
+      "Gratitude",
+      "Optimism"
+    ],
+    "therapeutic_goals": [
+      "flourishing",
+      "positive_emotions"
+    ],
+    "trigger_patterns": [
+      "gratitude",
+      "thankful",
+      "blessed",
+      "proud",
+      "joy",
+      "happy",
+      "celebrate",
+      "growth"
+    ],
+    "song_structure_hint": "Uplifting melody throughout, celebrate strengths and growth, major key progression",
+    "is_enabled": true,
+    "sort_order": 60,
+    "created_at": "2026-01-20T14:17:10.400203",
+    "updated_at": "2026-01-20T14:17:10.400203"
+  },
+  {
+    "id": "solution-focused",
+    "name": "Solution-Focused Brief Therapy",
+    "short_name": "SFBT",
+    "category": "integrative",
+    "description": "Focuses on solutions rather than problems.",
+    "key_principles": [
+      "Future focus",
+      "Exception finding",
+      "Solution building"
+    ],
+    "therapeutic_goals": [
+      "goal_setting",
+      "empowerment"
+    ],
+    "trigger_patterns": [
+      "stuck",
+      "hopelessness",
+      "goal",
+      "want to change",
+      "better future",
+      "solution"
+    ],
+    "song_structure_hint": "Vision of better future in chorus, small achievable steps in verses",
+    "is_enabled": true,
+    "sort_order": 70,
+    "created_at": "2026-01-20T14:17:10.400203",
+    "updated_at": "2026-01-20T14:17:10.400203"
+  },
+  {
+    "id": "narrative",
+    "name": "Narrative Therapy",
+    "short_name": "NT",
+    "category": "integrative",
+    "description": "Helps rewrite personal narratives for empowerment.",
+    "key_principles": [
+      "Externalization",
+      "Re-authoring",
+      "Witnessing"
+    ],
+    "therapeutic_goals": [
+      "identity_reconstruction",
+      "meaning_making"
+    ],
+    "trigger_patterns": [
+      "my story",
+      "who I am",
+      "identity",
+      "journey",
+      "past",
+      "defined by"
+    ],
+    "song_structure_hint": "Story arc structure, verse-chorus-bridge as life chapters, redemption narrative",
+    "is_enabled": true,
+    "sort_order": 80,
+    "created_at": "2026-01-20T14:17:10.400203",
+    "updated_at": "2026-01-20T14:17:10.400203"
+  },
+  {
+    "id": "self-compassion",
+    "name": "Self-Compassion",
+    "short_name": "SC",
+    "category": "mindfulness",
+    "description": "Develops kindness toward oneself in suffering.",
+    "key_principles": [
+      "Self-kindness",
+      "Common humanity",
+      "Mindfulness"
+    ],
+    "therapeutic_goals": [
+      "self_kindness",
+      "reducing_self_criticism"
+    ],
+    "trigger_patterns": [
+      "self-criticism",
+      "hard on myself",
+      "hate myself",
+      "not enough",
+      "failure",
+      "shame"
+    ],
+    "song_structure_hint": "Gentle nurturing tone, self-kindness affirmations, warm instrumentation",
+    "is_enabled": true,
+    "sort_order": 90,
+    "created_at": "2026-01-20T14:17:10.400203",
+    "updated_at": "2026-01-20T14:17:10.400203"
+  },
+  {
+    "id": "cft",
+    "name": "Compassion-Focused Therapy",
+    "short_name": "CFT",
+    "category": "integrative",
+    "description": "Develops compassionate mind to address shame.",
+    "key_principles": [
+      "Three emotion systems",
+      "Compassionate self",
+      "Soothing system"
+    ],
+    "therapeutic_goals": [
+      "shame_reduction",
+      "self_compassion"
+    ],
+    "trigger_patterns": [
+      "shame",
+      "disgust at self",
+      "worthless",
+      "critical voice"
+    ],
+    "song_structure_hint": "Soothing melody, activate compassionate imagery, warm embrace feeling",
+    "is_enabled": true,
+    "sort_order": 100,
+    "created_at": "2026-01-20T14:17:10.400203",
+    "updated_at": "2026-01-20T14:17:10.400203"
+  },
+  {
+    "id": "grief",
+    "name": "Grief Therapy",
+    "short_name": "GRT",
+    "category": "integrative",
+    "description": "Supports processing loss and integrating grief.",
+    "key_principles": [
+      "Dual process model",
+      "Continuing bonds",
+      "Meaning reconstruction"
+    ],
+    "therapeutic_goals": [
+      "grief_processing",
+      "meaning_making"
+    ],
+    "trigger_patterns": [
+      "loss",
+      "grief",
+      "death",
+      "gone",
+      "miss",
+      "mourning",
+      "goodbye"
+    ],
+    "song_structure_hint": "Honor the loss in verses, memory celebration, hope or connection in final chorus",
+    "is_enabled": true,
+    "sort_order": 110,
+    "created_at": "2026-01-20T14:17:10.400203",
+    "updated_at": "2026-01-20T14:17:10.400203"
+  },
+  {
+    "id": "resilience",
+    "name": "Resilience Training",
+    "short_name": "RT",
+    "category": "positive",
+    "description": "Builds capacity to adapt and recover from adversity.",
+    "key_principles": [
+      "Growth mindset",
+      "Coping skills",
+      "Social support"
+    ],
+    "therapeutic_goals": [
+      "resilience_building",
+      "post_traumatic_growth"
+    ],
+    "trigger_patterns": [
+      "bounce back",
+      "resilient",
+      "overcome",
+      "stronger",
+      "adversity",
+      "perseverance"
+    ],
+    "song_structure_hint": "Rising melody, overcoming theme, strength affirmations, building dynamics",
+    "is_enabled": true,
+    "sort_order": 120,
+    "created_at": "2026-01-20T14:17:10.400203",
+    "updated_at": "2026-01-20T14:17:10.400203"
+  },
+  {
+    "id": "attachment",
+    "name": "Attachment Theory",
+    "short_name": "AT",
+    "category": "psychodynamic",
+    "description": "Explores how early patterns affect relationships.",
+    "key_principles": [
+      "Secure base",
+      "Attachment styles",
+      "Earned security"
+    ],
+    "therapeutic_goals": [
+      "secure_attachment",
+      "trust_building"
+    ],
+    "trigger_patterns": [
+      "abandonment",
+      "trust issues",
+      "clingy",
+      "distant",
+      "parents",
+      "relationships"
+    ],
+    "song_structure_hint": "Address attachment wounds in verse, build toward security and trust in chorus",
+    "is_enabled": true,
+    "sort_order": 130,
+    "created_at": "2026-01-20T14:17:34.023336",
+    "updated_at": "2026-01-20T14:17:34.023336"
+  },
+  {
+    "id": "psychodynamic",
+    "name": "Psychodynamic Therapy",
+    "short_name": "PDT",
+    "category": "psychodynamic",
+    "description": "Explores unconscious processes affecting present behavior.",
+    "key_principles": [
+      "Unconscious mind",
+      "Defense mechanisms",
+      "Insight"
+    ],
+    "therapeutic_goals": [
+      "self_understanding",
+      "pattern_recognition"
+    ],
+    "trigger_patterns": [
+      "unconscious",
+      "patterns",
+      "why do I keep",
+      "childhood memories",
+      "defense"
+    ],
+    "song_structure_hint": "Uncover hidden patterns, bridge represents insight moment",
+    "is_enabled": true,
+    "sort_order": 140,
+    "created_at": "2026-01-20T14:17:34.023336",
+    "updated_at": "2026-01-20T14:17:34.023336"
+  },
+  {
+    "id": "existential",
+    "name": "Existential Therapy",
+    "short_name": "ET",
+    "category": "existential",
+    "description": "Explores meaning, freedom, and mortality.",
+    "key_principles": [
+      "Freedom and responsibility",
+      "Search for meaning",
+      "Authentic living"
+    ],
+    "therapeutic_goals": [
+      "meaning_creation",
+      "authentic_living"
+    ],
+    "trigger_patterns": [
+      "meaning of life",
+      "purpose",
+      "mortality",
+      "alone",
+      "freedom",
+      "choice"
+    ],
+    "song_structure_hint": "Deep philosophical lyrics, building toward meaning and purpose, contemplative mood",
+    "is_enabled": true,
+    "sort_order": 150,
+    "created_at": "2026-01-20T14:17:34.023336",
+    "updated_at": "2026-01-20T14:17:34.023336"
+  },
+  {
+    "id": "logotherapy",
+    "name": "Logotherapy",
+    "short_name": "LT",
+    "category": "existential",
+    "description": "Finding meaning as primary motivational force.",
+    "key_principles": [
+      "Will to meaning",
+      "Meaning in suffering",
+      "Self-transcendence"
+    ],
+    "therapeutic_goals": [
+      "meaning_discovery",
+      "purpose"
+    ],
+    "trigger_patterns": [
+      "suffering",
+      "why me",
+      "meaning in pain",
+      "reason to live"
+    ],
+    "song_structure_hint": "Acknowledge suffering, discover meaning through hardship, transcendence",
+    "is_enabled": true,
+    "sort_order": 160,
+    "created_at": "2026-01-20T14:17:34.023336",
+    "updated_at": "2026-01-20T14:17:34.023336"
+  },
+  {
+    "id": "somatic-experiencing",
+    "name": "Somatic Experiencing",
+    "short_name": "SE",
+    "category": "somatic",
+    "description": "Releases trauma stored in the body.",
+    "key_principles": [
+      "Body awareness",
+      "Titration",
+      "Completing responses"
+    ],
+    "therapeutic_goals": [
+      "trauma_release",
+      "nervous_system_regulation"
+    ],
+    "trigger_patterns": [
+      "body tension",
+      "physical symptoms",
+      "frozen",
+      "numb",
+      "disconnected from body"
+    ],
+    "song_structure_hint": "Grounding rhythm, body-focused imagery, gentle release, progressive relaxation",
+    "is_enabled": true,
+    "sort_order": 170,
+    "created_at": "2026-01-20T14:17:34.023336",
+    "updated_at": "2026-01-20T14:17:34.023336"
+  },
+  {
+    "id": "polyvagal",
+    "name": "Polyvagal Theory",
+    "short_name": "PVT",
+    "category": "somatic",
+    "description": "Works with nervous system states for safety.",
+    "key_principles": [
+      "Neuroception",
+      "Ventral vagal",
+      "Co-regulation"
+    ],
+    "therapeutic_goals": [
+      "nervous_system_regulation",
+      "safety"
+    ],
+    "trigger_patterns": [
+      "fight or flight",
+      "shutdown",
+      "unsafe",
+      "on edge",
+      "hypervigilant"
+    ],
+    "song_structure_hint": "Start with nervous system state, regulate toward safety and connection",
+    "is_enabled": true,
+    "sort_order": 180,
+    "created_at": "2026-01-20T14:17:34.023336",
+    "updated_at": "2026-01-20T14:17:34.023336"
+  },
+  {
+    "id": "ifs",
+    "name": "Internal Family Systems",
+    "short_name": "IFS",
+    "category": "integrative",
+    "description": "Works with internal parts to achieve harmony.",
+    "key_principles": [
+      "Parts work",
+      "Self-leadership",
+      "Unburdening"
+    ],
+    "therapeutic_goals": [
+      "inner_harmony",
+      "self_leadership"
+    ],
+    "trigger_patterns": [
+      "part of me",
+      "inner conflict",
+      "torn",
+      "different sides",
+      "inner critic"
+    ],
+    "song_structure_hint": "Different parts get verses, chorus unifies in Self-leadership",
+    "is_enabled": true,
+    "sort_order": 190,
+    "created_at": "2026-01-20T14:17:34.023336",
+    "updated_at": "2026-01-20T14:17:34.023336"
+  },
+  {
+    "id": "emdr",
+    "name": "EMDR",
+    "short_name": "EMDR",
+    "category": "integrative",
+    "description": "Processes traumatic memories.",
+    "key_principles": [
+      "Adaptive information processing",
+      "Memory reconsolidation"
+    ],
+    "therapeutic_goals": [
+      "trauma_processing",
+      "distress_reduction"
+    ],
+    "trigger_patterns": [
+      "trauma",
+      "flashback",
+      "triggered",
+      "traumatic memory",
+      "haunted"
+    ],
+    "song_structure_hint": "Process difficult memory, resolve toward safety and peace",
+    "is_enabled": true,
+    "sort_order": 200,
+    "created_at": "2026-01-20T14:17:56.152785",
+    "updated_at": "2026-01-20T14:17:56.152785"
+  },
+  {
+    "id": "gestalt",
+    "name": "Gestalt Therapy",
+    "short_name": "GT",
+    "category": "humanistic",
+    "description": "Emphasizes present awareness and personal responsibility.",
+    "key_principles": [
+      "Here and now",
+      "Figure-ground",
+      "Contact"
+    ],
+    "therapeutic_goals": [
+      "awareness",
+      "integration"
+    ],
+    "trigger_patterns": [
+      "unfinished business",
+      "present moment",
+      "awareness",
+      "body sensations"
+    ],
+    "song_structure_hint": "Focus on immediate sensory experience, raw emotional expression",
+    "is_enabled": true,
+    "sort_order": 210,
+    "created_at": "2026-01-20T14:17:56.152785",
+    "updated_at": "2026-01-20T14:17:56.152785"
+  },
+  {
+    "id": "person-centered",
+    "name": "Person-Centered Therapy",
+    "short_name": "PCT",
+    "category": "humanistic",
+    "description": "Unconditional positive regard for self-actualization.",
+    "key_principles": [
+      "Unconditional positive regard",
+      "Empathy",
+      "Congruence"
+    ],
+    "therapeutic_goals": [
+      "self_acceptance",
+      "authenticity"
+    ],
+    "trigger_patterns": [
+      "not good enough",
+      "acceptance",
+      "self-worth",
+      "loved",
+      "validation"
+    ],
+    "song_structure_hint": "Warm, accepting tone, affirming self-worth throughout",
+    "is_enabled": true,
+    "sort_order": 220,
+    "created_at": "2026-01-20T14:17:56.152785",
+    "updated_at": "2026-01-20T14:17:56.152785"
+  },
+  {
+    "id": "gratitude",
+    "name": "Gratitude Practice",
+    "short_name": "GP",
+    "category": "positive",
+    "description": "Cultivates appreciation to enhance well-being.",
+    "key_principles": [
+      "Gratitude journaling",
+      "Appreciation",
+      "Positive focus"
+    ],
+    "therapeutic_goals": [
+      "positive_emotions",
+      "perspective_shift"
+    ],
+    "trigger_patterns": [
+      "grateful",
+      "thankful",
+      "appreciate",
+      "blessed",
+      "fortunate",
+      "good things"
+    ],
+    "song_structure_hint": "Warm appreciative lyrics, counting blessings theme, uplifting major key",
+    "is_enabled": true,
+    "sort_order": 230,
+    "created_at": "2026-01-20T14:17:56.152785",
+    "updated_at": "2026-01-20T14:17:56.152785"
+  },
+  {
+    "id": "ei",
+    "name": "Emotional Intelligence",
+    "short_name": "EI",
+    "category": "integrative",
+    "description": "Understanding and managing emotions effectively.",
+    "key_principles": [
+      "Self-awareness",
+      "Self-regulation",
+      "Empathy"
+    ],
+    "therapeutic_goals": [
+      "emotional_awareness",
+      "regulation_skills"
+    ],
+    "trigger_patterns": [
+      "understand emotions",
+      "manage feelings",
+      "empathy",
+      "emotional",
+      "react"
+    ],
+    "song_structure_hint": "Name emotions clearly, model healthy expression and regulation",
+    "is_enabled": true,
+    "sort_order": 240,
+    "created_at": "2026-01-20T14:17:56.152785",
+    "updated_at": "2026-01-20T14:17:56.152785"
+  },
+  {
+    "id": "values",
+    "name": "Values Clarification",
+    "short_name": "VC",
+    "category": "integrative",
+    "description": "Aligning life with core personal values.",
+    "key_principles": [
+      "Values identification",
+      "Values-action alignment",
+      "Priorities"
+    ],
+    "therapeutic_goals": [
+      "values_clarity",
+      "authentic_living"
+    ],
+    "trigger_patterns": [
+      "values",
+      "what matters",
+      "priorities",
+      "important to me",
+      "true to myself"
+    ],
+    "song_structure_hint": "Clarify what matters, chorus states core values clearly",
+    "is_enabled": true,
+    "sort_order": 250,
+    "created_at": "2026-01-20T14:17:56.152785",
+    "updated_at": "2026-01-20T14:17:56.152785"
+  },
+  {
+    "id": "stoic",
+    "name": "Stoic Philosophy",
+    "short_name": "ST",
+    "category": "cognitive",
+    "description": "Ancient wisdom for emotional resilience.",
+    "key_principles": [
+      "Dichotomy of control",
+      "Amor fati",
+      "Virtue ethics"
+    ],
+    "therapeutic_goals": [
+      "equanimity",
+      "acceptance"
+    ],
+    "trigger_patterns": [
+      "control",
+      "cant control",
+      "acceptance",
+      "wisdom",
+      "fate",
+      "letting go"
+    ],
+    "song_structure_hint": "Philosophical wisdom, focus on what you can control, acceptance theme",
+    "is_enabled": true,
+    "sort_order": 260,
+    "created_at": "2026-01-20T14:17:56.152785",
+    "updated_at": "2026-01-20T14:17:56.152785"
+  },
+  {
+    "id": "behavioral-activation",
+    "name": "Behavioral Activation",
+    "short_name": "BA",
+    "category": "behavioral",
+    "description": "Increases engagement in positive activities.",
+    "key_principles": [
+      "Activity scheduling",
+      "Pleasure and mastery",
+      "Breaking avoidance"
+    ],
+    "therapeutic_goals": [
+      "increased_activity",
+      "mood_improvement"
+    ],
+    "trigger_patterns": [
+      "inactive",
+      "withdrawn",
+      "isolation",
+      "doing nothing",
+      "unmotivated"
+    ],
+    "song_structure_hint": "Energizing rhythm, call to action, movement theme",
+    "is_enabled": true,
+    "sort_order": 270,
+    "created_at": "2026-01-20T14:18:11.205477",
+    "updated_at": "2026-01-20T14:18:11.205477"
+  },
+  {
+    "id": "motivational-interviewing",
+    "name": "Motivational Interviewing",
+    "short_name": "MI",
+    "category": "behavioral",
+    "description": "Enhances intrinsic motivation for change.",
+    "key_principles": [
+      "Ambivalence exploration",
+      "Change talk",
+      "Autonomy support"
+    ],
+    "therapeutic_goals": [
+      "motivation_enhancement",
+      "change_readiness"
+    ],
+    "trigger_patterns": [
+      "want to change",
+      "ambivalent",
+      "part of me wants",
+      "motivation",
+      "ready"
+    ],
+    "song_structure_hint": "Explore both sides, resolve toward positive change in chorus",
+    "is_enabled": true,
+    "sort_order": 280,
+    "created_at": "2026-01-20T14:18:11.205477",
+    "updated_at": "2026-01-20T14:18:11.205477"
+  },
+  {
+    "id": "jungian",
+    "name": "Jungian Psychology",
+    "short_name": "JP",
+    "category": "psychodynamic",
+    "description": "Explores archetypes, shadow work, and individuation.",
+    "key_principles": [
+      "Archetypes",
+      "Shadow integration",
+      "Individuation"
+    ],
+    "therapeutic_goals": [
+      "self_integration",
+      "shadow_work"
+    ],
+    "trigger_patterns": [
+      "shadow",
+      "dark side",
+      "archetypes",
+      "dreams",
+      "symbols",
+      "persona"
+    ],
+    "song_structure_hint": "Archetypal imagery, shadow acknowledgment, integration toward wholeness",
+    "is_enabled": true,
+    "sort_order": 290,
+    "created_at": "2026-01-20T14:18:11.205477",
+    "updated_at": "2026-01-20T14:18:11.205477"
+  }
+]

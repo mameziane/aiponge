@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.backend.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "target": "ES2022",
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "baseUrl": "./src",
+    "paths": {
+      "@config/*": ["config/*"],
+      "@domains/*": ["domains/*"],
+      "@infrastructure/*": ["infrastructure/*"],
+      "@application/*": ["application/*"],
+      "@presentation/*": ["presentation/*"],
+      "@schema/*": ["schema/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["dist", "node_modules", "**/*.test.ts", "**/*.spec.ts"]
+}

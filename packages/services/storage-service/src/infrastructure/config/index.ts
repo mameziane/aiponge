@@ -1,0 +1,1 @@
+export { MusicPathConfig } from './MusicPathConfig';

@@ -1,0 +1,317 @@
+[
+  {
+    "id": "personal",
+    "name": "Personal Book",
+    "description": "Personal journal with customizable chapters and reflection prompts. User writes their own entries based on prompts.",
+    "default_settings": {
+      "coverThemes": "knowledge and insight",
+      "promptTypes": [
+        "reflection",
+        "gratitude",
+        "intention",
+        "action"
+      ],
+      "defaultChapters": 3,
+      "coverDescriptionPrefix": "A book exploring"
+    },
+    "icon_name": "book-outline",
+    "is_user_creatable": true,
+    "is_editable": true,
+    "sort_order": 1,
+    "created_at": "2026-01-27T07:58:51.466854",
+    "updated_at": "2026-01-27T07:58:51.466854",
+    "prompt_template_id": "personal-book"
+  },
+  {
+    "id": "wisdom",
+    "name": "Wisdom Book",
+    "description": "Curated collection of pre-written wisdom insights from philosophy, psychology, and spiritual traditions. Read-only content for contemplation.",
+    "default_settings": {
+      "traditions": [
+        "stoicism",
+        "buddhism",
+        "psychology",
+        "mysticism"
+      ],
+      "coverThemes": "wisdom and knowledge",
+      "depthLevels": [
+        "brief",
+        "standard",
+        "deep"
+      ],
+      "defaultChapters": 4,
+      "coverDescriptionPrefix": "A book of wisdom exploring"
+    },
+    "icon_name": "library-outline",
+    "is_user_creatable": true,
+    "is_editable": false,
+    "sort_order": 2,
+    "created_at": "2026-01-27T07:58:51.466854",
+    "updated_at": "2026-01-27T07:58:51.466854",
+    "prompt_template_id": "book-wisdom"
+  },
+  {
+    "id": "quotes",
+    "name": "Quotes Collection",
+    "description": "Curated collection of inspiring quotes and sayings from notable figures, organized by theme.",
+    "default_settings": {
+      "coverThemes": "inspiration and reflection",
+      "depthLevels": [
+        "brief",
+        "standard",
+        "deep"
+      ],
+      "defaultChapters": 4,
+      "coverDescriptionPrefix": "A collection of quotes about"
+    },
+    "icon_name": "chatbubble-ellipses-outline",
+    "is_user_creatable": true,
+    "is_editable": false,
+    "sort_order": 3,
+    "created_at": "2026-02-07T14:25:55.689113",
+    "updated_at": "2026-02-07T14:25:55.689113",
+    "prompt_template_id": "book-quotes"
+  },
+  {
+    "id": "scientific",
+    "name": "Scientific Insights",
+    "description": "Evidence-based insights from psychology, neuroscience, and behavioral science research.",
+    "default_settings": {
+      "coverThemes": "science and discovery",
+      "depthLevels": [
+        "brief",
+        "standard",
+        "deep"
+      ],
+      "defaultChapters": 4,
+      "coverDescriptionPrefix": "A scientific exploration of"
+    },
+    "icon_name": "flask-outline",
+    "is_user_creatable": true,
+    "is_editable": false,
+    "sort_order": 4,
+    "created_at": "2026-02-07T14:25:55.689113",
+    "updated_at": "2026-02-07T14:25:55.689113",
+    "prompt_template_id": "book-scientific"
+  },
+  {
+    "id": "memoir",
+    "name": "Memoir",
+    "description": "Guided memoir writing with structured prompts for capturing life stories and meaningful memories.",
+    "default_settings": {
+      "coverThemes": "memory and personal journey",
+      "promptTypes": [
+        "reflection",
+        "memory",
+        "narrative"
+      ],
+      "defaultChapters": 3,
+      "coverDescriptionPrefix": "A personal memoir about"
+    },
+    "icon_name": "person-outline",
+    "is_user_creatable": true,
+    "is_editable": true,
+    "sort_order": 5,
+    "created_at": "2026-02-07T14:25:55.689113",
+    "updated_at": "2026-02-07T14:25:55.689113",
+    "prompt_template_id": "book-memoir"
+  },
+  {
+    "id": "fiction",
+    "name": "Fiction",
+    "description": "AI-generated short fiction stories exploring themes of growth, resilience, and human experience.",
+    "default_settings": {
+      "coverThemes": "imagination and storytelling",
+      "depthLevels": [
+        "brief",
+        "standard",
+        "deep"
+      ],
+      "defaultChapters": 4,
+      "coverDescriptionPrefix": "A fiction book about"
+    },
+    "icon_name": "sparkles-outline",
+    "is_user_creatable": true,
+    "is_editable": false,
+    "sort_order": 6,
+    "created_at": "2026-02-07T14:25:55.689113",
+    "updated_at": "2026-02-07T14:25:55.689113",
+    "prompt_template_id": "book-fiction"
+  },
+  {
+    "id": "poetry",
+    "name": "Poetry Collection",
+    "description": "AI-generated poetry exploring emotions, nature, and the human condition through verse.",
+    "default_settings": {
+      "coverThemes": "emotion and expression",
+      "depthLevels": [
+        "brief",
+        "standard",
+        "deep"
+      ],
+      "defaultChapters": 4,
+      "coverDescriptionPrefix": "A poetry collection exploring"
+    },
+    "icon_name": "pencil-outline",
+    "is_user_creatable": true,
+    "is_editable": false,
+    "sort_order": 7,
+    "created_at": "2026-02-07T14:25:55.689113",
+    "updated_at": "2026-02-07T14:25:55.689113",
+    "prompt_template_id": "book-poetry"
+  },
+  {
+    "id": "affirmations",
+    "name": "Affirmations",
+    "description": "Personalized positive affirmations for building confidence, self-love, and mental resilience.",
+    "default_settings": {
+      "coverThemes": "positivity and self-empowerment",
+      "depthLevels": [
+        "brief",
+        "standard",
+        "deep"
+      ],
+      "defaultChapters": 4,
+      "coverDescriptionPrefix": "A book of affirmations about"
+    },
+    "icon_name": "heart-outline",
+    "is_user_creatable": true,
+    "is_editable": false,
+    "sort_order": 8,
+    "created_at": "2026-02-07T14:25:55.689113",
+    "updated_at": "2026-02-07T14:25:55.689113",
+    "prompt_template_id": "book-affirmations"
+  },
+  {
+    "id": "meditation",
+    "name": "Meditation Guide",
+    "description": "Guided meditation scripts and mindfulness practices for inner peace and self-awareness.",
+    "default_settings": {
+      "coverThemes": "mindfulness and inner peace",
+      "depthLevels": [
+        "brief",
+        "standard",
+        "deep"
+      ],
+      "defaultChapters": 4,
+      "coverDescriptionPrefix": "A meditation guide exploring"
+    },
+    "icon_name": "leaf-outline",
+    "is_user_creatable": true,
+    "is_editable": false,
+    "sort_order": 9,
+    "created_at": "2026-02-07T14:25:55.689113",
+    "updated_at": "2026-02-07T14:25:55.689113",
+    "prompt_template_id": "book-meditation"
+  },
+  {
+    "id": "growth",
+    "name": "Personal Growth",
+    "description": "Actionable personal development content with exercises, frameworks, and growth strategies.",
+    "default_settings": {
+      "coverThemes": "personal growth and transformation",
+      "depthLevels": [
+        "brief",
+        "standard",
+        "deep"
+      ],
+      "defaultChapters": 4,
+      "coverDescriptionPrefix": "A personal growth book about"
+    },
+    "icon_name": "trending-up-outline",
+    "is_user_creatable": true,
+    "is_editable": false,
+    "sort_order": 10,
+    "created_at": "2026-02-07T14:25:55.689113",
+    "updated_at": "2026-02-07T14:25:55.689113",
+    "prompt_template_id": "book-growth"
+  },
+  {
+    "id": "children",
+    "name": "Children's Stories",
+    "description": "Wholesome, imaginative stories for children that teach values and spark curiosity.",
+    "default_settings": {
+      "coverThemes": "wonder and imagination",
+      "depthLevels": [
+        "brief",
+        "standard",
+        "deep"
+      ],
+      "defaultChapters": 4,
+      "coverDescriptionPrefix": "A children's book about"
+    },
+    "icon_name": "happy-outline",
+    "is_user_creatable": true,
+    "is_editable": false,
+    "sort_order": 11,
+    "created_at": "2026-02-07T14:25:55.689113",
+    "updated_at": "2026-02-07T14:25:55.689113",
+    "prompt_template_id": "book-children"
+  },
+  {
+    "id": "educational",
+    "name": "Educational",
+    "description": "Educational content covering topics like science, history, languages, and practical skills, presented in an engaging and accessible format.",
+    "default_settings": {
+      "coverThemes": "learning and knowledge",
+      "depthLevels": [
+        "brief",
+        "standard",
+        "deep"
+      ],
+      "defaultChapters": 4,
+      "coverDescriptionPrefix": "An educational book about"
+    },
+    "icon_name": "school-outline",
+    "is_user_creatable": true,
+    "is_editable": false,
+    "sort_order": 12,
+    "created_at": "2026-02-07T14:25:55.689113",
+    "updated_at": "2026-02-07T14:25:55.689113",
+    "prompt_template_id": "book-educational"
+  },
+  {
+    "id": "philosophy",
+    "name": "Philosophy",
+    "description": "Deep philosophical explorations of life's big questions, drawing from diverse traditions of thought.",
+    "default_settings": {
+      "coverThemes": "philosophy and deep thought",
+      "depthLevels": [
+        "brief",
+        "standard",
+        "deep"
+      ],
+      "defaultChapters": 4,
+      "coverDescriptionPrefix": "A philosophical exploration of"
+    },
+    "icon_name": "school-outline",
+    "is_user_creatable": true,
+    "is_editable": false,
+    "sort_order": 13,
+    "created_at": "2026-02-07T14:25:55.689113",
+    "updated_at": "2026-02-07T14:25:55.689113",
+    "prompt_template_id": "book-philosophy"
+  },
+  {
+    "id": "dreams",
+    "name": "Dream Journal",
+    "description": "AI-assisted dream interpretation and analysis, exploring symbolism and subconscious patterns.",
+    "default_settings": {
+      "coverThemes": "dreams and subconscious",
+      "depthLevels": [
+        "brief",
+        "standard",
+        "deep"
+      ],
+      "defaultChapters": 4,
+      "coverDescriptionPrefix": "A dream journal exploring"
+    },
+    "icon_name": "moon-outline",
+    "is_user_creatable": true,
+    "is_editable": false,
+    "sort_order": 14,
+    "created_at": "2026-02-07T14:25:55.689113",
+    "updated_at": "2026-02-07T14:25:55.689113",
+    "prompt_template_id": "book-dreams"
+  }
+]

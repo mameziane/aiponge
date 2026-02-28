@@ -1,0 +1,7 @@
+{
+  "extends": "../../../tests/toolchain/backend/tsconfig.test.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "types": ["node", "vitest/globals"]
+  }
+}

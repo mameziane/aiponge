@@ -1,0 +1,220 @@
+name: Backend CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+
+concurrency:
+  group: deploy-${{ github.ref_name }}
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: ${{ secrets.AWS_REGION || 'us-east-1' }}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+        env:
+          JWT_SECRET: ci-test-secret-${{ github.run_id }}-minimum-32-chars-required
+      - run: npm run build:prod
+
+  docker-build:
+    needs: test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - service: api-gateway
+            port: 8080
+            path: packages/services/api-gateway
+          - service: system-service
+            port: 3001
+            path: packages/services/system-service
+          - service: storage-service
+            port: 3002
+            path: packages/services/storage-service
+          - service: user-service
+            port: 3003
+            path: packages/services/user-service
+          - service: ai-config-service
+            port: 3004
+            path: packages/services/ai-config-service
+          - service: ai-content-service
+            port: 3005
+            path: packages/services/ai-content-service
+          - service: ai-analytics-service
+            port: 3006
+            path: packages/services/ai-analytics-service
+          - service: music-service
+            port: 3007
+            path: packages/services/music-service
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set image tags
+        id: tags
+        run: |
+          REGISTRY="${{ steps.login-ecr.outputs.registry }}"
+          SHA_TAG="${REGISTRY}/aiponge-${{ matrix.service }}:${{ github.sha }}"
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            LATEST_TAG="${REGISTRY}/aiponge-${{ matrix.service }}:stable"
+          else
+            LATEST_TAG="${REGISTRY}/aiponge-${{ matrix.service }}:latest"
+          fi
+          echo "sha_tag=$SHA_TAG" >> "$GITHUB_OUTPUT"
+          echo "latest_tag=$LATEST_TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: deploy/docker/Dockerfile.service
+          build-args: |
+            SERVICE_PORT=${{ matrix.port }}
+            SERVICE_PATH=${{ matrix.path }}
+          push: false
+          load: true
+          tags: |
+            ${{ steps.tags.outputs.sha_tag }}
+            ${{ steps.tags.outputs.latest_tag }}
+          cache-from: type=gha,scope=${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service }}
+
+      - name: Scan for vulnerabilities
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ${{ steps.tags.outputs.sha_tag }}
+          format: 'table'
+          severity: 'HIGH,CRITICAL'
+          exit-code: '0'
+
+      - name: Push to ECR
+        run: |
+          docker push ${{ steps.tags.outputs.sha_tag }}
+          docker push ${{ steps.tags.outputs.latest_tag }}
+
+  deploy-staging:
+    needs: docker-build
+    if: github.ref_name == 'develop'
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.7"
+
+      - name: Terraform Init
+        working-directory: deploy/terraform
+        run: terraform init
+
+      - name: Terraform Plan (staging)
+        working-directory: deploy/terraform
+        run: terraform plan -var-file=environments/staging.tfvars -var="image_tag=${{ github.sha }}" -out=tfplan
+
+      - name: Terraform Apply (staging)
+        working-directory: deploy/terraform
+        run: terraform apply -auto-approve tfplan
+
+      - name: Smoke test staging
+        run: |
+          STAGING_URL="${{ vars.STAGING_URL || 'https://staging.aiponge.com' }}"
+          for i in $(seq 1 30); do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/health" || echo "000")
+            if [ "$STATUS" = "200" ]; then
+              echo "Staging /health passed"
+              READY_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/health/ready" || echo "000")
+              if [ "$READY_STATUS" != "200" ]; then
+                echo "WARNING: /health/ready returned $READY_STATUS"
+              fi
+              exit 0
+            fi
+            echo "Attempt $i: status=$STATUS, retrying in 10s..."
+            sleep 10
+          done
+          echo "Staging health check failed after 30 attempts"
+          exit 1
+
+  deploy-production:
+    needs: docker-build
+    if: github.ref_name == 'main'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.7"
+
+      - name: Terraform Init
+        working-directory: deploy/terraform
+        run: terraform init
+
+      - name: Terraform Plan (production)
+        working-directory: deploy/terraform
+        run: terraform plan -var-file=environments/production.tfvars -var="image_tag=${{ github.sha }}" -out=tfplan
+
+      - name: Terraform Apply (production)
+        working-directory: deploy/terraform
+        run: terraform apply -auto-approve tfplan
+
+      - name: Smoke test production
+        run: |
+          PROD_URL="${{ vars.PRODUCTION_URL || 'https://aiponge.com' }}"
+          for i in $(seq 1 30); do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$PROD_URL/health" || echo "000")
+            if [ "$STATUS" = "200" ]; then
+              echo "Production /health passed"
+              READY_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$PROD_URL/health/ready" || echo "000")
+              if [ "$READY_STATUS" != "200" ]; then
+                echo "WARNING: /health/ready returned $READY_STATUS"
+              fi
+              exit 0
+            fi
+            echo "Attempt $i: status=$STATUS, retrying in 10s..."
+            sleep 10
+          done
+          echo "Production health check failed after 30 attempts"
+          exit 1

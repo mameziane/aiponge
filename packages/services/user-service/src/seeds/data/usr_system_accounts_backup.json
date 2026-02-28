@@ -1,0 +1,77 @@
+[
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "email": "admin@aiponge.com",
+    "passwordHash": "$2b$10$KsB8scnDzCGRywZZ.HgO9uz.wBC0lmuwq.98575KsFm/NcTgkcFpK",
+    "role": "admin",
+    "status": "active",
+    "profile": {
+      "bio": "aiponge admin user",
+      "name": "aiponge admin",
+      "avatar": "https://6f026ca3-8f81-4543-8eca-30231586e40d-00-3o6ss89hm1i8f.spock.replit.dev/uploads/user/550e8400-e29b-41d4-a716-446655440000/avatars/376d3a7c-b82c-4ae4-ae6c-9962932d6d9e.webp",
+      "lastName": "Ameziane",
+      "birthdate": "1964-05-17",
+      "firstName": "Mourad",
+      "displayName": "aiponge admin"
+    },
+    "preferences": {
+      "currentMood": "confident",
+      "vocalGender": "m",
+      "musicInstruments": ["guitar"],
+      "musicPreferences": "flamenco",
+      "languagePreference": "en",
+      "languagePreferences": ["fr", "ar"]
+    },
+    "metadata": {
+      "source": "test",
+      "referral": "development"
+    },
+    "emailVerified": true,
+    "isGuest": false,
+    "isSystemAccount": true,
+    "organizationId": null,
+    "phoneNumber": null,
+    "phoneE164": null,
+    "phoneVerified": false,
+    "preferredAuthChannel": "email",
+    "failedLoginAttempts": 0,
+    "lockedUntil": null
+  },
+  {
+    "id": "a027c10e-0c6b-4bfe-bf5c-1c92a1f5d55c",
+    "email": "library@aiponge.com",
+    "passwordHash": "$2b$10$KsB8scnDzCGRywZZ.HgO9uz.wBC0lmuwq.98575KsFm/NcTgkcFpK",
+    "role": "librarian",
+    "status": "active",
+    "profile": {
+      "bio": "Official curated content from the Aiponge team",
+      "name": "aiponge originals",
+      "displayName": "aiponge originals"
+    },
+    "preferences": {
+      "musicGenre": "pop",
+      "currentMood": "joyful",
+      "styleWeight": 1,
+      "vocalGender": "f",
+      "musicInstruments": ["drums", "guitar", "violin", "flute"],
+      "musicPreferences": "karnaval schlager sehr rytmish",
+      "wellnessIntention": "creative_expression",
+      "languagePreference": "en",
+      "languagePreferences": ["de"]
+    },
+    "metadata": {
+      "purpose": "system_account",
+      "description": "Librarian account for managing shared library content"
+    },
+    "emailVerified": true,
+    "isGuest": false,
+    "isSystemAccount": true,
+    "organizationId": null,
+    "phoneNumber": null,
+    "phoneE164": null,
+    "phoneVerified": false,
+    "preferredAuthChannel": "email",
+    "failedLoginAttempts": 0,
+    "lockedUntil": null
+  }
+]

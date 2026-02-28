@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    // Core TypeScript settings shared by all projects
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "downlevelIteration": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    // Memory optimization: External source maps only (not inline) for debugging
+    "sourceMap": true,
+    "inlineSourceMap": false,
+    "inlineSources": false,
+    "declarationMap": false,
+    "incremental": true,
+
+    // Module resolution for monorepo development
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "baseUrl": ".",
+    
+    // Universal path mappings used across all project types
+    "paths": {
+      "@aiponge/shared-contracts": ["packages/shared/contracts/src/index.ts"],
+      "@aiponge/shared-contracts/*": ["packages/shared/contracts/src/*"]
+    }
+  }
+}

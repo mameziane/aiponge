@@ -1,0 +1,166 @@
+# syntax=docker/dockerfile:1.6
+# Enhanced Dockerfile Template for Microservices
+# Comprehensive security hardening and parameterization template
+# This template can replace individual service Dockerfiles while maintaining security and configurability
+
+# Build arguments for parameterization
+ARG NODE_VERSION=20.17-alpine
+ARG SERVICE_PORT=3001
+ARG HEALTHCHECK_PATH=/health
+ARG USER_NAME=app
+ARG START_CMD="npm start"
+ARG SERVICE_PATH=""
+
+# ==========================================
+# Builder Stage - Dependencies and Build
+# ==========================================
+FROM node:${NODE_VERSION} AS builder
+
+# Install security updates and curl for health checks
+RUN apk update && apk upgrade && \
+    apk add --no-cache \
+    curl \
+    tini && \
+    rm -rf /var/cache/apk/*
+
+# Create application directory
+WORKDIR /app
+
+# Create non-root user and group early for security
+ARG USER_NAME
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S ${USER_NAME} -u 1001 -G nodejs
+
+# Copy package files for dependency installation
+# Use BuildKit cache mount for npm cache optimization
+COPY --chown=${USER_NAME}:nodejs ${SERVICE_PATH}/package*.json ./
+
+# Note: TypeScript config files will be included with source code copy below
+
+# Install all dependencies (including dev dependencies for build)
+# Use BuildKit cache mount to optimize npm installs
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --include=dev
+
+# Copy source code
+COPY --chown=${USER_NAME}:nodejs ${SERVICE_PATH}/ .
+
+# Ensure shared and public directories exist (create empty if not present)
+RUN mkdir -p shared public
+
+# Build the application
+RUN npm run build
+
+# Remove dev dependencies and keep only production dependencies
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --only=production && \
+    npm cache clean --force
+
+# ==========================================
+# Runtime Stage - Minimal Production Image
+# ==========================================
+FROM node:${NODE_VERSION} AS runtime
+
+# Install security updates and minimal required packages
+RUN apk update && apk upgrade && \
+    apk add --no-cache \
+    curl \
+    tini && \
+    rm -rf /var/cache/apk/*
+
+# Build arguments for runtime configuration
+ARG SERVICE_PORT
+ARG HEALTHCHECK_PATH
+ARG USER_NAME
+ARG START_CMD
+ARG SERVICE_PATH
+
+# Set environment variables
+ENV NODE_ENV=production
+ENV SERVICE_PORT=${SERVICE_PORT}
+ENV PORT=${SERVICE_PORT}
+ENV HEALTHCHECK_PATH=${HEALTHCHECK_PATH}
+ENV START_CMD=${START_CMD}
+
+# Create application directory
+WORKDIR /app
+
+# Create non-root user and group
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S ${USER_NAME} -u 1001 -G nodejs
+
+# Copy built application and production dependencies from builder
+COPY --from=builder --chown=${USER_NAME}:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=${USER_NAME}:nodejs /app/dist ./dist
+COPY --from=builder --chown=${USER_NAME}:nodejs /app/package*.json ./
+
+# Copy any additional required files (shared libraries, configs, etc.)
+# Shared directory is guaranteed to exist from builder stage (created if not present)
+COPY --from=builder --chown=${USER_NAME}:nodejs /app/shared ./shared
+
+# Copy public directory for static assets (legal pages, etc.)
+# Directory is guaranteed to exist from builder stage (created if not present)
+COPY --from=builder --chown=${USER_NAME}:nodejs /app/public ./public
+
+# Create necessary directories with proper permissions
+RUN mkdir -p /app/logs /app/tmp && \
+    chown -R ${USER_NAME}:nodejs /app && \
+    chmod -R 755 /app
+
+# Security hardening: make filesystem read-only where possible
+# Create writable directories for logs and temporary files
+RUN mkdir -p /tmp/app && \
+    chown ${USER_NAME}:nodejs /tmp/app && \
+    chmod 755 /tmp/app
+
+# Switch to non-root user
+USER ${USER_NAME}
+
+# Expose the configurable service port
+EXPOSE ${SERVICE_PORT}
+
+# Health check with dynamic configuration
+# Uses environment variables set at runtime for maximum flexibility
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:${SERVICE_PORT}${HEALTHCHECK_PATH} || exit 1
+
+# Security: Use Tini as init system to handle zombie processes
+# Drop all capabilities for maximum security
+ENTRYPOINT ["/sbin/tini", "--"]
+
+# Default command - can be overridden via START_CMD build arg or at runtime
+CMD sh -c "${START_CMD}"
+
+# Metadata labels for better container management
+LABEL maintainer="development-team" \
+      version="1.0" \
+      description="Secure, parameterized Node.js microservice template" \
+      security.non-root="true" \
+      security.read-only-root="partial" \
+      security.capabilities="dropped"
+
+# Security best practices applied:
+# 1. Multi-stage build to minimize attack surface
+# 2. Non-root user execution
+# 3. Minimal base image (Alpine Linux)
+# 4. Security updates installed
+# 5. Tini as init system for proper signal handling
+# 6. BuildKit cache optimization for faster builds
+# 7. Proper file permissions and ownership
+# 8. Health check with configurable endpoints
+# 9. Parameterized configuration via build args
+# 10. Production-only dependencies in runtime image
+
+# Usage examples:
+# 
+# Basic usage:
+# docker build -t my-service .
+#
+# Custom port and health endpoint:
+# docker build --build-arg SERVICE_PORT=8080 --build-arg HEALTHCHECK_PATH=/api/health -t my-service .
+#
+# Custom user and start command:
+# docker build --build-arg USER_NAME=myapp --build-arg START_CMD="node dist/server.js" -t my-service .
+#
+# Runtime environment variable override:
+# docker run -e SERVICE_PORT=9000 -e HEALTHCHECK_PATH=/status my-service

@@ -1,0 +1,72 @@
+# Deployment Optimization - Exclude unnecessary files to reduce bundle size
+# This reduces deployment time and bundle size significantly
+
+# Development files and directories
+.git
+.github
+.vscode
+.idea
+*.log
+logs/
+*.tmp
+*.swp
+
+# Documentation and tests (not needed in production)
+docs/
+tests/
+*.test.ts
+*.test.js
+*.spec.ts
+*.spec.js
+__tests__/
+coverage/
+
+# Build artifacts and caches
+.turbo/
+.next/
+.expo/
+.metro-cache/
+dist/
+build/
+*.tsbuildinfo
+
+# Development tools and scripts (keep scripts/ since prod-start.sh may need it)
+tools/
+backups/
+
+# Mobile app (not needed for backend deployment)
+apps/aiponge/
+
+# Note: Do not exclude microservice directories here.
+# The parametric Dockerfile.service builds any service from the monorepo root context.
+# Excluding services would break CI/CD Docker builds.
+
+# Environment and config files (use Replit Secrets instead)
+.env.local
+.env.*.local
+
+# User uploads and data (should be in persistent storage, not deployment bundle)
+uploads/
+*.db
+*.sqlite
+
+# Package manager files
+.npmrc
+.yarnrc
+yarn.lock
+pnpm-lock.yaml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Large media files
+*.mp3
+*.mp4
+*.wav
+*.avi
+*.mov
+*.png
+*.jpg
+*.jpeg
+*.gif

@@ -1,0 +1,15 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./apps/aiponge" },
+    { "path": "./packages/shared/contracts" },
+    { "path": "./packages/services/ai-analytics-service" },
+    { "path": "./packages/services/ai-content-service" },
+    { "path": "./packages/services/ai-config-service" },
+    { "path": "./packages/services/api-gateway" },
+    { "path": "./packages/services/user-service" },
+    { "path": "./packages/services/music-service" },
+    { "path": "./packages/services/storage-service" },
+    { "path": "./packages/services/system-service" }
+  ]
+}

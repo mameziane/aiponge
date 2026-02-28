@@ -1,0 +1,211 @@
+{
+  "expo": {
+    "name": "aiponge - Music & Mindfulness",
+    "slug": "aiponge",
+    "entryPoint": "./index",
+    "platforms": [
+      "ios",
+      "android"
+    ],
+    "version": "1.0.0",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/3105eaef-4c9a-4e35-ae6c-3f301f614ccf",
+      "enabled": true,
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 3000
+    },
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "description": "Transform your entries into personalized AI-generated music and gain deep psychological insights with aiponge. Create songs that support your emotional wellness journey, and discover yourself through 29 psychological frameworks. Features include voice-to-text transcription, multilingual support in 6 languages, and a personal AI mentor for mindfulness and self-discovery.",
+    "primaryColor": "#1a0b2e",
+    "backgroundColor": "#1a0b2e",
+    "splash": {
+      "image": "./assets/icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#1a0b2e"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.mameziane.aiponge",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "UIBackgroundModes": [
+          "audio"
+        ],
+        "NSSpeechRecognitionUsageDescription": "aiponge uses speech recognition to transcribe your voice into text entries.",
+        "NSMicrophoneUsageDescription": "aiponge needs microphone access to record your voice for transcription.",
+        "NSPhotoLibraryUsageDescription": "aiponge needs access to your photos to set album artwork and profile pictures",
+        "NSCameraUsageDescription": "aiponge needs camera access to take photos for album artwork and profile pictures",
+        "NSLocationWhenInUseUsageDescription": "aiponge uses your location to personalize music suggestions based on your local time and environment",
+        "NSBluetoothAlwaysUsageDescription": "aiponge uses Bluetooth to connect to wireless audio devices for music playback.",
+        "NSLocalNetworkUsageDescription": "aiponge uses your local network to discover Cast-compatible audio devices.",
+        "NSBonjourServices": [
+          "_googlecast._tcp",
+          "_CC1AD845._googlecast._tcp"
+        ]
+      },
+      "entitlements": {
+        "com.apple.security.application-groups": [
+          "group.com.mameziane.aiponge"
+        ]
+      },
+      "associatedDomains": [
+        "applinks:aiponge.com",
+        "webcredentials:aiponge.com"
+      ]
+    },
+    "privacy": "https://aiponge.com/privacy",
+    "termsOfService": "https://aiponge.com/terms",
+    "android": {
+      "package": "com.aiponge",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#1a0b2e"
+      },
+      "permissions": [
+        "android.permission.BLUETOOTH",
+        "android.permission.BLUETOOTH_ADMIN",
+        "android.permission.BLUETOOTH_CONNECT",
+        "android.permission.BLUETOOTH_SCAN",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "aiponge.com",
+              "pathPrefix": "/track"
+            },
+            {
+              "scheme": "https",
+              "host": "aiponge.com",
+              "pathPrefix": "/playlist"
+            },
+            {
+              "scheme": "https",
+              "host": "aiponge.com",
+              "pathPrefix": "/profile"
+            },
+            {
+              "scheme": "https",
+              "host": "aiponge.com",
+              "pathPrefix": "/share"
+            }
+          ],
+          "categories": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ]
+    },
+    "scheme": "aiponge",
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      "expo-localization",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#1a0b2e",
+          "sounds": []
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "aiponge needs access to your photos to set album artwork and profile pictures.",
+          "cameraPermission": "aiponge needs camera access to take photos for album artwork and profile pictures."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "aiponge uses your location to personalize music suggestions based on your local time and environment."
+        }
+      ],
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "aiponge needs microphone access to record your voice for transcription.",
+          "speechRecognitionPermission": "aiponge uses speech recognition to transcribe your voice into text entries.",
+          "androidSpeechServicePackages": [
+            "com.google.android.googlequicksearchbox"
+          ]
+        }
+      ],
+      [
+        "@siteed/expo-audio-studio",
+        {
+          "enableDeviceDetection": false
+        }
+      ],
+      [
+        "react-native-google-cast",
+        {
+          "receiverAppId": "CC1AD845",
+          "expandedController": true,
+          "iosStartDiscoveryAfterFirstTapOnCastButton": true,
+          "androidPlayServicesCastFrameworkVersion": "22.1.0"
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "15.1"
+          },
+          "android": {
+            "enableProguardInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true,
+            "enableMinifyInReleaseBuilds": true
+          }
+        }
+      ],
+      [
+        "expo-share-intent",
+        {
+          "iosActivationRules": {
+            "NSExtensionActivationSupportsText": true,
+            "NSExtensionActivationSupportsWebURLWithMaxCount": 1
+          },
+          "androidIntentFilters": [
+            "text/*"
+          ],
+          "androidMainActivityAttributes": {
+            "android:launchMode": "singleTask"
+          }
+        }
+      ],
+      "@react-native-community/datetimepicker",
+      "expo-video"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "newArchEnabled": true,
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "3105eaef-4c9a-4e35-ae6c-3f301f614ccf"
+      }
+    },
+    "owner": "aiponge-productions"
+  }
+}

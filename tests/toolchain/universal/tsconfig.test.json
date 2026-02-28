@@ -1,0 +1,16 @@
+{
+  "extends": "../../../tsconfig.test.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "moduleResolution": "bundler",
+    "types": ["vitest/globals", "node", "@testing-library/jest-dom"],
+    "allowJs": true,
+    "jsx": "react-jsx"
+  },
+  "include": [
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts", 
+    "**/*.spec.tsx"
+  ]
+}

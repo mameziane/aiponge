@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.backend.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "baseUrl": "./src",
+    "paths": {
+      "@config/*": ["config/*"],
+      "@domains/*": ["domains/*"],
+      "@infrastructure/*": ["infrastructure/*"],
+      "@schema/*": ["schema/*"],
+      "@presentation/*": ["presentation/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
+}

@@ -1,0 +1,30 @@
+{
+  "extends": "../../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "baseUrl": "./src",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "target": "ES2020",
+    "downlevelIteration": true,
+    "paths": {
+      "@domains/*": ["domains/*"],
+      "@domains": ["domains/index.ts"],
+      "@application/*": ["application/*"],
+      "@infrastructure/*": ["infrastructure/*"],
+      "@infrastructure/repositories": ["infrastructure/repositories/index.ts"],
+      "@infrastructure/services": ["infrastructure/services/index.ts"],
+      "@infrastructure/clients": ["infrastructure/clients/index.ts"],
+      "@presentation/*": ["presentation/*"],
+      "@presentation/controllers": ["presentation/controllers/index.ts"],
+      "@config/*": ["config/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts", "src/_legacy/**/*"]
+}

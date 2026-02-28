@@ -1,0 +1,493 @@
+{
+  "$schema": "aiponge-tier-definition/v1",
+  "description": "Revised unified subscription tier specification. Aligned with experience-first distribution strategy: everyone enters as a person, not a role. No coach/client segmentation. Tiers expand based on usage depth, not professional identity. Philosophy: the song is the pitch, the replay is the proof, the upgrade is a natural deepening.",
+  "changeLog": {
+    "version": "2.0",
+    "date": "2026-02-14",
+    "summary": "Complete restructure from 3-tier (guest/starter/premium) to 4-tier (guest/explorer/personal/practice) model. Key changes: (1) Guest tier redesigned as zero-friction first-song experience with disappearing song mechanic. (2) New free Explorer tier for retention validation and replay rate measurement. (3) Starter renamed to Personal at same price point, repositioned as individual deepening. (4) Premium replaced by Practice tier at $49/mo for professional sharing use cases. (5) Studio tier spec'd but NOT for launch — build only when demand is proven. (6) Removed weekly billing across all tiers. (7) All tiers are role-agnostic — no coach/client distinction anywhere.",
+    "launchSequence": {
+      "month1_2": "Guest + Explorer only. Pure validation. No revenue, no paywall.",
+      "month3": "Introduce Personal ($9.99). First revenue signal.",
+      "month4_5": "Introduce Practice ($49) only when coaches ask for structured sharing.",
+      "month6_plus": "Evaluate Studio ($149) based on power user behavior."
+    }
+  },
+  "fileMapping": {
+    "identity + limits + features": "packages/shared/contracts/src/common/subscription-tiers.ts",
+    "generation": "packages/services/ai-content-service/src/domains/services/TierConfigService.ts",
+    "appStore": "apps/aiponge/src/contexts/subscription.types.ts (REVENUECAT_PRODUCT_IDS, REVENUECAT_ENTITLEMENTS)",
+    "display + behavior": "apps/aiponge/src/constants/tierDisplayConfig.ts",
+    "i18n": "apps/aiponge/src/i18n/locales/{locale}.json → subscription.tiers.{tierId}.*",
+    "dbSchema": "packages/services/user-service/src/infrastructure/database/schemas/subscription-schema.ts",
+    "external": "RevenueCat Dashboard, Apple App Store Connect, Google Play Console"
+  },
+  "tiers": {
+    "guest": {
+      "_designIntent": "Zero-friction first-song experience. No account, no signup, no onboarding screens. The song IS the pitch. Disappearing song mechanic: song exists temporarily, account creation framed as 'save what you just made.' This tier is the customer acquisition funnel — every interaction here is a distribution moment.",
+      "identity": {
+        "id": "guest",
+        "name": "Guest",
+        "isPaid": false,
+        "isDefault": true,
+        "sortOrder": 0
+      },
+      "pricing": {
+        "monthly": null,
+        "annual": null,
+        "annualSavingsPercent": null
+      },
+      "appStore": {
+        "revenueCatEntitlementId": null,
+        "productIds": {}
+      },
+      "limits": {
+        "songsPerMonth": 1,
+        "lyricsPerMonth": 1,
+        "insightsPerMonth": 0,
+        "booksPerMonth": 0,
+        "songExpiresAfterHours": 48,
+        "_note": "-1 = unlimited, 0 = disabled. songExpiresAfterHours: song is accessible for this duration without account creation, then disappears. This creates urgency to save (register) without being manipulative — it's just true."
+      },
+      "features": {
+        "canGenerateMusic": true,
+        "canGenerateBooks": false,
+        "maxBookDepth": null,
+        "canAccessLibrary": false,
+        "canAccessActivityCalendar": false,
+        "canAccessMentorLine": false,
+        "canAccessInsightsReports": false,
+        "canSelectFramework": false,
+        "canSelectMusicStyle": true,
+        "canShareSongs": false,
+        "canAccessJournal": false,
+        "_note": "Guest gets ONE thing: type thoughts → hear song. Music style preferences available from Guest tier onwards — it's a low-friction personalization that increases engagement. Framework is auto-selected by AI. No library because there's nothing to store yet."
+      },
+      "generation": {
+        "parallelTrackLimit": 1,
+        "staggerDelayMs": 5000,
+        "maxQuality": "standard",
+        "priorityBoost": 0,
+        "_note": "Quality is 'standard' not 'draft' — the first song must be genuinely good. This is the moment of personal recognition. A draft-quality song kills the entire distribution model. We absorb the cost here because this IS customer acquisition."
+      },
+      "display": {
+        "icon": "musical-notes",
+        "gradientKey": "primary",
+        "showRecommendedBadge": false,
+        "canUpgradeTo": "explorer",
+        "marketingFeatures": [],
+        "_note": "No marketing features displayed to guest. The song speaks for itself. The only CTA after song generation is 'Save this song' which triggers account creation → explorer tier."
+      },
+      "behavior": {
+        "showUpgradePromptOnLowQuota": false,
+        "showResetDateOnLimitReached": false,
+        "blockMusicGeneration": true,
+        "requiresAccountForPurchase": true,
+        "showDisappearingSongTimer": true,
+        "accountCreationPromptAfterSong": true,
+        "_note": "blockMusicGeneration=true means after the 1 free song, they must create account to generate more. showDisappearingSongTimer shows a gentle countdown: 'This song will disappear in X hours. Save it to your library.' accountCreationPromptAfterSong triggers the 'save what you just made' flow immediately after first listen."
+      },
+      "i18n": {
+        "_note": "English baseline. Translate to: fr-FR, de-DE, es-ES, pt-BR, ar, ja-JP",
+        "name": "Guest",
+        "tagline": "What's on your mind?",
+        "description": "Type your thoughts. Hear them back as a song.",
+        "features": {},
+        "disappearingSongPrompt": "This song was made from your words. Save it before it's gone.",
+        "accountCreationCTA": "Keep this song"
+      }
+    },
+    "explorer": {
+      "_designIntent": "Free tier for registered users. Exists to validate the core thesis: do people replay songs? This tier sustains the personal-to-professional pipeline — a coach experimenting with AIPONGE for their own growth stays here until they're convinced. Constraint is on creation, not consumption: they can replay existing songs unlimited times. This is where we measure the North Star metric (replay rate 3+/week).",
+      "identity": {
+        "id": "explorer",
+        "name": "Explorer",
+        "isPaid": false,
+        "isDefault": false,
+        "sortOrder": 1
+      },
+      "pricing": {
+        "monthly": null,
+        "annual": null,
+        "annualSavingsPercent": null
+      },
+      "appStore": {
+        "revenueCatEntitlementId": null,
+        "productIds": {}
+      },
+      "limits": {
+        "songsPerMonth": 2,
+        "lyricsPerMonth": 4,
+        "insightsPerMonth": 3,
+        "booksPerMonth": 0,
+        "_note": "-1 = unlimited, 0 = disabled. 2 songs/month is intentionally low — enough to build a small library over time and sustain engagement, but low enough that power users naturally want more. Lyrics limit is 2x songs to allow regeneration without burning song credits."
+      },
+      "features": {
+        "canGenerateMusic": true,
+        "canGenerateBooks": false,
+        "maxBookDepth": null,
+        "canAccessLibrary": true,
+        "canAccessActivityCalendar": false,
+        "canAccessMentorLine": false,
+        "canAccessInsightsReports": false,
+        "canSelectFramework": false,
+        "canSelectMusicStyle": true,
+        "canShareSongs": true,
+        "canAccessJournal": true,
+        "_note": "Key unlock vs Guest: persistent library (songs don't disappear), basic journal input, and sharing. Sharing is critical — this is the distribution moment. When an Explorer shares a song, that's organic growth. Music style preferences available for personalization. Framework remains AI-selected to keep the experience simple and to demonstrate that the AI 'gets' them without manual configuration."
+      },
+      "generation": {
+        "parallelTrackLimit": 1,
+        "staggerDelayMs": 5000,
+        "maxQuality": "standard",
+        "priorityBoost": 0,
+        "_note": "Same generation quality as Guest. No degradation for free users — every song must be good enough to trigger the replay behavior we're measuring."
+      },
+      "display": {
+        "icon": "compass-outline",
+        "gradientKey": "primary",
+        "showRecommendedBadge": false,
+        "canUpgradeTo": "personal",
+        "marketingFeatures": [
+          { "icon": "musical-notes", "labelKey": "songs", "params": { "count": 2 } },
+          { "icon": "library", "labelKey": "library" },
+          { "icon": "share-social", "labelKey": "share" },
+          { "icon": "journal-outline", "labelKey": "journal" }
+        ]
+      },
+      "behavior": {
+        "showUpgradePromptOnLowQuota": true,
+        "showResetDateOnLimitReached": true,
+        "blockMusicGeneration": false,
+        "requiresAccountForPurchase": false,
+        "showDisappearingSongTimer": false,
+        "accountCreationPromptAfterSong": false,
+        "_note": "showUpgradePromptOnLowQuota=true means when they've used 1 of 2 songs, a gentle prompt appears. NOT aggressive — framed as 'Want to go deeper? Unlock more songs and choose your own frameworks.' showResetDateOnLimitReached=true shows when their quota resets so they know more songs are coming."
+      },
+      "i18n": {
+        "name": "Explorer",
+        "tagline": "Your songs, your library",
+        "description": "Save your songs. Replay them anytime. Share what moves you.",
+        "features": {
+          "songs": "{{count}} songs per month",
+          "library": "Personal Song Library",
+          "share": "Share Songs",
+          "journal": "Journal Input"
+        },
+        "upgradePrompt": "Want to choose your own frameworks and styles?",
+        "limitReachedMessage": "You've used your songs for this month. More available {{resetDate}}."
+      }
+    },
+    "personal": {
+      "_designIntent": "First paid tier. For anyone — coach, individual, therapist, student — who experienced the magic and wants more depth. This is NOT a 'coach plan' or 'individual plan.' It's for a person who wants more songs and more control. Key unlocks: framework selection (choose which of 29 frameworks), music style preferences, Virtual Mentor Chat, and journal-to-song pipeline. Price point ($9.99) sits below the 'I need to think about this' threshold.",
+      "identity": {
+        "id": "personal",
+        "name": "Personal",
+        "isPaid": true,
+        "isDefault": false,
+        "sortOrder": 2
+      },
+      "pricing": {
+        "monthly": "$9.99",
+        "annual": "$79.99",
+        "annualSavingsPercent": "33",
+        "_note": "No weekly billing. Annual pricing available but not emphasized at launch — we need monthly churn data first. $9.99 matches Suno/Udio consumer tier pricing, which users may benchmark against."
+      },
+      "appStore": {
+        "revenueCatEntitlementId": "personal",
+        "productIds": {
+          "monthly": "subscription_monthly_personal",
+          "yearly": "subscription_yearly_personal"
+        }
+      },
+      "limits": {
+        "songsPerMonth": 15,
+        "lyricsPerMonth": 30,
+        "insightsPerMonth": 30,
+        "booksPerMonth": 2,
+        "_note": "15 songs ≈ one every 2 days. Enough for regular journaling practice. Lyrics 2x songs for regeneration flexibility. 2 books/month unlocks the book generation feature as a deepening tool."
+      },
+      "features": {
+        "canGenerateMusic": true,
+        "canGenerateBooks": true,
+        "maxBookDepth": "standard",
+        "canAccessLibrary": true,
+        "canAccessActivityCalendar": true,
+        "canAccessMentorLine": true,
+        "canAccessInsightsReports": false,
+        "canSelectFramework": false,
+        "canSelectMusicStyle": true,
+        "canShareSongs": true,
+        "canAccessJournal": true,
+        "_note": "Key unlocks vs Explorer: Virtual Mentor Chat, activity calendar, book generation, music style preferences (already available but highlighted here). Framework selection moved to Practice tier — Personal users get AI-selected frameworks, which keeps the experience guided. Insights Reports held back for Practice tier — they're more valuable in a professional context."
+      },
+      "generation": {
+        "parallelTrackLimit": 2,
+        "staggerDelayMs": 4000,
+        "maxQuality": "standard",
+        "priorityBoost": 1,
+        "_note": "Slight priority boost over free tiers. Parallel tracks allow generating alternate versions. Quality remains 'standard' — enhanced quality reserved for Practice tier."
+      },
+      "display": {
+        "icon": "heart-outline",
+        "gradientKey": "primary",
+        "showRecommendedBadge": true,
+        "canUpgradeTo": "practice",
+        "marketingFeatures": [
+          { "icon": "musical-notes", "labelKey": "songs", "params": { "count": 15 } },
+          { "icon": "options", "labelKey": "musicStylePrefs" },
+          { "icon": "chatbubble-ellipses", "labelKey": "mentorChat" },
+          { "icon": "book", "labelKey": "books" },
+          { "icon": "calendar", "labelKey": "activityCalendar" }
+        ],
+        "_note": "showRecommendedBadge=true — this is the tier we want most users on. It validates willingness to pay and provides enough depth to prove the therapeutic value thesis."
+      },
+      "behavior": {
+        "showUpgradePromptOnLowQuota": true,
+        "showResetDateOnLimitReached": true,
+        "blockMusicGeneration": false,
+        "requiresAccountForPurchase": false,
+        "showDisappearingSongTimer": false,
+        "accountCreationPromptAfterSong": false,
+        "_note": "Upgrade prompt to Practice tier only appears when user behavior suggests professional use — e.g., sharing songs frequently, generating songs from different 'perspectives' (suggesting they're making songs for others). Do NOT prompt Practice upgrade just because they hit song limits."
+      },
+      "i18n": {
+        "name": "Personal",
+        "tagline": "Go deeper. Choose your own path.",
+        "description": "Choose your frameworks. Pick your sound. Let the music meet you exactly where you are.",
+        "features": {
+          "songs": "{{count}} songs per month",
+          "frameworkSelection": "Choose from 29 Psychological Frameworks",
+          "musicStylePrefs": "Music Style Preferences",
+          "mentorChat": "Virtual Mentor Chat",
+          "books": "Personal Books",
+          "activityCalendar": "Activity Calendar"
+        }
+      }
+    },
+    "practice": {
+      "_designIntent": "Professional sharing tier. NOT launched at start — introduced month 4-5 only when coaches organically ask for structured client sharing. A coach arrives here naturally after being a Personal user who started sharing songs informally and needs the sharing infrastructure. Key unlocks: client sharing via token links, client reflection capture, engagement analytics (replay rates), batch generation, and Insights Reports. The ROI pitch: at $49/mo with 20 clients, that's $2.45/client/month. If it keeps one client from dropping off ($150-300/session), it pays for itself instantly.",
+      "identity": {
+        "id": "practice",
+        "name": "Practice",
+        "isPaid": true,
+        "isDefault": false,
+        "sortOrder": 3
+      },
+      "pricing": {
+        "monthly": "$49.00",
+        "annual": "$399.99",
+        "annualSavingsPercent": "32",
+        "_note": "No weekly billing. Annual pricing not offered at launch for this tier — need churn data first. $49 is within coaching tool spend range ($20-99/mo for CoachAccountable, Paperbell, etc.) and below the 'needs approval' threshold for most independent practitioners."
+      },
+      "appStore": {
+        "revenueCatEntitlementId": "practice",
+        "productIds": {
+          "monthly": "subscription_monthly_practice",
+          "yearly": "subscription_yearly_practice"
+        }
+      },
+      "limits": {
+        "songsPerMonth": 50,
+        "lyricsPerMonth": 100,
+        "insightsPerMonth": -1,
+        "booksPerMonth": -1,
+        "maxSharedClients": 50,
+        "_note": "-1 = unlimited. 50 songs supports ~10 clients at ~5 songs each. maxSharedClients=50 for this tier — generous enough for growing practices. Not per-client pricing: flat rate encourages maximum sharing/distribution."
+      },
+      "features": {
+        "canGenerateMusic": true,
+        "canGenerateBooks": true,
+        "maxBookDepth": "deep",
+        "canAccessLibrary": true,
+        "canAccessActivityCalendar": true,
+        "canAccessMentorLine": true,
+        "canAccessInsightsReports": true,
+        "canSelectFramework": true,
+        "canSelectMusicStyle": true,
+        "canShareSongs": true,
+        "canShareWithClients": true,
+        "canViewClientReflections": true,
+        "canViewClientEngagement": true,
+        "canBatchGenerate": true,
+        "canAccessJournal": true,
+        "songBranding": "aiponge",
+        "_note": "Key unlocks vs Personal: framework selection (29 frameworks — user goes from 'AI picks for me' to 'I choose my therapeutic lens'), client sharing infrastructure (token-based links, up to 50 clients), client reflection capture (post-listening prompts visible to practitioner), engagement analytics (replay rates, listen counts, emotional trajectory), batch generation from journal chapters, Insights Reports, deep book generation. songBranding='aiponge' means shared songs carry 'Created with AIPONGE' — this is a distribution mechanism. Clients who receive songs see the brand."
+      },
+      "generation": {
+        "parallelTrackLimit": 3,
+        "staggerDelayMs": 3500,
+        "maxQuality": "premium",
+        "priorityBoost": 2,
+        "_note": "Premium quality for shared songs — these represent the practitioner's work to their clients and must be excellent. Priority boost ensures faster generation for professional use cases."
+      },
+      "display": {
+        "icon": "people-outline",
+        "gradientKey": "premiumDark",
+        "showRecommendedBadge": false,
+        "canUpgradeTo": "studio",
+        "marketingFeatures": [
+          { "icon": "musical-notes", "labelKey": "songs", "params": { "count": 50 } },
+          { "icon": "color-palette", "labelKey": "frameworkSelection" },
+          { "icon": "people", "labelKey": "clientSharing", "params": { "count": 50 } },
+          { "icon": "chatbox-ellipses", "labelKey": "clientReflections" },
+          { "icon": "analytics", "labelKey": "engagementAnalytics" },
+          { "icon": "document-text", "labelKey": "insightsReports" },
+          { "icon": "albums", "labelKey": "batchGeneration" },
+          { "icon": "book", "labelKey": "deepBooks" }
+        ],
+        "_note": "showRecommendedBadge=false — we don't push this tier. Users discover it when they need it."
+      },
+      "behavior": {
+        "showUpgradePromptOnLowQuota": true,
+        "showResetDateOnLimitReached": true,
+        "blockMusicGeneration": false,
+        "requiresAccountForPurchase": false,
+        "showDisappearingSongTimer": false,
+        "accountCreationPromptAfterSong": false,
+        "_note": "Upgrade prompt to Studio only appears when user exceeds 10 clients or consistently hits 50-song limit."
+      },
+      "i18n": {
+        "name": "Practice",
+        "tagline": "Share the experience with your clients",
+        "description": "Create songs for your clients. See what resonates. Close the loop between sessions.",
+        "features": {
+          "songs": "{{count}} songs per month",
+          "clientSharing": "Share with up to 50 clients",
+          "clientReflections": "Client Reflection Capture",
+          "engagementAnalytics": "Engagement Analytics & Replay Data",
+          "insightsReports": "Insights Reports",
+          "batchGeneration": "Batch Album Generation",
+          "deepBooks": "Deep Book Generation"
+        }
+      }
+    },
+    "studio": {
+      "_designIntent": "NOT FOR LAUNCH. Spec'd here for architectural planning only. Build when Practice users demonstrate need — likely month 6+. For established practices going all-in on AIPONGE as their client engagement layer. Key unlocks: unlimited clients, white-label (remove AIPONGE branding), API access, advanced analytics. The ROI: $149/mo with 20+ clients = ~$7.50/client/month. One retained client pays for the annual subscription.",
+      "identity": {
+        "id": "studio",
+        "name": "Studio",
+        "isPaid": true,
+        "isDefault": false,
+        "sortOrder": 4
+      },
+      "pricing": {
+        "monthly": "$149.00",
+        "annual": "$1199.99",
+        "annualSavingsPercent": "33",
+        "_note": "Pricing is placeholder — validate with Practice tier users before finalizing. May need adjustment based on what established coaches are willing to pay."
+      },
+      "appStore": {
+        "revenueCatEntitlementId": "studio",
+        "productIds": {
+          "monthly": "subscription_monthly_studio",
+          "yearly": "subscription_yearly_studio"
+        }
+      },
+      "limits": {
+        "songsPerMonth": 150,
+        "lyricsPerMonth": 300,
+        "insightsPerMonth": -1,
+        "booksPerMonth": -1,
+        "maxSharedClients": -1,
+        "_note": "Unlimited clients. 150 songs supports 30+ clients comfortably."
+      },
+      "features": {
+        "canGenerateMusic": true,
+        "canGenerateBooks": true,
+        "maxBookDepth": "deep",
+        "canAccessLibrary": true,
+        "canAccessActivityCalendar": true,
+        "canAccessMentorLine": true,
+        "canAccessInsightsReports": true,
+        "canSelectFramework": true,
+        "canSelectMusicStyle": true,
+        "canShareSongs": true,
+        "canShareWithClients": true,
+        "canViewClientReflections": true,
+        "canViewClientEngagement": true,
+        "canBatchGenerate": true,
+        "canAccessJournal": true,
+        "canWhiteLabel": true,
+        "canAccessAPI": true,
+        "songBranding": "custom",
+        "_note": "Key unlocks vs Practice: unlimited clients, white-label song delivery (remove AIPONGE branding or use custom branding), API access for integration with existing coaching platforms, advanced analytics (emotional trajectory, framework effectiveness). songBranding='custom' means practitioner can customize or remove branding on shared songs."
+      },
+      "generation": {
+        "parallelTrackLimit": 5,
+        "staggerDelayMs": 3000,
+        "maxQuality": "studio",
+        "priorityBoost": 3,
+        "_note": "Highest quality tier. Studio quality adds additional generation passes for best possible output. Highest priority in queue."
+      },
+      "display": {
+        "icon": "diamond-outline",
+        "gradientKey": "premiumDark",
+        "showRecommendedBadge": false,
+        "canUpgradeTo": null,
+        "marketingFeatures": [
+          { "icon": "musical-notes", "labelKey": "songs", "params": { "count": 150 } },
+          { "icon": "people", "labelKey": "unlimitedClients" },
+          { "icon": "color-wand", "labelKey": "whiteLabel" },
+          { "icon": "code-slash", "labelKey": "apiAccess" },
+          { "icon": "trending-up", "labelKey": "advancedAnalytics" },
+          { "icon": "star", "labelKey": "priorityGeneration" }
+        ]
+      },
+      "behavior": {
+        "showUpgradePromptOnLowQuota": false,
+        "showResetDateOnLimitReached": true,
+        "blockMusicGeneration": false,
+        "requiresAccountForPurchase": false,
+        "showDisappearingSongTimer": false,
+        "accountCreationPromptAfterSong": false
+      },
+      "i18n": {
+        "name": "Studio",
+        "tagline": "Your practice, fully powered",
+        "description": "Unlimited clients. Your branding. Full integration. Everything you need to run your practice on AIPONGE.",
+        "features": {
+          "songs": "{{count}} songs per month",
+          "unlimitedClients": "Unlimited Client Sharing",
+          "whiteLabel": "White-Label Song Delivery",
+          "apiAccess": "API Access & Integrations",
+          "advancedAnalytics": "Advanced Analytics & Insights",
+          "priorityGeneration": "Priority Song Generation"
+        }
+      }
+    }
+  },
+  "global": {
+    "defaultTier": "guest",
+    "creditCostPerSong": 20,
+    "billingPeriods": ["monthly", "annual"],
+    "tierClassification": {
+      "free": ["guest", "explorer"],
+      "paid": ["personal", "practice", "studio"],
+      "professional": ["practice", "studio"],
+      "launchTiers": ["guest", "explorer", "personal"],
+      "deferredTiers": ["practice", "studio"]
+    },
+    "upgradeBenefits": [
+      "components.upgradePrompt.benefit1",
+      "components.upgradePrompt.benefit2",
+      "components.upgradePrompt.benefit3",
+      "components.upgradePrompt.benefit4"
+    ],
+    "usageLimitBenefits": [
+      "components.usageLimitModal.benefit1",
+      "components.usageLimitModal.benefit2",
+      "components.usageLimitModal.benefit3",
+      "components.usageLimitModal.benefit4",
+      "components.usageLimitModal.benefit5",
+      "components.usageLimitModal.benefit6"
+    ],
+    "supportedLanguages": ["en-US", "fr-FR", "de-DE", "es-ES", "pt-BR", "ar", "ja-JP"],
+    "_implementationNotes": {
+      "weeklyBilling": "REMOVED from all tiers. Weekly subscriptions create churn-prone users and complicate analytics. Monthly is the minimum commitment that signals real intent.",
+      "annualBilling": "Available in schema but DO NOT surface in UI at launch. We need 3-6 months of monthly churn data before offering annual discounts.",
+      "clientAccess": "Clients who receive shared songs access them for FREE via token-based links. They do NOT need any subscription. If a client wants to make their OWN songs independently, they enter through the standard Guest → Explorer → Personal funnel. This IS the bottom-up distribution channel.",
+      "replayTracking": "ALL tiers must track song replay count and frequency. This is the North Star metric. Implement from day one, even for Guest tier (using anonymous session tracking before account creation).",
+      "frameworkAutoSelection": "Guest, Explorer, and Personal tiers: AI automatically selects the most appropriate framework based on input analysis. Practice+ tiers: user can override with manual selection. The auto-selection should be good enough that most users still let the AI choose — manual selection is a power-user feature available from Practice tier onwards, not the default experience."
+    }
+  }
+}

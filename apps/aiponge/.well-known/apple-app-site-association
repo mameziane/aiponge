@@ -1,0 +1,24 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "TEAMID.com.aiponge",
+        "paths": [
+          "/track/*",
+          "/playlist/*",
+          "/profile/*",
+          "/entry/*",
+          "/share/*",
+          "/invite/*"
+        ]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": ["TEAMID.com.aiponge"]
+  },
+  "appclips": {
+    "apps": ["TEAMID.com.aiponge.Clip"]
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "extends": "../../tsconfig.backend.json",
+  "compilerOptions": {
+    "lib": ["ES2021", "DOM", "ES2022"],
+    "strict": true,
+    "strictNullChecks": false,
+    "isolatedModules": true,
+    "noImplicitAny": true,
+    "skipLibCheck": true,
+    "outDir": "./dist",
+    "baseUrl": "./src",
+    "paths": {
+      "@config/*": ["config/*"],
+      "@domains/*": ["domains/*"],
+      "@infrastructure/*": ["infrastructure/*"],
+      "@application/*": ["application/*"],
+      "@presentation/*": ["presentation/*"],
+      "@schema/*": ["schema/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": [
+    "node_modules", "dist",
+    "**/ProductionStorageRepository.ts",
+    "**/ProductionFileRepository.ts",
+    "**/tests/**",
+    "**/__tests__/**",
+    "**/*.test.ts",
+    "**/*.spec.ts"
+  ]
+}

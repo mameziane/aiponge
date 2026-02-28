@@ -1,0 +1,14 @@
+{
+  "extends": "../../../tsconfig.test.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "moduleResolution": "node",
+    "types": ["vitest/globals", "node"],
+    "target": "ES2022",
+    "module": "ESNext"
+  },
+  "include": [
+    "**/*.test.ts",
+    "**/*.spec.ts"
+  ]
+}

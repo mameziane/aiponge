@@ -1,0 +1,19 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "allowJs": true,
+    "isolatedModules": false,
+    "types": ["vitest/globals", "node"],
+    "paths": {
+      "@aiponge/shared-contracts": ["packages/shared/contracts/src/index.ts"],
+      "@aiponge/shared-contracts/*": ["packages/shared/contracts/src/*"],
+      "@frontend-shared/*": ["apps/shared/src/*"],
+      "@assets/*": ["apps/shared/assets/*"],
+      "@config/*": ["apps/shared/config/*"],
+      "@aiponge/platform-core": ["packages/platform-core/src/index.ts"],
+      "@aiponge/platform-core/*": ["packages/platform-core/src/*"]
+    }
+  }
+}

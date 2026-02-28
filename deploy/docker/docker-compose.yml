@@ -1,0 +1,117 @@
+# Docker Compose - Development Overlay
+# Usage: docker compose -f docker-compose.common.yml -f docker-compose.yml up
+# Source: packages/platform-core/src/config/services-definition.ts
+
+services:
+  system-service:
+    build:
+      context: ../../
+      dockerfile: deploy/docker/Dockerfile.service
+      args:
+        SERVICE_PATH: packages/services/system-service
+        SERVICE_PORT: 3001
+    environment:
+      NODE_ENV: development
+    volumes:
+      - ../../packages/services/system-service:/app/src
+
+  storage-service:
+    build:
+      context: ../../
+      dockerfile: deploy/docker/Dockerfile.service
+      args:
+        SERVICE_PATH: packages/services/storage-service
+        SERVICE_PORT: 3002
+    environment:
+      NODE_ENV: development
+    volumes:
+      - ../../packages/services/storage-service:/app/src
+      - storage-data:/app/storage
+
+  user-service:
+    build:
+      context: ../../
+      dockerfile: deploy/docker/Dockerfile.service
+      args:
+        SERVICE_PATH: packages/services/user-service
+        SERVICE_PORT: 3003
+    environment:
+      NODE_ENV: development
+    volumes:
+      - ../../packages/services/user-service:/app/src
+
+  ai-config-service:
+    build:
+      context: ../../
+      dockerfile: deploy/docker/Dockerfile.service
+      args:
+        SERVICE_PATH: packages/services/ai-config-service
+        SERVICE_PORT: 3004
+    environment:
+      NODE_ENV: development
+    volumes:
+      - ../../packages/services/ai-config-service:/app/src
+
+  ai-content-service:
+    build:
+      context: ../../
+      dockerfile: deploy/docker/Dockerfile.service
+      args:
+        SERVICE_PATH: packages/services/ai-content-service
+        SERVICE_PORT: 3005
+    environment:
+      NODE_ENV: development
+    volumes:
+      - ../../packages/services/ai-content-service:/app/src
+
+  ai-analytics-service:
+    build:
+      context: ../../
+      dockerfile: deploy/docker/Dockerfile.service
+      args:
+        SERVICE_PATH: packages/services/ai-analytics-service
+        SERVICE_PORT: 3006
+    environment:
+      NODE_ENV: development
+    volumes:
+      - ../../packages/services/ai-analytics-service:/app/src
+
+  music-service:
+    build:
+      context: ../../
+      dockerfile: deploy/docker/Dockerfile.service
+      args:
+        SERVICE_PATH: packages/services/music-service
+        SERVICE_PORT: 3007
+    environment:
+      NODE_ENV: development
+    volumes:
+      - ../../packages/services/music-service:/app/src
+
+  api-gateway:
+    build:
+      context: ../../
+      dockerfile: deploy/docker/Dockerfile.service
+      args:
+        SERVICE_PATH: packages/services/api-gateway
+        SERVICE_PORT: 8080
+    environment:
+      NODE_ENV: development
+    volumes:
+      - ../../packages/services/api-gateway:/app/src
+
+  zookeeper:
+    ports:
+      - "2181:2181"
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.54
+    container_name: aiponge-jaeger
+    ports:
+      - "16686:16686"
+      - "4318:4318"
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+    networks:
+      - aiponge-network
+    restart: unless-stopped

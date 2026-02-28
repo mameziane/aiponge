@@ -1,0 +1,181 @@
+# Docker Compose - Production Overlay
+# Usage: docker compose -f docker-compose.common.yml -f docker-compose.prod.yml up
+#
+# PRODUCTION SECRETS NOTE:
+# When deployed to AWS ECS via Terraform, all sensitive environment variables
+# (DATABASE_URL, JWT_SECRET, INTERNAL_SERVICE_SECRET, ENTRY_ENCRYPTION_KEY,
+#  OPENAI_API_KEY, ANTHROPIC_API_KEY, ELEVENLABS_API_KEY, MUSICAPI_API_KEY,
+#  AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY) are injected from AWS Secrets
+# Manager. This file is for local/staging use only.
+
+x-prod-resources-small: &prod-resources-small
+  deploy:
+    resources:
+      limits:
+        memory: 512M
+        cpus: '0.5'
+      reservations:
+        memory: 256M
+        cpus: '0.25'
+
+x-prod-resources-medium: &prod-resources-medium
+  deploy:
+    resources:
+      limits:
+        memory: 1G
+        cpus: '1.0'
+      reservations:
+        memory: 512M
+        cpus: '0.5'
+
+services:
+  system-service:
+    image: ${ECR_REGISTRY:-aiponge}/aiponge-system-service:${IMAGE_TAG:-latest}
+    environment:
+      NODE_ENV: production
+      REDIS_URL: ${REDIS_URL}
+      DATABASE_POOL_MAX: ${DATABASE_POOL_MAX:-20}
+      SENTRY_DSN: ${SENTRY_DSN:-}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health/ready"]
+    <<: *prod-resources-small
+
+  storage-service:
+    image: ${ECR_REGISTRY:-aiponge}/aiponge-storage-service:${IMAGE_TAG:-latest}
+    environment:
+      NODE_ENV: production
+      REDIS_URL: ${REDIS_URL}
+      DATABASE_POOL_MAX: ${DATABASE_POOL_MAX:-20}
+      SENTRY_DSN: ${SENTRY_DSN:-}
+      STORAGE_PROVIDER: ${STORAGE_PROVIDER:-s3}
+      AWS_REGION: ${AWS_REGION}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_S3_BUCKET: ${AWS_S3_BUCKET}
+      CDN_URL: ${CDN_URL:-}
+    volumes:
+      - storage-data:/app/storage
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3002/health/ready"]
+    <<: *prod-resources-small
+
+  user-service:
+    image: ${ECR_REGISTRY:-aiponge}/aiponge-user-service:${IMAGE_TAG:-latest}
+    environment:
+      NODE_ENV: production
+      REDIS_URL: ${REDIS_URL}
+      DATABASE_POOL_MAX: ${DATABASE_POOL_MAX:-20}
+      SENTRY_DSN: ${SENTRY_DSN:-}
+      REDIS_CLUSTER_NODES: ${REDIS_CLUSTER_NODES:-}
+      JWT_SECRET: ${JWT_SECRET}
+      ENTRY_ENCRYPTION_KEY: ${ENTRY_ENCRYPTION_KEY}
+      INTERNAL_SERVICE_SECRET: ${INTERNAL_SERVICE_SECRET}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3003/health/ready"]
+    <<: *prod-resources-medium
+
+  ai-config-service:
+    image: ${ECR_REGISTRY:-aiponge}/aiponge-ai-config-service:${IMAGE_TAG:-latest}
+    environment:
+      NODE_ENV: production
+      REDIS_URL: ${REDIS_URL}
+      DATABASE_POOL_MAX: ${DATABASE_POOL_MAX:-20}
+      SENTRY_DSN: ${SENTRY_DSN:-}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3004/health/ready"]
+    <<: *prod-resources-small
+
+  ai-content-service:
+    image: ${ECR_REGISTRY:-aiponge}/aiponge-ai-content-service:${IMAGE_TAG:-latest}
+    environment:
+      NODE_ENV: production
+      REDIS_URL: ${REDIS_URL}
+      DATABASE_POOL_MAX: ${DATABASE_POOL_MAX:-20}
+      SENTRY_DSN: ${SENTRY_DSN:-}
+      REDIS_CLUSTER_NODES: ${REDIS_CLUSTER_NODES:-}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3005/health/ready"]
+    <<: *prod-resources-medium
+
+  ai-analytics-service:
+    image: ${ECR_REGISTRY:-aiponge}/aiponge-ai-analytics-service:${IMAGE_TAG:-latest}
+    environment:
+      NODE_ENV: production
+      REDIS_URL: ${REDIS_URL}
+      DATABASE_POOL_MAX: ${DATABASE_POOL_MAX:-20}
+      SENTRY_DSN: ${SENTRY_DSN:-}
+      AI_ANALYTICS_DATABASE_REPLICA_URL: ${AI_ANALYTICS_DATABASE_REPLICA_URL:-}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3006/health/ready"]
+    <<: *prod-resources-small
+
+  music-service:
+    image: ${ECR_REGISTRY:-aiponge}/aiponge-music-service:${IMAGE_TAG:-latest}
+    environment:
+      NODE_ENV: production
+      REDIS_URL: ${REDIS_URL}
+      DATABASE_POOL_MAX: ${DATABASE_POOL_MAX:-20}
+      SENTRY_DSN: ${SENTRY_DSN:-}
+      MUSIC_DATABASE_REPLICA_URL: ${MUSIC_DATABASE_REPLICA_URL:-}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3007/health/ready"]
+    <<: *prod-resources-medium
+
+  api-gateway:
+    image: ${ECR_REGISTRY:-aiponge}/aiponge-api-gateway:${IMAGE_TAG:-latest}
+    environment:
+      NODE_ENV: production
+      REDIS_URL: ${REDIS_URL}
+      SENTRY_DSN: ${SENTRY_DSN:-}
+      JWT_SECRET: ${JWT_SECRET}
+      INTERNAL_SERVICE_SECRET: ${INTERNAL_SERVICE_SECRET}
+      SSE_MAX_CLIENTS: ${SSE_MAX_CLIENTS:-10000}
+      CLUSTER_WORKERS: ${CLUSTER_WORKERS:-auto}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health/ready"]
+    <<: *prod-resources-medium
+
+  postgres:
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '2.0'
+        reservations:
+          memory: 1G
+          cpus: '1.0'
+
+  redis:
+    command: redis-server --appendonly yes --maxmemory 1gb --maxmemory-policy allkeys-lru
+    deploy:
+      resources:
+        limits:
+          memory: 1536M
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+
+  zookeeper:
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+
+  kafka:
+    environment:
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: ${KAFKA_REPLICATION_FACTOR:-1}
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'

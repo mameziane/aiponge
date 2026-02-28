@@ -1,0 +1,89 @@
+{
+  "name": "aiponge",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "npm@10.9.2",
+  "engines": {
+    "node": ">=20.19.0",
+    "npm": ">=11.6.3"
+  },
+  "overrides": {
+    "use-latest-callback": "^0.2.1",
+    "esbuild": "$esbuild"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "packages/services/*",
+    "packages/shared/*"
+  ],
+  "scripts": {
+    "preinstall": "",
+    "prepare": "simple-git-hooks",
+    "postinstall": "npm run generate:config || echo 'Config generation skipped'",
+    "predev": "npm run generate:config || true",
+    "prebuild": "npm run generate:config || true",
+    "generate:config": "tsx scripts/codegen/generate-all-configs.ts",
+    "validate:config": "tsx scripts/utils/validate-config-freshness.ts",
+    "dev:aiponge-minimal": "NODE_OPTIONS=\"--conditions=development\" tsx deploy/dev/startup-orchestrator.ts aiponge-minimal",
+    "dev": "turbo dev --filter='@aiponge/system-service' --filter='@aiponge/api-gateway' --filter='@aiponge/user-service' --filter='@aiponge/music-service' --filter='@aiponge/storage-service' --filter='@aiponge/ai-config-service' --filter='@aiponge/ai-content-service' --filter='@aiponge/ai-analytics-service' --filter='@aiponge/app' --concurrency=11 --log-order=stream",
+    "dev:api-gateway": "turbo dev --filter=@aiponge/api-gateway",
+    "dev:system-service": "turbo dev --filter=@aiponge/system-service",
+    "dev:storage-service": "turbo dev --filter=@aiponge/storage-service",
+    "dev:user-service": "turbo dev --filter=@aiponge/user-service",
+    "dev:music-service": "turbo dev --filter=@aiponge/music-service",
+    "dev:ai-config-service": "turbo dev --filter=@aiponge/ai-config-service",
+    "dev:ai-content-service": "turbo dev --filter=@aiponge/ai-content-service",
+    "dev:ai-analytics-service": "turbo dev --filter=@aiponge/ai-analytics-service",
+    "dev:ai-services": "turbo dev --filter='@aiponge/ai-*-service' --concurrency=5",
+    "build:aiponge": "turbo build --filter=@aiponge/aiponge",
+    "build:backend": "turbo build --filter='@aiponge/*-service'",
+    "build:ai-services": "turbo build --filter='@aiponge/ai-*-service'",
+    "build": "turbo build --parallel",
+    "build:prod": "turbo build --filter='@aiponge/api-gateway...'",
+    "test": "turbo test --parallel",
+    "lint": "turbo lint --parallel",
+    "typecheck": "turbo typecheck",
+    "clean": "turbo clean",
+    "check": "turbo typecheck",
+    "db:push": "drizzle-kit push",
+    "services:status": "curl -s http://localhost:${SYSTEM_SERVICE_PORT:-3001}/api/discovery/services | head -50",
+    "stop": "pkill -TERM node || true; pkill -TERM tsx || true; pkill -TERM npm || true; pkill -TERM turbo || true",
+    "test:load": "k6 run tests/load/scripts/full-scenario.js",
+    "test:load:auth": "k6 run tests/load/scripts/auth-flow.js",
+    "test:load:health": "k6 run tests/load/scripts/health-check.js",
+    "test:load:library": "k6 run tests/load/scripts/library-browsing.js",
+    "test:load:music": "k6 run tests/load/scripts/music-generation.js",
+    "test:load:music-async": "k6 run tests/load/scripts/music-generation-async.js",
+    "test:load:metadata": "k6 run tests/load/scripts/cached-metadata.js",
+    "test:load:all": "k6 run tests/load/scripts/health-check.js && k6 run tests/load/scripts/auth-flow.js && k6 run tests/load/scripts/library-browsing.js && k6 run tests/load/scripts/music-generation.js && k6 run tests/load/scripts/music-generation-async.js && k6 run tests/load/scripts/cached-metadata.js"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "bash scripts/check-no-secrets.sh && npx lint-staged && npm run generate:config && git add apps/aiponge/config/generated"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.35.0",
+    "@types/node": "^22.8.7",
+    "chokidar": "^4.0.3",
+    "drizzle-kit": "^0.31.8",
+    "esbuild": "^0.27.2",
+    "eslint": "^9.39.2",
+    "eslint-plugin-prettier": "^5.5.4",
+    "eslint-plugin-sonarjs": "^3.0.6",
+    "prettier": "^3.0.0",
+    "simple-git-hooks": "^2.13.1",
+    "tsx": "^4.20.5",
+    "turbo": "^2.6.1",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.54.0"
+  },
+  "dependencies": {
+    "@expo/ngrok": "^4.1.3",
+    "@types/express": "^4.17.21",
+    "@types/express-serve-static-core": "^4.19.6",
+    "@types/react": "^19.1.10",
+    "expo-print": "^15.0.8",
+    "react-native-svg": "^15.12.1",
+    "react-native-worklets": "^0.5.1"
+  }
+}

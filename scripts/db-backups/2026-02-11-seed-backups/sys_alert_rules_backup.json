@@ -1,0 +1,70 @@
+[
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440210",
+    "name": "High Response Time",
+    "description": "Alert when service response time exceeds threshold",
+    "condition_type": "response_time",
+    "condition_config": {
+      "duration": 300,
+      "threshold": 1000
+    },
+    "severity": "warning",
+    "is_enabled": true,
+    "notification_channels": [
+      "email",
+      "slack"
+    ],
+    "cooldown_minutes": 5,
+    "metadata": {
+      "auto_resolve": true,
+      "escalation_path": [
+        "devops",
+        "engineering"
+      ]
+    }
+  },
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440211",
+    "name": "Service Down",
+    "description": "Alert when service becomes unavailable",
+    "condition_type": "availability",
+    "condition_config": {
+      "consecutive_failures": 3
+    },
+    "severity": "critical",
+    "is_enabled": true,
+    "notification_channels": [
+      "email",
+      "slack",
+      "pagerduty"
+    ],
+    "cooldown_minutes": 1,
+    "metadata": {
+      "auto_resolve": false,
+      "escalation_path": [
+        "oncall",
+        "engineering_manager"
+      ]
+    }
+  },
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440212",
+    "name": "High Memory Usage",
+    "description": "Alert when memory usage exceeds 80%",
+    "condition_type": "memory_usage",
+    "condition_config": {
+      "duration": 600,
+      "threshold": 0.8
+    },
+    "severity": "warning",
+    "is_enabled": true,
+    "notification_channels": [
+      "email"
+    ],
+    "cooldown_minutes": 10,
+    "metadata": {
+      "auto_resolve": true,
+      "resource_monitoring": true
+    }
+  }
+]

@@ -1,0 +1,85 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": ["**/.env*", "turbo.json", "package-lock.json"],
+  "globalEnv": [
+    "NODE_ENV",
+    "NODE_OPTIONS",
+    "LOG_LEVEL",
+    "DATABASE_URL",
+    "JWT_SECRET",
+    "INTERNAL_SERVICE_SECRET",
+    "ENTRY_ENCRYPTION_KEY",
+    "ANTHROPIC_API_KEY",
+    "OPENAI_API_KEY",
+    "ELEVENLABS_API_KEY",
+    "MUSICAPI_API_KEY",
+    "REDIS_URL",
+    "ALLOWED_ORIGINS",
+    "THOUGHT_ENCRYPTION_KEY",
+    "SENDGRID_API_KEY",
+    "GOOGLE_API_KEY",
+    "SESSION_SECRET",
+    "SERVICE_AUTH_KEY",
+    "ANALYTICS_SERVICE_API_KEY",
+    "DATABASE_SSL",
+    "SYSTEM_DATABASE_URL",
+    "STORAGE_DATABASE_URL",
+    "MUSIC_DATABASE_URL",
+    "AI_CONFIG_DATABASE_URL",
+    "AI_CONTENT_DATABASE_URL",
+    "AI_ANALYTICS_DATABASE_URL",
+    "SYSTEM_SERVICE_URL",
+    "STORAGE_SERVICE_URL",
+    "API_GATEWAY_PORT",
+    "SYSTEM_SERVICE_PORT",
+    "STORAGE_SERVICE_PORT",
+    "USER_SERVICE_PORT",
+    "AI_CONFIG_SERVICE_PORT",
+    "AI_ANALYTICS_SERVICE_PORT",
+    "AI_CONTENT_SERVICE_PORT",
+    "MUSIC_SERVICE_PORT"
+  ],
+  "tasks": {
+    "generate:config": {
+      "cache": false,
+      "inputs": [
+        "packages/platform-core/src/config/services-definition.ts",
+        "scripts/codegen/generate-service-config.ts"
+      ],
+      "outputs": []
+    },
+    "validate:config": {
+      "dependsOn": ["generate:config"],
+      "cache": false
+    },
+    "build": {
+      "dependsOn": ["^build", "validate:config"],
+      "inputs": ["$TURBO_ROOT$/package.json", "$TURBO_DEFAULT$", ".env*"],
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true,
+      "outputLogs": "new-only"
+    },
+    "test": {
+      "dependsOn": ["build"],
+      "inputs": ["$TURBO_ROOT$/package.json", "$TURBO_DEFAULT$", "vitest.config.*"],
+      "outputs": ["coverage/**"]
+    },
+    "typecheck": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_ROOT$/package.json", "$TURBO_DEFAULT$", "tsconfig*.json"]
+    },
+    "lint": {
+      "dependsOn": [],
+      "inputs": ["$TURBO_ROOT$/package.json", "$TURBO_DEFAULT$", "eslint.config.*"],
+      "outputs": []
+    },
+    "format": {
+      "dependsOn": [],
+      "inputs": ["$TURBO_ROOT$/package.json", "$TURBO_DEFAULT$"],
+      "outputs": []
+    }
+  }
+}
