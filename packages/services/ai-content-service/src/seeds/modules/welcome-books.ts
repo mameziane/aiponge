@@ -196,6 +196,20 @@ export const welcomeBooksSeed: SeedModule = {
     const db = ctx.db as { execute: (query: string) => Promise<{ rows: Record<string, unknown>[] }> };
 
     for (const lang of SUPPORTED_LANGUAGES) {
+      let locale: Record<string, unknown>;
+      try {
+        locale = loadLocale(lang.localeFile);
+      } catch (err) {
+        result.details!.push(`Failed to load locale ${lang.localeFile}: ${err}`);
+        continue;
+      }
+
+      if (!locale.welcomeBook) {
+        result.skipped++;
+        result.details!.push(`Skipped ${lang.code}: locale missing 'welcomeBook' key`);
+        continue;
+      }
+
       const systemType = `welcome-guide-${lang.code}`;
 
       const existingBook = await db.execute(
@@ -210,14 +224,6 @@ export const welcomeBooksSeed: SeedModule = {
         await db.execute(`DELETE FROM lib_books WHERE id = '${bookId}'`);
         result.deleted++;
         result.details!.push(`Replaced existing ${lang.code} welcome book`);
-      }
-
-      let locale: Record<string, unknown>;
-      try {
-        locale = loadLocale(lang.localeFile);
-      } catch (err) {
-        result.details!.push(`Failed to load locale ${lang.localeFile}: ${err}`);
-        continue;
       }
 
       const structure = buildBookStructure(locale);

@@ -50,7 +50,7 @@ export const alertRulesSeed: SeedModule = {
            ${toSqlJsonbOrNull(r.condition_config)},
            '${escSql(r.severity)}',
            ${r.is_enabled ?? true},
-           ${toSqlTextArray(r.notification_channels || [])},
+           ${toSqlJsonbOrNull(r.notification_channels || [])},
            ${r.cooldown_minutes ?? 5},
            ${toSqlJsonbOrNull(r.metadata)},
            NOW(),

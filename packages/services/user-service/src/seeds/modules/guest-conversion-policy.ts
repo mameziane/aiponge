@@ -30,6 +30,7 @@ export const guestConversionPolicySeed: SeedModule = {
     for (const p of policies) {
       await db.execute(
         `INSERT INTO usr_guest_conversion_policy (id, policy_name, songs_threshold, tracks_threshold, entries_created_threshold, cooldown_hours, is_active, created_at, updated_at)
+         OVERRIDING SYSTEM VALUE
          VALUES (
            ${p.id},
            '${escSql(p.policy_name as string)}',

@@ -18,7 +18,7 @@ export default {
   dbCredentials: {
     url: getDatabaseUrl(),
   },
-  tablesFilter: ['aic_*'],
+  tablesFilter: ['aic_*', 'cfg_tier_configs'],
   verbose: true,
   strict: true,
 } satisfies Config;

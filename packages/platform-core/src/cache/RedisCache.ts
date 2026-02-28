@@ -165,19 +165,26 @@ export class RedisCache implements ICache {
       this.logger.info('Redis Cluster mode enabled', { nodes: clusterNodes.length });
     } else {
       this.isCluster = false;
-      const redisConfigured = !!(
-        config.host || process.env.REDIS_URL || process.env.REDIS_HOST
-      );
-      this.client = new Redis({
-        host: config.host || process.env.REDIS_HOST || 'localhost',
-        port: config.port || parseInt(process.env.REDIS_PORT || '6379'),
-        password: config.password || process.env.REDIS_PASSWORD,
-        db: config.db ?? parseInt(process.env.REDIS_DB || '0'),
+      const redisUrl = process.env.REDIS_URL;
+      const redisConfigured = !!(config.host || redisUrl || process.env.REDIS_HOST);
+      const sharedOpts = {
         maxRetriesPerRequest: redisConfigured ? (config.maxRetriesPerRequest ?? 3) : 0,
         enableReadyCheck: config.enableReadyCheck ?? true,
         lazyConnect: config.lazyConnect ?? true,
-        retryStrategy: redisConfigured ? undefined : () => null,
-      });
+        retryStrategy: redisConfigured ? undefined : ((() => null) as () => null),
+      };
+      if (redisUrl && !config.host) {
+        // Use the full connection string (e.g. redis://user:pass@host:port/db)
+        this.client = new Redis(redisUrl, sharedOpts);
+      } else {
+        this.client = new Redis({
+          host: config.host || process.env.REDIS_HOST || 'localhost',
+          port: config.port || parseInt(process.env.REDIS_PORT || '6379'),
+          password: config.password || process.env.REDIS_PASSWORD,
+          db: config.db ?? parseInt(process.env.REDIS_DB || '0'),
+          ...sharedOpts,
+        });
+      }
       if (!redisConfigured) {
         this.logger.info('Redis not configured — operating in memory-only mode');
       }
@@ -234,7 +241,14 @@ export class RedisCache implements ICache {
     try {
       const result = await this.client.setex(prefixedKey, effectiveTtl, value);
       if (result === 'OK' && this.invalidationEnabled) {
-        this.client.publish(this.invalidationChannel, prefixedKey).catch(err => this.logger.warn('Cache invalidation publish failed on set', { key: prefixedKey, error: serializeError(err) }));
+        this.client
+          .publish(this.invalidationChannel, prefixedKey)
+          .catch(err =>
+            this.logger.warn('Cache invalidation publish failed on set', {
+              key: prefixedKey,
+              error: serializeError(err),
+            })
+          );
       }
       return result === 'OK';
     } catch (error) {
@@ -257,7 +271,14 @@ export class RedisCache implements ICache {
     try {
       const result = await this.client.del(prefixedKey);
       if (result === 1 && this.invalidationEnabled) {
-        this.client.publish(this.invalidationChannel, prefixedKey).catch(err => this.logger.warn('Cache invalidation publish failed on delete', { key: prefixedKey, error: serializeError(err) }));
+        this.client
+          .publish(this.invalidationChannel, prefixedKey)
+          .catch(err =>
+            this.logger.warn('Cache invalidation publish failed on delete', {
+              key: prefixedKey,
+              error: serializeError(err),
+            })
+          );
       }
       return result === 1;
     } catch (error) {
@@ -482,8 +503,11 @@ export class RedisCache implements ICache {
 export function createRedisCache(config: RedisCacheConfig): RedisCache {
   const cache = new RedisCache(config);
   const redisConfigured = !!(
-    config.host || config.clusterNodes?.length ||
-    process.env.REDIS_URL || process.env.REDIS_HOST || process.env.REDIS_CLUSTER_NODES
+    config.host ||
+    config.clusterNodes?.length ||
+    process.env.REDIS_URL ||
+    process.env.REDIS_HOST ||
+    process.env.REDIS_CLUSTER_NODES
   );
   if (redisConfigured) {
     cache.enableCrossInstanceInvalidation().catch(() => {});
