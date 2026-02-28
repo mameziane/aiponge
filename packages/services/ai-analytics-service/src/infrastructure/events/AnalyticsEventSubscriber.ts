@@ -28,15 +28,26 @@ const MAX_RECENT_EVENTS = EVENTS.MAX_RECENT_EVENTS;
 
 let dbPool: Pool | null = null;
 
+function shouldDisableSsl(connStr: string): boolean {
+  if (process.env.DATABASE_SSL === 'false') return true;
+  try {
+    const url = new URL(connStr);
+    if (url.hostname === 'localhost' || url.hostname === '127.0.0.1' || url.hostname.endsWith('.railway.internal'))
+      return true;
+    if (url.searchParams.get('sslmode') === 'disable') return true;
+  } catch {
+    /* fall through */
+  }
+  return false;
+}
+
 function getDbPool(): Pool | null {
   if (!dbPool && process.env.DATABASE_URL) {
     try {
-      const connStr = (process.env.DATABASE_URL || '').includes('sslmode=require')
-        ? process.env.DATABASE_URL!.replace('sslmode=require', 'sslmode=verify-full')
-        : process.env.DATABASE_URL!;
+      const connStr = process.env.DATABASE_URL!;
       dbPool = new Pool({
         connectionString: connStr,
-        ssl: { rejectUnauthorized: true },
+        ssl: shouldDisableSsl(connStr) ? false : { rejectUnauthorized: false },
         max: 5,
         idleTimeoutMillis: 30000,
       });
@@ -134,7 +145,13 @@ async function handleEventsBatch(event: StandardEvent): Promise<void> {
     };
 
     if (evt.userId && evt.eventType) {
-      handleEventRecorded(syntheticEvent).catch(err => logger.warn('Failed to record analytics event', { eventType: evt.eventType, userId: evt.userId, error: errorMessage(err) }));
+      handleEventRecorded(syntheticEvent).catch(err =>
+        logger.warn('Failed to record analytics event', {
+          eventType: evt.eventType,
+          userId: evt.userId,
+          error: errorMessage(err),
+        })
+      );
     }
   }
 

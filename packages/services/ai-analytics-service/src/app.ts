@@ -70,7 +70,13 @@ function createMockRepository(): TimescaleAnalyticsRepository {
     getAggregatedMetrics: async () => [],
     deleteUserData: async () => ({ deletedRecords: 0 }),
     exportUserData: async () => ({ activityLogs: [] }),
-    getProviderUsageSummary: async () => ({ providers: [], totalRequests: 0, totalCost: 0, successRate: 0, byProvider: {} }),
+    getProviderUsageSummary: async () => ({
+      providers: [],
+      totalRequests: 0,
+      totalCost: 0,
+      successRate: 0,
+      byProvider: {},
+    }),
     recordMetric: async () => {},
     recordMetrics: async () => {},
     healthCheck: async () => ({ status: 'unhealthy' as const, details: { mock: true } }),
@@ -109,7 +115,10 @@ function createMockCache(): ICache {
     expire: async (_key: string, _seconds: number) => true,
     ttl: async (_key: string) => -1,
     keys: async (_pattern: string) => Array.from(store.keys()),
-    flushdb: async () => { store.clear(); return true; },
+    flushdb: async () => {
+      store.clear();
+      return true;
+    },
     disconnect: async () => {},
     pipeline: (() => ({})) as unknown as ICache['pipeline'],
     publish: async (_channel: string, _message: string) => 0,
@@ -128,10 +137,14 @@ function initializeServices() {
     const analyticsDbUrl = process.env.AI_ANALYTICS_DATABASE_URL || process.env.ANALYTICS_DB_URL || DATABASE_URL;
     if (analyticsDbUrl) {
       const url = new URL(analyticsDbUrl);
+      const isLocalOrInternal =
+        url.hostname === 'localhost' || url.hostname === '127.0.0.1' || url.hostname.endsWith('.railway.internal');
       const useSsl =
-        process.env.DATABASE_SSL === 'true' ||
-        ['require', 'verify-full', 'verify-ca'].includes(url.searchParams.get('sslmode') || '') ||
-        NODE_ENV === 'production';
+        !isLocalOrInternal &&
+        process.env.DATABASE_SSL !== 'false' &&
+        (process.env.DATABASE_SSL === 'true' ||
+          ['require', 'verify-full', 'verify-ca'].includes(url.searchParams.get('sslmode') || '') ||
+          NODE_ENV === 'production');
       const dbConfig = {
         host: url.hostname,
         port: parseInt(url.port) || 5432,
@@ -235,13 +248,16 @@ function setupMiddleware(app: express.Application): void {
   });
 }
 
-function setupRoutes(app: express.Application, services: {
-  repository: TimescaleAnalyticsRepository;
-  cache: ICache;
-  metricsCollector: MetricsCollectorService;
-  providerAnalytics: ProviderAnalyticsService;
-  systemHealth: SystemHealthService;
-}): void {
+function setupRoutes(
+  app: express.Application,
+  services: {
+    repository: TimescaleAnalyticsRepository;
+    cache: ICache;
+    metricsCollector: MetricsCollectorService;
+    providerAnalytics: ProviderAnalyticsService;
+    systemHealth: SystemHealthService;
+  }
+): void {
   const { repository, cache, metricsCollector, providerAnalytics, systemHealth } = services;
 
   // Kubernetes-compatible health probes
@@ -346,9 +362,7 @@ function setupRoutes(app: express.Application, services: {
         serviceName: 'ai-analytics-service',
         source: userId || 'anonymous',
         metricType: 'counter',
-        tags: eventData ? Object.fromEntries(
-          Object.entries(eventData).map(([k, v]) => [k, String(v)])
-        ) : undefined,
+        tags: eventData ? Object.fromEntries(Object.entries(eventData).map(([k, v]) => [k, String(v)])) : undefined,
       });
 
       sendSuccess(res, {
@@ -418,7 +432,9 @@ function setupRoutes(app: express.Application, services: {
   // Use closure to store loaded modules for route handlers
   const traceModules: {
     TraceRepository: (new (db: unknown) => Record<string, unknown>) | null;
-    GetRequestTraceUseCase: (new (repo: unknown) => { execute: (params: unknown) => Promise<Record<string, unknown>> }) | null;
+    GetRequestTraceUseCase:
+      | (new (repo: unknown) => { execute: (params: unknown) => Promise<Record<string, unknown>> })
+      | null;
     SearchTracesUseCase: (new (repo: unknown) => { execute: (params: unknown) => Promise<unknown> }) | null;
     GetSlowRequestsUseCase: (new (repo: unknown) => { execute: (params: unknown) => Promise<unknown> }) | null;
     traceRepository: Record<string, unknown> | null;
@@ -435,9 +451,12 @@ function setupRoutes(app: express.Application, services: {
       const traceRepoModule = await import('./infrastructure/repositories/TraceRepository');
       traceModules.TraceRepository = traceRepoModule.TraceRepository as unknown as typeof traceModules.TraceRepository;
       const useCasesModule = await import('./application/use-cases/tracing');
-      traceModules.GetRequestTraceUseCase = useCasesModule.GetRequestTraceUseCase as unknown as typeof traceModules.GetRequestTraceUseCase;
-      traceModules.SearchTracesUseCase = useCasesModule.SearchTracesUseCase as unknown as typeof traceModules.SearchTracesUseCase;
-      traceModules.GetSlowRequestsUseCase = useCasesModule.GetSlowRequestsUseCase as unknown as typeof traceModules.GetSlowRequestsUseCase;
+      traceModules.GetRequestTraceUseCase =
+        useCasesModule.GetRequestTraceUseCase as unknown as typeof traceModules.GetRequestTraceUseCase;
+      traceModules.SearchTracesUseCase =
+        useCasesModule.SearchTracesUseCase as unknown as typeof traceModules.SearchTracesUseCase;
+      traceModules.GetSlowRequestsUseCase =
+        useCasesModule.GetSlowRequestsUseCase as unknown as typeof traceModules.GetSlowRequestsUseCase;
 
       if (DATABASE_URL) {
         const { drizzle } = await import('drizzle-orm/node-postgres');
@@ -534,7 +553,9 @@ function setupRoutes(app: express.Application, services: {
         ? parseTimeRange(req.query.since as string)
         : new Date(Date.now() - 24 * 60 * 60 * 1000);
 
-      const stats = await (traceModules.traceRepository as Record<string, (...args: unknown[]) => Promise<unknown>>).getTraceStats(since);
+      const stats = await (
+        traceModules.traceRepository as Record<string, (...args: unknown[]) => Promise<unknown>>
+      ).getTraceStats(since);
 
       sendSuccess(res, stats);
     } catch (error) {
