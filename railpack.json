@@ -3,7 +3,10 @@
   "provider": "node",
   "steps": {
     "install": {
-      "commands": ["npm install --include=dev"]
+      "commands": [
+        "npm i -g corepack@latest && corepack enable && corepack prepare --activate",
+        "npm install --include=dev"
+      ]
     }
   }
 }
