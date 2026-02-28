@@ -1,5 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { RecordEventUseCase, RecordEventRequest, MetricEventData, ProviderEventData, UserEventData, SystemEventData, AnomalyEventData } from '../application/use-cases/RecordEventUseCase';
+import {
+  RecordEventUseCase,
+  RecordEventRequest,
+  MetricEventData,
+  ProviderEventData,
+  UserEventData,
+  SystemEventData,
+  AnomalyEventData,
+} from '../application/use-cases/RecordEventUseCase';
 import { IAnalyticsRepository } from '../domains/repositories/IAnalyticsRepository';
 
 const mockLogger = vi.hoisted(() => ({
@@ -117,7 +125,13 @@ describe('RecordEventUseCase', () => {
     it('should reject invalid metric type', async () => {
       const request: RecordEventRequest = {
         eventType: 'metric',
-        metricData: { name: 'test', value: 100, serviceName: 'test', source: 'test', metricType: 'invalid' as unknown as string },
+        metricData: {
+          name: 'test',
+          value: 100,
+          serviceName: 'test',
+          source: 'test',
+          metricType: 'invalid' as unknown as string,
+        },
       };
       const result = await useCase.execute(request);
       expect(result.success).toBe(false);
@@ -203,7 +217,12 @@ describe('RecordEventUseCase', () => {
     it('should reject invalid severity', async () => {
       const request: RecordEventRequest = {
         eventType: 'system',
-        systemEventData: { component: 'api-gateway', action: 'started', severity: 'invalid' as unknown as string, message: 'test' },
+        systemEventData: {
+          component: 'api-gateway',
+          action: 'started',
+          severity: 'invalid' as unknown as string,
+          message: 'test',
+        },
       };
       const result = await useCase.execute(request);
       expect(result.success).toBe(false);

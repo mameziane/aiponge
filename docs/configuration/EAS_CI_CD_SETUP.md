@@ -77,6 +77,7 @@ eas submit --platform ios --profile production
 ```
 
 Required credentials in `eas.json`:
+
 - `appleId`: Your Apple ID email
 - `ascAppId`: App Store Connect App ID
 - `appleTeamId`: Your Apple Developer Team ID
@@ -89,6 +90,7 @@ eas submit --platform android --profile production
 ```
 
 Required:
+
 - `google-service-account.json` file in `apps/aiponge/`
 - Configure in `eas.json` under `submit.production.android`
 
@@ -120,22 +122,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          
+
       - name: Install dependencies
         run: npm ci
-        
+
       - name: Install EAS CLI
         run: npm install -g eas-cli
-        
+
       - name: Build iOS
         run: cd apps/aiponge && eas build --platform ios --profile production --non-interactive
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-          
+
       - name: Build Android
         run: cd apps/aiponge && eas build --platform android --profile production --non-interactive
         env:
@@ -159,6 +161,7 @@ eas build --platform all --profile production --non-interactive
 ### "Not logged in" Error
 
 Ensure `EXPO_TOKEN` environment variable is set correctly:
+
 ```bash
 echo $EXPO_TOKEN  # Should show your token
 ```
@@ -166,6 +169,7 @@ echo $EXPO_TOKEN  # Should show your token
 ### Build Queue Delays
 
 EAS builds are queued. Check status at:
+
 - expo.dev/accounts/[account]/projects/aiponge/builds
 
 Consider EAS Priority builds for faster queue times.
@@ -173,6 +177,7 @@ Consider EAS Priority builds for faster queue times.
 ### Credential Issues
 
 Reset credentials if needed:
+
 ```bash
 eas credentials --platform ios
 eas credentials --platform android
@@ -183,6 +188,7 @@ eas credentials --platform android
 Before submitting new versions:
 
 1. Update version in `apps/aiponge/app.json`:
+
    ```json
    {
      "expo": {

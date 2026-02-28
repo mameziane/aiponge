@@ -14,7 +14,14 @@ const config = createServiceUrlsConfig('ai-config-service');
 
 export const SERVICE_URLS = config.SERVICE_URLS;
 export const SERVICE_PORTS = config.SERVICE_PORTS;
-export const { getServiceUrl, getServicePort, getOwnPort, createServiceHttpClient, createServiceClient, getHttpConfig } = config;
+export const {
+  getServiceUrl,
+  getServicePort,
+  getOwnPort,
+  createServiceHttpClient,
+  createServiceClient,
+  getHttpConfig,
+} = config;
 export type { HttpClient, HttpResponse };
 export type HttpClientType = Parameters<typeof config.createServiceHttpClient>[0];
 export type HttpClientConfig = ReturnType<typeof config.getHttpConfig>;

@@ -54,9 +54,18 @@ describe('App Routes (aggregator)', () => {
 
   it('should mount all expected domain route modules', () => {
     const expectedMounts = [
-      '/entries', '/music', '/library', '/playlists', '/credits',
-      '/profile', '/lyrics', '/subscriptions', '/reflections',
-      '/safety', '/reminders', '/privacy',
+      '/entries',
+      '/music',
+      '/library',
+      '/playlists',
+      '/credits',
+      '/profile',
+      '/lyrics',
+      '/subscriptions',
+      '/reflections',
+      '/safety',
+      '/reminders',
+      '/privacy',
     ];
 
     for (const mount of expectedMounts) {

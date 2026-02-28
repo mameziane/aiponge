@@ -7,9 +7,5 @@
     "esModuleInterop": true,
     "moduleResolution": "NodeNext"
   },
-  "include": [
-    "src/**/*.test.ts",
-    "src/**/*.spec.ts",
-    "src/__tests__/**/*"
-  ]
+  "include": ["src/**/*.test.ts", "src/**/*.spec.ts", "src/__tests__/**/*"]
 }

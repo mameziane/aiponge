@@ -1,7 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 const mockLogger = vi.hoisted(() => ({
-  info: vi.fn(), debug: vi.fn(), warn: vi.fn(), error: vi.fn(), child: vi.fn(),
+  info: vi.fn(),
+  debug: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  child: vi.fn(),
 }));
 
 const mockHttpClient = vi.hoisted(() => ({
@@ -164,9 +168,7 @@ describe('ServiceDiscovery', () => {
     });
 
     it('should handle deregistering non-existent service', async () => {
-      await expect(
-        discovery.deregisterService('nonexistent', 'inst-1')
-      ).resolves.not.toThrow();
+      await expect(discovery.deregisterService('nonexistent', 'inst-1')).resolves.not.toThrow();
     });
 
     it('should handle deregistering non-existent instance', async () => {

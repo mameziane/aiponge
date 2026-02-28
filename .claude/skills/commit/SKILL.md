@@ -20,6 +20,7 @@ Create a well-formed git commit for the current changes.
    - Add body paragraph only if the change is non-obvious
 5. Never commit files matching: `.env`, `*.env.*`, `credentials*`, `*.pem`, `*.key`
 6. Commit using a HEREDOC for the message:
+
    ```bash
    git commit -m "$(cat <<'EOF'
    prefix: message here
@@ -28,6 +29,7 @@ Create a well-formed git commit for the current changes.
    EOF
    )"
    ```
+
 7. Run `git status` after to verify success
 8. Show the user what was committed (files + message)
 

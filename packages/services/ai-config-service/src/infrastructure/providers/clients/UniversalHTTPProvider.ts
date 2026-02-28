@@ -199,7 +199,7 @@ export class UniversalHTTPProvider {
       );
     }
 
-    const responseData = await response.json() as Record<string, unknown>;
+    const responseData = (await response.json()) as Record<string, unknown>;
 
     // Parse response using template mapping
     const content = this.extractContent(responseData, template.responseMapping);
@@ -211,7 +211,11 @@ export class UniversalHTTPProvider {
     return { content, responseData, response, responseTime };
   }
 
-  private logContentExtraction(template: ProviderTemplate, content: string, responseData: Record<string, unknown>): void {
+  private logContentExtraction(
+    template: ProviderTemplate,
+    content: string,
+    responseData: Record<string, unknown>
+  ): void {
     // Log content extraction for debugging (debug level to reduce noise)
     const logger = getLogger('ai-config-universal-http-provider');
     if (template.name === 'openai') {
@@ -422,7 +426,10 @@ export class UniversalHTTPProvider {
     const maxTokens = (request.options?.max_tokens as number) || 1000;
 
     // Build messages array with Vision-compatible format
-    const messages: Array<{ role: string; content: string | Array<{ type: string; text?: string; image_url?: { url: string; detail: string } }> }> = [];
+    const messages: Array<{
+      role: string;
+      content: string | Array<{ type: string; text?: string; image_url?: { url: string; detail: string } }>;
+    }> = [];
 
     // Add system message if provided
     if (request.systemPrompt || request.options?.systemPrompt) {
@@ -433,7 +440,9 @@ export class UniversalHTTPProvider {
     }
 
     // Build user message with content array (text + image_url)
-    const userContent: Array<{ type: string; text?: string; image_url?: { url: string; detail: string } }> = [{ type: 'text', text: request.prompt }];
+    const userContent: Array<{ type: string; text?: string; image_url?: { url: string; detail: string } }> = [
+      { type: 'text', text: request.prompt },
+    ];
 
     // Add image URL with appropriate detail level
     if (artworkUrl) {
@@ -623,7 +632,15 @@ export class UniversalHTTPProvider {
    * Supports OpenAI, Anthropic, and other common formats
    */
   private extractTokenUsage(responseData: Record<string, unknown>): { input: number; output: number; total: number } {
-    const usage = responseData.usage as { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number; input_tokens?: number; output_tokens?: number } | undefined;
+    const usage = responseData.usage as
+      | {
+          prompt_tokens?: number;
+          completion_tokens?: number;
+          total_tokens?: number;
+          input_tokens?: number;
+          output_tokens?: number;
+        }
+      | undefined;
 
     if (usage?.prompt_tokens !== undefined) {
       return {
@@ -661,7 +678,9 @@ export class UniversalHTTPProvider {
 
     try {
       // CRITICAL: Check if provider has a FREE health endpoint
-      const config = template as ProviderTemplate & { healthEndpoint?: { url: string; method: string; requiresAuth: boolean; isFree: boolean } };
+      const config = template as ProviderTemplate & {
+        healthEndpoint?: { url: string; method: string; requiresAuth: boolean; isFree: boolean };
+      };
       const healthEndpoint = config.healthEndpoint;
 
       if (healthEndpoint && healthEndpoint.isFree) {

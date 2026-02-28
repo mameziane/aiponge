@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import type { ProviderConfiguration, InsertProviderConfiguration, ProviderConfigFilter, ProviderType } from '../domains/providers/domain/entities/ProviderConfiguration';
+import type {
+  ProviderConfiguration,
+  InsertProviderConfiguration,
+  ProviderConfigFilter,
+  ProviderType,
+} from '../domains/providers/domain/entities/ProviderConfiguration';
 
 describe('ProviderConfiguration', () => {
   describe('ProviderConfiguration entity', () => {

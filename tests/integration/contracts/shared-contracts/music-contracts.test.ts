@@ -1,6 +1,6 @@
 /**
  * Music API Contract Tests
- * 
+ *
  * Validates that music generation API contracts work correctly
  * and can detect common API response mismatches.
  */

@@ -20,7 +20,10 @@ vi.mock('@aiponge/platform-core', () => ({
     getServicePort: vi.fn(() => 3020),
   },
   serializeError: vi.fn((e: unknown) => String(e)),
-  getValidation: () => ({ validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(), validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next() }),
+  getValidation: () => ({
+    validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+    validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+  }),
 }));
 
 vi.mock('@services/gatewayFetch', () => ({
@@ -114,9 +117,7 @@ describe('Reports Routes', () => {
 
   describe('POST /insights', () => {
     it('should return 401 when no user ID', async () => {
-      const res = await request(app)
-        .post('/api/app/reports/insights')
-        .send({ timeRangeDays: 90 });
+      const res = await request(app).post('/api/app/reports/insights').send({ timeRangeDays: 90 });
       expect(res.status).toBe(401);
     });
 
@@ -133,15 +134,16 @@ describe('Reports Routes', () => {
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/reports/insights'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/reports/insights'),
+        expect.anything()
+      );
     });
   });
 
   describe('POST /book-export', () => {
     it('should return 401 when no user ID', async () => {
-      const res = await request(app)
-        .post('/api/app/reports/book-export')
-        .send({ format: 'chapters' });
+      const res = await request(app).post('/api/app/reports/book-export').send({ format: 'chapters' });
       expect(res.status).toBe(401);
     });
 
@@ -158,15 +160,16 @@ describe('Reports Routes', () => {
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/reports/book-export'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/reports/book-export'),
+        expect.anything()
+      );
     });
   });
 
   describe('POST /lyrics', () => {
     it('should return 401 when no user ID', async () => {
-      const res = await request(app)
-        .post('/api/app/reports/lyrics')
-        .send({ includeFavoritesOnly: false });
+      const res = await request(app).post('/api/app/reports/lyrics').send({ includeFavoritesOnly: false });
       expect(res.status).toBe(401);
     });
 
@@ -198,13 +201,14 @@ describe('Reports Routes', () => {
         headers: new Map([['content-type', 'application/pdf']]),
       });
 
-      const res = await request(app)
-        .get('/api/app/reports/download/rpt-123')
-        .set('x-request-id', 'req-123');
+      const res = await request(app).get('/api/app/reports/download/rpt-123').set('x-request-id', 'req-123');
 
       expect(res.status).toBe(200);
       expect(res.headers['content-type']).toContain('application/pdf');
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/reports/download/'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/reports/download/'),
+        expect.anything()
+      );
     });
 
     it('should handle report not found', async () => {
@@ -215,13 +219,14 @@ describe('Reports Routes', () => {
         headers: new Map([['content-type', 'application/json']]),
       });
 
-      const res = await request(app)
-        .get('/api/app/reports/download/nonexistent')
-        .set('x-request-id', 'req-123');
+      const res = await request(app).get('/api/app/reports/download/nonexistent').set('x-request-id', 'req-123');
 
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/reports/download/'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/reports/download/'),
+        expect.anything()
+      );
     });
   });
 });

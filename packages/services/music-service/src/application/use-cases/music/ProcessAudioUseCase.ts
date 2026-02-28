@@ -242,13 +242,17 @@ export class ProcessAudioUseCase {
           processingResult = await this.audioProcessingService.convertFormat(
             job.inputUrl,
             job.parameters.outputFormat as 'mp3' | 'wav' | 'flac' | 'aac' | 'ogg' | undefined,
-            job.parameters as Partial<import('@domains/ai-music/services/AudioProcessingService').AudioProcessingOptions>
+            job.parameters as Partial<
+              import('@domains/ai-music/services/AudioProcessingService').AudioProcessingOptions
+            >
           );
           break;
 
         case 'effects':
           processingResult = await this.audioProcessingService.processAudio(job.inputUrl, {
-            effects: job.parameters.effects as import('@domains/ai-music/services/AudioProcessingService').AudioEffect[] | undefined,
+            effects: job.parameters.effects as
+              | import('@domains/ai-music/services/AudioProcessingService').AudioEffect[]
+              | undefined,
             outputFormat: job.parameters.outputFormat as 'mp3' | 'wav' | 'flac' | 'aac' | 'ogg' | undefined,
             bitrate: job.parameters.bitrate as number | undefined,
             sampleRate: job.parameters.sampleRate as number | undefined,

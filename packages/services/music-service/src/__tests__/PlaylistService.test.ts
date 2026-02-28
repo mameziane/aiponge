@@ -40,7 +40,11 @@ describe('PlaylistService', () => {
 
   beforeEach(() => {
     mockPlaylistRepository = {
-      createPlaylist: vi.fn().mockImplementation((playlist) => Promise.resolve({ ...playlist, createdAt: new Date(), updatedAt: new Date() } as Playlist)),
+      createPlaylist: vi
+        .fn()
+        .mockImplementation(playlist =>
+          Promise.resolve({ ...playlist, createdAt: new Date(), updatedAt: new Date() } as Playlist)
+        ),
       getPlaylistById: vi.fn().mockResolvedValue(null),
       getPlaylistsByUser: vi.fn().mockResolvedValue([]),
       updatePlaylist: vi.fn().mockResolvedValue(undefined),
@@ -145,7 +149,7 @@ describe('PlaylistService', () => {
       const playlistId = 'test-playlist-id';
       const mockPlaylist = { id: playlistId, name: 'Test Playlist', userId: 'user-1' } as Playlist;
       mockPlaylistRepository.getPlaylistById.mockResolvedValue(mockPlaylist);
-      
+
       const result = await playlistService.getPlaylist(playlistId);
 
       expect(result).toBeDefined();
@@ -157,7 +161,7 @@ describe('PlaylistService', () => {
       const playlistId = 'custom-id-123';
       const mockPlaylist = { id: playlistId, name: 'Test', userId: 'user-1' } as Playlist;
       mockPlaylistRepository.getPlaylistById.mockResolvedValue(mockPlaylist);
-      
+
       const result = await playlistService.getPlaylist(playlistId);
 
       expect(result?.id).toBe(playlistId);
@@ -165,7 +169,7 @@ describe('PlaylistService', () => {
 
     it('should return null when playlist not found', async () => {
       mockPlaylistRepository.getPlaylistById.mockResolvedValue(null);
-      
+
       const result = await playlistService.getPlaylist('non-existent');
 
       expect(result).toBeNull();
@@ -174,7 +178,7 @@ describe('PlaylistService', () => {
     it('should call repository with correct ID', async () => {
       const playlistId = 'test-id';
       mockPlaylistRepository.getPlaylistById.mockResolvedValue(null);
-      
+
       await playlistService.getPlaylist(playlistId);
 
       expect(mockPlaylistRepository.getPlaylistById).toHaveBeenCalledWith(playlistId);
@@ -185,8 +189,7 @@ describe('PlaylistService', () => {
     it('should propagate errors from repository', async () => {
       mockPlaylistRepository.updatePlaylist.mockRejectedValue(new Error('DB connection lost'));
 
-      await expect(playlistService.updatePlaylist('pl-1', { name: 'New Name' }))
-        .rejects.toThrow('DB connection lost');
+      await expect(playlistService.updatePlaylist('pl-1', { name: 'New Name' })).rejects.toThrow('DB connection lost');
     });
   });
 
@@ -194,8 +197,7 @@ describe('PlaylistService', () => {
     it('should propagate errors from repository', async () => {
       mockPlaylistRepository.deletePlaylist.mockRejectedValue(new Error('DB connection lost'));
 
-      await expect(playlistService.deletePlaylist('pl-1'))
-        .rejects.toThrow('DB connection lost');
+      await expect(playlistService.deletePlaylist('pl-1')).rejects.toThrow('DB connection lost');
     });
   });
 
@@ -203,12 +205,12 @@ describe('PlaylistService', () => {
     it('should create and retrieve playlist', async () => {
       const playlist = await playlistService.createPlaylist({ name: 'Test Playlist', userId: 'user-999' });
 
-      mockPlaylistRepository.getPlaylistById.mockResolvedValue({ 
-        id: playlist.id, 
-        name: 'Test Playlist', 
-        userId: 'user-999' 
+      mockPlaylistRepository.getPlaylistById.mockResolvedValue({
+        id: playlist.id,
+        name: 'Test Playlist',
+        userId: 'user-999',
       } as Playlist);
-      
+
       const getResult = await playlistService.getPlaylist(playlist.id);
       expect(getResult).toBeDefined();
       expect(getResult?.id).toBe(playlist.id);

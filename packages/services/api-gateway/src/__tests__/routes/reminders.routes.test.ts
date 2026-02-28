@@ -20,7 +20,10 @@ vi.mock('@aiponge/platform-core', () => ({
     getServicePort: vi.fn(() => 3020),
   },
   serializeError: vi.fn((e: unknown) => String(e)),
-  getValidation: () => ({ validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(), validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next() }),
+  getValidation: () => ({
+    validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+    validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+  }),
 }));
 
 vi.mock('@services/gatewayFetch', () => ({
@@ -124,9 +127,7 @@ describe('Reminders Routes', () => {
     });
 
     it('should return 200 with reminders for authenticated user', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true, data: [{ id: 'rem-1', time: '09:00' }] })
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, data: [{ id: 'rem-1', time: '09:00' }] }));
 
       const res = await request(app)
         .get('/api/app/reminders/book')
@@ -139,13 +140,9 @@ describe('Reminders Routes', () => {
     });
 
     it('should handle upstream error', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ message: 'Service error' }, 500)
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ message: 'Service error' }, 500));
 
-      const res = await request(app)
-        .get('/api/app/reminders/book')
-        .set('x-user-id', 'user-123');
+      const res = await request(app).get('/api/app/reminders/book').set('x-user-id', 'user-123');
 
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
@@ -162,9 +159,7 @@ describe('Reminders Routes', () => {
     });
 
     it('should return 201 when creating reminder for authenticated user', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true, data: { id: 'rem-123' } }, 201)
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, data: { id: 'rem-123' } }, 201));
 
       const res = await request(app)
         .post('/api/app/reminders/book')
@@ -180,16 +175,12 @@ describe('Reminders Routes', () => {
 
   describe('PATCH /book/:id', () => {
     it('should return 401 when no user ID', async () => {
-      const res = await request(app)
-        .patch('/api/app/reminders/book/rem-123')
-        .send({ time: '10:00' });
+      const res = await request(app).patch('/api/app/reminders/book/rem-123').send({ time: '10:00' });
       expect(res.status).toBe(401);
     });
 
     it('should return 200 on successful update', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true, data: { id: 'rem-123', time: '10:00' } })
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, data: { id: 'rem-123', time: '10:00' } }));
 
       const res = await request(app)
         .patch('/api/app/reminders/book/rem-123')
@@ -209,13 +200,9 @@ describe('Reminders Routes', () => {
     });
 
     it('should return 200 on successful deletion', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true })
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true }));
 
-      const res = await request(app)
-        .delete('/api/app/reminders/book/rem-123')
-        .set('x-user-id', 'user-123');
+      const res = await request(app).delete('/api/app/reminders/book/rem-123').set('x-user-id', 'user-123');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -225,16 +212,12 @@ describe('Reminders Routes', () => {
 
   describe('POST /push-token', () => {
     it('should return 401 when no user ID', async () => {
-      const res = await request(app)
-        .post('/api/app/reminders/push-token')
-        .send({ token: 'expo-push-token' });
+      const res = await request(app).post('/api/app/reminders/push-token').send({ token: 'expo-push-token' });
       expect(res.status).toBe(401);
     });
 
     it('should return 200 on successful push token registration', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true })
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true }));
 
       const res = await request(app)
         .post('/api/app/reminders/push-token')

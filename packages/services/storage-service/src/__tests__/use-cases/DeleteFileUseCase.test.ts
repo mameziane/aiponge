@@ -1,7 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const mockLogger = vi.hoisted(() => ({
-  info: vi.fn(), debug: vi.fn(), warn: vi.fn(), error: vi.fn(), child: vi.fn(),
+  info: vi.fn(),
+  debug: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  child: vi.fn(),
 }));
 
 const mockAuditService = vi.hoisted(() => ({
@@ -23,7 +27,10 @@ vi.mock('@aiponge/platform-core', () => ({
     }
   },
   createHttpClient: vi.fn(() => ({
-    get: vi.fn(), post: vi.fn(), put: vi.fn(), delete: vi.fn(),
+    get: vi.fn(),
+    post: vi.fn(),
+    put: vi.fn(),
+    delete: vi.fn(),
   })),
   ServiceRegistry: {},
   hasService: () => false,
@@ -31,8 +38,8 @@ vi.mock('@aiponge/platform-core', () => ({
   waitForService: vi.fn(),
   listServices: () => [],
   createServiceUrlsConfig: vi.fn(() => ({})),
-  errorMessage: vi.fn((err: unknown) => err instanceof Error ? err.message : String(err)),
-  errorStack: vi.fn((err: unknown) => err instanceof Error ? err.stack : ''),
+  errorMessage: vi.fn((err: unknown) => (err instanceof Error ? err.message : String(err))),
+  errorStack: vi.fn((err: unknown) => (err instanceof Error ? err.stack : '')),
   withResilience: vi.fn((fn: (...args: unknown[]) => unknown) => fn),
   createIntervalScheduler: vi.fn(() => ({ start: vi.fn(), stop: vi.fn() })),
 }));
@@ -43,7 +50,9 @@ import { FileEntity } from '../../domains/entities/FileEntity';
 import type { IStorageProvider } from '../../application/interfaces/IStorageProvider';
 import type { IStorageRepository } from '../../application/interfaces/IStorageRepository';
 
-function createMockFileEntity(overrides: Partial<{ id: string; uploadedBy: string; isPublic: boolean }> = {}): FileEntity {
+function createMockFileEntity(
+  overrides: Partial<{ id: string; uploadedBy: string; isPublic: boolean }> = {}
+): FileEntity {
   return new FileEntity(
     overrides.id || 'file-123',
     'test-file.txt',
@@ -140,7 +149,9 @@ describe('DeleteFileUseCase', () => {
         createMockFileEntity({ uploadedBy: 'other-user', isPublic: false })
       );
 
-      await expect(useCase.execute({ fileId: 'file-123', userId: 'unauthorized-user' })).rejects.toThrow('You do not have permission');
+      await expect(useCase.execute({ fileId: 'file-123', userId: 'unauthorized-user' })).rejects.toThrow(
+        'You do not have permission'
+      );
     });
   });
 
@@ -160,7 +171,9 @@ describe('DeleteFileUseCase', () => {
     it('should throw when repository deletion fails', async () => {
       (mockRepository.delete as ReturnType<typeof vi.fn>).mockResolvedValue(false);
 
-      await expect(useCase.execute({ fileId: 'file-123', userId: 'user-1' })).rejects.toThrow('Failed to delete file from database');
+      await expect(useCase.execute({ fileId: 'file-123', userId: 'user-1' })).rejects.toThrow(
+        'Failed to delete file from database'
+      );
     });
   });
 });

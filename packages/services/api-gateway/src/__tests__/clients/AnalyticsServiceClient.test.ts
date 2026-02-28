@@ -1,7 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const mockLogger = vi.hoisted(() => ({
-  info: vi.fn(), debug: vi.fn(), warn: vi.fn(), error: vi.fn(), child: vi.fn(),
+  info: vi.fn(),
+  debug: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  child: vi.fn(),
 }));
 
 const mockEventPublisher = vi.hoisted(() => ({
@@ -25,7 +29,7 @@ vi.mock('@aiponge/platform-core', () => ({
   getAnalyticsEventPublisher: () => mockEventPublisher,
   withServiceResilience: vi.fn((_service: string, _op: string, fn: () => unknown) => fn()),
   createHttpClient: () => mockHttpClient,
-  errorMessage: vi.fn((e: unknown) => e instanceof Error ? e.message : String(e)),
+  errorMessage: vi.fn((e: unknown) => (e instanceof Error ? e.message : String(e))),
   createServiceUrlsConfig: vi.fn(() => ({
     SERVICE_URLS: {},
     SERVICE_PORTS: {},
@@ -211,9 +215,7 @@ describe('AnalyticsServiceClient', () => {
         throw new Error('Batch error');
       });
 
-      expect(() =>
-        client.recordEvents([{ eventType: 'test', eventData: {} }])
-      ).not.toThrow();
+      expect(() => client.recordEvents([{ eventType: 'test', eventData: {} }])).not.toThrow();
       expect(mockLogger.warn).toHaveBeenCalled();
     });
   });
@@ -225,10 +227,9 @@ describe('AnalyticsServiceClient', () => {
 
       await client.recordMetrics(metrics);
 
-      expect(mockHttpClient.post).toHaveBeenCalledWith(
-        expect.stringContaining('/api/analytics/metrics/batch'),
-        { metrics }
-      );
+      expect(mockHttpClient.post).toHaveBeenCalledWith(expect.stringContaining('/api/analytics/metrics/batch'), {
+        metrics,
+      });
     });
 
     it('should propagate HTTP errors', async () => {
@@ -256,10 +257,7 @@ describe('AnalyticsServiceClient', () => {
 
       const result = await client.getMetrics(query);
 
-      expect(mockHttpClient.post).toHaveBeenCalledWith(
-        expect.stringContaining('/api/analytics/metrics/query'),
-        query
-      );
+      expect(mockHttpClient.post).toHaveBeenCalledWith(expect.stringContaining('/api/analytics/metrics/query'), query);
       expect(result).toEqual(mockResult);
     });
   });
@@ -287,10 +285,9 @@ describe('AnalyticsServiceClient', () => {
 
       const result = await client.getRealtimeMetrics(['cpu', 'memory']);
 
-      expect(mockHttpClient.post).toHaveBeenCalledWith(
-        expect.stringContaining('/api/analytics/metrics/realtime'),
-        { metricNames: ['cpu', 'memory'] }
-      );
+      expect(mockHttpClient.post).toHaveBeenCalledWith(expect.stringContaining('/api/analytics/metrics/realtime'), {
+        metricNames: ['cpu', 'memory'],
+      });
       expect(result).toEqual(mockData);
     });
   });
@@ -302,9 +299,7 @@ describe('AnalyticsServiceClient', () => {
 
       const result = await client.getSystemHealth();
 
-      expect(mockHttpClient.get).toHaveBeenCalledWith(
-        expect.stringContaining('/api/analytics/system/health')
-      );
+      expect(mockHttpClient.get).toHaveBeenCalledWith(expect.stringContaining('/api/analytics/system/health'));
       expect(result).toEqual(mockHealth);
     });
 
@@ -317,10 +312,7 @@ describe('AnalyticsServiceClient', () => {
   describe('shutdown', () => {
     it('should log shutdown message', async () => {
       await client.shutdown();
-      expect(mockLogger.info).toHaveBeenCalledWith(
-        'Analytics service client shutdown complete',
-        expect.any(Object)
-      );
+      expect(mockLogger.info).toHaveBeenCalledWith('Analytics service client shutdown complete', expect.any(Object));
     });
   });
 

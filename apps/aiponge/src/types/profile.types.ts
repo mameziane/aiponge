@@ -124,8 +124,6 @@ export interface EntryImage {
 export interface Source {
   author: string;
   work?: string;
-  era?: string;
-  tradition?: string;
 }
 
 export type DepthLevel = 'brief' | 'standard' | 'deep';
@@ -254,8 +252,6 @@ export interface CreateLibBookInput {
   description?: string;
   language?: string;
   category?: string;
-  era?: string;
-  tradition?: string;
   visibility?: LibBookVisibility;
   tags?: string[];
   themes?: string[];

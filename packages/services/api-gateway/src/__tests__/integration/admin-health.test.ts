@@ -36,7 +36,7 @@ function getPortForService(service: string): number {
   return ports[service] || 8080;
 }
 
-vi.mock('@aiponge/platform-core', async (importOriginal) => {
+vi.mock('@aiponge/platform-core', async importOriginal => {
   const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
   return {
     ...actual,

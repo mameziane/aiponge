@@ -14,14 +14,7 @@ export interface IAnalyticsServiceClient {
 
   recordEvents(events: AnalyticsEvent[]): Promise<{ success: boolean; error?: string }>;
 
-  getMusicAnalytics(
-    params?: {
-      userId?: string;
-      startDate?: Date;
-      endDate?: Date;
-      metrics?: string[];
-    }
-  ): Promise<{
+  getMusicAnalytics(params?: { userId?: string; startDate?: Date; endDate?: Date; metrics?: string[] }): Promise<{
     success: boolean;
     analytics?: import('../../../infrastructure/clients/AnalyticsServiceClient').MusicAnalyticsMetrics;
     error?: string;
@@ -33,15 +26,13 @@ export interface IAnalyticsServiceClient {
     error?: string;
   }>;
 
-  getPopularMusic(
-    params?: {
-      timeframe?: 'daily' | 'weekly' | 'monthly';
-      limit?: number;
-      musicType?: string;
-      genre?: string;
-      style?: string;
-    }
-  ): Promise<{
+  getPopularMusic(params?: {
+    timeframe?: 'daily' | 'weekly' | 'monthly';
+    limit?: number;
+    musicType?: string;
+    genre?: string;
+    style?: string;
+  }): Promise<{
     success: boolean;
     popularMusic?: import('../../../infrastructure/clients/AnalyticsServiceClient').PopularMusicItem[];
     error?: string;

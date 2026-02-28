@@ -42,6 +42,7 @@ npm run full-quality-check     # All quality checks (per service)
 ## Architecture Rules (MUST FOLLOW)
 
 ### Clean Architecture — every service uses this structure:
+
 ```
 src/domains/         → Entities, value objects, repository interfaces
 src/application/     → Use cases (single-purpose classes), application services
@@ -50,12 +51,14 @@ src/presentation/    → Routes, controllers (thin wrappers), middleware
 ```
 
 **Dependency flow: Presentation → Application → Domain ← Infrastructure**
+
 - Entities NEVER import from infrastructure
 - Use cases depend on repository INTERFACES, not implementations
 - Controllers are thin — no business logic, just delegate to use cases
 - ServiceFactory is the single composition root for DI
 
 ### Cross-Service Rules
+
 - NO shared databases between services
 - NO direct imports from another service's internals — use `@aiponge/shared-contracts`
 - Inter-service calls go through typed ServiceClients with circuit breaker
@@ -65,6 +68,7 @@ src/presentation/    → Routes, controllers (thin wrappers), middleware
 ## Key Patterns (ALWAYS use these)
 
 ### Content Visibility (ABAC)
+
 - All content has `visibility`: personal | shared | public
 - ALWAYS use helper functions: `canViewContent()`, `isContentShared()`, `isContentPublic()`
 - NEVER do raw comparisons like `=== CONTENT_VISIBILITY.SHARED` in business logic
@@ -72,35 +76,42 @@ src/presentation/    → Routes, controllers (thin wrappers), middleware
 - Content is PRIVATE by default (`CONTENT_VISIBILITY.PERSONAL`)
 
 ### Content Lifecycle State Machine
+
 - Statuses: draft → active → published → archived → deleted
 - Domain extensions: TRACK_LIFECYCLE adds `processing`, AI_CONTENT_LIFECYCLE adds `generated`/`reviewed`
 - ALWAYS call `assertValidTransition(from, to, map, domainName)` before status changes
 
 ### Role vs Tier — never mix these
+
 - **Roles** (admin/librarian/user) → authorization (who can do what): `contextIsAdmin()`, `contextIsLibrarian()`
 - **Tiers** (guest/explorer/personal/practice/studio) → feature access (what's available): `isPaidTier()`, `getTierConfig()`
 
 ### API Responses — strict format
+
 ```typescript
 { success: true, data: T, message?: string }
 { success: false, error: { code: string, message: string, correlationId: string } }
 ```
 
 ### Error Handling
+
 - Extend `BaseError` with domain-specific subclasses
 - Use `ServiceErrors.fromException()` for unexpected errors
 - Never throw raw Error — always use structured errors with error codes
 
 ### AI Providers
+
 - All providers registered in DB (`cfg_provider_configs`)
 - NEVER call AI providers directly — use ProviderProxy (circuit breaker, health, load balancing)
 - Prompts stored in DB as Handlebars templates (`aic_prompt_templates`) — never hardcode
 
 ### Scheduling
+
 - All cron jobs extend `BaseScheduler`, registered with `SchedulerRegistry`
 - NEVER use raw `setInterval`, `setTimeout`, or direct `cron`
 
 ### Frontend State (mobile app)
+
 - **Zustand** → client UI state only (generation progress, search filters)
 - **React Query** → server state (API data, caching, sync)
 - **React Context** → SDK wrappers (audio player, RevenueCat subscriptions)
@@ -109,21 +120,23 @@ src/presentation/    → Routes, controllers (thin wrappers), middleware
 ## Naming Conventions
 
 ### Database Tables
+
 Each service owns its tables with prefix: `usr_*`, `lib_*`, `mus_*`, `stg_*`, `sys_*`, `cfg_*`, `aic_*`, `aia_*`
 
 ### Field Names (enforced, no synonyms)
-| Use              | NOT                          |
-|------------------|------------------------------|
-| coverArtworkUrl  | coverUrl, coverImage         |
-| artworkUrl       | imageUrl, pictureUrl         |
-| coverIllustrationUrl | bookCoverUrl, bookImage  |
-| reference        | externalId, refId            |
-| type             | kind, category               |
-| userDate         | entryDate, createdDate       |
-| depthLevel       | depth (as number)            |
-| targetLanguages  | languages, outputLanguages   |
-| culturalLanguages| bilingualLanguages           |
-| visibility       | privacy, accessLevel         |
+
+| Use                  | NOT                        |
+| -------------------- | -------------------------- |
+| coverArtworkUrl      | coverUrl, coverImage       |
+| artworkUrl           | imageUrl, pictureUrl       |
+| coverIllustrationUrl | bookCoverUrl, bookImage    |
+| reference            | externalId, refId          |
+| type                 | kind, category             |
+| userDate             | entryDate, createdDate     |
+| depthLevel           | depth (as number)          |
+| targetLanguages      | languages, outputLanguages |
+| culturalLanguages    | bilingualLanguages         |
+| visibility           | privacy, accessLevel       |
 
 ## Code Style
 

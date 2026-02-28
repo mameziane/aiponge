@@ -32,7 +32,7 @@ vi.mock('@aiponge/platform-core', () => ({
   waitForService: vi.fn(),
   listServices: vi.fn(),
   createServiceUrlsConfig: vi.fn(() => ({ getServiceUrl: vi.fn() })),
-  errorMessage: vi.fn((err: unknown) => err instanceof Error ? err.message : String(err)),
+  errorMessage: vi.fn((err: unknown) => (err instanceof Error ? err.message : String(err))),
   serializeError: vi.fn((err: unknown) => err),
 }));
 
@@ -281,9 +281,7 @@ describe('UnifiedAlbumRepository', () => {
       const result = await repository.delete('album-1');
 
       expect(result).toBe(true);
-      expect(mockDb.set).toHaveBeenCalledWith(
-        expect.objectContaining({ deletedAt: expect.any(Date) })
-      );
+      expect(mockDb.set).toHaveBeenCalledWith(expect.objectContaining({ deletedAt: expect.any(Date) }));
     });
 
     it('should return false on database error', async () => {
@@ -437,9 +435,7 @@ describe('UnifiedAlbumRepository', () => {
     it('should throw on database error', async () => {
       mockDb.where.mockRejectedValue(new Error('DB error'));
 
-      await expect(
-        repository.updateArtwork('album-1', 'https://example.com/new-art.jpg')
-      ).rejects.toThrow();
+      await expect(repository.updateArtwork('album-1', 'https://example.com/new-art.jpg')).rejects.toThrow();
     });
   });
 
@@ -449,9 +445,7 @@ describe('UnifiedAlbumRepository', () => {
 
       await repository.updateStatus('album-1', 'active' as unknown as string);
 
-      expect(mockDb.set).toHaveBeenCalledWith(
-        expect.objectContaining({ status: 'active' })
-      );
+      expect(mockDb.set).toHaveBeenCalledWith(expect.objectContaining({ status: 'active' }));
     });
 
     it('should throw on database error', async () => {

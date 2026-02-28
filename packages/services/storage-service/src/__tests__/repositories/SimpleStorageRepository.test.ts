@@ -32,8 +32,8 @@ vi.mock('@aiponge/platform-core', () => ({
   waitForService: vi.fn(),
   listServices: () => [],
   createServiceUrlsConfig: vi.fn(() => ({})),
-  errorMessage: vi.fn((err: unknown) => err instanceof Error ? err.message : String(err)),
-  errorStack: vi.fn((err: unknown) => err instanceof Error ? err.stack : ''),
+  errorMessage: vi.fn((err: unknown) => (err instanceof Error ? err.message : String(err))),
+  errorStack: vi.fn((err: unknown) => (err instanceof Error ? err.stack : '')),
   withResilience: vi.fn((fn: (...args: unknown[]) => unknown) => fn),
   createIntervalScheduler: vi.fn(() => ({ start: vi.fn(), stop: vi.fn() })),
 }));
@@ -49,7 +49,16 @@ vi.mock('@aiponge/shared-contracts', () => ({
 import { SimpleStorageRepository } from '../../infrastructure/repositories/SimpleStorageRepository';
 import { FileEntity, FileLocation, FileMetadata } from '../../domains/entities/FileEntity';
 
-function createTestFile(overrides: Partial<{ id: string; filename: string; path: string; userId: string; isPublic: boolean; expiresAt?: Date }> = {}): FileEntity {
+function createTestFile(
+  overrides: Partial<{
+    id: string;
+    filename: string;
+    path: string;
+    userId: string;
+    isPublic: boolean;
+    expiresAt?: Date;
+  }> = {}
+): FileEntity {
   const location: FileLocation = {
     bucket: 'test-bucket',
     key: 'test-key',
@@ -67,12 +76,7 @@ function createTestFile(overrides: Partial<{ id: string; filename: string; path:
     expiresAt: overrides.expiresAt,
   };
 
-  return new FileEntity(
-    overrides.id || 'file-1',
-    overrides.filename || 'test-file.txt',
-    location,
-    metadata
-  );
+  return new FileEntity(overrides.id || 'file-1', overrides.filename || 'test-file.txt', location, metadata);
 }
 
 describe('SimpleStorageRepository', () => {
@@ -319,9 +323,7 @@ describe('SimpleStorageRepository', () => {
     });
 
     it('should throw for non-existing file', async () => {
-      await expect(
-        repository.update('nonexistent', { filename: 'new.txt' })
-      ).rejects.toThrow();
+      await expect(repository.update('nonexistent', { filename: 'new.txt' })).rejects.toThrow();
     });
   });
 });

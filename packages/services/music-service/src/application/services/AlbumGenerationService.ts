@@ -18,7 +18,12 @@ import {
   type ProgressUpdate,
   type AlbumPipelineDependencies,
 } from './AlbumGenerationPipeline';
-import { RefactoredTrackGenerationHandler, DefaultLyricsSyncHandler, DefaultUserContextFetcher, type RefactoredHandlerDependencies } from './RefactoredAlbumHandlers';
+import {
+  RefactoredTrackGenerationHandler,
+  DefaultLyricsSyncHandler,
+  DefaultUserContextFetcher,
+  type RefactoredHandlerDependencies,
+} from './RefactoredAlbumHandlers';
 import {
   DefaultAlbumCreationHandler,
   DefaultArtworkGenerationHandler,

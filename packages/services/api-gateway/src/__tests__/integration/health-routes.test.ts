@@ -27,7 +27,7 @@ const mockLogger = vi.hoisted(() => ({
   debug: vi.fn(),
 }));
 
-vi.mock('@aiponge/platform-core', async (importOriginal) => {
+vi.mock('@aiponge/platform-core', async importOriginal => {
   const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
   return {
     ...actual,
@@ -62,7 +62,9 @@ type HealthRoutesWithRouter = { router: RouterStack };
 
 function getRouteHandler(router: RouterStack, path: string): Function {
   const layer = router.stack.find((l: Record<string, unknown>) => (l.route as Record<string, unknown>)?.path === path);
-  return ((layer as Record<string, unknown>).route as Record<string, unknown> & { stack: Array<Record<string, unknown>> }).stack[0].handle as Function;
+  return (
+    (layer as Record<string, unknown>).route as Record<string, unknown> & { stack: Array<Record<string, unknown>> }
+  ).stack[0].handle as Function;
 }
 
 function getRouteLayer(router: RouterStack, path: string): Record<string, unknown> | undefined {

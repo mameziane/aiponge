@@ -4,11 +4,7 @@ import {
   ProviderHealthMetrics,
   ProviderPerformanceMetrics,
 } from '../../../domains/entities/ProviderAnalytics';
-import type {
-  ProviderAnalyticsWithInsights,
-  ProviderSummaryStats,
-  GetProviderAnalyticsRequest,
-} from './types';
+import type { ProviderAnalyticsWithInsights, ProviderSummaryStats, GetProviderAnalyticsRequest } from './types';
 import { getLogger } from '../../../config/service-urls';
 
 const logger = getLogger('ai-analytics-service-provider-enricher');

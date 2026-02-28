@@ -22,13 +22,20 @@ vi.mock('@aiponge/platform-core', () => ({
   createIntervalScheduler: vi.fn((opts: { handler: () => void | Promise<void>; intervalMs: number }) => {
     let timer: ReturnType<typeof setInterval> | null = null;
     return {
-      start: vi.fn(() => { timer = setInterval(() => opts.handler(), opts.intervalMs); }),
-      stop: vi.fn(() => { if (timer) { clearInterval(timer); timer = null; } }),
+      start: vi.fn(() => {
+        timer = setInterval(() => opts.handler(), opts.intervalMs);
+      }),
+      stop: vi.fn(() => {
+        if (timer) {
+          clearInterval(timer);
+          timer = null;
+        }
+      }),
       isRunning: vi.fn(() => timer !== null),
     };
   }),
   createServiceUrlsConfig: vi.fn(() => ({ getServiceUrl: vi.fn() })),
-  errorMessage: vi.fn((err: unknown) => err instanceof Error ? err.message : String(err)),
+  errorMessage: vi.fn((err: unknown) => (err instanceof Error ? err.message : String(err))),
 }));
 
 vi.mock('../config/service-urls', () => ({
@@ -180,9 +187,7 @@ describe('MetricsCollectorService', () => {
 
     it('should throw on repository error', async () => {
       mockRepository.getMetricTimeSeries.mockRejectedValue(new Error('Query failed'));
-      await expect(
-        service.getMetricTimeSeries('m', 's', new Date(), new Date(), 60)
-      ).rejects.toThrow('Query failed');
+      await expect(service.getMetricTimeSeries('m', 's', new Date(), new Date(), 60)).rejects.toThrow('Query failed');
     });
   });
 

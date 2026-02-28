@@ -4,9 +4,11 @@
 
 import { createServiceAuth } from '@aiponge/platform-core';
 
-const { authMiddleware, optionalAuth: optionalAuthMiddleware, requireRole, requirePermission } = createServiceAuth(
-  'music-service',
-  { allowApiKey: true, allowServiceAuth: true }
-);
+const {
+  authMiddleware,
+  optionalAuth: optionalAuthMiddleware,
+  requireRole,
+  requirePermission,
+} = createServiceAuth('music-service', { allowApiKey: true, allowServiceAuth: true });
 
 export { authMiddleware, optionalAuthMiddleware, requireRole, requirePermission };

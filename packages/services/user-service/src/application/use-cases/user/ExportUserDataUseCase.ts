@@ -9,7 +9,12 @@ import { getLogger, getServiceUrl, createServiceHttpClient } from '@config/servi
 import { signUserIdHeader, serializeError } from '@aiponge/platform-core';
 import { EncryptionService } from '@infrastructure/services';
 import { AuthError } from '@application/errors';
-import type { UserCredits, CreditTransaction, CreditOrder, CreditGift } from '@infrastructure/database/schemas/user-schema';
+import type {
+  UserCredits,
+  CreditTransaction,
+  CreditOrder,
+  CreditGift,
+} from '@infrastructure/database/schemas/user-schema';
 import type { ConsentRecord } from '@infrastructure/database/schemas/profile-schema';
 
 const logger = getLogger('export-user-data-use-case');
@@ -514,7 +519,7 @@ export class ExportUserDataUseCase {
       });
 
       if (response.ok) {
-        return (response.data as Record<string, unknown>).musicData as ExportedUserData['music'] || null;
+        return ((response.data as Record<string, unknown>).musicData as ExportedUserData['music']) || null;
       }
       return null;
     } catch {
@@ -533,7 +538,7 @@ export class ExportUserDataUseCase {
       });
 
       if (response.ok) {
-        return (response.data as Record<string, unknown>).analyticsData as ExportedUserData['activity'] || null;
+        return ((response.data as Record<string, unknown>).analyticsData as ExportedUserData['activity']) || null;
       }
       return null;
     } catch {

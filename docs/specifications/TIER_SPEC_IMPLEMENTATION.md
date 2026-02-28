@@ -2,7 +2,7 @@
 
 **Context:** This document clarifies implementation intent for the revised tier specification (TIER_SPEC.json v2.0, dated 2026-02-14). Read this alongside the spec. These aren't changes — they're details the spec implies but doesn't spell out explicitly. Each section addresses a likely point of ambiguity.
 
------
+---
 
 ## 1. Guest → Explorer Is Account Creation, Not an Upgrade
 
@@ -37,7 +37,7 @@ Guest generates song
 
 **The mental model:** This is like Spotify asking you to create an account to save a playlist someone shared with you. It's preservation, not purchase.
 
------
+---
 
 ## 2. Disappearing Song Mechanic — Technical Requirements
 
@@ -67,7 +67,7 @@ Guest generates song
 - Guest generates a song, shares the URL with someone, then the song expires → shared URL should also expire. The recipient sees: "This song is no longer available."
 - Guest creates account at hour 47 → song is saved permanently, timer disappears
 
------
+---
 
 ## 3. Sharing on Explorer — The Viral Loop
 
@@ -99,7 +99,7 @@ Recipient opens link
 
 **Visibility model alignment:** This uses the existing three-tier visibility system. Shared songs via token links are "Shared" visibility. The recipient accesses via the token, not via authentication.
 
------
+---
 
 ## 4. Personal → Practice Upgrade Trigger Is Behavioral, Not Quota-Based
 
@@ -124,7 +124,7 @@ Recipient opens link
 
 This prompt should appear in context (e.g., after sharing a song) rather than as a random modal.
 
------
+---
 
 ## 5. Replay Tracking Starts at Guest Tier — Anonymous Session Tracking
 
@@ -154,7 +154,7 @@ This prompt should appear in context (e.g., after sharing a song) rather than as
 
 **This tracking infrastructure is higher priority than the Practice and Studio tiers.** Ship it with Guest and Explorer at launch.
 
------
+---
 
 ## 6. Weekly Billing Removal — Migration Checklist
 
@@ -176,7 +176,7 @@ The old spec included weekly product IDs:
 1. In App Store Connect / Google Play Console: set weekly subscription products to "removed from sale" (don't delete — preserves purchase records)
 1. Remove "weekly" from `billingPeriods` in the global config (already done in new spec — just verify it propagates)
 
------
+---
 
 ## 7. Deferred Tiers Must Be Invisible at Launch
 
@@ -194,7 +194,7 @@ The old spec included weekly product IDs:
 
 **Why no "coming soon" teaser:** We don't want users waiting for a future tier instead of converting to Personal now. The Personal tier should feel complete, not like a stepping stone to something better that hasn't launched yet.
 
------
+---
 
 ## 8. Sharing Clarification: Personal vs Practice
 
@@ -202,15 +202,15 @@ The old spec included weekly product IDs:
 
 **Here's the distinction:**
 
-| Capability                                     | Explorer | Personal | Practice    |
-| ---------------------------------------------- | -------- | -------- | ----------- |
-| Share a song via link                          | ✅        | ✅        | ✅           |
-| Recipient can listen without account           | ✅        | ✅        | ✅           |
-| See if recipient listened                      | ❌        | ❌        | ✅           |
-| See how many times recipient replayed          | ❌        | ❌        | ✅           |
-| Capture recipient's reflection after listening | ❌        | ❌        | ✅           |
-| View engagement dashboard for shared songs     | ❌        | ❌        | ✅           |
-| "Created with AIPONGE" on shared song page     | ✅        | ✅        | ✅ (branded) |
+| Capability                                     | Explorer | Personal | Practice     |
+| ---------------------------------------------- | -------- | -------- | ------------ |
+| Share a song via link                          | ✅       | ✅       | ✅           |
+| Recipient can listen without account           | ✅       | ✅       | ✅           |
+| See if recipient listened                      | ❌       | ❌       | ✅           |
+| See how many times recipient replayed          | ❌       | ❌       | ✅           |
+| Capture recipient's reflection after listening | ❌       | ❌       | ✅           |
+| View engagement dashboard for shared songs     | ❌       | ❌       | ✅           |
+| "Created with AIPONGE" on shared song page     | ✅       | ✅       | ✅ (branded) |
 
 **Implementation:**
 
@@ -227,7 +227,7 @@ The old spec included weekly product IDs:
 - Add any friction to the Personal sharing flow
 - Distinguish between "sharing with a friend" and "sharing with a client" at the Personal tier — there is no distinction. A link is a link.
 
------
+---
 
 ## 9. Annual Pricing — Available But Hidden
 
@@ -245,7 +245,7 @@ The spec includes annual pricing for Personal ($79.99), Practice ($399.99), and 
 - When monthly churn rate stabilizes and you can calculate whether annual discounts improve LTV
 - Feature flag: `SHOW_ANNUAL_PRICING = false`
 
------
+---
 
 ## Summary: Implementation Priority Order
 

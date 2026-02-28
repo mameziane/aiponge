@@ -29,11 +29,16 @@ export default function () {
   const res = http.get(`${BASE_URL}${endpoint}`);
 
   check(res, {
-    'status 200': (r) => r.status === 200,
-    'has cache headers': (r) => r.headers['Cache-Control'] != null,
-    'has metadata version': (r) => r.headers['X-Metadata-Version'] != null,
-    'response is JSON': (r) => {
-      try { r.json(); return true; } catch { return false; }
+    'status 200': r => r.status === 200,
+    'has cache headers': r => r.headers['Cache-Control'] != null,
+    'has metadata version': r => r.headers['X-Metadata-Version'] != null,
+    'response is JSON': r => {
+      try {
+        r.json();
+        return true;
+      } catch {
+        return false;
+      }
     },
   });
 

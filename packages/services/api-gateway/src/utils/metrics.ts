@@ -375,8 +375,7 @@ export const metricsMiddleware = (req: Request, res: Response, next: NextFunctio
           status: res.statusCode >= 400 ? 'error' : 'completed',
           spanCount: 1,
         });
-      } catch {
-      }
+      } catch {}
     }
 
     return originalEnd.apply(res, [chunk, ...args] as Parameters<typeof originalEnd>);

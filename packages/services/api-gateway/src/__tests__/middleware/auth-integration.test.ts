@@ -22,7 +22,7 @@ const mockAuthHandler = vi.hoisted(() =>
       req.user = simulatedUser;
     }
     next();
-  }),
+  })
 );
 
 const mockAuthenticate = vi.hoisted(() => vi.fn().mockReturnValue(mockAuthHandler));
@@ -46,7 +46,7 @@ vi.mock('../../config/service-urls', () => ({
   getLogger: () => mockLogger,
 }));
 
-vi.mock('@aiponge/shared-contracts', async (importOriginal) => {
+vi.mock('@aiponge/shared-contracts', async importOriginal => {
   const actual = await importOriginal<Record<string, unknown>>();
   return {
     ...actual,
@@ -66,12 +66,9 @@ describe('Auth Middleware Integration', () => {
     simulatedUser = undefined;
     simulatedError = undefined;
 
-    const { jwtAuthMiddleware, optionalJwtAuthMiddleware } = await import(
-      '../../presentation/middleware/jwtAuthMiddleware'
-    );
-    const { adminAuthMiddleware } = await import(
-      '../../presentation/middleware/adminAuthMiddleware'
-    );
+    const { jwtAuthMiddleware, optionalJwtAuthMiddleware } =
+      await import('../../presentation/middleware/jwtAuthMiddleware');
+    const { adminAuthMiddleware } = await import('../../presentation/middleware/adminAuthMiddleware');
 
     app = express();
     app.use(express.json());
@@ -119,9 +116,7 @@ describe('Auth Middleware Integration', () => {
       simulatedError = new Error('Invalid token') as Error & { status?: number };
       simulatedError.status = 401;
 
-      const res = await request(app)
-        .get('/test/jwt')
-        .set('Authorization', 'Bearer invalid-token');
+      const res = await request(app).get('/test/jwt').set('Authorization', 'Bearer invalid-token');
 
       expect(res.status).toBe(401);
     });
@@ -129,9 +124,7 @@ describe('Auth Middleware Integration', () => {
     it('should return 200 with user context when token is valid', async () => {
       simulatedUser = { id: 'user-123', role: 'member', email: 'test@example.com' };
 
-      const res = await request(app)
-        .get('/test/jwt')
-        .set('Authorization', 'Bearer valid-token');
+      const res = await request(app).get('/test/jwt').set('Authorization', 'Bearer valid-token');
 
       expect(res.status).toBe(200);
       expect(res.body.userId).toBe('user-123');
@@ -142,9 +135,7 @@ describe('Auth Middleware Integration', () => {
     it('should lowercase roles from token', async () => {
       simulatedUser = { id: 'user-456', role: 'ADMIN' };
 
-      const res = await request(app)
-        .get('/test/jwt')
-        .set('Authorization', 'Bearer valid-token');
+      const res = await request(app).get('/test/jwt').set('Authorization', 'Bearer valid-token');
 
       expect(res.status).toBe(200);
       expect(res.body.userRole).toBe('admin');
@@ -153,9 +144,7 @@ describe('Auth Middleware Integration', () => {
     it('should return 401 when token has no user ID', async () => {
       simulatedUser = { email: 'noid@example.com' };
 
-      const res = await request(app)
-        .get('/test/jwt')
-        .set('Authorization', 'Bearer valid-token');
+      const res = await request(app).get('/test/jwt').set('Authorization', 'Bearer valid-token');
 
       expect(res.status).toBe(401);
       expect(res.body.error.details.code).toBe('INVALID_TOKEN');
@@ -175,9 +164,7 @@ describe('Auth Middleware Integration', () => {
     it('should return 403 when user is not admin', async () => {
       simulatedUser = { id: 'user-789', role: 'member' };
 
-      const res = await request(app)
-        .get('/test/admin')
-        .set('Authorization', 'Bearer valid-token');
+      const res = await request(app).get('/test/admin').set('Authorization', 'Bearer valid-token');
 
       expect(res.status).toBe(403);
       expect(res.body.error.details.code).toBe('ADMIN_ROLE_REQUIRED');
@@ -186,9 +173,7 @@ describe('Auth Middleware Integration', () => {
     it('should return 200 when user is admin', async () => {
       simulatedUser = { id: 'admin-1', role: 'admin' };
 
-      const res = await request(app)
-        .get('/test/admin')
-        .set('Authorization', 'Bearer valid-token');
+      const res = await request(app).get('/test/admin').set('Authorization', 'Bearer valid-token');
 
       expect(res.status).toBe(200);
       expect(res.body.userId).toBe('admin-1');
@@ -209,9 +194,7 @@ describe('Auth Middleware Integration', () => {
     it('should return 200 with user context when valid token is provided', async () => {
       simulatedUser = { id: 'user-opt-1', role: 'member' };
 
-      const res = await request(app)
-        .get('/test/optional')
-        .set('Authorization', 'Bearer valid-token');
+      const res = await request(app).get('/test/optional').set('Authorization', 'Bearer valid-token');
 
       expect(res.status).toBe(200);
       expect(res.body.guest).toBe(false);
@@ -223,9 +206,7 @@ describe('Auth Middleware Integration', () => {
     it('should return 200 as guest when token is invalid', async () => {
       simulatedError = new Error('Invalid token') as Error & { status?: number };
 
-      const res = await request(app)
-        .get('/test/optional')
-        .set('Authorization', 'Bearer bad-token');
+      const res = await request(app).get('/test/optional').set('Authorization', 'Bearer bad-token');
 
       expect(res.status).toBe(200);
       expect(res.body.guest).toBe(true);

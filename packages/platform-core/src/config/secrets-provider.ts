@@ -18,7 +18,12 @@ class EnvSecretsProvider implements SecretsProvider {
 }
 
 class AwsSsmSecretsProvider implements SecretsProvider {
-  private ssmModule: { SSMClient: new (config: Record<string, unknown>) => { send: (command: unknown) => Promise<{ Parameter?: { Value?: string } }> }; GetParameterCommand: new (params: Record<string, unknown>) => unknown; } | null = null;
+  private ssmModule: {
+    SSMClient: new (config: Record<string, unknown>) => {
+      send: (command: unknown) => Promise<{ Parameter?: { Value?: string } }>;
+    };
+    GetParameterCommand: new (params: Record<string, unknown>) => unknown;
+  } | null = null;
   private client: { send: (command: unknown) => Promise<{ Parameter?: { Value?: string } }> } | null = null;
   private cache = new Map<string, { value: string; expiresAt: number }>();
   private readonly cacheTtlMs = parseInt(process.env.SECRETS_CACHE_TTL_MS || '300000', 10);
@@ -26,7 +31,7 @@ class AwsSsmSecretsProvider implements SecretsProvider {
   private async loadSdk(): Promise<boolean> {
     if (this.ssmModule) return true;
     try {
-      this.ssmModule = await Function('return import("@aws-sdk/client-ssm")')() as typeof this.ssmModule;
+      this.ssmModule = (await Function('return import("@aws-sdk/client-ssm")')()) as typeof this.ssmModule;
       this.client = new this.ssmModule!.SSMClient({ region: process.env.AWS_REGION || 'us-east-1' });
       return true;
     } catch {

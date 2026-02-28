@@ -1,7 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const mockLogger = vi.hoisted(() => ({
-  info: vi.fn(), debug: vi.fn(), warn: vi.fn(), error: vi.fn(), child: vi.fn(),
+  info: vi.fn(),
+  debug: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  child: vi.fn(),
 }));
 vi.mock('@aiponge/platform-core', () => ({
   createLogger: () => mockLogger,
@@ -83,11 +87,13 @@ describe('PlayTrackUseCase', () => {
       expect(result.trackId).toBe('track-1');
       expect(result.state).toBe(PlaybackState.PLAYING);
       expect(result.streamUrl).toBeTruthy();
-      expect(mockSessionRepo.save).toHaveBeenCalledWith(expect.objectContaining({
-        userId: 'user-1',
-        currentTrackId: 'track-1',
-        deviceId: 'device-1',
-      }));
+      expect(mockSessionRepo.save).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userId: 'user-1',
+          currentTrackId: 'track-1',
+          deviceId: 'device-1',
+        })
+      );
     });
 
     it('should reuse existing session', async () => {
@@ -168,33 +174,39 @@ describe('PlayTrackUseCase', () => {
       vi.mocked(mockSessionRepo.findByUserId).mockResolvedValue(null);
       mockGetStreamUrlUseCase.execute.mockRejectedValue(new Error('Service down'));
 
-      await expect(useCase.execute({
-        userId: 'user-1',
-        trackId: 'track-1',
-        deviceId: 'device-1',
-      })).rejects.toThrow(StreamingError);
+      await expect(
+        useCase.execute({
+          userId: 'user-1',
+          trackId: 'track-1',
+          deviceId: 'device-1',
+        })
+      ).rejects.toThrow(StreamingError);
     });
 
     it('should throw StreamingError when audio metadata fails', async () => {
       vi.mocked(mockSessionRepo.findByUserId).mockResolvedValue(null);
       mockAudioClient.getTrackMetadata.mockRejectedValue(new Error('Metadata unavailable'));
 
-      await expect(useCase.execute({
-        userId: 'user-1',
-        trackId: 'track-1',
-        deviceId: 'device-1',
-      })).rejects.toThrow(StreamingError);
+      await expect(
+        useCase.execute({
+          userId: 'user-1',
+          trackId: 'track-1',
+          deviceId: 'device-1',
+        })
+      ).rejects.toThrow(StreamingError);
     });
 
     it('should throw StreamingError when session save fails', async () => {
       vi.mocked(mockSessionRepo.findByUserId).mockResolvedValue(null);
       vi.mocked(mockSessionRepo.save).mockRejectedValue(new Error('DB error'));
 
-      await expect(useCase.execute({
-        userId: 'user-1',
-        trackId: 'track-1',
-        deviceId: 'device-1',
-      })).rejects.toThrow(StreamingError);
+      await expect(
+        useCase.execute({
+          userId: 'user-1',
+          trackId: 'track-1',
+          deviceId: 'device-1',
+        })
+      ).rejects.toThrow(StreamingError);
     });
   });
 });

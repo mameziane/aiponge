@@ -19,8 +19,8 @@ export default function () {
   const res = http.get(`${BASE_URL}/health`);
 
   check(res, {
-    'health status 200': (r) => r.status === 200,
-    'response time < 200ms': (r) => r.timings.duration < 200,
+    'health status 200': r => r.status === 200,
+    'response time < 200ms': r => r.timings.duration < 200,
   });
 
   sleep(0.1);

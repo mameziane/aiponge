@@ -14,7 +14,7 @@ export class IntelligenceNarrativeController {
       res,
       errorMessage: 'Failed to get latest narrative',
       handler: async () => {
-        const userId = req.params.userId || req.query.userId as string;
+        const userId = req.params.userId || (req.query.userId as string);
         if (!userId) {
           throw new Error('userId is required');
         }

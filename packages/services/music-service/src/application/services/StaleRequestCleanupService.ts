@@ -186,7 +186,9 @@ export class StaleRequestCleanupService {
         WHERE t.album_id IS NOT NULL 
         AND NOT EXISTS (SELECT 1 FROM mus_albums a WHERE a.id = t.album_id)
       `);
-      const orphanedLibraryTracksCount = Number((orphanedLibraryTracksResult.rows[0] as Record<string, unknown>)?.count || 0);
+      const orphanedLibraryTracksCount = Number(
+        (orphanedLibraryTracksResult.rows[0] as Record<string, unknown>)?.count || 0
+      );
 
       if (orphanedLibraryTracksCount > 0) {
         issues.push(`Found ${orphanedLibraryTracksCount} library tracks with missing albums`);

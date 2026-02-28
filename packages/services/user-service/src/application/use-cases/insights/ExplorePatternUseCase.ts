@@ -24,10 +24,26 @@ export interface ExplorePatternResult {
 }
 
 const REACTION_RESPONSES: Record<ReactionType, { type: string; messageTemplate: string }> = {
-  resonates: { type: 'insight_generated', messageTemplate: 'Your recognition of this pattern is a powerful step. This pattern of "{patternName}" shows real self-awareness.' },
-  partially: { type: 'exploration_prompt', messageTemplate: 'Interesting - you see some truth in "{patternName}" but not completely. What parts feel accurate, and what feels different?' },
-  not_me: { type: 'pattern_refined', messageTemplate: 'Thank you for the honest feedback on "{patternName}". Your perspective helps refine how we understand your patterns.' },
-  curious: { type: 'reflection_prompt', messageTemplate: 'Curiosity about "{patternName}" is a great starting point. Let\'s explore what this pattern might mean for you.' },
+  resonates: {
+    type: 'insight_generated',
+    messageTemplate:
+      'Your recognition of this pattern is a powerful step. This pattern of "{patternName}" shows real self-awareness.',
+  },
+  partially: {
+    type: 'exploration_prompt',
+    messageTemplate:
+      'Interesting - you see some truth in "{patternName}" but not completely. What parts feel accurate, and what feels different?',
+  },
+  not_me: {
+    type: 'pattern_refined',
+    messageTemplate:
+      'Thank you for the honest feedback on "{patternName}". Your perspective helps refine how we understand your patterns.',
+  },
+  curious: {
+    type: 'reflection_prompt',
+    messageTemplate:
+      'Curiosity about "{patternName}" is a great starting point. Let\'s explore what this pattern might mean for you.',
+  },
 };
 
 export class ExplorePatternUseCase {
@@ -43,7 +59,10 @@ export class ExplorePatternUseCase {
 
     const validReactions: ReactionType[] = ['resonates', 'partially', 'not_me', 'curious'];
     if (!validReactions.includes(reactionType)) {
-      throw ProfileError.validationError('reaction', `Invalid reaction type: ${reactionType}. Must be one of: ${validReactions.join(', ')}`);
+      throw ProfileError.validationError(
+        'reaction',
+        `Invalid reaction type: ${reactionType}. Must be one of: ${validReactions.join(', ')}`
+      );
     }
 
     const reaction = await this.intelligenceRepo.createPatternReaction({
@@ -65,9 +84,10 @@ export class ExplorePatternUseCase {
     }
 
     if (reactionType === 'curious' || reactionType === 'partially') {
-      const explorationPrompt = reactionType === 'curious'
-        ? `Take a moment to reflect: When do you notice "${pattern.patternName}" showing up in your daily life?`
-        : `You partially identify with "${pattern.patternName}". What aspects feel true, and what doesn't quite fit?`;
+      const explorationPrompt =
+        reactionType === 'curious'
+          ? `Take a moment to reflect: When do you notice "${pattern.patternName}" showing up in your daily life?`
+          : `You partially identify with "${pattern.patternName}". What aspects feel true, and what doesn't quite fit?`;
       await this.intelligenceRepo.updatePattern(patternId, { explorationPrompt });
     }
 
@@ -81,7 +101,11 @@ export class ExplorePatternUseCase {
     return {
       reaction,
       followUpAction: {
-        type: responseConfig.type as 'reflection_prompt' | 'insight_generated' | 'pattern_refined' | 'exploration_prompt',
+        type: responseConfig.type as
+          | 'reflection_prompt'
+          | 'insight_generated'
+          | 'pattern_refined'
+          | 'exploration_prompt',
         message,
       },
     };

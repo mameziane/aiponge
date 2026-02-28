@@ -12,13 +12,11 @@ interface TitlePageProps {
   title: string;
   subtitle?: string;
   author?: string;
-  tradition?: string;
-  era?: string;
   coverIllustrationUrl?: string;
   category: string;
 }
 
-export function TitlePage({ title, subtitle, author, tradition, era, coverIllustrationUrl, category }: TitlePageProps) {
+export function TitlePage({ title, subtitle, author, coverIllustrationUrl, category }: TitlePageProps) {
   const { t } = useTranslation();
   const colors = useThemeColors();
   const styles = useMemo(() => createStyles(colors), [colors]);
@@ -49,18 +47,7 @@ export function TitlePage({ title, subtitle, author, tradition, era, coverIllust
         </Text>
       )}
 
-      <View style={styles.metaContainer}>
-        {tradition && (
-          <View style={[styles.badge, { backgroundColor: categoryColor }]}>
-            <Text style={styles.badgeText}>{tradition}</Text>
-          </View>
-        )}
-        {era && (
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>{era}</Text>
-          </View>
-        )}
-      </View>
+      <View style={styles.metaContainer} />
     </View>
   );
 }

@@ -62,7 +62,7 @@ router.patch('/tracks/batch', batchLimitMiddleware(50), async (req, res) => {
     let failed = 0;
     const errors: { id: string; error: string }[] = [];
 
-    await db.transaction(async (tx) => {
+    await db.transaction(async tx => {
       for (const item of updates) {
         if (!existingTracks.has(item.id)) {
           failed++;
@@ -151,7 +151,7 @@ router.post('/favorites/batch', batchLimitMiddleware(50), async (req, res) => {
     let processed = 0;
     let skipped = 0;
 
-    await db.transaction(async (tx) => {
+    await db.transaction(async tx => {
       if (action === 'add') {
         for (const trackId of validTrackIds) {
           const existing = await tx.execute(sql`

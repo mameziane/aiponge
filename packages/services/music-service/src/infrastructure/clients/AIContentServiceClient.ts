@@ -155,12 +155,7 @@ export class AIContentServiceClient implements IAIContentServiceClient {
             success: data?.success,
           });
 
-          tryParseServiceResponse(
-            ContentResponseSchema,
-            data,
-            SERVICE_NAME,
-            'generateContent'
-          );
+          tryParseServiceResponse(ContentResponseSchema, data, SERVICE_NAME, 'generateContent');
 
           if (data && data.success) {
             logger.info('Content generation completed successfully');
@@ -263,12 +258,7 @@ export class AIContentServiceClient implements IAIContentServiceClient {
 
           const duration = Date.now() - startTime;
 
-          tryParseServiceResponse(
-            ImageGenerationResponseSchema,
-            response,
-            SERVICE_NAME,
-            'generateAlbumArtwork'
-          );
+          tryParseServiceResponse(ImageGenerationResponseSchema, response, SERVICE_NAME, 'generateAlbumArtwork');
 
           if (response.success && response.data?.artworkUrl) {
             logger.info('Album artwork generated successfully', {
@@ -403,63 +393,255 @@ export class AIContentServiceClient implements IAIContentServiceClient {
   }
 
   private static readonly STOP_WORDS = new Set([
-    'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with',
-    'by', 'from', 'up', 'about', 'into', 'through', 'during', 'is', 'are', 'was', 'were',
-    'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would',
-    'could', 'should', 'may', 'might', 'must', 'can', 'i', 'you', 'he', 'she', 'it',
-    'we', 'they', 'me', 'him', 'her', 'us', 'them', 'my', 'your', 'his', 'our', 'their',
-    'this', 'that', 'these', 'those', 'not', 'no', 'so', 'if', 'then', 'than', 'when',
-    'where', 'how', 'what', 'who', 'which', 'just', 'like', 'more', 'some', 'any', 'all',
-    'each', 'every', 'both', 'few', 'most', 'other', 'such', 'only', 'also', 'back',
-    'even', 'still', 'well', 'here', 'there', 'very', 'much', 'many', 'come', 'came',
-    'know', 'knew', 'make', 'made', 'take', 'took', 'give', 'gave', 'tell', 'told',
-    'said', 'says', 'going', 'goes', 'gone', 'went', 'want', 'need', 'keep', 'kept',
-    'let', 'say', 'get', 'got', 'yeah', 'ohh', 'ooh', 'hey', 'whoa', 'gonna', 'wanna',
-    'gotta', 'cause', 'ain', 'don', 'won', 'verse', 'chorus', 'bridge', 'outro', 'intro',
-    'pre', 'hook', 'repeat', 'title',
+    'the',
+    'a',
+    'an',
+    'and',
+    'or',
+    'but',
+    'in',
+    'on',
+    'at',
+    'to',
+    'for',
+    'of',
+    'with',
+    'by',
+    'from',
+    'up',
+    'about',
+    'into',
+    'through',
+    'during',
+    'is',
+    'are',
+    'was',
+    'were',
+    'be',
+    'been',
+    'being',
+    'have',
+    'has',
+    'had',
+    'do',
+    'does',
+    'did',
+    'will',
+    'would',
+    'could',
+    'should',
+    'may',
+    'might',
+    'must',
+    'can',
+    'i',
+    'you',
+    'he',
+    'she',
+    'it',
+    'we',
+    'they',
+    'me',
+    'him',
+    'her',
+    'us',
+    'them',
+    'my',
+    'your',
+    'his',
+    'our',
+    'their',
+    'this',
+    'that',
+    'these',
+    'those',
+    'not',
+    'no',
+    'so',
+    'if',
+    'then',
+    'than',
+    'when',
+    'where',
+    'how',
+    'what',
+    'who',
+    'which',
+    'just',
+    'like',
+    'more',
+    'some',
+    'any',
+    'all',
+    'each',
+    'every',
+    'both',
+    'few',
+    'most',
+    'other',
+    'such',
+    'only',
+    'also',
+    'back',
+    'even',
+    'still',
+    'well',
+    'here',
+    'there',
+    'very',
+    'much',
+    'many',
+    'come',
+    'came',
+    'know',
+    'knew',
+    'make',
+    'made',
+    'take',
+    'took',
+    'give',
+    'gave',
+    'tell',
+    'told',
+    'said',
+    'says',
+    'going',
+    'goes',
+    'gone',
+    'went',
+    'want',
+    'need',
+    'keep',
+    'kept',
+    'let',
+    'say',
+    'get',
+    'got',
+    'yeah',
+    'ohh',
+    'ooh',
+    'hey',
+    'whoa',
+    'gonna',
+    'wanna',
+    'gotta',
+    'cause',
+    'ain',
+    'don',
+    'won',
+    'verse',
+    'chorus',
+    'bridge',
+    'outro',
+    'intro',
+    'pre',
+    'hook',
+    'repeat',
+    'title',
   ]);
 
   private static readonly VISUAL_IMAGERY: ReadonlyMap<string, string> = new Map([
-    ['rain', 'rainfall'], ['storm', 'stormy weather'], ['thunder', 'thunderstorm'],
-    ['lightning', 'electric sky'], ['sun', 'sunlight'], ['sunrise', 'dawn breaking'],
-    ['sunset', 'golden sunset'], ['moon', 'moonlight'], ['stars', 'starlit sky'],
-    ['ocean', 'vast ocean'], ['sea', 'rolling sea'], ['waves', 'crashing waves'],
-    ['river', 'flowing river'], ['mountain', 'towering mountain'], ['forest', 'deep forest'],
-    ['fire', 'blazing fire'], ['flame', 'dancing flames'], ['snow', 'falling snow'],
-    ['ice', 'frozen landscape'], ['wind', 'wind sweeping'], ['sky', 'open sky'],
-    ['night', 'nightscape'], ['dawn', 'first light of dawn'], ['dusk', 'twilight'],
-    ['garden', 'blooming garden'], ['flower', 'blossoming flowers'], ['rose', 'red rose'],
-    ['tree', 'ancient tree'], ['desert', 'vast desert'], ['cloud', 'dramatic clouds'],
-    ['road', 'winding road'], ['path', 'solitary path'], ['bridge', 'crossing a bridge'],
-    ['mirror', 'shattered mirror'], ['window', 'rain-streaked window'],
-    ['city', 'city skyline'], ['street', 'empty street'], ['light', 'ethereal light'],
-    ['shadow', 'long shadows'], ['dark', 'darkness'], ['door', 'open doorway'],
-    ['wall', 'crumbling wall'], ['wings', 'outstretched wings'], ['bird', 'bird in flight'],
-    ['cage', 'gilded cage'], ['crown', 'fallen crown'], ['sword', 'gleaming sword'],
-    ['ship', 'distant ship'], ['island', 'remote island'], ['castle', 'ancient castle'],
+    ['rain', 'rainfall'],
+    ['storm', 'stormy weather'],
+    ['thunder', 'thunderstorm'],
+    ['lightning', 'electric sky'],
+    ['sun', 'sunlight'],
+    ['sunrise', 'dawn breaking'],
+    ['sunset', 'golden sunset'],
+    ['moon', 'moonlight'],
+    ['stars', 'starlit sky'],
+    ['ocean', 'vast ocean'],
+    ['sea', 'rolling sea'],
+    ['waves', 'crashing waves'],
+    ['river', 'flowing river'],
+    ['mountain', 'towering mountain'],
+    ['forest', 'deep forest'],
+    ['fire', 'blazing fire'],
+    ['flame', 'dancing flames'],
+    ['snow', 'falling snow'],
+    ['ice', 'frozen landscape'],
+    ['wind', 'wind sweeping'],
+    ['sky', 'open sky'],
+    ['night', 'nightscape'],
+    ['dawn', 'first light of dawn'],
+    ['dusk', 'twilight'],
+    ['garden', 'blooming garden'],
+    ['flower', 'blossoming flowers'],
+    ['rose', 'red rose'],
+    ['tree', 'ancient tree'],
+    ['desert', 'vast desert'],
+    ['cloud', 'dramatic clouds'],
+    ['road', 'winding road'],
+    ['path', 'solitary path'],
+    ['bridge', 'crossing a bridge'],
+    ['mirror', 'shattered mirror'],
+    ['window', 'rain-streaked window'],
+    ['city', 'city skyline'],
+    ['street', 'empty street'],
+    ['light', 'ethereal light'],
+    ['shadow', 'long shadows'],
+    ['dark', 'darkness'],
+    ['door', 'open doorway'],
+    ['wall', 'crumbling wall'],
+    ['wings', 'outstretched wings'],
+    ['bird', 'bird in flight'],
+    ['cage', 'gilded cage'],
+    ['crown', 'fallen crown'],
+    ['sword', 'gleaming sword'],
+    ['ship', 'distant ship'],
+    ['island', 'remote island'],
+    ['castle', 'ancient castle'],
   ]);
 
   private static readonly EMOTION_MAP: ReadonlyMap<string, string> = new Map([
-    ['love', 'warmth and intimacy'], ['heart', 'emotional depth'], ['soul', 'soulful essence'],
-    ['tears', 'melancholy'], ['cry', 'deep sorrow'], ['smile', 'gentle joy'],
-    ['laugh', 'euphoria'], ['pain', 'inner struggle'], ['hurt', 'emotional wounds'],
-    ['hope', 'hope and aspiration'], ['dream', 'dreamlike wonder'], ['fear', 'tension and unease'],
-    ['anger', 'fierce intensity'], ['rage', 'raw power'], ['peace', 'serenity and calm'],
-    ['free', 'liberation'], ['freedom', 'boundless freedom'], ['broken', 'fractured beauty'],
-    ['heal', 'healing transformation'], ['lost', 'searching and longing'],
-    ['found', 'discovery and relief'], ['alone', 'solitude'], ['lonely', 'isolation'],
-    ['together', 'unity and connection'], ['strong', 'resilient strength'],
-    ['brave', 'courageous spirit'], ['wild', 'untamed energy'], ['gentle', 'tender softness'],
-    ['fierce', 'fierce determination'], ['quiet', 'contemplative stillness'],
-    ['scream', 'cathartic release'], ['whisper', 'intimate whisper'],
-    ['dance', 'movement and rhythm'], ['run', 'urgency and escape'],
-    ['fall', 'descent and vulnerability'], ['rise', 'ascension and triumph'],
-    ['fly', 'soaring above'], ['breathe', 'deep breath of life'],
-    ['burn', 'burning passion'], ['shine', 'radiant glow'],
-    ['fade', 'fading away'], ['bloom', 'blossoming growth'],
-    ['drown', 'overwhelming depths'], ['fight', 'inner battle'],
-    ['wait', 'patient anticipation'], ['remember', 'nostalgic memories'],
-    ['forget', 'letting go'], ['forgive', 'graceful forgiveness'],
+    ['love', 'warmth and intimacy'],
+    ['heart', 'emotional depth'],
+    ['soul', 'soulful essence'],
+    ['tears', 'melancholy'],
+    ['cry', 'deep sorrow'],
+    ['smile', 'gentle joy'],
+    ['laugh', 'euphoria'],
+    ['pain', 'inner struggle'],
+    ['hurt', 'emotional wounds'],
+    ['hope', 'hope and aspiration'],
+    ['dream', 'dreamlike wonder'],
+    ['fear', 'tension and unease'],
+    ['anger', 'fierce intensity'],
+    ['rage', 'raw power'],
+    ['peace', 'serenity and calm'],
+    ['free', 'liberation'],
+    ['freedom', 'boundless freedom'],
+    ['broken', 'fractured beauty'],
+    ['heal', 'healing transformation'],
+    ['lost', 'searching and longing'],
+    ['found', 'discovery and relief'],
+    ['alone', 'solitude'],
+    ['lonely', 'isolation'],
+    ['together', 'unity and connection'],
+    ['strong', 'resilient strength'],
+    ['brave', 'courageous spirit'],
+    ['wild', 'untamed energy'],
+    ['gentle', 'tender softness'],
+    ['fierce', 'fierce determination'],
+    ['quiet', 'contemplative stillness'],
+    ['scream', 'cathartic release'],
+    ['whisper', 'intimate whisper'],
+    ['dance', 'movement and rhythm'],
+    ['run', 'urgency and escape'],
+    ['fall', 'descent and vulnerability'],
+    ['rise', 'ascension and triumph'],
+    ['fly', 'soaring above'],
+    ['breathe', 'deep breath of life'],
+    ['burn', 'burning passion'],
+    ['shine', 'radiant glow'],
+    ['fade', 'fading away'],
+    ['bloom', 'blossoming growth'],
+    ['drown', 'overwhelming depths'],
+    ['fight', 'inner battle'],
+    ['wait', 'patient anticipation'],
+    ['remember', 'nostalgic memories'],
+    ['forget', 'letting go'],
+    ['forgive', 'graceful forgiveness'],
   ]);
 
   private extractLyricsSummary(lyrics: string): string {
@@ -470,7 +652,10 @@ export class AIContentServiceClient implements IAIContentServiceClient {
       .trim();
 
     const lowerLyrics = cleanedLyrics.toLowerCase();
-    const words = lowerLyrics.replace(/[^\w\s'-]/g, ' ').split(/\s+/).filter(Boolean);
+    const words = lowerLyrics
+      .replace(/[^\w\s'-]/g, ' ')
+      .split(/\s+/)
+      .filter(Boolean);
 
     const visualElements: string[] = [];
     const emotionalThemes: string[] = [];
@@ -482,15 +667,14 @@ export class AIContentServiceClient implements IAIContentServiceClient {
     for (const word of words) {
       const stem = word.replace(/(ing|ed|ly|ness|tion|sion|ment|ful|less|ous|ive|able|ible)$/, '');
 
-      const visualMatch = AIContentServiceClient.VISUAL_IMAGERY.get(word)
-        || AIContentServiceClient.VISUAL_IMAGERY.get(stem);
+      const visualMatch =
+        AIContentServiceClient.VISUAL_IMAGERY.get(word) || AIContentServiceClient.VISUAL_IMAGERY.get(stem);
       if (visualMatch && !seenVisual.has(visualMatch)) {
         seenVisual.add(visualMatch);
         visualElements.push(visualMatch);
       }
 
-      const emotionMatch = AIContentServiceClient.EMOTION_MAP.get(word)
-        || AIContentServiceClient.EMOTION_MAP.get(stem);
+      const emotionMatch = AIContentServiceClient.EMOTION_MAP.get(word) || AIContentServiceClient.EMOTION_MAP.get(stem);
       if (emotionMatch && !seenEmotion.has(emotionMatch)) {
         seenEmotion.add(emotionMatch);
         emotionalThemes.push(emotionMatch);
@@ -500,7 +684,9 @@ export class AIContentServiceClient implements IAIContentServiceClient {
     const lines = cleanedLyrics.split('\n').filter(l => l.trim().length > 5);
     const imageLines = lines.filter(line => {
       const lower = line.toLowerCase();
-      return /\b(like|as if|reminds me|looks like|feels like|painted|colors?|bright|glow|shimmer|sparkle)\b/.test(lower);
+      return /\b(like|as if|reminds me|looks like|feels like|painted|colors?|bright|glow|shimmer|sparkle)\b/.test(
+        lower
+      );
     });
 
     for (const line of imageLines.slice(0, 3)) {
@@ -510,9 +696,7 @@ export class AIContentServiceClient implements IAIContentServiceClient {
       }
     }
 
-    const significantWords = words.filter(w =>
-      w.length > 3 && !AIContentServiceClient.STOP_WORDS.has(w)
-    );
+    const significantWords = words.filter(w => w.length > 3 && !AIContentServiceClient.STOP_WORDS.has(w));
     const wordFreq = new Map<string, number>();
     for (const word of significantWords) {
       wordFreq.set(word, (wordFreq.get(word) || 0) + 1);

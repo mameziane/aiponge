@@ -20,7 +20,13 @@
 import { Router } from 'express';
 import { appController } from '../controllers';
 import { wrapAsync, parseErrorBody } from './helpers/routeHelpers';
-import { ServiceLocator, serializeError, extractAuthContext, createRedisCache, getValidation } from '@aiponge/platform-core';
+import {
+  ServiceLocator,
+  serializeError,
+  extractAuthContext,
+  createRedisCache,
+  getValidation,
+} from '@aiponge/platform-core';
 import { getLogger } from '../../config/service-urls';
 const { validateQuery } = getValidation();
 import { PaginationSchema, CACHE } from '@aiponge/shared-contracts';
@@ -150,7 +156,7 @@ router.get(
       headers: { 'x-request-id': requestId },
     });
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[SUBSCRIPTIONS CONFIG]') as Record<string, unknown>;
+      const errorData = (await parseErrorBody(response, '[SUBSCRIPTIONS CONFIG]')) as Record<string, unknown>;
       res.status(response.status).json({
         success: false,
         message: errorData.message || 'Failed to fetch subscription config',
@@ -270,7 +276,7 @@ router.get(
     });
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[INSIGHTS]') as ServiceErrorResponse;
+      const errorData = (await parseErrorBody(response, '[INSIGHTS]')) as ServiceErrorResponse;
       res.status(response.status).json({
         success: false,
         message: errorData.message || 'Failed to fetch insights',
@@ -337,7 +343,7 @@ router.get(
     });
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[INSIGHTS ENTRY]') as ServiceErrorResponse;
+      const errorData = (await parseErrorBody(response, '[INSIGHTS ENTRY]')) as ServiceErrorResponse;
       res.status(response.status).json({
         success: false,
         message: errorData.message || 'Failed to fetch insights for entry',
@@ -394,7 +400,7 @@ router.post(
     });
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[INSIGHTS CREATE]') as ServiceErrorResponse;
+      const errorData = (await parseErrorBody(response, '[INSIGHTS CREATE]')) as ServiceErrorResponse;
       res.status(response.status).json({
         success: false,
         message: errorData.message || 'Failed to create insight',
@@ -503,7 +509,7 @@ router.post(
     clearTimeout(timeoutId);
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[CONTENT GENERATE]') as ServiceErrorResponse;
+      const errorData = (await parseErrorBody(response, '[CONTENT GENERATE]')) as ServiceErrorResponse;
       res.status(response.status).json({
         success: false,
         message: errorData.message || 'Failed to generate content',
@@ -596,7 +602,7 @@ router.get(
     });
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[CHAPTERS]') as ServiceErrorResponse;
+      const errorData = (await parseErrorBody(response, '[CHAPTERS]')) as ServiceErrorResponse;
       res.status(response.status).json({
         success: false,
         message: errorData.message || 'Failed to fetch chapters',
@@ -655,7 +661,7 @@ router.post(
     });
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[CHAPTERS CREATE]') as ServiceErrorResponse;
+      const errorData = (await parseErrorBody(response, '[CHAPTERS CREATE]')) as ServiceErrorResponse;
       res.status(response.status).json({
         success: false,
         message: errorData.message || errorData.error || 'Failed to create chapter',
@@ -700,7 +706,7 @@ router.patch(
     });
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[CHAPTERS UPDATE]') as ServiceErrorResponse;
+      const errorData = (await parseErrorBody(response, '[CHAPTERS UPDATE]')) as ServiceErrorResponse;
       res.status(response.status).json({
         success: false,
         message: errorData.message || errorData.error || 'Failed to update chapter',
@@ -742,7 +748,7 @@ router.delete(
     });
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[CHAPTERS DELETE]') as ServiceErrorResponse;
+      const errorData = (await parseErrorBody(response, '[CHAPTERS DELETE]')) as ServiceErrorResponse;
       res.status(response.status).json({
         success: false,
         message: errorData.message || errorData.error || 'Failed to delete chapter',
@@ -781,7 +787,7 @@ router.get(
     });
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[CHAPTERS SNAPSHOT]') as ServiceErrorResponse;
+      const errorData = (await parseErrorBody(response, '[CHAPTERS SNAPSHOT]')) as ServiceErrorResponse;
       res.status(response.status).json({
         success: false,
         message: errorData.message || errorData.error || 'Failed to get chapter snapshot',
@@ -820,7 +826,7 @@ router.post(
     });
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[CHAPTERS ASSIGN]') as ServiceErrorResponse;
+      const errorData = (await parseErrorBody(response, '[CHAPTERS ASSIGN]')) as ServiceErrorResponse;
       res.status(response.status).json({
         success: false,
         message: errorData.message || errorData.error || 'Failed to assign entries',
@@ -869,7 +875,9 @@ router.get(
       });
 
       if (!response.ok) {
-        const errorData = await parseErrorBody(response, '[ONBOARDING STATUS]') as ServiceErrorResponse & { code?: string };
+        const errorData = (await parseErrorBody(response, '[ONBOARDING STATUS]')) as ServiceErrorResponse & {
+          code?: string;
+        };
         res.status(response.status).json({
           success: false,
           message: errorData.message || errorData.error || 'Failed to get onboarding status',
@@ -923,7 +931,9 @@ router.post(
     });
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[ONBOARDING COMPLETE]') as ServiceErrorResponse & { code?: string };
+      const errorData = (await parseErrorBody(response, '[ONBOARDING COMPLETE]')) as ServiceErrorResponse & {
+        code?: string;
+      };
       res.status(response.status).json({
         success: false,
         message: errorData.message || errorData.error || 'Failed to complete onboarding',

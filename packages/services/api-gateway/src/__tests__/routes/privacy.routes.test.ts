@@ -21,7 +21,10 @@ vi.mock('@aiponge/platform-core', () => ({
   },
   serializeError: vi.fn((e: unknown) => String(e)),
   signUserIdHeader: vi.fn((userId: string) => ({ 'x-user-id': userId, 'x-user-id-sig': 'mock-sig' })),
-  getValidation: () => ({ validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(), validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next() }),
+  getValidation: () => ({
+    validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+    validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+  }),
 }));
 
 vi.mock('@services/gatewayFetch', () => ({
@@ -120,9 +123,7 @@ describe('Privacy Routes', () => {
     });
 
     it('should return 200 with exported data for authenticated user', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true, data: { entries: [], profile: {} } })
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, data: { entries: [], profile: {} } }));
 
       const res = await request(app)
         .get('/api/app/privacy/export')
@@ -135,13 +136,9 @@ describe('Privacy Routes', () => {
     });
 
     it('should handle upstream error', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ message: 'Not found' }, 404)
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ message: 'Not found' }, 404));
 
-      const res = await request(app)
-        .get('/api/app/privacy/export')
-        .set('x-user-id', 'user-123');
+      const res = await request(app).get('/api/app/privacy/export').set('x-user-id', 'user-123');
 
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
@@ -156,9 +153,7 @@ describe('Privacy Routes', () => {
     });
 
     it('should return 200 on successful data deletion', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true, message: 'Data deleted' })
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, message: 'Data deleted' }));
 
       const res = await request(app)
         .delete('/api/app/privacy/data')

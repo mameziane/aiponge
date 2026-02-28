@@ -56,7 +56,9 @@ export async function initTracing(config: TracingConfig): Promise<void> {
 
     const resourcesRecord = resources as Record<string, unknown>;
     const defaultExport = resourcesRecord.default as Record<string, unknown> | undefined;
-    const ResourceClass = (resourcesRecord.Resource ?? defaultExport?.Resource) as new (attrs: Record<string, string>) => unknown;
+    const ResourceClass = (resourcesRecord.Resource ?? defaultExport?.Resource) as new (
+      attrs: Record<string, string>
+    ) => unknown;
 
     const sdk = new sdkNode.NodeSDK({
       resource: new ResourceClass({

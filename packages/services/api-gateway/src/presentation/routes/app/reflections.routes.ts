@@ -55,7 +55,7 @@ router.post(
     });
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[REFLECTIONS CREATE]') as Record<string, unknown>;
+      const errorData = (await parseErrorBody(response, '[REFLECTIONS CREATE]')) as Record<string, unknown>;
       res.status(response.status).json({
         success: false,
         message: (errorData.message as string) || 'Failed to create reflection',
@@ -92,7 +92,7 @@ router.get(
     });
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[REFLECTIONS LIST]') as Record<string, unknown>;
+      const errorData = (await parseErrorBody(response, '[REFLECTIONS LIST]')) as Record<string, unknown>;
       res.status(response.status).json({
         success: false,
         message: (errorData.message as string) || 'Failed to fetch reflections',
@@ -130,7 +130,7 @@ router.get(
     });
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[REFLECTIONS GET]') as Record<string, unknown>;
+      const errorData = (await parseErrorBody(response, '[REFLECTIONS GET]')) as Record<string, unknown>;
       res.status(response.status).json({
         success: false,
         message: (errorData.message as string) || 'Failed to fetch reflection',
@@ -177,7 +177,7 @@ router.patch(
     });
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[REFLECTIONS UPDATE]') as Record<string, unknown>;
+      const errorData = (await parseErrorBody(response, '[REFLECTIONS UPDATE]')) as Record<string, unknown>;
       res.status(response.status).json({
         success: false,
         message: (errorData.message as string) || 'Failed to update reflection',
@@ -219,7 +219,7 @@ router.delete(
     });
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[REFLECTIONS DELETE]') as Record<string, unknown>;
+      const errorData = (await parseErrorBody(response, '[REFLECTIONS DELETE]')) as Record<string, unknown>;
       res.status(response.status).json({
         success: false,
         message: (errorData.message as string) || 'Failed to delete reflection',
@@ -291,7 +291,7 @@ router.post(
     clearTimeout(timeoutId);
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[REFLECTIONS GENERATE]') as Record<string, unknown>;
+      const errorData = (await parseErrorBody(response, '[REFLECTIONS GENERATE]')) as Record<string, unknown>;
       logger.warn('[REFLECTIONS] AI service returned error', {
         userId,
         requestId,

@@ -1,8 +1,8 @@
 /**
  * Creator-Member API Route Handler Integration Tests
- * 
+ *
  * Tests the creator-member route handler logic with REAL database operations.
- * 
+ *
  * Note: These tests create a lightweight Express app that mirrors the production
  * route handlers but uses the actual CreatorMemberRepository with real DB connections.
  * This validates:
@@ -10,7 +10,7 @@
  * - Repository integration with real PostgreSQL
  * - HTTP response formats and status codes
  * - Authentication requirement enforcement
- * 
+ *
  * For full end-to-end API Gateway tests, see api-gateway integration tests.
  * For pure repository tests, see CreatorMemberRepository.integration.test.ts
  */
@@ -160,9 +160,7 @@ describeIntegration('Creator-Member API Routes Integration', () => {
       const user = await createTestUser(db, { id: generateTestId('user') });
       testUserIds.push(user.id);
 
-      const res = await request(app)
-        .get('/api/creator-members/following')
-        .set('x-user-id', user.id);
+      const res = await request(app).get('/api/creator-members/following').set('x-user-id', user.id);
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -178,14 +176,12 @@ describeIntegration('Creator-Member API Routes Integration', () => {
       await repo.createRelationship(creator1.id, member.id);
       await repo.createRelationship(creator2.id, member.id);
 
-      const res = await request(app)
-        .get('/api/creator-members/following')
-        .set('x-user-id', member.id);
+      const res = await request(app).get('/api/creator-members/following').set('x-user-id', member.id);
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.data).toHaveLength(2);
-      
+
       const creatorIds = res.body.data.map((f: Record<string, unknown>) => f.creatorId);
       expect(creatorIds).toContain(creator1.id);
       expect(creatorIds).toContain(creator2.id);
@@ -197,9 +193,7 @@ describeIntegration('Creator-Member API Routes Integration', () => {
 
       await repo.createSelfRelationship(user.id);
 
-      const res = await request(app)
-        .get('/api/creator-members/following')
-        .set('x-user-id', user.id);
+      const res = await request(app).get('/api/creator-members/following').set('x-user-id', user.id);
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -219,9 +213,7 @@ describeIntegration('Creator-Member API Routes Integration', () => {
       const creator = await createTestUser(db, { id: generateTestId('creator') });
       testUserIds.push(creator.id);
 
-      const res = await request(app)
-        .get('/api/creator-members/members')
-        .set('x-user-id', creator.id);
+      const res = await request(app).get('/api/creator-members/members').set('x-user-id', creator.id);
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -237,9 +229,7 @@ describeIntegration('Creator-Member API Routes Integration', () => {
       await repo.createRelationship(creator.id, member1.id);
       await repo.createRelationship(creator.id, member2.id);
 
-      const res = await request(app)
-        .get('/api/creator-members/members')
-        .set('x-user-id', creator.id);
+      const res = await request(app).get('/api/creator-members/members').set('x-user-id', creator.id);
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -264,9 +254,7 @@ describeIntegration('Creator-Member API Routes Integration', () => {
       const creator = await createTestUser(db, { id: generateTestId('creator') });
       testUserIds.push(member.id, creator.id);
 
-      const res = await request(app)
-        .post(`/api/creator-members/follow/${creator.id}`)
-        .set('x-user-id', member.id);
+      const res = await request(app).post(`/api/creator-members/follow/${creator.id}`).set('x-user-id', member.id);
 
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
@@ -282,13 +270,9 @@ describeIntegration('Creator-Member API Routes Integration', () => {
       const creator = await createTestUser(db, { id: generateTestId('creator') });
       testUserIds.push(member.id, creator.id);
 
-      const res1 = await request(app)
-        .post(`/api/creator-members/follow/${creator.id}`)
-        .set('x-user-id', member.id);
+      const res1 = await request(app).post(`/api/creator-members/follow/${creator.id}`).set('x-user-id', member.id);
 
-      const res2 = await request(app)
-        .post(`/api/creator-members/follow/${creator.id}`)
-        .set('x-user-id', member.id);
+      const res2 = await request(app).post(`/api/creator-members/follow/${creator.id}`).set('x-user-id', member.id);
 
       expect(res1.status).toBe(201);
       expect(res2.status).toBe(201);
@@ -308,9 +292,7 @@ describeIntegration('Creator-Member API Routes Integration', () => {
       const user = await createTestUser(db, { id: generateTestId('user') });
       testUserIds.push(user.id);
 
-      const res = await request(app)
-        .delete(`/api/creator-members/following/${user.id}`)
-        .set('x-user-id', user.id);
+      const res = await request(app).delete(`/api/creator-members/following/${user.id}`).set('x-user-id', user.id);
 
       expect(res.status).toBe(400);
       expect(res.body.success).toBe(false);
@@ -322,9 +304,7 @@ describeIntegration('Creator-Member API Routes Integration', () => {
       const creator = await createTestUser(db, { id: generateTestId('creator') });
       testUserIds.push(member.id, creator.id);
 
-      const res = await request(app)
-        .delete(`/api/creator-members/following/${creator.id}`)
-        .set('x-user-id', member.id);
+      const res = await request(app).delete(`/api/creator-members/following/${creator.id}`).set('x-user-id', member.id);
 
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
@@ -342,9 +322,7 @@ describeIntegration('Creator-Member API Routes Integration', () => {
       expect(relationshipBefore).not.toBeNull();
       expect(relationshipBefore!.status).toBe('active');
 
-      const res = await request(app)
-        .delete(`/api/creator-members/following/${creator.id}`)
-        .set('x-user-id', member.id);
+      const res = await request(app).delete(`/api/creator-members/following/${creator.id}`).set('x-user-id', member.id);
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -362,13 +340,9 @@ describeIntegration('Creator-Member API Routes Integration', () => {
 
       await repo.createRelationship(creator.id, member.id);
 
-      await request(app)
-        .delete(`/api/creator-members/following/${creator.id}`)
-        .set('x-user-id', member.id);
+      await request(app).delete(`/api/creator-members/following/${creator.id}`).set('x-user-id', member.id);
 
-      const res = await request(app)
-        .post(`/api/creator-members/follow/${creator.id}`)
-        .set('x-user-id', member.id);
+      const res = await request(app).post(`/api/creator-members/follow/${creator.id}`).set('x-user-id', member.id);
 
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
@@ -389,15 +363,11 @@ describeIntegration('Creator-Member API Routes Integration', () => {
         .set('x-user-id', member.id);
       expect(followRes.status).toBe(201);
 
-      const verifyFollowingRes = await request(app)
-        .get('/api/creator-members/following')
-        .set('x-user-id', member.id);
+      const verifyFollowingRes = await request(app).get('/api/creator-members/following').set('x-user-id', member.id);
       expect(verifyFollowingRes.body.data).toHaveLength(1);
       expect(verifyFollowingRes.body.data[0].creatorId).toBe(creator.id);
 
-      const verifyMembersRes = await request(app)
-        .get('/api/creator-members/members')
-        .set('x-user-id', creator.id);
+      const verifyMembersRes = await request(app).get('/api/creator-members/members').set('x-user-id', creator.id);
       expect(verifyMembersRes.body.data).toHaveLength(1);
       expect(verifyMembersRes.body.data[0].memberId).toBe(member.id);
 
@@ -406,14 +376,10 @@ describeIntegration('Creator-Member API Routes Integration', () => {
         .set('x-user-id', member.id);
       expect(unfollowRes.status).toBe(200);
 
-      const verifyUnfollowedRes = await request(app)
-        .get('/api/creator-members/following')
-        .set('x-user-id', member.id);
+      const verifyUnfollowedRes = await request(app).get('/api/creator-members/following').set('x-user-id', member.id);
       expect(verifyUnfollowedRes.body.data).toHaveLength(0);
 
-      const verifyNoMembersRes = await request(app)
-        .get('/api/creator-members/members')
-        .set('x-user-id', creator.id);
+      const verifyNoMembersRes = await request(app).get('/api/creator-members/members').set('x-user-id', creator.id);
       expect(verifyNoMembersRes.body.data).toHaveLength(0);
     });
   });

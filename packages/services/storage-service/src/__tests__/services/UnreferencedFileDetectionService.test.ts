@@ -32,8 +32,8 @@ vi.mock('@aiponge/platform-core', () => ({
   waitForService: vi.fn(),
   listServices: () => [],
   createServiceUrlsConfig: vi.fn(() => ({})),
-  errorMessage: vi.fn((err: unknown) => err instanceof Error ? err.message : String(err)),
-  errorStack: vi.fn((err: unknown) => err instanceof Error ? err.stack : ''),
+  errorMessage: vi.fn((err: unknown) => (err instanceof Error ? err.message : String(err))),
+  errorStack: vi.fn((err: unknown) => (err instanceof Error ? err.stack : '')),
   withResilience: vi.fn((fn: (...args: unknown[]) => unknown) => fn),
   createIntervalScheduler: vi.fn(() => ({ start: vi.fn(), stop: vi.fn() })),
 }));
@@ -107,7 +107,9 @@ describe('UnreferencedFileDetectionService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockDb = createMockDb();
-    service = new UnreferencedFileDetectionService(mockDb as unknown as ConstructorParameters<typeof UnreferencedFileDetectionService>[0]);
+    service = new UnreferencedFileDetectionService(
+      mockDb as unknown as ConstructorParameters<typeof UnreferencedFileDetectionService>[0]
+    );
   });
 
   describe('detectUnreferencedFiles', () => {
@@ -180,16 +182,20 @@ describe('UnreferencedFileDetectionService', () => {
       }));
 
       const batch2 = [
-        { id: 'batch2-0', storagePath: 'path/batch2-0.jpg', publicUrl: null, category: 'general', createdAt: new Date() },
+        {
+          id: 'batch2-0',
+          storagePath: 'path/batch2-0.jpg',
+          publicUrl: null,
+          category: 'general',
+          createdAt: new Date(),
+        },
       ];
 
       const mockUpdateWhere = vi.fn().mockResolvedValue([]);
       const mockUpdateSet = vi.fn().mockReturnValue({ where: mockUpdateWhere });
       mockDb.update.mockReturnValue({ set: mockUpdateSet });
 
-      mockDb._mocks.mockOffset
-        .mockResolvedValueOnce(batch1)
-        .mockResolvedValueOnce(batch2);
+      mockDb._mocks.mockOffset.mockResolvedValueOnce(batch1).mockResolvedValueOnce(batch2);
 
       const result = await service.detectUnreferencedFiles({ batchSize: 2, dryRun: false });
 
@@ -212,9 +218,7 @@ describe('UnreferencedFileDetectionService', () => {
       const mockUpdateSet = vi.fn().mockReturnValue({ where: mockUpdateWhere });
       mockDb.update.mockReturnValue({ set: mockUpdateSet });
 
-      mockDb._mocks.mockOffset
-        .mockResolvedValueOnce(batch)
-        .mockResolvedValueOnce(batch);
+      mockDb._mocks.mockOffset.mockResolvedValueOnce(batch).mockResolvedValueOnce(batch);
 
       const result = await service.detectUnreferencedFiles({ batchSize: 10, maxIterations: 1, dryRun: true });
 
@@ -236,9 +240,7 @@ describe('UnreferencedFileDetectionService', () => {
     it('should throw when database query fails', async () => {
       mockDb._mocks.mockExecute.mockRejectedValueOnce(new Error('Connection failed'));
 
-      await expect(
-        service.detectUnreferencedFiles({ batchSize: 100 })
-      ).rejects.toThrow('Connection failed');
+      await expect(service.detectUnreferencedFiles({ batchSize: 100 })).rejects.toThrow('Connection failed');
     });
 
     it('should log summary after detection', async () => {

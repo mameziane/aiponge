@@ -1,8 +1,5 @@
 import { DatabaseConnection } from '../../database/DatabaseConnectionFactory';
-import {
-  libChapters,
-  type Chapter,
-} from '../../database/schemas/library-schema';
+import { libChapters, type Chapter } from '../../database/schemas/library-schema';
 import { eq, and, asc, sql, isNull } from 'drizzle-orm';
 import { getLogger } from '../../../config/service-urls';
 

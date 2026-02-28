@@ -11,9 +11,7 @@ let sessionConfigured = false;
 // the same EXC_BAD_ACCESS heap-corruption signatures seen with RNTP.
 // Skip the entire AVAudioSession activation on iOS 26; audio plays with default
 // system settings (works fine, just no silent-mode or interruption customisation).
-const iosVersionMajor = Platform.OS === 'ios'
-  ? parseInt(String(Platform.Version).split('.')[0], 10)
-  : 0;
+const iosVersionMajor = Platform.OS === 'ios' ? parseInt(String(Platform.Version).split('.')[0], 10) : 0;
 const isIOS26OrLater = iosVersionMajor >= 26;
 
 /**
@@ -28,8 +26,8 @@ export async function configureAudioSession(): Promise<void> {
   if (isIOS26OrLater) {
     logger.warn(
       '[AudioSession] iPhone OS 26+ detected — skipping AVAudioSession activation ' +
-      '(setAudioModeAsync background observer crashes Hermes GC on iOS 26). ' +
-      'Audio plays with default system session settings.'
+        '(setAudioModeAsync background observer crashes Hermes GC on iOS 26). ' +
+        'Audio plays with default system session settings.'
     );
     sessionConfigured = true;
     return;

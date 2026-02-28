@@ -1,12 +1,23 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
-import { ContentVisibilitySchema, CONTENT_VISIBILITY, isPrivilegedRole, normalizeRole } from '@aiponge/shared-contracts';
+import {
+  ContentVisibilitySchema,
+  CONTENT_VISIBILITY,
+  isPrivilegedRole,
+  normalizeRole,
+} from '@aiponge/shared-contracts';
 import { DrizzleAlbumRequestRepository } from '../../infrastructure/database/DrizzleAlbumRequestRepository';
 import { ProcessAudioUseCase } from '../../application/use-cases/music/ProcessAudioUseCase';
 
 const SUPPORTED_LANGUAGES = ['en-US', 'es-ES', 'de-DE', 'fr-FR', 'pt-BR', 'ar', 'ja-JP'] as const;
 import { getLogger } from '../../config/service-urls';
-import { serializeError, createControllerHelpers, extractAuthContext, isFeatureEnabled, getResponseHelpers } from '@aiponge/platform-core';
+import {
+  serializeError,
+  createControllerHelpers,
+  extractAuthContext,
+  isFeatureEnabled,
+  getResponseHelpers,
+} from '@aiponge/platform-core';
 import { FEATURE_FLAGS } from '@aiponge/shared-contracts/common';
 const { sendSuccess, ServiceErrors } = getResponseHelpers();
 import { createAlbum } from '../../application/helpers/AlbumCreator';
@@ -19,9 +30,7 @@ import { getDatabase } from '../../infrastructure/database/DatabaseConnectionFac
 import { sql } from 'drizzle-orm';
 import { asyncJobExecutor, type JobProgressUpdate } from '../../application/services/AsyncJobExecutor';
 import { v4 as uuidv4 } from 'uuid';
-import {
-  enqueueGenerationJob,
-} from '../../application/services/GenerationQueueProcessor';
+import { enqueueGenerationJob } from '../../application/services/GenerationQueueProcessor';
 import {
   TrackGenerationService,
   type TrackGenerationDependencies,
@@ -174,11 +183,14 @@ async function getTrackGenerationService(): Promise<TrackGenerationService | nul
         albumRepository: new UnifiedAlbumRepository(db),
         userTrackRepository: new DrizzleUserTrackRepository(db),
         catalogRepository: new DrizzleMusicCatalogRepository(db),
-        storageClient: registry.storageClient as import('../../infrastructure/clients/StorageServiceClient').StorageServiceClient,
+        storageClient:
+          registry.storageClient as import('../../infrastructure/clients/StorageServiceClient').StorageServiceClient,
         artworkUseCase: new GenerateArtworkUseCase(),
         lyricsPreparationService,
         db,
-        musicProviderOrchestrator: createMusicOrchestrator(registry.providersClient as unknown as import('../../domains/ai-music/interfaces/IProviderClient').IProviderClient),
+        musicProviderOrchestrator: createMusicOrchestrator(
+          registry.providersClient as unknown as import('../../domains/ai-music/interfaces/IProviderClient').IProviderClient
+        ),
       };
       trackGenerationService = new TrackGenerationService(deps);
     } catch (error) {
@@ -205,13 +217,16 @@ async function getAlbumGenerationService(): Promise<AlbumGenerationService | nul
       const db = getDb();
       const registry = getServiceRegistry();
       const deps: AlbumGenerationServiceDependencies = {
-        storageClient: registry.storageClient as import('../../infrastructure/clients/StorageServiceClient').StorageServiceClient,
+        storageClient:
+          registry.storageClient as import('../../infrastructure/clients/StorageServiceClient').StorageServiceClient,
         artworkUseCase: new GenerateArtworkUseCase(),
         lyricsPreparationService,
         catalogRepository: new DrizzleMusicCatalogRepository(db),
         userTrackRepository: new DrizzleUserTrackRepository(db),
         lyricsRepository: new UnifiedLyricsRepository(db),
-        musicProviderOrchestrator: createMusicOrchestrator(registry.providersClient as unknown as import('../../domains/ai-music/interfaces/IProviderClient').IProviderClient),
+        musicProviderOrchestrator: createMusicOrchestrator(
+          registry.providersClient as unknown as import('../../domains/ai-music/interfaces/IProviderClient').IProviderClient
+        ),
       };
       albumGenerationService = new AlbumGenerationService(deps);
     } catch (error) {
@@ -502,7 +517,11 @@ export class MusicGenerationController {
 
       const { getDatabase: getDb } = await import('../../infrastructure/database/DatabaseConnectionFactory');
       const db = getDb();
-      const sessionService = new GenerationSessionService(db, getServiceRegistry().storageClient as import('../../infrastructure/clients/StorageServiceClient').StorageServiceClient);
+      const sessionService = new GenerationSessionService(
+        db,
+        getServiceRegistry()
+          .storageClient as import('../../infrastructure/clients/StorageServiceClient').StorageServiceClient
+      );
 
       const session = await sessionService.create({
         userId,
@@ -517,10 +536,14 @@ export class MusicGenerationController {
         entryId: cleanedData.entryId,
       });
 
-      sendSuccess(res, {
-        songRequestId: session.id,
-        message: 'Generation started. Poll /api/app/music/song-requests/{id} for progress.',
-      }, 202);
+      sendSuccess(
+        res,
+        {
+          songRequestId: session.id,
+          message: 'Generation started. Poll /api/app/music/song-requests/{id} for progress.',
+        },
+        202
+      );
 
       if (isFeatureEnabled(FEATURE_FLAGS.ASYNC_GENERATION)) {
         const jobId = await enqueueGenerationJob({
@@ -775,12 +798,16 @@ export class MusicGenerationController {
         }
       }
 
-      sendSuccess(res, {
-        albumRequestId,
-        albumTitle,
-        totalTracks: data.entries.length,
-        status: 'processing',
-      }, 202);
+      sendSuccess(
+        res,
+        {
+          albumRequestId,
+          albumTitle,
+          totalTracks: data.entries.length,
+          status: 'processing',
+        },
+        202
+      );
 
       if (isFeatureEnabled(FEATURE_FLAGS.ASYNC_GENERATION)) {
         const jobId = await enqueueGenerationJob({
@@ -823,9 +850,8 @@ export class MusicGenerationController {
                     currentTrack: progress.currentTrack,
                     percentComplete: progress.percentComplete,
                     successfulTracks:
-                      progress.successfulTracks ?? progress.trackResults?.filter((t) => t.success).length ?? 0,
-                    failedTracks:
-                      progress.failedTracks ?? progress.trackResults?.filter((t) => !t.success).length ?? 0,
+                      progress.successfulTracks ?? progress.trackResults?.filter(t => t.success).length ?? 0,
+                    failedTracks: progress.failedTracks ?? progress.trackResults?.filter(t => !t.success).length ?? 0,
                     trackResults: progress.trackResults || [],
                     trackCardDetails: progress.trackCardDetails || [],
                     albumArtworkUrl: progress.albumArtworkUrl,
@@ -922,9 +948,13 @@ export class MusicGenerationController {
           }
 
           if (!hasPrivilegedAccess && reservationId) {
-            const actualCost = successfulTracks > 0
-              ? Math.min(creditCost, Math.max(successfulTracks, Math.round((creditCost * successfulTracks) / data.entries.length)))
-              : 0;
+            const actualCost =
+              successfulTracks > 0
+                ? Math.min(
+                    creditCost,
+                    Math.max(successfulTracks, Math.round((creditCost * successfulTracks) / data.entries.length))
+                  )
+                : 0;
 
             if (actualCost > 0) {
               const settleResult = await userServiceClient.settleReservation(reservationId, userId, actualCost, {
@@ -939,7 +969,11 @@ export class MusicGenerationController {
                   actualCost,
                   error: settleResult.error,
                 });
-                await userServiceClient.cancelReservation(reservationId, userId, `Settlement failed: ${settleResult.error}`);
+                await userServiceClient.cancelReservation(
+                  reservationId,
+                  userId,
+                  `Settlement failed: ${settleResult.error}`
+                );
               } else {
                 logger.info('Credits settled for album', {
                   albumRequestId,
@@ -970,13 +1004,19 @@ export class MusicGenerationController {
           }
         } catch (error) {
           if (!hasPrivilegedAccess && reservationId) {
-            await userServiceClient.cancelReservation(reservationId, userId, `Album generation exception: ${error instanceof Error ? error.message : 'Unknown'}`).catch(cancelErr => {
-              logger.error('Failed to cancel reservation after album error', {
-                albumRequestId,
+            await userServiceClient
+              .cancelReservation(
                 reservationId,
-                error: cancelErr instanceof Error ? cancelErr.message : String(cancelErr),
+                userId,
+                `Album generation exception: ${error instanceof Error ? error.message : 'Unknown'}`
+              )
+              .catch(cancelErr => {
+                logger.error('Failed to cancel reservation after album error', {
+                  albumRequestId,
+                  reservationId,
+                  error: cancelErr instanceof Error ? cancelErr.message : String(cancelErr),
+                });
               });
-            });
           }
 
           if (reqRepo) {

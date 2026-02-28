@@ -3,10 +3,7 @@
     "name": "aiponge - Music & Mindfulness",
     "slug": "aiponge",
     "entryPoint": "./index",
-    "platforms": [
-      "ios",
-      "android"
-    ],
+    "platforms": ["ios", "android"],
     "version": "1.0.0",
     "runtimeVersion": {
       "policy": "appVersion"
@@ -28,17 +25,13 @@
       "resizeMode": "contain",
       "backgroundColor": "#1a0b2e"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.mameziane.aiponge",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "UIBackgroundModes": [
-          "audio"
-        ],
+        "UIBackgroundModes": ["audio"],
         "NSSpeechRecognitionUsageDescription": "aiponge uses speech recognition to transcribe your voice into text entries.",
         "NSMicrophoneUsageDescription": "aiponge needs microphone access to record your voice for transcription.",
         "NSPhotoLibraryUsageDescription": "aiponge needs access to your photos to set album artwork and profile pictures",
@@ -46,20 +39,12 @@
         "NSLocationWhenInUseUsageDescription": "aiponge uses your location to personalize music suggestions based on your local time and environment",
         "NSBluetoothAlwaysUsageDescription": "aiponge uses Bluetooth to connect to wireless audio devices for music playback.",
         "NSLocalNetworkUsageDescription": "aiponge uses your local network to discover Cast-compatible audio devices.",
-        "NSBonjourServices": [
-          "_googlecast._tcp",
-          "_CC1AD845._googlecast._tcp"
-        ]
+        "NSBonjourServices": ["_googlecast._tcp", "_CC1AD845._googlecast._tcp"]
       },
       "entitlements": {
-        "com.apple.security.application-groups": [
-          "group.com.mameziane.aiponge"
-        ]
+        "com.apple.security.application-groups": ["group.com.mameziane.aiponge"]
       },
-      "associatedDomains": [
-        "applinks:aiponge.com",
-        "webcredentials:aiponge.com"
-      ]
+      "associatedDomains": ["applinks:aiponge.com", "webcredentials:aiponge.com"]
     },
     "privacy": "https://aiponge.com/privacy",
     "termsOfService": "https://aiponge.com/terms",
@@ -107,10 +92,7 @@
               "pathPrefix": "/share"
             }
           ],
-          "categories": [
-            "BROWSABLE",
-            "DEFAULT"
-          ]
+          "categories": ["BROWSABLE", "DEFAULT"]
         }
       ]
     },
@@ -145,9 +127,7 @@
         {
           "microphonePermission": "aiponge needs microphone access to record your voice for transcription.",
           "speechRecognitionPermission": "aiponge uses speech recognition to transcribe your voice into text entries.",
-          "androidSpeechServicePackages": [
-            "com.google.android.googlequicksearchbox"
-          ]
+          "androidSpeechServicePackages": ["com.google.android.googlequicksearchbox"]
         }
       ],
       [
@@ -185,9 +165,7 @@
             "NSExtensionActivationSupportsText": true,
             "NSExtensionActivationSupportsWebURLWithMaxCount": 1
           },
-          "androidIntentFilters": [
-            "text/*"
-          ],
+          "androidIntentFilters": ["text/*"],
           "androidMainActivityAttributes": {
             "android:launchMode": "singleTask"
           }

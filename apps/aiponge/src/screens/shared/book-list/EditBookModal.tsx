@@ -11,7 +11,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useThemeColors, type ColorScheme, BORDER_RADIUS } from '../../../theme';
 import { useTranslation } from '../../../i18n';
-import { CATEGORIES, ERAS, TRADITIONS, VISIBILITY_OPTIONS, LIFECYCLE_OPTIONS, type BookFormData } from './types';
+import { CATEGORIES, VISIBILITY_OPTIONS, LIFECYCLE_OPTIONS, type BookFormData } from './types';
 import { useMemo } from 'react';
 
 interface EditBookModalProps {
@@ -114,12 +114,6 @@ export function EditBookModal({
 
             {renderPicker(t('librarian.books.category') || 'Category', formData.category, CATEGORIES, v =>
               onChangeFormData({ ...formData, category: v })
-            )}
-            {renderPicker(t('librarian.books.era') || 'Era', formData.era, ERAS, v =>
-              onChangeFormData({ ...formData, era: v })
-            )}
-            {renderPicker(t('librarian.books.tradition') || 'Tradition', formData.tradition, TRADITIONS, v =>
-              onChangeFormData({ ...formData, tradition: v })
             )}
             {renderPicker(t('librarian.books.visibility') || 'Visibility', formData.visibility, VISIBILITY_OPTIONS, v =>
               onChangeFormData({ ...formData, visibility: v })

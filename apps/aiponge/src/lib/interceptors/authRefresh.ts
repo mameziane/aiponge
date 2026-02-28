@@ -8,7 +8,14 @@ export interface AuthRefreshDeps {
   isLoggingOut: () => boolean;
 }
 
-const AUTH_MUTATION_PATHS = ['/auth/login', '/auth/register', '/auth/guest', '/auth/refresh', '/auth/logout', '/auth/verify'];
+const AUTH_MUTATION_PATHS = [
+  '/auth/login',
+  '/auth/register',
+  '/auth/guest',
+  '/auth/refresh',
+  '/auth/logout',
+  '/auth/verify',
+];
 
 let isRefreshing = false;
 let failedQueue: Array<{

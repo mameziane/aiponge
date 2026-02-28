@@ -10,12 +10,12 @@ This document outlines the security measures implemented in the Aiponge platform
 
 ### 1.1 Data Classification
 
-| Category | Examples | Protection Level |
-|----------|----------|------------------|
-| **Highly Sensitive** | Entries, insights, personal reflections | AES-256-GCM encryption at rest |
-| **Sensitive PII** | Email, phone, IP address | Masked in logs, validated at input |
-| **Authentication Data** | Passwords, tokens, API keys | Bcrypt hashing, token blacklist |
-| **User Preferences** | Settings, onboarding data | Standard database storage |
+| Category                | Examples                                | Protection Level                   |
+| ----------------------- | --------------------------------------- | ---------------------------------- |
+| **Highly Sensitive**    | Entries, insights, personal reflections | AES-256-GCM encryption at rest     |
+| **Sensitive PII**       | Email, phone, IP address                | Masked in logs, validated at input |
+| **Authentication Data** | Passwords, tokens, API keys             | Bcrypt hashing, token blacklist    |
+| **User Preferences**    | Settings, onboarding data               | Standard database storage          |
 
 ### 1.2 Encryption at Rest (Highly Sensitive Data)
 
@@ -24,22 +24,26 @@ This document outlines the security measures implemented in the Aiponge platform
 **Implementation:** `EncryptionService` in `packages/services/user-service/src/infrastructure/services/EncryptionService.ts`
 
 **Features:**
+
 - 256-bit encryption key (32 bytes)
 - Random 16-byte IV per encryption operation
 - 16-byte authentication tag for tamper detection
 - Encrypted values prefixed with `ENC:` for identification
 
 **Encrypted Fields:**
+
 - User entries (personal reflections)
 - AI-generated insights
 - Sensitive personal content
 
 **Key Management:**
+
 - Encryption key stored in `ENTRY_ENCRYPTION_KEY` environment secret
 - Key must be exactly 32 bytes, base64 encoded
 - Service fails fast without valid key (no silent fallback)
 
 **Key Generation:**
+
 ```bash
 node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 ```
@@ -50,15 +54,16 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 
 All logs are automatically sanitized to mask PII before output:
 
-| PII Type | Masking Format | Example |
-|----------|----------------|---------|
-| Email | `ex***@d***.com` | `john.doe@example.com` → `jo***@e***.com` |
-| Phone | `***-4567` | `+1-555-123-4567` → `***-4567` |
-| IP Address | `192.168.***.***` | `192.168.1.100` → `192.168.***.***` |
-| SSN | `***-**-****` | `123-45-6789` → `***-**-****` |
+| PII Type    | Masking Format        | Example                                       |
+| ----------- | --------------------- | --------------------------------------------- |
+| Email       | `ex***@d***.com`      | `john.doe@example.com` → `jo***@e***.com`     |
+| Phone       | `***-4567`            | `+1-555-123-4567` → `***-4567`                |
+| IP Address  | `192.168.***.***`     | `192.168.1.100` → `192.168.***.***`           |
+| SSN         | `***-**-****`         | `123-45-6789` → `***-**-****`                 |
 | Credit Card | `****-****-****-****` | `4111-1111-1111-1111` → `****-****-****-****` |
 
 **Sanitization Functions:**
+
 - `maskEmail()` - Preserves first 2 chars + domain hint
 - `maskPhone()` - Preserves last 4 digits
 - `maskIpAddress()` - Masks last 2 IPv4 octets or last 4 IPv6 segments
@@ -86,17 +91,19 @@ String content matching email/phone/SSN/credit card patterns is masked automatic
 **Implementation:** Progressive lockout after failed login attempts
 
 | Failed Attempts | Lockout Duration |
-|-----------------|------------------|
-| 3 | 5 minutes |
-| 5 | 15 minutes |
-| 7 | 30 minutes |
-| 10+ | 60 minutes |
+| --------------- | ---------------- |
+| 3               | 5 minutes        |
+| 5               | 15 minutes       |
+| 7               | 30 minutes       |
+| 10+             | 60 minutes       |
 
 **Database Columns:**
+
 - `failed_login_attempts` - Counter for failed attempts
 - `locked_until` - Timestamp when lockout expires
 
 **Behavior:**
+
 - Counter resets on successful login
 - Lockout applies globally to account (not per-IP)
 - User notified of lockout with remaining time
@@ -106,18 +113,21 @@ String content matching email/phone/SSN/credit card patterns is masked automatic
 **Implementation:** `TokenBlacklistService` in user-service
 
 **Purpose:** Enable immediate token invalidation for:
+
 - User logout
 - Password changes
 - Security revocations
 - "Logout all sessions" feature
 
 **Database Table:** `usr_token_blacklist`
+
 - `token_jti` - JWT ID (jti claim) for identification
 - `user_id` - Owner of the token
 - `reason` - logout | password_change | security_revoke | all_sessions
 - `expires_at` - Original token expiration (for cleanup)
 
 **JWT Enhancement:**
+
 - All tokens include unique `jti` (JWT ID) claim
 - Tokens validated against blacklist before acceptance
 
@@ -135,12 +145,13 @@ String content matching email/phone/SSN/credit card patterns is masked automatic
 
 **Implementation:** Dual-layer rate limiting
 
-| Layer | Scope | Limits |
-|-------|-------|--------|
-| **API Gateway** | All /api/* routes | 100 requests/15 min per IP |
-| **Auth Endpoints** | /api/auth/* | 50 requests/15 min per IP |
+| Layer              | Scope              | Limits                     |
+| ------------------ | ------------------ | -------------------------- |
+| **API Gateway**    | All /api/\* routes | 100 requests/15 min per IP |
+| **Auth Endpoints** | /api/auth/\*       | 50 requests/15 min per IP  |
 
 **Redis Support:**
+
 - Production: Redis-based distributed rate limiting
 - Development: In-memory fallback
 - Automatic Redis reconnection with graceful degradation
@@ -152,6 +163,7 @@ String content matching email/phone/SSN/credit card patterns is masked automatic
 **Purpose:** Prevent DoS attacks via large payloads
 
 **Route-Specific Overrides:**
+
 - RevenueCat webhooks: Raw body (before JSON parsing)
 - File uploads: Per-route limits via multer
 
@@ -160,6 +172,7 @@ String content matching email/phone/SSN/credit card patterns is masked automatic
 **Implementation:** `helmet` middleware in API Gateway
 
 **Headers Applied:**
+
 - `Content-Security-Policy` - Strict CSP directives
 - `X-Content-Type-Options: nosniff`
 - `X-Frame-Options: DENY`
@@ -168,6 +181,7 @@ String content matching email/phone/SSN/credit card patterns is masked automatic
 - `Cross-Origin-Resource-Policy: cross-origin`
 
 **CSP Directives:**
+
 ```javascript
 {
   defaultSrc: ["'self'"],
@@ -189,6 +203,7 @@ String content matching email/phone/SSN/credit card patterns is masked automatic
 **Scope:** Admin routes (state-changing operations)
 
 **Validation:**
+
 - Origin header must match allowed origins
 - Referer header must match allowed origins
 - Applies to POST, PUT, DELETE, PATCH methods
@@ -204,6 +219,7 @@ String content matching email/phone/SSN/credit card patterns is masked automatic
 **Purpose:** Prevent header spoofing attacks where malicious clients set arbitrary user IDs
 
 **Mechanism:**
+
 1. API Gateway signs `x-user-id` header using HMAC-SHA256
 2. Signed headers include:
    - `x-user-id` - The authenticated user's ID
@@ -213,16 +229,19 @@ String content matching email/phone/SSN/credit card patterns is masked automatic
 3. Receiving services verify signature before trusting header
 
 **Environment Variable:** `INTERNAL_SERVICE_SECRET`
+
 - Required in production for signature generation/verification
 - Generate with: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
 - Without this secret, services operate in development mode (trust-but-warn)
 
 **Signature Properties:**
+
 - Algorithm: HMAC-SHA256
 - TTL: 5 minutes (prevents replay attacks)
 - Timing-safe comparison to prevent timing attacks
 
 **Usage in Services:**
+
 ```typescript
 import { serviceAuthMiddleware } from '@aiponge/platform-core';
 
@@ -242,19 +261,20 @@ app.use('/api/protected', serviceAuthMiddleware({ required: true }));
 
 ### 5.1 GDPR/CCPA Compliance Features
 
-| Requirement | Implementation |
-|-------------|----------------|
-| Right to access | User data export endpoint |
-| Right to deletion | Account deletion with cascade |
-| Data minimization | Only necessary data collected |
-| Encryption at rest | AES-256-GCM for sensitive data |
-| Logging sanitization | PII masked in all logs |
+| Requirement          | Implementation                 |
+| -------------------- | ------------------------------ |
+| Right to access      | User data export endpoint      |
+| Right to deletion    | Account deletion with cascade  |
+| Data minimization    | Only necessary data collected  |
+| Encryption at rest   | AES-256-GCM for sensitive data |
+| Logging sanitization | PII masked in all logs         |
 
 ### 5.2 Account Deletion
 
 **Endpoint:** Delete Account feature in profile settings
 
 **Behavior:**
+
 - All user data permanently deleted
 - Cascading deletion for related records
 - Music, entries, preferences removed
@@ -329,15 +349,15 @@ app.use('/api/protected', serviceAuthMiddleware({ required: true }));
 
 ### 9.1 Rotation Schedule
 
-| Secret | Rotation Frequency | Method |
-|--------|-------------------|--------|
-| `ENTRY_ENCRYPTION_KEY` | Annually or on compromise | Re-encrypt all data (see Section 8) |
-| `INTERNAL_SERVICE_SECRET` | Quarterly | Rolling update across services |
-| `JWT_SECRET` | Quarterly | Issue new tokens, blacklist old |
-| `REVENUECAT_WEBHOOK_SECRET` | On compromise | Rotate in RevenueCat dashboard |
-| Database passwords | Quarterly | Coordinated with RDS rotation |
-| `EXPO_TOKEN` | On compromise | Regenerate in Expo dashboard |
-| `RESEND_API_KEY` | Annually | Rotate in Resend dashboard |
+| Secret                      | Rotation Frequency        | Method                              |
+| --------------------------- | ------------------------- | ----------------------------------- |
+| `ENTRY_ENCRYPTION_KEY`      | Annually or on compromise | Re-encrypt all data (see Section 8) |
+| `INTERNAL_SERVICE_SECRET`   | Quarterly                 | Rolling update across services      |
+| `JWT_SECRET`                | Quarterly                 | Issue new tokens, blacklist old     |
+| `REVENUECAT_WEBHOOK_SECRET` | On compromise             | Rotate in RevenueCat dashboard      |
+| Database passwords          | Quarterly                 | Coordinated with RDS rotation       |
+| `EXPO_TOKEN`                | On compromise             | Regenerate in Expo dashboard        |
+| `RESEND_API_KEY`            | Annually                  | Rotate in Resend dashboard          |
 
 ### 9.2 Rotation Procedure
 
@@ -366,10 +386,10 @@ app.use('/api/protected', serviceAuthMiddleware({ required: true }));
 
 ## Version History
 
-| Date | Version | Changes |
-|------|---------|---------|
-| December 2025 | 1.0 | Initial security policy document |
-| February 2026 | 1.1 | Added Section 9: Secret Rotation Policy |
+| Date          | Version | Changes                                 |
+| ------------- | ------- | --------------------------------------- |
+| December 2025 | 1.0     | Initial security policy document        |
+| February 2026 | 1.1     | Added Section 9: Secret Rotation Policy |
 
 ---
 

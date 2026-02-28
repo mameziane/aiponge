@@ -10,7 +10,12 @@
  * Paid tier feature only.
  */
 
-import { BookGenerationRepository, GeneratedBookData, BookTypeRepository, type Source } from '@infrastructure/repositories';
+import {
+  BookGenerationRepository,
+  GeneratedBookData,
+  BookTypeRepository,
+  type Source,
+} from '@infrastructure/repositories';
 import { SubscriptionRepository } from '@infrastructure/repositories';
 import { AuthRepository } from '@infrastructure/repositories';
 import { createDrizzleRepository } from '@infrastructure/database/DatabaseConnectionFactory';
@@ -239,7 +244,10 @@ export class GenerateBookUseCase {
       };
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
-      const isUniqueViolation = errorMsg.includes('unique') || errorMsg.includes('duplicate') || errorMsg.includes('uq_lib_book_gen_one_active_per_user');
+      const isUniqueViolation =
+        errorMsg.includes('unique') ||
+        errorMsg.includes('duplicate') ||
+        errorMsg.includes('uq_lib_book_gen_one_active_per_user');
       if (isUniqueViolation) {
         logger.info('Concurrent book generation request blocked by unique constraint', { userId });
         const existingRequest = await this.bookRepository.getActiveRequestForUser(userId);
@@ -259,7 +267,8 @@ export class GenerateBookUseCase {
       return { success: false, error: 'Book generation request not found' };
     }
 
-    const isTerminal = request.status === 'completed' || request.status === 'partial_success' || request.status === 'failed';
+    const isTerminal =
+      request.status === 'completed' || request.status === 'partial_success' || request.status === 'failed';
     return {
       success: true,
       requestId: request.id,
@@ -391,13 +400,27 @@ export class GenerateBookUseCase {
             requestId,
             error: errorMsg,
           });
-          const fallbackResult = await this.generateBookMonolithic(requestId, request, systemPrompt, userPrompt, depthLevel, true);
+          const fallbackResult = await this.generateBookMonolithic(
+            requestId,
+            request,
+            systemPrompt,
+            userPrompt,
+            depthLevel,
+            true
+          );
           generatedBook = fallbackResult.book;
           providerMeta = { ...fallbackResult.providerMeta, fallbackFromParallel: true };
         }
       } else {
         logger.info('Using monolithic generation', { requestId, depthLevel, isFullBookMode });
-        const result = await this.generateBookMonolithic(requestId, request, systemPrompt, userPrompt, depthLevel, isFullBookMode);
+        const result = await this.generateBookMonolithic(
+          requestId,
+          request,
+          systemPrompt,
+          userPrompt,
+          depthLevel,
+          isFullBookMode
+        );
         generatedBook = result.book;
         providerMeta = result.providerMeta;
       }
@@ -518,10 +541,15 @@ export class GenerateBookUseCase {
 
     const result = (response.data && typeof response.data === 'object' ? response.data : {}) as Record<string, unknown>;
     if (!result.success) {
-      throw LibraryError.aiGenerationFailed(typeof result.error === 'string' ? result.error : 'Prompt template execution failed');
+      throw LibraryError.aiGenerationFailed(
+        typeof result.error === 'string' ? result.error : 'Prompt template execution failed'
+      );
     }
 
-    const templateData = (typeof result.data === 'object' && result.data !== null ? result.data : result) as Record<string, unknown>;
+    const templateData = (typeof result.data === 'object' && result.data !== null ? result.data : result) as Record<
+      string,
+      unknown
+    >;
     const rawPrompt = templateData.userPrompt || templateData.result;
     return {
       userPrompt: typeof rawPrompt === 'string' ? rawPrompt : String(rawPrompt || ''),
@@ -555,25 +583,47 @@ export class GenerateBookUseCase {
       throw LibraryError.aiGenerationFailed(`LLM generation failed: ${errorData}`);
     }
 
-    const llmResult = (llmResponse.data && typeof llmResponse.data === 'object' ? llmResponse.data : {}) as Record<string, unknown>;
+    const llmResult = (llmResponse.data && typeof llmResponse.data === 'object' ? llmResponse.data : {}) as Record<
+      string,
+      unknown
+    >;
     if (!llmResult.success || !llmResult.data) {
-      const errObj = typeof llmResult.error === 'object' && llmResult.error !== null ? llmResult.error as Record<string, unknown> : null;
-      throw LibraryError.aiGenerationFailed(typeof errObj?.message === 'string' ? errObj.message : 'Provider invocation failed');
+      const errObj =
+        typeof llmResult.error === 'object' && llmResult.error !== null
+          ? (llmResult.error as Record<string, unknown>)
+          : null;
+      throw LibraryError.aiGenerationFailed(
+        typeof errObj?.message === 'string' ? errObj.message : 'Provider invocation failed'
+      );
     }
 
-    const llmData = (typeof llmResult.data === 'object' && llmResult.data !== null ? llmResult.data : {}) as Record<string, unknown>;
+    const llmData = (typeof llmResult.data === 'object' && llmResult.data !== null ? llmResult.data : {}) as Record<
+      string,
+      unknown
+    >;
     const generatedContent = llmData.result || llmData.content || llmData.text;
     if (!generatedContent) {
       throw LibraryError.aiGenerationFailed('LLM returned empty response');
     }
 
     const contentString = typeof generatedContent === 'string' ? generatedContent : JSON.stringify(generatedContent);
-    const usageObj = typeof llmData.usage === 'object' && llmData.usage !== null ? llmData.usage as Record<string, unknown> : null;
+    const usageObj =
+      typeof llmData.usage === 'object' && llmData.usage !== null ? (llmData.usage as Record<string, unknown>) : null;
 
     return {
       content: contentString,
-      model: typeof llmData.model === 'string' ? llmData.model : typeof llmData.providerId === 'string' ? llmData.providerId : 'unknown',
-      tokensUsed: typeof usageObj?.totalTokens === 'number' ? usageObj.totalTokens : typeof llmData.tokensUsed === 'number' ? llmData.tokensUsed : 0,
+      model:
+        typeof llmData.model === 'string'
+          ? llmData.model
+          : typeof llmData.providerId === 'string'
+            ? llmData.providerId
+            : 'unknown',
+      tokensUsed:
+        typeof usageObj?.totalTokens === 'number'
+          ? usageObj.totalTokens
+          : typeof llmData.tokensUsed === 'number'
+            ? llmData.tokensUsed
+            : 0,
     };
   }
 
@@ -598,7 +648,8 @@ export class GenerateBookUseCase {
           operation: 'text_generation',
           payload: {
             userPrompt: `The following text is supposed to be valid JSON but has formatting errors. Fix it and return ONLY the corrected JSON object with no other text:\n\n${contentString.substring(0, 12000)}`,
-            systemPrompt: 'You are a JSON repair tool. Return only valid JSON. Do not add explanations or markdown formatting.',
+            systemPrompt:
+              'You are a JSON repair tool. Return only valid JSON. Do not add explanations or markdown formatting.',
             maxTokens: maxRepairTokens,
             temperature: 0,
           },
@@ -613,7 +664,8 @@ export class GenerateBookUseCase {
         const repairData = repairResult.data as Record<string, unknown>;
         const repairedContent = repairData.result || repairData.content || repairData.text;
         if (repairedContent) {
-          const repairedString = typeof repairedContent === 'string' ? repairedContent : JSON.stringify(repairedContent);
+          const repairedString =
+            typeof repairedContent === 'string' ? repairedContent : JSON.stringify(repairedContent);
           const result = this.extractJson(repairedString, requestId) as T;
           logger.info(`${label}: JSON repair succeeded`, { requestId });
           return result;
@@ -686,7 +738,7 @@ export class GenerateBookUseCase {
     const language = request.language || 'en-US';
     const tone = request.tone || 'supportive';
 
-    const outlinePrompt = `${userPrompt}\n\nIMPORTANT: Generate ONLY the book outline structure. Return a JSON object with:\n- "title": the book title\n- "description": a 2-3 sentence book description\n- "category": a short category label (e.g. "growth", "anxiety", "relationships", "mindfulness", "purpose", "creativity")\n- "era": the cultural/historical era this content draws from (e.g. "Modern", "Contemporary", "Ancient", "Mixed")\n- "tradition": the philosophical or psychological tradition (e.g. "CBT", "Stoicism", "Mindfulness", "Positive Psychology", "Mixed")\n- "chapters": an array of chapter objects, each with "title", "description", and "order" (0-indexed). Do NOT include entries.\n\nTarget ${depthConfig.minEntries}-${depthConfig.maxEntries} entries total across all chapters. Create enough chapters to distribute that evenly (typically 3-6 chapters).`;
+    const outlinePrompt = `${userPrompt}\n\nIMPORTANT: Generate ONLY the book outline structure. Return a JSON object with:\n- "title": the book title\n- "description": a 2-3 sentence book description\n- "category": a short category label (e.g. "growth", "anxiety", "relationships", "mindfulness", "purpose", "creativity")\n- "chapters": an array of chapter objects, each with "title", "description", and "order" (0-indexed). Do NOT include entries.\n\nTarget ${depthConfig.minEntries}-${depthConfig.maxEntries} entries total across all chapters. Create enough chapters to distribute that evenly (typically 3-6 chapters).`;
 
     logger.info('Phase 1: Generating book outline', { requestId, depthLevel });
 
@@ -703,17 +755,10 @@ export class GenerateBookUseCase {
       title: string;
       description: string;
       category?: string;
-      era?: string;
-      tradition?: string;
       chapters: Array<{ title: string; description: string; order: number }>;
     }
 
-    const outline = await this.parseLlmJson<BookOutline>(
-      outlineResult.content,
-      requestId,
-      2000,
-      'Outline generation'
-    );
+    const outline = await this.parseLlmJson<BookOutline>(outlineResult.content, requestId, 2000, 'Outline generation');
 
     if (!outline.chapters || !Array.isArray(outline.chapters) || outline.chapters.length === 0) {
       throw LibraryError.validationError('chapters', 'Outline generation produced no chapters');
@@ -763,7 +808,7 @@ export class GenerateBookUseCase {
 
     const chapterResults = await this.runWithConcurrency(
       outline.chapters.map((chapter, idx) => async (): Promise<ChapterResult> => {
-        const chapterPrompt = `You are generating content for Chapter ${idx + 1} of a book titled "${outline.title}".\n\nBook description: ${outline.description}\nChapter title: "${chapter.title}"\nChapter description: ${chapter.description}\nLanguage: ${language}\nTone: ${tone}\nDepth: ${depthLevel}\nWord range per entry: ${depthConfig.wordRange}\n\nGenerate exactly ${entriesPerChapter} entries for this chapter. Return a JSON object with:\n- "entries": an array of entry objects, each with "prompt" (the topic/question), "type" (one of: "reflection", "exercise", "insight", "narrative", "lesson"), "content" (the detailed content, ${depthConfig.wordRange} words), and optionally "sources" (array of {author, work, era, tradition}).`;
+        const chapterPrompt = `You are generating content for Chapter ${idx + 1} of a book titled "${outline.title}".\n\nBook description: ${outline.description}\nChapter title: "${chapter.title}"\nChapter description: ${chapter.description}\nLanguage: ${language}\nTone: ${tone}\nDepth: ${depthLevel}\nWord range per entry: ${depthConfig.wordRange}\n\nGenerate exactly ${entriesPerChapter} entries for this chapter. Return a JSON object with:\n- "entries": an array of entry objects, each with "prompt" (the topic/question), "type" (one of: "reflection", "exercise", "insight", "narrative", "lesson"), "content" (the detailed content, ${depthConfig.wordRange} words), and optionally "sources" (array of {author, work}).`;
 
         const chapterSystemPrompt = `You are an expert book author. Generate high-quality, detailed chapter content. Write in ${language} with a ${tone} tone. Return only valid JSON.`;
 
@@ -880,9 +925,7 @@ export class GenerateBookUseCase {
     const successfulChapters = chapterResults.filter(r => !r.failed);
 
     if (successfulChapters.length === 0) {
-      throw LibraryError.aiGenerationFailed(
-        `All ${chapterCount} chapters failed to generate. Please try again.`
-      );
+      throw LibraryError.aiGenerationFailed(`All ${chapterCount} chapters failed to generate. Please try again.`);
     }
 
     const totalTokens = outlineResult.tokensUsed + chapterResults.reduce((sum, r) => sum + r.tokensUsed, 0);
@@ -891,8 +934,6 @@ export class GenerateBookUseCase {
       title: outline.title,
       description: outline.description,
       category: outline.category,
-      era: outline.era,
-      tradition: outline.tradition,
       chapters: outline.chapters
         .map((chapter, idx) => {
           const chapterResult = chapterResults.find(r => r.chapterIdx === idx);
@@ -931,10 +972,7 @@ export class GenerateBookUseCase {
     };
   }
 
-  private async runWithConcurrency<T>(
-    tasks: Array<() => Promise<T>>,
-    maxConcurrency: number
-  ): Promise<T[]> {
+  private async runWithConcurrency<T>(tasks: Array<() => Promise<T>>, maxConcurrency: number): Promise<T[]> {
     const results: T[] = [];
     const executing = new Set<Promise<void>>();
 

@@ -11,6 +11,7 @@ Run `npx tsc --noEmit` after completing each task to catch regressions before mo
 **File:** `src/screens/user/AlbumsScreen.tsx`
 
 Add imports at the top:
+
 ```tsx
 import { LoadingState } from '../../components/shared/LoadingState';
 import { ErrorState } from '../../components/shared/ErrorState';
@@ -18,6 +19,7 @@ import { EmptyState } from '../../components/shared/EmptyState';
 ```
 
 **Replace lines 63–71** (custom loading with ActivityIndicator) with:
+
 ```tsx
 if (isLoading) {
   return <LoadingState message={t('albums.loading')} />;
@@ -25,6 +27,7 @@ if (isLoading) {
 ```
 
 **Replace lines 74–83** (custom error with Ionicons alert-circle) with:
+
 ```tsx
 if (isError) {
   return <ErrorState message={t('albums.failedToLoad')} />;
@@ -32,6 +35,7 @@ if (isError) {
 ```
 
 **Replace lines 86–105** (custom empty state with button) with:
+
 ```tsx
 if (albums.length === 0 && !hasDraftAlbum) {
   return (
@@ -57,12 +61,14 @@ if (albums.length === 0 && !hasDraftAlbum) {
 **File:** `src/screens/user/AlbumDetailScreen.tsx`
 
 Add imports:
+
 ```tsx
 import { LoadingState } from '../../components/shared/LoadingState';
 import { ErrorState } from '../../components/shared/ErrorState';
 ```
 
 **Replace lines 317–326** (custom loading) with:
+
 ```tsx
 if (isLoading) {
   return <LoadingState message={t('albums.loading')} />;
@@ -70,6 +76,7 @@ if (isLoading) {
 ```
 
 **Replace lines 328–338** (custom error) with:
+
 ```tsx
 if (isError || !album) {
   return <ErrorState message={t('albums.failedToLoad')} />;
@@ -87,11 +94,13 @@ Remove `ActivityIndicator` from the react-native import on line 1 if no longer u
 **File:** `src/screens/user/PrivateMusicScreen.tsx`
 
 Add import:
+
 ```tsx
 import { LoadingState } from '../../components/shared/LoadingState';
 ```
 
 In the `ListEmptyComponent` useMemo (line 468), **replace lines 469–476** (inline ActivityIndicator block) with:
+
 ```tsx
 if (isLoading) {
   return <LoadingState message={t('myMusic.loadingMusic')} fullScreen={false} />;
@@ -109,6 +118,7 @@ Remove `ActivityIndicator` from the react-native import on line 2 if no longer u
 **File:** `app/_layout.tsx`
 
 **Delete these 6 import lines** (29–34):
+
 ```tsx
 import { ShareIntentHandler } from '../src/components/system/ShareIntentHandler';
 import { TrackAlarmHandler } from '../src/components/music/TrackAlarmHandler';
@@ -119,6 +129,7 @@ import { AlbumGenerationIndicator } from '../src/components/playlists/AlbumGener
 ```
 
 **Delete these 6 JSX lines** (159–164):
+
 ```tsx
 <QueueAutoAdvanceController />
 <AuthPlaybackController />
@@ -131,6 +142,7 @@ import { AlbumGenerationIndicator } from '../src/components/playlists/AlbumGener
 **File:** `app/(user)/_layout.tsx`
 
 **Add these imports** at the top of the file:
+
 ```tsx
 import { QueueAutoAdvanceController } from '../../src/components/music/QueueAutoAdvanceController';
 import { AuthPlaybackController } from '../../src/components/auth/AuthPlaybackController';
@@ -141,6 +153,7 @@ import { AlbumGenerationIndicator } from '../../src/components/playlists/AlbumGe
 ```
 
 In the component's return JSX, **add the 6 controllers as siblings before** `<Tabs>`. Wrap with a Fragment:
+
 ```tsx
 return (
   <>
@@ -150,9 +163,7 @@ return (
     <PushNotificationInitializer />
     <ShareIntentHandler />
     <AlbumGenerationIndicator />
-    <Tabs /* existing tabs config */>
-      {/* ... existing tab screens ... */}
-    </Tabs>
+    <Tabs /* existing tabs config */>{/* ... existing tab screens ... */}</Tabs>
   </>
 );
 ```
@@ -166,6 +177,7 @@ return (
 Extract from `src/screens/user/PlaylistsScreen.tsx` lines 97–166 (the modal JSX), lines 29–32 (form state: `playlistName`, `playlistDescription`, `isCreating`), and lines 69–82 (`handleCreatePlaylist`).
 
 The new component accepts:
+
 ```typescript
 interface CreatePlaylistModalProps {
   visible: boolean;
@@ -177,6 +189,7 @@ interface CreatePlaylistModalProps {
 It manages its own form state internally. Reset form fields on successful creation. Move modal-related styles from PlaylistsScreen into the new file: `modalOverlay`, `modalContent`, `modalHeader`, `modalTitle`, `formGroup`, `formLabel`, `formInput`, `formTextArea`, `modalActions`, `cancelButton`, `cancelButtonText`, `createButton`, `createButtonDisabled`, `createButtonText`.
 
 **Update PlaylistsScreen:** Remove `playlistName`, `playlistDescription`, `isCreating` state vars and `handleCreatePlaylist`. Keep only `showCreateModal`. Replace `{createPlaylistModal}` with:
+
 ```tsx
 <CreatePlaylistModal
   visible={showCreateModal}
@@ -194,6 +207,7 @@ Remove the moved styles from PlaylistsScreen's `createStyles`.
 ## TASK 6 — Add fontWeights to typography
 
 **File:** `src/theme/typography.ts` — Add after line 76 (after `letterSpacing`):
+
 ```typescript
 export const fontWeights = {
   light: '300' as const,
@@ -214,6 +228,7 @@ Add `fontWeights` to the default export object at the bottom.
 ## TASK 7 — Add ANIMATION.skeleton and replace hardcoded durations
 
 **File:** `src/theme/constants.ts` — Add `skeleton: 800` to ANIMATION:
+
 ```typescript
 export const ANIMATION = {
   fast: 150,
@@ -225,6 +240,7 @@ export const ANIMATION = {
 ```
 
 **File:** `src/components/shared/CollapsibleSection.tsx` — Line 50 has `duration: 200`. Import and replace:
+
 ```typescript
 import { ANIMATION } from '../../theme/constants';
 // line 50:
@@ -232,11 +248,11 @@ duration: ANIMATION.fast,
 ```
 
 **File:** `src/components/shared/SkeletonLoaders.tsx` — Lines 25–26 have `duration: 800`. Import and replace both:
+
 ```typescript
 import { ANIMATION, BORDER_RADIUS } from '../../theme/constants';
 // lines 25-26:
-withTiming(0.7, { duration: ANIMATION.skeleton }),
-withTiming(0.3, { duration: ANIMATION.skeleton })
+(withTiming(0.7, { duration: ANIMATION.skeleton }), withTiming(0.3, { duration: ANIMATION.skeleton }));
 ```
 
 ---
@@ -245,23 +261,28 @@ withTiming(0.3, { duration: ANIMATION.skeleton })
 
 **File:** `src/components/book/SelectableText.tsx`
 This file uses a plain `StyleSheet.create()` at line ~209. Convert the affected styles to the `createStyles(colors: ColorScheme)` pattern (matching the rest of the codebase) or pass colors however the file already handles dynamic values. Then replace:
+
 - Line 220: `backgroundColor: '#FFD700'` → `backgroundColor: colors.social.gold`
 - Line 221: `color: '#6B21A8'` → `color: colors.brand.purple[800]`
 - Line 226: `textDecorationColor: '#FFD70080'` → `textDecorationColor: 'rgba(251, 191, 36, 0.5)'`
 - Line 230: `color: '#FFD700'` → `color: colors.social.gold`
 
 **File:** `src/components/music/MusicGeneration/BatchAlbumCreationModal.tsx`
+
 - Line 815: `color: '#ef4444'` → `color: colors.semantic.error`
 - Line 838: `color: '#ef4444'` → `color: colors.semantic.error`
 
 **File:** `src/components/music/MusicGeneration/ChapterPickerModal.tsx`
+
 - Line 877: `color: '#ef4444'` → `color: colors.semantic.error`
 - Line 899: `color: '#ef4444'` → `color: colors.semantic.error`
 
 **File:** `src/components/shared/CollapsibleLanguageSelector.tsx`
+
 - Line 201: `color: '#FFFFFF'` → `color: colors.absolute.white`
 
 **File:** `src/components/shared/ErrorState.tsx`
+
 - Line 74: `color: '#FFFFFF'` → `color: colors.absolute.white`
 
 ---
@@ -272,14 +293,14 @@ This file uses a plain `StyleSheet.create()` at line ~209. Convert the affected 
 
 Both `albumGenerationStore.ts` (311 lines) and `trackGenerationStore.ts` (466 lines) share identical logic for: `startGeneration`, `setPendingGeneration`, `stopPolling`, `pollProgress`, `checkActiveGenerations`, `clearGeneration`, `getActiveGenerationsList`. Differences:
 
-| Aspect | Album | Track |
-|--------|-------|-------|
-| `pollInterval` | 3000 | 2000 |
-| API endpoint | `/api/app/music/album-requests` | `/api/app/music/song-requests` |
-| Active endpoint | `.../active/all` | `.../active` |
-| Cache event | `ALBUM_GENERATION_COMPLETED` | `TRACK_GENERATION_COMPLETED` |
-| `mergeProgress` | Preserves `visibility`, `targetLanguages`, `albumId`, `albumTitle` | Preserves `entryContent`, `imageUrl`, `streamingUrl` |
-| `onCompleted` | Simple cache invalidation | Complex: emit events, streaming preview, finalizing phase |
+| Aspect          | Album                                                              | Track                                                     |
+| --------------- | ------------------------------------------------------------------ | --------------------------------------------------------- |
+| `pollInterval`  | 3000                                                               | 2000                                                      |
+| API endpoint    | `/api/app/music/album-requests`                                    | `/api/app/music/song-requests`                            |
+| Active endpoint | `.../active/all`                                                   | `.../active`                                              |
+| Cache event     | `ALBUM_GENERATION_COMPLETED`                                       | `TRACK_GENERATION_COMPLETED`                              |
+| `mergeProgress` | Preserves `visibility`, `targetLanguages`, `albumId`, `albumTitle` | Preserves `entryContent`, `imageUrl`, `streamingUrl`      |
+| `onCompleted`   | Simple cache invalidation                                          | Complex: emit events, streaming preview, finalizing phase |
 
 Create a typed factory with config for `name`, `pollInterval`, `apiEndpoint`, `activeEndpoint`, `cacheEventType`, `isActive`, `createInitialProgress`, `mergeProgress`, `onCompleted`. The factory returns a Zustand `create()` call with all shared polling/state logic. Include TTL-based `completedRequestIds` cleanup (5-minute TTL, periodic sweep during polling) in the factory so both stores benefit.
 
@@ -294,6 +315,7 @@ Refactor both stores to use the factory. Keep `AlbumGenerationProgress`, `StartG
 Combine `PlaybackStateContext.tsx` (103 lines) and `PlaybackQueueContext.tsx` (393 lines). Note: `PlaybackQueueContext` already imports `usePlaybackState` from `PlaybackStateContext` (line 10) — in the merged version the queue logic accesses playback state directly.
 
 Export:
+
 - `PlaybackProvider` — single provider
 - `usePlayback()` — full combined value
 - `usePlaybackState()` — backward-compat alias for playback state fields
@@ -303,12 +325,14 @@ Export:
 **Update:** `src/providers/AppProviders.tsx` — Replace nested `PlaybackStateProvider` + `PlaybackQueueProvider` (lines 28–32) with single `PlaybackProvider`.
 
 **Update all import sites** (~17 files). The hook names stay the same, only import paths change:
+
 - `from '../contexts/PlaybackStateContext'` → `from '../contexts/PlaybackContext'`
 - `from '../../contexts/PlaybackStateContext'` → `from '../../contexts/PlaybackContext'`
 - `from '../contexts/PlaybackQueueContext'` → `from '../contexts/PlaybackContext'`
 - `from '../../contexts/PlaybackQueueContext'` → `from '../../contexts/PlaybackContext'`
 
 **Delete** old files after all imports are updated:
+
 - `src/contexts/PlaybackStateContext.tsx`
 - `src/contexts/PlaybackQueueContext.tsx`
 
@@ -321,6 +345,7 @@ Export:
 Create two contexts inside the same file:
 
 **Data context** (changes frequently):
+
 ```typescript
 interface SubscriptionDataValue {
   isInitialized: boolean;
@@ -339,6 +364,7 @@ interface SubscriptionDataValue {
 ```
 
 **Actions context** (stable functions):
+
 ```typescript
 interface SubscriptionActionsValue {
   refreshCustomerInfo: () => Promise<void>;
@@ -353,10 +379,17 @@ interface SubscriptionActionsValue {
 Nest both providers in SubscriptionProvider. Wrap each value in its own `useMemo`.
 
 Export three hooks:
+
 ```typescript
-export function useSubscriptionData() { /* reads SubscriptionDataContext */ }
-export function useSubscriptionActions() { /* reads SubscriptionActionsContext */ }
-export function useSubscription() { return { ...useSubscriptionData(), ...useSubscriptionActions() }; }
+export function useSubscriptionData() {
+  /* reads SubscriptionDataContext */
+}
+export function useSubscriptionActions() {
+  /* reads SubscriptionActionsContext */
+}
+export function useSubscription() {
+  return { ...useSubscriptionData(), ...useSubscriptionActions() };
+}
 ```
 
 No consumer file changes needed — `useSubscription()` still works.
@@ -366,6 +399,7 @@ No consumer file changes needed — `useSubscription()` still works.
 ## VERIFICATION
 
 After all 11 tasks, confirm:
+
 1. `npx tsc --noEmit` — zero errors
 2. No `ActivityIndicator` in `AlbumsScreen.tsx` or `AlbumDetailScreen.tsx`
 3. No controller imports/JSX in `app/_layout.tsx`

@@ -2,10 +2,7 @@ import { IProviderRepository } from '../../../domains/repositories/IAnalyticsRep
 import { ProviderPerformanceMetrics, ProviderUsageTrends } from '../../../domains/entities/ProviderAnalytics';
 import { TemplateServiceClient } from '../../../infrastructure/clients/TemplateServiceClient';
 import { TEMPLATE_IDS } from '../../../infrastructure/clients/TemplateIds';
-import type {
-  GetProviderAnalyticsRequest,
-  ProviderHealthSummary,
-} from './types';
+import type { GetProviderAnalyticsRequest, ProviderHealthSummary } from './types';
 import { getLogger } from '../../../config/service-urls';
 
 const logger = getLogger('ai-analytics-service-provider-health-analyzer');
@@ -158,7 +155,13 @@ export class ProviderHealthAnalyzer {
 
   async generateHealthRecommendations(
     healthStatus: ProviderHealthSummary,
-    healthHistory?: Array<{ timestamp: Date; providerId: string; status: string; responseTime?: number; errorRate: number }>
+    healthHistory?: Array<{
+      timestamp: Date;
+      providerId: string;
+      status: string;
+      responseTime?: number;
+      errorRate: number;
+    }>
   ): Promise<
     Array<{
       providerId: string;

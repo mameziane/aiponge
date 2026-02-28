@@ -5,7 +5,13 @@
 
 import { Router, Request, Response } from 'express';
 import { GatewayRequest } from '../../types/request.types';
-import { HealthCheckResponse, ServiceHealthStatus, SystemHealthSummary, SystemQualityReport, DependencyNode } from '../../types';
+import {
+  HealthCheckResponse,
+  ServiceHealthStatus,
+  SystemHealthSummary,
+  SystemQualityReport,
+  DependencyNode,
+} from '../../types';
 import logger from '../../utils/logger';
 import { ServiceErrors } from '../utils/response-helpers';
 import { sendStructuredError, createStructuredError, getCorrelationId } from '@aiponge/shared-contracts';
@@ -410,12 +416,17 @@ export class HealthRoutes {
         {} as Record<string, ServiceInstance[]>
       );
 
-      const servicesSummary = (Object.entries(serviceGroups) as [string, ServiceInstance[]][]).map(([name, instances]) => ({
-        name,
-        totalInstances: Array.isArray(instances) ? instances.length : 1,
-        healthyInstances: Array.isArray(instances) ? instances.filter((i: ServiceInstance) => (i as unknown as Record<string, unknown>).healthy !== false).length : 0,
-        discoveryMode: 'dynamic', // Shared client uses dynamic discovery
-      }));
+      const servicesSummary = (Object.entries(serviceGroups) as [string, ServiceInstance[]][]).map(
+        ([name, instances]) => ({
+          name,
+          totalInstances: Array.isArray(instances) ? instances.length : 1,
+          healthyInstances: Array.isArray(instances)
+            ? instances.filter((i: ServiceInstance) => (i as unknown as Record<string, unknown>).healthy !== false)
+                .length
+            : 0,
+          discoveryMode: 'dynamic', // Shared client uses dynamic discovery
+        })
+      );
 
       res.status(200).json({
         discovery: discoveryInfo,

@@ -248,7 +248,9 @@ function createInsightRecords(count: number) {
 
 // ==================== GetUserProfileUseCase ====================
 describe('GetUserProfileUseCase', () => {
-  let useCase: InstanceType<typeof import('../../../application/use-cases/profile/GetUserProfileUseCase').GetUserProfileUseCase>;
+  let useCase: InstanceType<
+    typeof import('../../../application/use-cases/profile/GetUserProfileUseCase').GetUserProfileUseCase
+  >;
   let profileRepo: ReturnType<typeof createMockProfileRepository>;
   let entryRepo: ReturnType<typeof createMockEntryRepository>;
 
@@ -318,7 +320,9 @@ describe('GetUserProfileUseCase', () => {
 
 // ==================== UpdateProfileUseCase ====================
 describe('UpdateProfileUseCase', () => {
-  let useCase: InstanceType<typeof import('../../../application/use-cases/profile/UpdateProfileUseCase').UpdateProfileUseCase>;
+  let useCase: InstanceType<
+    typeof import('../../../application/use-cases/profile/UpdateProfileUseCase').UpdateProfileUseCase
+  >;
   let profileRepo: ReturnType<typeof createMockProfileRepository>;
 
   beforeEach(async () => {
@@ -332,12 +336,17 @@ describe('UpdateProfileUseCase', () => {
     const existingProfile = { userId: TEST_USER_ID, totalInsights: 0, totalReflections: 0, totalEntries: 0 };
     profileRepo.findProfileByUserId.mockResolvedValue(existingProfile);
     profileRepo.updateProfile.mockResolvedValue(undefined);
-    profileRepo.findProfileByUserId.mockResolvedValueOnce(existingProfile).mockResolvedValueOnce({ ...existingProfile, displayName: 'Updated' });
+    profileRepo.findProfileByUserId
+      .mockResolvedValueOnce(existingProfile)
+      .mockResolvedValueOnce({ ...existingProfile, displayName: 'Updated' });
 
     const result = await useCase.execute({ userId: TEST_USER_ID, displayName: 'Updated' });
 
     expect(result.success).toBe(true);
-    expect(profileRepo.updateProfile).toHaveBeenCalledWith(TEST_USER_ID, expect.objectContaining({ userId: TEST_USER_ID }));
+    expect(profileRepo.updateProfile).toHaveBeenCalledWith(
+      TEST_USER_ID,
+      expect.objectContaining({ userId: TEST_USER_ID })
+    );
   });
 
   it('should create profile when not found then update', async () => {
@@ -378,13 +387,16 @@ describe('UpdateProfileUseCase', () => {
 
 // ==================== UpdateUserProfileUseCase ====================
 describe('UpdateUserProfileUseCase', () => {
-  let useCase: InstanceType<typeof import('../../../application/use-cases/profile/UpdateUserProfileUseCase').UpdateUserProfileUseCase>;
+  let useCase: InstanceType<
+    typeof import('../../../application/use-cases/profile/UpdateUserProfileUseCase').UpdateUserProfileUseCase
+  >;
   let profileRepo: ReturnType<typeof createMockProfileRepository>;
 
   beforeEach(async () => {
     vi.clearAllMocks();
     profileRepo = createMockProfileRepository();
-    const { UpdateUserProfileUseCase } = await import('../../../application/use-cases/profile/UpdateUserProfileUseCase');
+    const { UpdateUserProfileUseCase } =
+      await import('../../../application/use-cases/profile/UpdateUserProfileUseCase');
     useCase = new UpdateUserProfileUseCase(profileRepo as any);
   });
 
@@ -441,7 +453,9 @@ describe('UpdateUserProfileUseCase', () => {
 
 // ==================== GetUserProfileSummaryUseCase ====================
 describe('GetUserProfileSummaryUseCase', () => {
-  let useCase: InstanceType<typeof import('../../../application/use-cases/profile/GetUserProfileSummaryUseCase').GetUserProfileSummaryUseCase>;
+  let useCase: InstanceType<
+    typeof import('../../../application/use-cases/profile/GetUserProfileSummaryUseCase').GetUserProfileSummaryUseCase
+  >;
   let profileRepo: ReturnType<typeof createMockProfileRepository>;
   let entryRepo: ReturnType<typeof createMockEntryRepository>;
   let analysisRepo: ReturnType<typeof createMockAnalysisRepository>;
@@ -451,7 +465,8 @@ describe('GetUserProfileSummaryUseCase', () => {
     profileRepo = createMockProfileRepository();
     entryRepo = createMockEntryRepository();
     analysisRepo = createMockAnalysisRepository();
-    const { GetUserProfileSummaryUseCase } = await import('../../../application/use-cases/profile/GetUserProfileSummaryUseCase');
+    const { GetUserProfileSummaryUseCase } =
+      await import('../../../application/use-cases/profile/GetUserProfileSummaryUseCase');
     useCase = new GetUserProfileSummaryUseCase(profileRepo as any, entryRepo as any, analysisRepo as any);
   });
 
@@ -480,9 +495,7 @@ describe('GetUserProfileSummaryUseCase', () => {
   });
 
   it('should throw on empty userId', async () => {
-    await expect(
-      useCase.execute({ userId: '', scope: { summaryDepth: 'standard' } })
-    ).rejects.toThrow();
+    await expect(useCase.execute({ userId: '', scope: { summaryDepth: 'standard' } })).rejects.toThrow();
   });
 
   it('should throw on invalid summaryDepth', async () => {
@@ -517,13 +530,16 @@ describe('GetUserProfileSummaryUseCase', () => {
 
 // ==================== GeneratePersonalityProfileUseCase ====================
 describe('GeneratePersonalityProfileUseCase', () => {
-  let useCase: InstanceType<typeof import('../../../application/use-cases/profile/GeneratePersonalityProfileUseCase').GeneratePersonalityProfileUseCase>;
+  let useCase: InstanceType<
+    typeof import('../../../application/use-cases/profile/GeneratePersonalityProfileUseCase').GeneratePersonalityProfileUseCase
+  >;
   let analysisRepo: ReturnType<typeof createMockAnalysisRepository>;
 
   beforeEach(async () => {
     vi.clearAllMocks();
     analysisRepo = createMockAnalysisRepository();
-    const { GeneratePersonalityProfileUseCase } = await import('../../../application/use-cases/profile/GeneratePersonalityProfileUseCase');
+    const { GeneratePersonalityProfileUseCase } =
+      await import('../../../application/use-cases/profile/GeneratePersonalityProfileUseCase');
     useCase = new GeneratePersonalityProfileUseCase(analysisRepo as any);
   });
 
@@ -551,15 +567,11 @@ describe('GeneratePersonalityProfileUseCase', () => {
   });
 
   it('should throw on empty userId', async () => {
-    await expect(
-      useCase.execute({ userId: '', analysisDepth: 'basic' })
-    ).rejects.toThrow();
+    await expect(useCase.execute({ userId: '', analysisDepth: 'basic' })).rejects.toThrow();
   });
 
   it('should throw on invalid analysis depth', async () => {
-    await expect(
-      useCase.execute({ userId: TEST_USER_ID, analysisDepth: 'extreme' as any })
-    ).rejects.toThrow();
+    await expect(useCase.execute({ userId: TEST_USER_ID, analysisDepth: 'extreme' as any })).rejects.toThrow();
   });
 
   it('should throw when insufficient entries', async () => {
@@ -593,7 +605,9 @@ describe('GeneratePersonalityProfileUseCase', () => {
 
 // ==================== GenerateProfileHighlightsUseCase ====================
 describe('GenerateProfileHighlightsUseCase', () => {
-  let useCase: InstanceType<typeof import('../../../application/use-cases/profile/GenerateProfileHighlightsUseCase').GenerateProfileHighlightsUseCase>;
+  let useCase: InstanceType<
+    typeof import('../../../application/use-cases/profile/GenerateProfileHighlightsUseCase').GenerateProfileHighlightsUseCase
+  >;
   let profileRepo: ReturnType<typeof createMockProfileRepository>;
   let entryRepo: ReturnType<typeof createMockEntryRepository>;
   let analysisRepo: ReturnType<typeof createMockAnalysisRepository>;
@@ -603,7 +617,8 @@ describe('GenerateProfileHighlightsUseCase', () => {
     profileRepo = createMockProfileRepository();
     entryRepo = createMockEntryRepository();
     analysisRepo = createMockAnalysisRepository();
-    const { GenerateProfileHighlightsUseCase } = await import('../../../application/use-cases/profile/GenerateProfileHighlightsUseCase');
+    const { GenerateProfileHighlightsUseCase } =
+      await import('../../../application/use-cases/profile/GenerateProfileHighlightsUseCase');
     useCase = new GenerateProfileHighlightsUseCase(profileRepo as any, entryRepo as any, analysisRepo as any);
   });
 
@@ -628,15 +643,11 @@ describe('GenerateProfileHighlightsUseCase', () => {
   });
 
   it('should throw on empty userId', async () => {
-    await expect(
-      useCase.execute({ userId: '' })
-    ).rejects.toThrow();
+    await expect(useCase.execute({ userId: '' })).rejects.toThrow();
   });
 
   it('should throw on invalid maxHighlights', async () => {
-    await expect(
-      useCase.execute({ userId: TEST_USER_ID, maxHighlights: 100 })
-    ).rejects.toThrow();
+    await expect(useCase.execute({ userId: TEST_USER_ID, maxHighlights: 100 })).rejects.toThrow();
   });
 
   it('should throw on invalid date range', async () => {
@@ -665,7 +676,9 @@ describe('GenerateProfileHighlightsUseCase', () => {
 
 // ==================== GenerateUserPersonaUseCase ====================
 describe('GenerateUserPersonaUseCase', () => {
-  let useCase: InstanceType<typeof import('../../../application/use-cases/profile/GenerateUserPersonaUseCase').GenerateUserPersonaUseCase>;
+  let useCase: InstanceType<
+    typeof import('../../../application/use-cases/profile/GenerateUserPersonaUseCase').GenerateUserPersonaUseCase
+  >;
   let profileRepo: ReturnType<typeof createMockProfileRepository>;
   let entryRepo: ReturnType<typeof createMockEntryRepository>;
   let analysisRepo: ReturnType<typeof createMockAnalysisRepository>;
@@ -688,7 +701,8 @@ describe('GenerateUserPersonaUseCase', () => {
     socialAnalyzer = createMockSocialAnalyzer();
     growthAnalyzer = createMockGrowthAnalyzer();
 
-    const { GenerateUserPersonaUseCase } = await import('../../../application/use-cases/profile/GenerateUserPersonaUseCase');
+    const { GenerateUserPersonaUseCase } =
+      await import('../../../application/use-cases/profile/GenerateUserPersonaUseCase');
     useCase = new GenerateUserPersonaUseCase(
       profileRepo as any,
       entryRepo as any,
@@ -722,15 +736,11 @@ describe('GenerateUserPersonaUseCase', () => {
   });
 
   it('should throw on empty userId', async () => {
-    await expect(
-      useCase.execute({ userId: '' })
-    ).rejects.toThrow();
+    await expect(useCase.execute({ userId: '' })).rejects.toThrow();
   });
 
   it('should throw on invalid personalizationDepth', async () => {
-    await expect(
-      useCase.execute({ userId: TEST_USER_ID, personalizationDepth: 'extreme' as any })
-    ).rejects.toThrow();
+    await expect(useCase.execute({ userId: TEST_USER_ID, personalizationDepth: 'extreme' as any })).rejects.toThrow();
   });
 
   it('should throw on invalid date range', async () => {
@@ -745,7 +755,9 @@ describe('GenerateUserPersonaUseCase', () => {
 
 // ==================== GetLatestPersonaUseCase ====================
 describe('GetLatestPersonaUseCase', () => {
-  let useCase: InstanceType<typeof import('../../../application/use-cases/profile/GetLatestPersonaUseCase').GetLatestPersonaUseCase>;
+  let useCase: InstanceType<
+    typeof import('../../../application/use-cases/profile/GetLatestPersonaUseCase').GetLatestPersonaUseCase
+  >;
   let personaRepo: ReturnType<typeof createMockPersonaRepository>;
 
   beforeEach(async () => {
@@ -794,7 +806,9 @@ describe('GetLatestPersonaUseCase', () => {
 
 // ==================== ExportUserProfileUseCase ====================
 describe('ExportUserProfileUseCase', () => {
-  let useCase: InstanceType<typeof import('../../../application/use-cases/profile/ExportUserProfileUseCase').ExportUserProfileUseCase>;
+  let useCase: InstanceType<
+    typeof import('../../../application/use-cases/profile/ExportUserProfileUseCase').ExportUserProfileUseCase
+  >;
   let profileRepo: ReturnType<typeof createMockProfileRepository>;
   let entryRepo: ReturnType<typeof createMockEntryRepository>;
   let analysisRepo: ReturnType<typeof createMockAnalysisRepository>;
@@ -804,7 +818,8 @@ describe('ExportUserProfileUseCase', () => {
     profileRepo = createMockProfileRepository();
     entryRepo = createMockEntryRepository();
     analysisRepo = createMockAnalysisRepository();
-    const { ExportUserProfileUseCase } = await import('../../../application/use-cases/profile/ExportUserProfileUseCase');
+    const { ExportUserProfileUseCase } =
+      await import('../../../application/use-cases/profile/ExportUserProfileUseCase');
     useCase = new ExportUserProfileUseCase(profileRepo as any, entryRepo as any, analysisRepo as any);
   });
 
@@ -878,7 +893,9 @@ describe('ExportUserProfileUseCase', () => {
 
 // ==================== ImportUserProfileUseCase ====================
 describe('ImportUserProfileUseCase', () => {
-  let useCase: InstanceType<typeof import('../../../application/use-cases/profile/ImportUserProfileUseCase').ImportUserProfileUseCase>;
+  let useCase: InstanceType<
+    typeof import('../../../application/use-cases/profile/ImportUserProfileUseCase').ImportUserProfileUseCase
+  >;
   let profileRepo: ReturnType<typeof createMockProfileRepository>;
   let entryRepo: ReturnType<typeof createMockEntryRepository>;
   let analysisRepo: ReturnType<typeof createMockAnalysisRepository>;
@@ -890,8 +907,14 @@ describe('ImportUserProfileUseCase', () => {
     entryRepo = createMockEntryRepository();
     analysisRepo = createMockAnalysisRepository();
     backupRepo = createMockBackupRepository();
-    const { ImportUserProfileUseCase } = await import('../../../application/use-cases/profile/ImportUserProfileUseCase');
-    useCase = new ImportUserProfileUseCase(profileRepo as any, entryRepo as any, analysisRepo as any, backupRepo as any);
+    const { ImportUserProfileUseCase } =
+      await import('../../../application/use-cases/profile/ImportUserProfileUseCase');
+    useCase = new ImportUserProfileUseCase(
+      profileRepo as any,
+      entryRepo as any,
+      analysisRepo as any,
+      backupRepo as any
+    );
   });
 
   it('should import profile data from file source', async () => {

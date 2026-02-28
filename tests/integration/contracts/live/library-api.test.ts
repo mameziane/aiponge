@@ -1,12 +1,12 @@
 /**
  * Library API Live Contract Tests
- * 
+ *
  * Validates that actual Library API responses match our Zod contracts.
- * 
+ *
  * REQUIREMENTS:
  * - API Gateway and user-service must be running
  * - Tests will FAIL if services are unavailable (not skip)
- * 
+ *
  * IMPORTANT: Tests use /api/v1/app/* paths (frontend-facing) NOT /api/* (internal).
  * This ensures contract tests catch routing mismatches between frontend and API Gateway.
  */
@@ -25,9 +25,11 @@ import {
 } from '@aiponge/shared-contracts';
 import { z } from 'zod';
 
-const DeleteResponseSchema = z.object({
-  success: z.boolean(),
-}).passthrough();
+const DeleteResponseSchema = z
+  .object({
+    success: z.boolean(),
+  })
+  .passthrough();
 
 async function checkServiceHealth(url: string): Promise<boolean> {
   try {
@@ -50,12 +52,12 @@ describe('Library API Live Contract Tests', () => {
 
   beforeAll(async () => {
     validator = new ContractValidator(SERVICE_URLS.API_GATEWAY);
-    
+
     servicesAvailable = await checkServiceHealth(SERVICE_URLS.API_GATEWAY);
     if (!servicesAvailable) {
       throw new Error(
         `API Gateway is not available at ${SERVICE_URLS.API_GATEWAY}. ` +
-        `Start services with 'npm run dev' before running contract tests.`
+          `Start services with 'npm run dev' before running contract tests.`
       );
     }
 
@@ -63,10 +65,10 @@ describe('Library API Live Contract Tests', () => {
     if (!testUser) {
       throw new Error('Failed to create test user - auth service may be unavailable');
     }
-    
+
     testUserId = testUser.id;
     authHeaders = {
-      'Authorization': `Bearer ${testUser.accessToken}`,
+      Authorization: `Bearer ${testUser.accessToken}`,
       'x-user-id': testUser.id,
       'Content-Type': 'application/json',
     };
@@ -75,26 +77,22 @@ describe('Library API Live Contract Tests', () => {
   afterAll(async () => {
     for (const bookId of createdBookIds) {
       try {
-        await makeRequest(
-          `${SERVICE_URLS.API_GATEWAY}/api/v1/app/library/books/${bookId}`,
-          { method: 'DELETE', headers: authHeaders }
-        );
-      } catch (e) {
-      }
+        await makeRequest(`${SERVICE_URLS.API_GATEWAY}/api/v1/app/library/books/${bookId}`, {
+          method: 'DELETE',
+          headers: authHeaders,
+        });
+      } catch (e) {}
     }
     createdBookIds = [];
     validator.printSummary();
   });
 
   async function createTestBook(title: string): Promise<string> {
-    const response = await makeRequest(
-      `${SERVICE_URLS.API_GATEWAY}/api/v1/app/library/books`,
-      {
-        method: 'POST',
-        headers: authHeaders,
-        body: JSON.stringify({ typeId: BOOK_TYPE_IDS.PERSONAL, title }),
-      }
-    );
+    const response = await makeRequest(`${SERVICE_URLS.API_GATEWAY}/api/v1/app/library/books`, {
+      method: 'POST',
+      headers: authHeaders,
+      body: JSON.stringify({ typeId: BOOK_TYPE_IDS.PERSONAL, title }),
+    });
     if (!response?.data?.id) {
       throw new Error(`Failed to create test book: ${JSON.stringify(response)}`);
     }
@@ -103,10 +101,10 @@ describe('Library API Live Contract Tests', () => {
   }
 
   async function deleteTestBook(bookId: string): Promise<void> {
-    await makeRequest(
-      `${SERVICE_URLS.API_GATEWAY}/api/v1/app/library/books/${bookId}`,
-      { method: 'DELETE', headers: authHeaders }
-    );
+    await makeRequest(`${SERVICE_URLS.API_GATEWAY}/api/v1/app/library/books/${bookId}`, {
+      method: 'DELETE',
+      headers: authHeaders,
+    });
     createdBookIds = createdBookIds.filter(id => id !== bookId);
   }
 
@@ -238,20 +236,17 @@ describe('Library API Live Contract Tests', () => {
 
   describe('Endpoint Existence Tests (Routing Contract - HTTP Status Validation)', () => {
     it('POST /api/v1/app/library/books should NOT return HTTP 404', async () => {
-      const result = await makeRequestWithStatus(
-        `${SERVICE_URLS.API_GATEWAY}/api/v1/app/library/books`,
-        {
-          method: 'POST',
-          headers: authHeaders,
-          body: JSON.stringify({ typeId: BOOK_TYPE_IDS.PERSONAL, title: 'Routing Test POST' }),
-        }
-      );
-      
+      const result = await makeRequestWithStatus(`${SERVICE_URLS.API_GATEWAY}/api/v1/app/library/books`, {
+        method: 'POST',
+        headers: authHeaders,
+        body: JSON.stringify({ typeId: BOOK_TYPE_IDS.PERSONAL, title: 'Routing Test POST' }),
+      });
+
       expect(result.status).not.toBe(404);
       if (result.data.error?.message) {
         expect(result.data.error.message).not.toContain('endpoint not found');
       }
-      
+
       if (result.ok && result.data?.data?.id) {
         await deleteTestBook(result.data.data.id);
       }
@@ -261,14 +256,11 @@ describe('Library API Live Contract Tests', () => {
       const bookId = await createTestBook('Routing Test PATCH');
 
       try {
-        const result = await makeRequestWithStatus(
-          `${SERVICE_URLS.API_GATEWAY}/api/v1/app/library/books/${bookId}`,
-          {
-            method: 'PATCH',
-            headers: authHeaders,
-            body: JSON.stringify({ title: 'Updated Routing Test' }),
-          }
-        );
+        const result = await makeRequestWithStatus(`${SERVICE_URLS.API_GATEWAY}/api/v1/app/library/books/${bookId}`, {
+          method: 'PATCH',
+          headers: authHeaders,
+          body: JSON.stringify({ title: 'Updated Routing Test' }),
+        });
 
         expect(result.status).not.toBe(404);
         if (result.data.error?.message) {
@@ -282,16 +274,16 @@ describe('Library API Live Contract Tests', () => {
     it('DELETE /api/v1/app/library/books/:id should NOT return HTTP 404 for valid book', async () => {
       const bookId = await createTestBook('Routing Test DELETE');
 
-      const result = await makeRequestWithStatus(
-        `${SERVICE_URLS.API_GATEWAY}/api/v1/app/library/books/${bookId}`,
-        { method: 'DELETE', headers: authHeaders }
-      );
+      const result = await makeRequestWithStatus(`${SERVICE_URLS.API_GATEWAY}/api/v1/app/library/books/${bookId}`, {
+        method: 'DELETE',
+        headers: authHeaders,
+      });
 
       expect(result.status).not.toBe(404);
       if (result.data.error?.message) {
         expect(result.data.error.message).not.toContain('endpoint not found');
       }
-      
+
       if (result.ok) {
         createdBookIds = createdBookIds.filter(id => id !== bookId);
       }
@@ -301,7 +293,7 @@ describe('Library API Live Contract Tests', () => {
   describe('Chapters Endpoints (Frontend Path: /api/v1/app/library/books/:bookId/chapters)', () => {
     it('GET /api/v1/app/library/books/:bookId/chapters should match ListChaptersResponseSchema', async () => {
       const bookId = await createTestBook('Chapters Test Book');
-      
+
       try {
         const result = await validator.validateEndpoint({
           endpoint: `/api/v1/app/library/books/${bookId}/chapters`,
@@ -341,7 +333,7 @@ describe('Library API Live Contract Tests', () => {
   describe('Contract Compliance Summary', () => {
     it('should have zero contract violations', () => {
       const summary = validator.getSummary();
-      
+
       console.log('\n📊 Library API Contract Compliance:');
       console.log(`   Endpoints tested: ${summary.total}`);
       console.log(`   Contracts valid:  ${summary.passed}`);

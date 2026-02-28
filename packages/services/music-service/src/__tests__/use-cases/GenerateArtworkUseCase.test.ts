@@ -1,7 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const mockLogger = vi.hoisted(() => ({
-  info: vi.fn(), debug: vi.fn(), warn: vi.fn(), error: vi.fn(), child: vi.fn(),
+  info: vi.fn(),
+  debug: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  child: vi.fn(),
 }));
 vi.mock('@aiponge/platform-core', () => ({
   createLogger: () => mockLogger,
@@ -35,7 +39,10 @@ vi.mock('@aiponge/shared-contracts', () => ({
   },
 }));
 
-import { GenerateArtworkUseCase, type GenerateArtworkRequest } from '../../application/use-cases/music/GenerateArtworkUseCase';
+import {
+  GenerateArtworkUseCase,
+  type GenerateArtworkRequest,
+} from '../../application/use-cases/music/GenerateArtworkUseCase';
 
 describe('GenerateArtworkUseCase', () => {
   let useCase: GenerateArtworkUseCase;
@@ -80,14 +87,16 @@ describe('GenerateArtworkUseCase', () => {
 
       await useCase.execute(validRequest);
 
-      expect(mockGenerateAlbumArtwork).toHaveBeenCalledWith(expect.objectContaining({
-        title: 'Test Song',
-        lyrics: 'Some song lyrics here',
-        style: 'abstract',
-        genre: 'pop',
-        mood: 'happy',
-        userId: 'user-1',
-      }));
+      expect(mockGenerateAlbumArtwork).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: 'Test Song',
+          lyrics: 'Some song lyrics here',
+          style: 'abstract',
+          genre: 'pop',
+          mood: 'happy',
+          userId: 'user-1',
+        })
+      );
     });
   });
 

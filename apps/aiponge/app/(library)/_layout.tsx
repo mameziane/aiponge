@@ -12,9 +12,7 @@ export default function LibraryLayout() {
       <Stack
         screenOptions={{
           headerShown: true,
-          header: ({ options }) => (
-            <UnifiedHeader title={options.title || ''} showBackButton />
-          ),
+          header: ({ options }) => <UnifiedHeader title={options.title || ''} showBackButton />,
         }}
       >
         <Stack.Screen name="albums" options={{ title: t('albums.title') }} />

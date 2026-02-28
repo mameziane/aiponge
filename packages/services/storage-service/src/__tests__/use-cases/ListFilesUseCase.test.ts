@@ -1,7 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const mockLogger = vi.hoisted(() => ({
-  info: vi.fn(), debug: vi.fn(), warn: vi.fn(), error: vi.fn(), child: vi.fn(),
+  info: vi.fn(),
+  debug: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  child: vi.fn(),
 }));
 
 vi.mock('@aiponge/platform-core', () => ({
@@ -17,7 +21,10 @@ vi.mock('@aiponge/platform-core', () => ({
     }
   },
   createHttpClient: vi.fn(() => ({
-    get: vi.fn(), post: vi.fn(), put: vi.fn(), delete: vi.fn(),
+    get: vi.fn(),
+    post: vi.fn(),
+    put: vi.fn(),
+    delete: vi.fn(),
   })),
   ServiceRegistry: {},
   hasService: () => false,
@@ -25,8 +32,8 @@ vi.mock('@aiponge/platform-core', () => ({
   waitForService: vi.fn(),
   listServices: () => [],
   createServiceUrlsConfig: vi.fn(() => ({})),
-  errorMessage: vi.fn((err: unknown) => err instanceof Error ? err.message : String(err)),
-  errorStack: vi.fn((err: unknown) => err instanceof Error ? err.stack : ''),
+  errorMessage: vi.fn((err: unknown) => (err instanceof Error ? err.message : String(err))),
+  errorStack: vi.fn((err: unknown) => (err instanceof Error ? err.stack : '')),
   withResilience: vi.fn((fn: (...args: unknown[]) => unknown) => fn),
   createIntervalScheduler: vi.fn(() => ({ start: vi.fn(), stop: vi.fn() })),
 }));
@@ -76,11 +83,13 @@ describe('ListFilesUseCase', () => {
       updateMetadata: vi.fn(),
       findExpired: vi.fn(),
       markFileAsOrphaned: vi.fn(),
-      search: vi.fn().mockResolvedValue([
-        createMockFileEntity('1', false, 'user-1'),
-        createMockFileEntity('2', true, 'user-1'),
-        createMockFileEntity('3', true, 'other-user'),
-      ]),
+      search: vi
+        .fn()
+        .mockResolvedValue([
+          createMockFileEntity('1', false, 'user-1'),
+          createMockFileEntity('2', true, 'user-1'),
+          createMockFileEntity('3', true, 'other-user'),
+        ]),
     } as unknown as IStorageRepository;
 
     useCase = new ListFilesUseCase(mockRepository);
@@ -108,9 +117,7 @@ describe('ListFilesUseCase', () => {
     });
 
     it('should respect limit parameter', async () => {
-      const manyFiles = Array.from({ length: 5 }, (_, i) =>
-        createMockFileEntity(`file-${i}`, true, 'user-1')
-      );
+      const manyFiles = Array.from({ length: 5 }, (_, i) => createMockFileEntity(`file-${i}`, true, 'user-1'));
       (mockRepository.search as ReturnType<typeof vi.fn>).mockResolvedValue(manyFiles);
 
       const result = await useCase.execute({ userId: 'user-1', limit: 2 });
@@ -121,15 +128,11 @@ describe('ListFilesUseCase', () => {
     it('should cap limit at 100', async () => {
       await useCase.execute({ userId: 'user-1', limit: 200 });
 
-      expect(mockRepository.search).toHaveBeenCalledWith(
-        expect.objectContaining({ limit: 101 })
-      );
+      expect(mockRepository.search).toHaveBeenCalledWith(expect.objectContaining({ limit: 101 }));
     });
 
     it('should indicate hasMore when results exceed limit', async () => {
-      const manyFiles = Array.from({ length: 4 }, (_, i) =>
-        createMockFileEntity(`file-${i}`, true, 'user-1')
-      );
+      const manyFiles = Array.from({ length: 4 }, (_, i) => createMockFileEntity(`file-${i}`, true, 'user-1'));
       (mockRepository.search as ReturnType<typeof vi.fn>).mockResolvedValue(manyFiles);
 
       const result = await useCase.execute({ userId: 'user-1', limit: 3 });
@@ -151,25 +154,19 @@ describe('ListFilesUseCase', () => {
     it('should pass contentType filter to repository', async () => {
       await useCase.execute({ contentType: 'image/png' });
 
-      expect(mockRepository.search).toHaveBeenCalledWith(
-        expect.objectContaining({ contentType: 'image/png' })
-      );
+      expect(mockRepository.search).toHaveBeenCalledWith(expect.objectContaining({ contentType: 'image/png' }));
     });
 
     it('should pass tags filter to repository', async () => {
       await useCase.execute({ tags: ['music', 'audio'] });
 
-      expect(mockRepository.search).toHaveBeenCalledWith(
-        expect.objectContaining({ tags: ['music', 'audio'] })
-      );
+      expect(mockRepository.search).toHaveBeenCalledWith(expect.objectContaining({ tags: ['music', 'audio'] }));
     });
 
     it('should pass isPublic filter to repository', async () => {
       await useCase.execute({ isPublic: true });
 
-      expect(mockRepository.search).toHaveBeenCalledWith(
-        expect.objectContaining({ isPublic: true })
-      );
+      expect(mockRepository.search).toHaveBeenCalledWith(expect.objectContaining({ isPublic: true }));
     });
   });
 });

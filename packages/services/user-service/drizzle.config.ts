@@ -6,9 +6,7 @@ dotenv.config();
 const getDatabaseUrl = () => {
   const userDbUrl = process.env.USER_DATABASE_URL || process.env.DATABASE_URL;
   if (!userDbUrl) {
-    throw new Error(
-      'USER_DATABASE_URL (preferred) or DATABASE_URL environment variable is required for user-service.'
-    );
+    throw new Error('USER_DATABASE_URL (preferred) or DATABASE_URL environment variable is required for user-service.');
   }
   return userDbUrl;
 };

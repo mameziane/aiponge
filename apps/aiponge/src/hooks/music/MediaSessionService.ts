@@ -33,9 +33,7 @@ const isExpoGo = Constants.appOwnership === 'expo';
 
 // Detect iPhone OS 26+ where RNTP 4.1.x has known memory corruption issues.
 // Platform.Version on iOS returns a string like "17.5" or "26.2".
-const iosVersionMajor = Platform.OS === 'ios'
-  ? parseInt(String(Platform.Version).split('.')[0], 10)
-  : 0;
+const iosVersionMajor = Platform.OS === 'ios' ? parseInt(String(Platform.Version).split('.')[0], 10) : 0;
 const isIOS26OrLater = iosVersionMajor >= 26;
 
 if (isIOS26OrLater) {
@@ -135,7 +133,7 @@ export async function initializeMediaSession(): Promise<void> {
   if (isIOS26OrLater) {
     logger.warn(
       '[MediaSession] iPhone OS 26+ detected — RNTP 4.1.x is incompatible (memory corruption). ' +
-      'Using stub. Bluetooth/lock-screen controls disabled until RNTP is updated.',
+        'Using stub. Bluetooth/lock-screen controls disabled until RNTP is updated.',
       { iosVersionMajor }
     );
     // Mark as initialised so we don't retry on every track change.

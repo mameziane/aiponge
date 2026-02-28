@@ -153,7 +153,6 @@ describe('AuthContext', () => {
         expect(contextIsLibrarian(userCtx)).toBe(false);
       });
     });
-
   });
 
   describe('Permission Checking Functions', () => {

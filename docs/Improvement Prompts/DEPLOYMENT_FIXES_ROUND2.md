@@ -3,6 +3,7 @@
 ## STATUS: 7/10 DONE, 2 PARTIAL, 1 ACCEPTABLE SKIP
 
 ### DONE
+
 1. Dockerfile path fixed in both CI workflows
 2. npm audit added to both workflows with --audit-level=high
 3. .github/dependabot.yml created (npm, github-actions, docker)
@@ -12,10 +13,12 @@
 7. Post-deployment smoke tests added (curls /health endpoints)
 
 ### PARTIAL
+
 8. DB shutdown cleanup: 5/8 services done. user-service and system-service missing. api-gateway skipped correctly (no DB).
 9. Trivy scanning: in build-test.yml only, NOT in deploy-aws.yml (production images unscanned)
 
 ### SKIPPED (acceptable)
+
 10. CloudWatch log transport: Fargate captures stdout via awslogs driver
 
 ---
@@ -69,6 +72,7 @@ Trivy exists in build-test.yml but NOT in the production deploy workflow. Images
 Add a Trivy scan step AFTER docker build/tag and BEFORE docker push. Use aquasecurity/trivy-action@0.28.0 with format table, severity HIGH,CRITICAL, and exit-code 0 (warn only, matching build-test.yml). The image-ref should match the exact tag format used in the build step using the ECR registry output and github.sha tag.
 
 ## DO NOT TOUCH
+
 - api-gateway shutdown: verified zero DB references in its src/
 - Root .env.example: docs/.env.example already exists
 - Trivy exit-code: keep at 0 for consistency

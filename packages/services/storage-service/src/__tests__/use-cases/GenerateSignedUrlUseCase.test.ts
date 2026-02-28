@@ -1,7 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const mockLogger = vi.hoisted(() => ({
-  info: vi.fn(), debug: vi.fn(), warn: vi.fn(), error: vi.fn(), child: vi.fn(),
+  info: vi.fn(),
+  debug: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  child: vi.fn(),
 }));
 
 vi.mock('@aiponge/platform-core', () => ({
@@ -17,7 +21,10 @@ vi.mock('@aiponge/platform-core', () => ({
     }
   },
   createHttpClient: vi.fn(() => ({
-    get: vi.fn(), post: vi.fn(), put: vi.fn(), delete: vi.fn(),
+    get: vi.fn(),
+    post: vi.fn(),
+    put: vi.fn(),
+    delete: vi.fn(),
   })),
   ServiceRegistry: {},
   hasService: () => false,
@@ -103,11 +110,7 @@ describe('GenerateSignedUrlUseCase', () => {
 
       expect(result.signedUrl).toBe('https://signed-url.example.com/file?token=abc');
       expect(result.expiresAt).toBeInstanceOf(Date);
-      expect(mockProvider.generateSignedUrl).toHaveBeenCalledWith(
-        'user/user-1/general/test.txt',
-        3600,
-        'read'
-      );
+      expect(mockProvider.generateSignedUrl).toHaveBeenCalledWith('user/user-1/general/test.txt', 3600, 'read');
     });
 
     it('should use custom expiration time', async () => {
@@ -118,11 +121,7 @@ describe('GenerateSignedUrlUseCase', () => {
       });
 
       expect(result.expiresAt).toBeDefined();
-      expect(mockProvider.generateSignedUrl).toHaveBeenCalledWith(
-        'user/user-1/general/test.txt',
-        7200,
-        'read'
-      );
+      expect(mockProvider.generateSignedUrl).toHaveBeenCalledWith('user/user-1/general/test.txt', 7200, 'read');
     });
 
     it('should pass correct operation type', async () => {
@@ -132,11 +131,7 @@ describe('GenerateSignedUrlUseCase', () => {
         operation: 'write',
       });
 
-      expect(mockProvider.generateSignedUrl).toHaveBeenCalledWith(
-        expect.any(String),
-        3600,
-        'write'
-      );
+      expect(mockProvider.generateSignedUrl).toHaveBeenCalledWith(expect.any(String), 3600, 'write');
     });
 
     it('should set correct expiresAt date', async () => {
@@ -163,8 +158,9 @@ describe('GenerateSignedUrlUseCase', () => {
         supportsSignedUrls: false,
       });
 
-      await expect(useCase.execute({ fileId: 'file-123', userId: 'user-1' }))
-        .rejects.toThrow('does not support signed URLs');
+      await expect(useCase.execute({ fileId: 'file-123', userId: 'user-1' })).rejects.toThrow(
+        'does not support signed URLs'
+      );
     });
   });
 
@@ -172,8 +168,7 @@ describe('GenerateSignedUrlUseCase', () => {
     it('should throw FILE_NOT_FOUND when file does not exist', async () => {
       (mockRepository.findById as ReturnType<typeof vi.fn>).mockResolvedValue(null);
 
-      await expect(useCase.execute({ fileId: 'non-existent', userId: 'user-1' }))
-        .rejects.toThrow('File not found');
+      await expect(useCase.execute({ fileId: 'non-existent', userId: 'user-1' })).rejects.toThrow('File not found');
     });
   });
 
@@ -183,8 +178,9 @@ describe('GenerateSignedUrlUseCase', () => {
         createMockFileEntity({ uploadedBy: 'owner', isPublic: false })
       );
 
-      await expect(useCase.execute({ fileId: 'file-123', userId: 'hacker' }))
-        .rejects.toThrow('You do not have permission');
+      await expect(useCase.execute({ fileId: 'file-123', userId: 'hacker' })).rejects.toThrow(
+        'You do not have permission'
+      );
     });
   });
 });

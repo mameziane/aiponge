@@ -31,10 +31,7 @@ vi.mock('uuid', () => ({
 }));
 
 import { TemplateService } from '../domains/templates/application/services/TemplateService';
-import {
-  TemplateNotFoundError,
-  TemplateValidationError,
-} from '../domains/templates/application/types';
+import { TemplateNotFoundError, TemplateValidationError } from '../domains/templates/application/types';
 import { IContentTemplateRepository } from '../domains/templates/application/ports/IContentTemplateRepository';
 import { IConfigEventPublisher } from '../domains/templates/application/ports/IConfigEventPublisher';
 
@@ -83,7 +80,10 @@ describe('TemplateService', () => {
     vi.clearAllMocks();
     mockRepo = createMockRepository();
     mockEvents = createMockEventPublisher();
-    service = new TemplateService(mockRepo as unknown as IContentTemplateRepository, mockEvents as unknown as IConfigEventPublisher);
+    service = new TemplateService(
+      mockRepo as unknown as IContentTemplateRepository,
+      mockEvents as unknown as IConfigEventPublisher
+    );
   });
 
   describe('createTemplate', () => {
@@ -108,23 +108,21 @@ describe('TemplateService', () => {
     });
 
     it('should throw TemplateValidationError for missing name', async () => {
-      await expect(
-        service.createTemplate({ name: '', category: 'general' })
-      ).rejects.toThrow(TemplateValidationError);
+      await expect(service.createTemplate({ name: '', category: 'general' })).rejects.toThrow(TemplateValidationError);
     });
 
     it('should throw TemplateValidationError for missing category', async () => {
-      await expect(
-        service.createTemplate({ name: 'Valid Name', category: '' })
-      ).rejects.toThrow(TemplateValidationError);
+      await expect(service.createTemplate({ name: 'Valid Name', category: '' })).rejects.toThrow(
+        TemplateValidationError
+      );
     });
 
     it('should throw when template name already exists', async () => {
       mockRepo.getTemplateByName.mockResolvedValue(sampleTemplate);
 
-      await expect(
-        service.createTemplate({ name: 'Test Template', category: 'general' })
-      ).rejects.toThrow(TemplateValidationError);
+      await expect(service.createTemplate({ name: 'Test Template', category: 'general' })).rejects.toThrow(
+        TemplateValidationError
+      );
     });
   });
 
@@ -160,9 +158,7 @@ describe('TemplateService', () => {
     it('should throw TemplateNotFoundError if template does not exist', async () => {
       mockRepo.getTemplateById.mockResolvedValue(null);
 
-      await expect(
-        service.updateTemplate('nonexistent', { name: 'New' })
-      ).rejects.toThrow(TemplateNotFoundError);
+      await expect(service.updateTemplate('nonexistent', { name: 'New' })).rejects.toThrow(TemplateNotFoundError);
     });
 
     it('should throw when renaming to an existing name', async () => {
@@ -170,9 +166,7 @@ describe('TemplateService', () => {
       mockRepo.getTemplateById.mockResolvedValue(sampleTemplate);
       mockRepo.getTemplateByName.mockResolvedValue(other);
 
-      await expect(
-        service.updateTemplate('tmpl-1', { name: 'Taken Name' })
-      ).rejects.toThrow(TemplateValidationError);
+      await expect(service.updateTemplate('tmpl-1', { name: 'Taken Name' })).rejects.toThrow(TemplateValidationError);
     });
 
     it('should allow keeping same name on update', async () => {
@@ -189,9 +183,9 @@ describe('TemplateService', () => {
       mockRepo.getTemplateById.mockResolvedValue(sampleTemplate);
       mockRepo.updateTemplate.mockResolvedValue(null);
 
-      await expect(
-        service.updateTemplate('tmpl-1', { description: 'new desc' })
-      ).rejects.toThrow(TemplateNotFoundError);
+      await expect(service.updateTemplate('tmpl-1', { description: 'new desc' })).rejects.toThrow(
+        TemplateNotFoundError
+      );
     });
   });
 
@@ -273,14 +267,16 @@ describe('TemplateService', () => {
       mockRepo.createTemplate.mockResolvedValue(sampleTemplate);
 
       const result = await service.importTemplates({
-        templates: [{
-          name: 'Imported Template',
-          category: 'general',
-          content: 'Imported content',
-          isActive: true,
-          createdBy: 'import',
-          variables: [],
-        }],
+        templates: [
+          {
+            name: 'Imported Template',
+            category: 'general',
+            content: 'Imported content',
+            isActive: true,
+            createdBy: 'import',
+            variables: [],
+          },
+        ],
       });
 
       expect(result.success).toBe(true);
@@ -291,14 +287,16 @@ describe('TemplateService', () => {
       mockRepo.getTemplateByName.mockResolvedValue(sampleTemplate);
 
       const result = await service.importTemplates({
-        templates: [{
-          name: 'Test Template',
-          category: 'general',
-          content: 'content',
-          isActive: true,
-          createdBy: 'import',
-          variables: [],
-        }],
+        templates: [
+          {
+            name: 'Test Template',
+            category: 'general',
+            content: 'content',
+            isActive: true,
+            createdBy: 'import',
+            variables: [],
+          },
+        ],
         options: { overwriteExisting: false },
       });
 

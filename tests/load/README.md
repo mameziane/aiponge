@@ -58,15 +58,15 @@ k6 run --out json=results.json tests/load/scripts/full-scenario.js
 
 ## Test Descriptions
 
-| Script | Purpose | VUs | Duration |
-|--------|---------|-----|----------|
-| health-check | Verify basic availability under load | 50 | ~50s |
-| auth-flow | Register/login/refresh token rotation | 10+5 | ~55s |
-| library-browsing | Guest library list and detail access | 20 | ~70s |
-| music-generation | Song generation requests with polling | 5 | ~80s |
-| music-generation-async | Async BullMQ generation with polling | 5 | ~80s |
-| cached-metadata | Static metadata endpoint cache performance | 20 | ~60s |
-| full-scenario | Combined smoke/load/spike test | 1→50→100 | ~5min |
+| Script                 | Purpose                                    | VUs      | Duration |
+| ---------------------- | ------------------------------------------ | -------- | -------- |
+| health-check           | Verify basic availability under load       | 50       | ~50s     |
+| auth-flow              | Register/login/refresh token rotation      | 10+5     | ~55s     |
+| library-browsing       | Guest library list and detail access       | 20       | ~70s     |
+| music-generation       | Song generation requests with polling      | 5        | ~80s     |
+| music-generation-async | Async BullMQ generation with polling       | 5        | ~80s     |
+| cached-metadata        | Static metadata endpoint cache performance | 20       | ~60s     |
+| full-scenario          | Combined smoke/load/spike test             | 1→50→100 | ~5min    |
 
 ## Thresholds
 

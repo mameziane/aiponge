@@ -1,7 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const mockLogger = vi.hoisted(() => ({
-  info: vi.fn(), debug: vi.fn(), warn: vi.fn(), error: vi.fn(), child: vi.fn(),
+  info: vi.fn(),
+  debug: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  child: vi.fn(),
 }));
 vi.mock('@aiponge/platform-core', () => ({
   createLogger: () => mockLogger,
@@ -54,7 +58,10 @@ describe('RemoveFromQueueUseCase', () => {
     it('should clear entire queue when clear is true', async () => {
       const session = createMockSession();
       vi.mocked(mockSessionRepo.findById).mockResolvedValue(session as unknown as Record<string, unknown>);
-      vi.mocked(mockSessionRepo.update).mockResolvedValue({ ...session, queue: [] } as unknown as Record<string, unknown>);
+      vi.mocked(mockSessionRepo.update).mockResolvedValue({ ...session, queue: [] } as unknown as Record<
+        string,
+        unknown
+      >);
 
       const result = await useCase.execute({
         sessionId: 'session-1',
@@ -62,11 +69,13 @@ describe('RemoveFromQueueUseCase', () => {
       });
 
       expect(result.removedItems).toBe(3);
-      expect(mockSessionRepo.update).toHaveBeenCalledWith(expect.objectContaining({
-        id: 'session-1',
-        userId: 'user-1',
-        queue: [],
-      }));
+      expect(mockSessionRepo.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: 'session-1',
+          userId: 'user-1',
+          queue: [],
+        })
+      );
     });
 
     it('should remove item at specific position', async () => {
@@ -113,10 +122,12 @@ describe('RemoveFromQueueUseCase', () => {
     it('should throw when session not found', async () => {
       vi.mocked(mockSessionRepo.findById).mockResolvedValue(null);
 
-      await expect(useCase.execute({
-        sessionId: 'nonexistent',
-        clear: true,
-      })).rejects.toThrow(StreamingError);
+      await expect(
+        useCase.execute({
+          sessionId: 'nonexistent',
+          clear: true,
+        })
+      ).rejects.toThrow(StreamingError);
     });
   });
 
@@ -140,10 +151,12 @@ describe('RemoveFromQueueUseCase', () => {
     it('should throw StreamingError on repository failure', async () => {
       vi.mocked(mockSessionRepo.findById).mockRejectedValue(new Error('DB error'));
 
-      await expect(useCase.execute({
-        sessionId: 'session-1',
-        clear: true,
-      })).rejects.toThrow(StreamingError);
+      await expect(
+        useCase.execute({
+          sessionId: 'session-1',
+          clear: true,
+        })
+      ).rejects.toThrow(StreamingError);
     });
   });
 });

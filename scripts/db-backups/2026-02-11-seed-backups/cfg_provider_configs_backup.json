@@ -91,17 +91,10 @@
         "headerName": "Authorization"
       },
       "method": "POST",
-      "models": [
-        "dall-e-3",
-        "dall-e-2"
-      ],
+      "models": ["dall-e-3", "dall-e-2"],
       "timeout": 60000,
       "endpoint": "https://api.openai.com/v1/images/generations",
-      "capabilities": [
-        "image_generation",
-        "artwork_creation",
-        "album_covers"
-      ],
+      "capabilities": ["image_generation", "artwork_creation", "album_covers"],
       "requestTemplate": {
         "n": 1,
         "size": "1024x1024",
@@ -137,17 +130,11 @@
       "method": "POST",
       "timeout": 60000,
       "endpoint": "https://api.openai.com/v1/audio/transcriptions",
-      "capabilities": [
-        "audio_transcription",
-        "word_timestamps",
-        "lyrics_timing"
-      ],
+      "capabilities": ["audio_transcription", "word_timestamps", "lyrics_timing"],
       "requestTemplate": {
         "model": "whisper-1",
         "response_format": "verbose_json",
-        "timestamp_granularities": [
-          "word"
-        ]
+        "timestamp_granularities": ["word"]
       },
       "responseMapping": {
         "text": "text",
@@ -174,10 +161,7 @@
         "headerName": "x-api-key"
       },
       "method": "POST",
-      "models": [
-        "claude-sonnet-4-20250514",
-        "claude-3-5-sonnet-20241022"
-      ],
+      "models": ["claude-sonnet-4-20250514", "claude-3-5-sonnet-20241022"],
       "headers": {
         "Content-Type": "application/json"
       },
@@ -216,11 +200,7 @@
       },
       "timeout": 60000,
       "endpoint": "https://api.elevenlabs.io/v1/text-to-speech",
-      "capabilities": [
-        "text_to_speech",
-        "voice_synthesis",
-        "music_generation"
-      ],
+      "capabilities": ["text_to_speech", "voice_synthesis", "music_generation"],
       "requestTemplate": {
         "model_id": "eleven_multilingual_v2"
       }
@@ -244,10 +224,7 @@
         "envVar": "STABILITY_API_KEY"
       },
       "method": "POST",
-      "models": [
-        "stable-diffusion-xl-1024-v1-0",
-        "stable-diffusion-v1-6"
-      ],
+      "models": ["stable-diffusion-xl-1024-v1-0", "stable-diffusion-v1-6"],
       "headers": {
         "Accept": "application/json",
         "Content-Type": "application/json"

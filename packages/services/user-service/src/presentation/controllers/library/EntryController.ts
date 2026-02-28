@@ -1,9 +1,7 @@
 import { Request, Response } from 'express';
 import { sendSuccess, ServiceErrors } from '../../utils/response-helpers';
 import { extractAuthContext } from '@aiponge/platform-core';
-import {
-  ENTRY_TYPES,
-} from '@infrastructure/database/schemas/library-schema';
+import { ENTRY_TYPES } from '@infrastructure/database/schemas/library-schema';
 import {
   LibEntryCreateSchema as entryCreateSchema,
   LibEntryUpdateSchema as entryUpdateSchema,

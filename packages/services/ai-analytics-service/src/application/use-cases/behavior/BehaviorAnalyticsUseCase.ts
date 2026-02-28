@@ -229,18 +229,21 @@ export class BehaviorAnalyticsUseCase {
       endTime: timeRange.end,
     });
 
-    const userMetricsMap = new Map<string, {
-      userId: string;
-      userType: string;
-      events: MetricEntry[];
-      sessions: Set<string>;
-      features: Set<string>;
-      totalDuration: number;
-      pageViews: number;
-      interactions: number;
-      firstSeen: Date;
-      lastSeen: Date;
-    }>();
+    const userMetricsMap = new Map<
+      string,
+      {
+        userId: string;
+        userType: string;
+        events: MetricEntry[];
+        sessions: Set<string>;
+        features: Set<string>;
+        totalDuration: number;
+        pageViews: number;
+        interactions: number;
+        firstSeen: Date;
+        lastSeen: Date;
+      }
+    >();
 
     metrics.forEach(m => {
       const userId = m.tags?.userId;
@@ -709,10 +712,7 @@ export class BehaviorAnalyticsUseCase {
     return Math.min(100, sessionWeight + durationWeight + featureWeight);
   }
 
-  private calculateLoyaltyScore(stats: {
-    sessions: Set<string>;
-    firstSeen: Date;
-  }): number {
+  private calculateLoyaltyScore(stats: { sessions: Set<string>; firstSeen: Date }): number {
     const daysSinceFirstSeen = Math.max(
       1,
       (new Date().getTime() - new Date(stats.firstSeen).getTime()) / (1000 * 60 * 60 * 24)
@@ -721,9 +721,7 @@ export class BehaviorAnalyticsUseCase {
     return Math.min(100, avgSessionsPerDay * 50);
   }
 
-  private calculateRiskScore(stats: {
-    lastSeen: Date;
-  }): number {
+  private calculateRiskScore(stats: { lastSeen: Date }): number {
     const daysSinceLastSeen = (new Date().getTime() - new Date(stats.lastSeen).getTime()) / (1000 * 60 * 60 * 24);
     if (daysSinceLastSeen > 30) return 90;
     if (daysSinceLastSeen > 14) return 70;

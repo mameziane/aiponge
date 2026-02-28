@@ -400,7 +400,10 @@ export class UpdateUserGoalsFromInsightsUseCase {
         .slice(0, maxGoals);
 
       if (mode === 'comprehensive') {
-        return this.goalRecommendationService.enhanceComprehensiveRecommendations(filteredRecommendations, analysisData);
+        return this.goalRecommendationService.enhanceComprehensiveRecommendations(
+          filteredRecommendations,
+          analysisData
+        );
       } else if (mode === 'focused') {
         return this.goalRecommendationService.enhanceFocusedRecommendations(filteredRecommendations, analysisData);
       } else {

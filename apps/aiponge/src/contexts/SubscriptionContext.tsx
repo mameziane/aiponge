@@ -7,7 +7,14 @@
  */
 
 import { createContext, useContext, useState, useEffect, useMemo, useCallback, useRef, ReactNode } from 'react';
-import { USER_ROLES, TIER_IDS, isPaidTier as isPaidTierCheck, normalizeTier, type TierId, type ServiceResponse } from '@aiponge/shared-contracts';
+import {
+  USER_ROLES,
+  TIER_IDS,
+  isPaidTier as isPaidTierCheck,
+  normalizeTier,
+  type TierId,
+  type ServiceResponse,
+} from '@aiponge/shared-contracts';
 import Purchases, {
   CustomerInfo,
   PurchasesOffering,
@@ -312,7 +319,8 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
         setIsInitialized(true);
       } catch (error) {
         logger.error('RevenueCat initialization error', error);
-        handlePurchaseError(error);
+        // Don't show purchase error alert on init failure — the app works fine without
+        // RevenueCat (free tier). Alerts should only appear on user-initiated purchases.
         // Don't set lastUserIdRef so effect can retry on next render
       } finally {
         setIsLoading(false);

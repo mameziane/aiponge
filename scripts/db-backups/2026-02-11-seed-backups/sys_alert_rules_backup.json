@@ -10,17 +10,11 @@
     },
     "severity": "warning",
     "is_enabled": true,
-    "notification_channels": [
-      "email",
-      "slack"
-    ],
+    "notification_channels": ["email", "slack"],
     "cooldown_minutes": 5,
     "metadata": {
       "auto_resolve": true,
-      "escalation_path": [
-        "devops",
-        "engineering"
-      ]
+      "escalation_path": ["devops", "engineering"]
     }
   },
   {
@@ -33,18 +27,11 @@
     },
     "severity": "critical",
     "is_enabled": true,
-    "notification_channels": [
-      "email",
-      "slack",
-      "pagerduty"
-    ],
+    "notification_channels": ["email", "slack", "pagerduty"],
     "cooldown_minutes": 1,
     "metadata": {
       "auto_resolve": false,
-      "escalation_path": [
-        "oncall",
-        "engineering_manager"
-      ]
+      "escalation_path": ["oncall", "engineering_manager"]
     }
   },
   {
@@ -58,9 +45,7 @@
     },
     "severity": "warning",
     "is_enabled": true,
-    "notification_channels": [
-      "email"
-    ],
+    "notification_channels": ["email"],
     "cooldown_minutes": 10,
     "metadata": {
       "auto_resolve": true,

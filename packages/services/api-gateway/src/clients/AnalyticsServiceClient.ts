@@ -267,16 +267,20 @@ export class AnalyticsServiceClient implements IAnalyticsServiceClient {
 
   async getProviderAnalytics(timeRange: TimeRange): Promise<ProviderAnalytics> {
     const baseUrl = getServiceUrl(SERVICE_NAME);
-    const response = await withServiceResilience<{ data: ProviderAnalytics }>(SERVICE_NAME, 'getProviderAnalytics', () =>
-      this.httpClient.post(`${baseUrl}/api/analytics/providers/analytics`, timeRange)
+    const response = await withServiceResilience<{ data: ProviderAnalytics }>(
+      SERVICE_NAME,
+      'getProviderAnalytics',
+      () => this.httpClient.post(`${baseUrl}/api/analytics/providers/analytics`, timeRange)
     );
     return response.data;
   }
 
   async getRealtimeMetrics(metricNames: string[]): Promise<Record<string, number>> {
     const baseUrl = getServiceUrl(SERVICE_NAME);
-    const response = await withServiceResilience<{ data: Record<string, number> }>(SERVICE_NAME, 'getRealtimeMetrics', () =>
-      this.httpClient.post(`${baseUrl}/api/analytics/metrics/realtime`, { metricNames })
+    const response = await withServiceResilience<{ data: Record<string, number> }>(
+      SERVICE_NAME,
+      'getRealtimeMetrics',
+      () => this.httpClient.post(`${baseUrl}/api/analytics/metrics/realtime`, { metricNames })
     );
     return response.data;
   }
@@ -291,9 +295,13 @@ export class AnalyticsServiceClient implements IAnalyticsServiceClient {
     }>;
   }> {
     const baseUrl = getServiceUrl(SERVICE_NAME);
-    const response = await withServiceResilience<{ data: { status: 'healthy' | 'degraded' | 'unhealthy'; metrics: Record<string, number>; alerts: Array<{ type: string; message: string; severity: 'low' | 'medium' | 'high' | 'critical' }> } }>(SERVICE_NAME, 'getSystemHealth', () =>
-      this.httpClient.get(`${baseUrl}/api/analytics/system/health`)
-    );
+    const response = await withServiceResilience<{
+      data: {
+        status: 'healthy' | 'degraded' | 'unhealthy';
+        metrics: Record<string, number>;
+        alerts: Array<{ type: string; message: string; severity: 'low' | 'medium' | 'high' | 'critical' }>;
+      };
+    }>(SERVICE_NAME, 'getSystemHealth', () => this.httpClient.get(`${baseUrl}/api/analytics/system/health`));
     return response.data;
   }
 

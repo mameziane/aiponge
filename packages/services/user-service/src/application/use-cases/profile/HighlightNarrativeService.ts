@@ -1,8 +1,5 @@
 import { EntryRecord } from '@domains/profile';
-import {
-  UserHighlightData,
-  filterEntriesByIds,
-} from './highlight-types';
+import { UserHighlightData, filterEntriesByIds } from './highlight-types';
 import type { ProfileHighlight, HighlightCollection } from './GenerateProfileHighlightsUseCase';
 
 export class HighlightNarrativeService {
@@ -76,10 +73,7 @@ export class HighlightNarrativeService {
     );
   }
 
-  async addVisualizationsToHighlights(
-    highlights: ProfileHighlight[],
-    userData: UserHighlightData
-  ): Promise<void> {
+  async addVisualizationsToHighlights(highlights: ProfileHighlight[], userData: UserHighlightData): Promise<void> {
     for (const highlight of highlights) {
       highlight.visualizations = this.generateVisualizationsForHighlight(highlight, userData);
     }

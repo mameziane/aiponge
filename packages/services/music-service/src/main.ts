@@ -241,7 +241,7 @@ async function main(): Promise<void> {
             });
 
             // Phase 2: Delete all user data in proper order (child tables first)
-            await db.transaction(async (tx) => {
+            await db.transaction(async tx => {
               // Playlist-related tables (child tables first)
               await tx.delete(playlistActivities).where(eq(playlistActivities.userId, userId));
               await tx.delete(playlistFollowers).where(eq(playlistFollowers.userId, userId));
@@ -425,10 +425,7 @@ async function main(): Promise<void> {
                 `;
                 const countResult = await db.execute(countQuery);
                 const resultRow = (countResult.rows?.[0] ?? undefined) as Record<string, unknown> | undefined;
-                const orphanCount = parseInt(
-                  String(resultRow?.orphan_count ?? '0'),
-                  10
-                );
+                const orphanCount = parseInt(String(resultRow?.orphan_count ?? '0'), 10);
 
                 let cleanedCount = 0;
                 const errors: string[] = [];
@@ -497,7 +494,9 @@ async function main(): Promise<void> {
                 const { signUserIdHeader, createServiceHttpClient } = await import('@aiponge/platform-core');
                 const userServiceUrl = ServiceLocator.getServiceUrl('user-service');
                 const internalClient = createServiceHttpClient('internal');
-                const response = await internalClient.postWithResponse<{ results?: Array<{ exists: boolean; referenceId: string }> }>(
+                const response = await internalClient.postWithResponse<{
+                  results?: Array<{ exists: boolean; referenceId: string }>;
+                }>(
                   `${userServiceUrl}/admin/verify-references/batch`,
                   { references: lyricsIds.map(id => ({ referenceType: 'lyrics', referenceId: id })) },
                   { headers: { ...signUserIdHeader('system') }, timeout: 30000 }

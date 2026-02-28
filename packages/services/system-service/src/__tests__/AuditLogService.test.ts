@@ -8,7 +8,7 @@ const mockLogger = vi.hoisted(() => ({
   debug: vi.fn(),
 }));
 
-vi.mock('@aiponge/platform-core', async (importOriginal) => {
+vi.mock('@aiponge/platform-core', async importOriginal => {
   const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
   return {
     ...actual,
@@ -27,7 +27,9 @@ function createMockDb() {
   const mockInsert = vi.fn(() => ({ values: mockValues }));
 
   const mockLimit = vi.fn();
-  const mockOffset = vi.fn(() => ({ /* terminal */ }));
+  const mockOffset = vi.fn(() => ({
+    /* terminal */
+  }));
   const mockOrderBy = vi.fn(() => ({ limit: mockLimit }));
   const mockWhere = vi.fn(() => ({ orderBy: mockOrderBy }));
   const mockFrom = vi.fn(() => ({ where: mockWhere }));
@@ -40,7 +42,17 @@ function createMockDb() {
       insert: mockInsert,
       select: mockSelect,
     },
-    mocks: { mockInsert, mockValues, mockReturning, mockSelect, mockFrom, mockWhere, mockOrderBy, mockLimit, mockOffset },
+    mocks: {
+      mockInsert,
+      mockValues,
+      mockReturning,
+      mockSelect,
+      mockFrom,
+      mockWhere,
+      mockOrderBy,
+      mockLimit,
+      mockOffset,
+    },
   };
 }
 

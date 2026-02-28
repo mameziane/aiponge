@@ -39,9 +39,8 @@ export function createRedisRateLimitMiddleware(config: RateLimitConfig) {
 
   const prefix = config.redis?.keyPrefix || 'api-gateway:ratelimit:';
 
-  const FALLBACK_DIVISOR = process.env.NODE_ENV === 'production'
-    ? parseInt(process.env.RATE_LIMIT_FALLBACK_DIVISOR || '4', 10)
-    : 1;
+  const FALLBACK_DIVISOR =
+    process.env.NODE_ENV === 'production' ? parseInt(process.env.RATE_LIMIT_FALLBACK_DIVISOR || '4', 10) : 1;
 
   const maxFn = (req: Request, res: Response) => {
     const userId = res.locals.userId as string | undefined;
@@ -51,9 +50,7 @@ export function createRedisRateLimitMiddleware(config: RateLimitConfig) {
 
   const fallbackMaxFn = (req: Request, res: Response) => {
     const userId = res.locals.userId as string | undefined;
-    const base = (userId && config.authenticatedMaxRequests)
-      ? config.authenticatedMaxRequests
-      : config.maxRequests;
+    const base = userId && config.authenticatedMaxRequests ? config.authenticatedMaxRequests : config.maxRequests;
     return Math.ceil(base / FALLBACK_DIVISOR);
   };
 
@@ -92,8 +89,7 @@ export function createRedisRateLimitMiddleware(config: RateLimitConfig) {
           ...commonOpts,
           max: maxFn,
           store: new RedisStore({
-            sendCommand: (...args: string[]) =>
-              (redisClient as Redis).call(...(args as [string, ...string[]])) as any,
+            sendCommand: (...args: string[]) => (redisClient as Redis).call(...(args as [string, ...string[]])) as any,
             prefix,
           }),
         });
@@ -128,6 +124,7 @@ Add `let redisLimiter: any = null;` as a module-level variable alongside the exi
 **Severity:** Medium — CI will likely fail on every PR due to transitive dependency vulnerabilities
 
 **Files:**
+
 - `.github/workflows/ci.yml` (line 51)
 - `.github/workflows/pr-validation.yml` (line 73)
 
@@ -138,23 +135,27 @@ Add `let redisLimiter: any = null;` as a module-level variable alongside the exi
 In both files, change the audit step to be non-blocking but visible:
 
 In `.github/workflows/ci.yml`, the `audit` job (line 51), change:
+
 ```yaml
-      - run: npm audit --audit-level=high
+- run: npm audit --audit-level=high
 ```
+
 to:
+
 ```yaml
-      - run: npm audit --audit-level=high --production || true
-      - name: Fail on direct dependency vulnerabilities
-        run: npm audit --audit-level=critical --production
+- run: npm audit --audit-level=high --production || true
+- name: Fail on direct dependency vulnerabilities
+  run: npm audit --audit-level=critical --production
 ```
 
 This makes high-severity advisories visible as warnings but only blocks the pipeline for critical vulnerabilities in production dependencies.
 
 In `.github/workflows/pr-validation.yml`, the `security-audit` job (line 73), apply the same change:
+
 ```yaml
-      - run: npm audit --audit-level=high --production || true
-      - name: Fail on direct dependency vulnerabilities
-        run: npm audit --audit-level=critical --production
+- run: npm audit --audit-level=high --production || true
+- name: Fail on direct dependency vulnerabilities
+  run: npm audit --audit-level=critical --production
 ```
 
 ---

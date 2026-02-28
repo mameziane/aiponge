@@ -7,6 +7,7 @@ Aiponge uses RevenueCat for cross-platform in-app purchases and subscription man
 ## 📦 Package Installation
 
 Already installed in `package.json`:
+
 ```json
 {
   "react-native-purchases": "^9.6.5",
@@ -17,6 +18,7 @@ Already installed in `package.json`:
 ## 🔑 API Key Configuration
 
 API keys are stored securely in Replit Secrets:
+
 - `EXPO_PUBLIC_REVENUECAT_IOS_KEY` - iOS API key
 - `EXPO_PUBLIC_REVENUECAT_ANDROID_KEY` - Android API key
 
@@ -25,11 +27,13 @@ Current key: `test_OoYuuZCdLnIovhBKFOykEpmGvab` (for both platforms)
 ## 🎯 Entitlement Configuration
 
 **Entitlement Identifiers:**
+
 - `personal` - Grants access to Personal tier features ($9.99/month)
 - `practice` - Grants access to Practice tier features ($49/month)
 - `studio` - Grants access to Studio tier features ($149/month)
 
 These must match your RevenueCat dashboard configuration. Update in RevenueCat dashboard under:
+
 - Products & Offerings → Entitlements → Create `personal`, `practice`, and `studio`
 
 ## 📱 Product IDs
@@ -38,41 +42,47 @@ Configure these products in your RevenueCat dashboard and link to the appropriat
 
 ### Personal Tier (grants `personal` entitlement)
 
-| Billing Period | Product ID | App Store/Play Store ID |
-|----------------|------------|-------------------------|
-| Monthly | `subscription_monthly_personal` | Must match store |
-| Yearly | `subscription_yearly_personal` | Must match store |
+| Billing Period | Product ID                      | App Store/Play Store ID |
+| -------------- | ------------------------------- | ----------------------- |
+| Monthly        | `subscription_monthly_personal` | Must match store        |
+| Yearly         | `subscription_yearly_personal`  | Must match store        |
 
 ### Practice Tier (grants `practice` entitlement)
 
-| Billing Period | Product ID | App Store/Play Store ID |
-|----------------|------------|-------------------------|
-| Monthly | `subscription_monthly_practice` | Must match store |
-| Yearly | `subscription_yearly_practice` | Must match store |
+| Billing Period | Product ID                      | App Store/Play Store ID |
+| -------------- | ------------------------------- | ----------------------- |
+| Monthly        | `subscription_monthly_practice` | Must match store        |
+| Yearly         | `subscription_yearly_practice`  | Must match store        |
 
 ### Studio Tier (grants `studio` entitlement)
 
-| Billing Period | Product ID | App Store/Play Store ID |
-|----------------|------------|-------------------------|
-| Monthly | `subscription_monthly_studio` | Must match store |
-| Yearly | `subscription_yearly_studio` | Must match store |
+| Billing Period | Product ID                    | App Store/Play Store ID |
+| -------------- | ----------------------------- | ----------------------- |
+| Monthly        | `subscription_monthly_studio` | Must match store        |
+| Yearly         | `subscription_yearly_studio`  | Must match store        |
 
 ## 📦 Offerings Configuration
 
 Create three offerings in RevenueCat:
 
 ### 1. "personal" Offering
+
 Add 2 packages linked to Personal products:
+
 - `$rc_monthly` → `subscription_monthly_personal`
 - `$rc_annual` → `subscription_yearly_personal`
 
 ### 2. "practice" Offering
+
 Add 2 packages linked to Practice products:
+
 - `$rc_monthly` → `subscription_monthly_practice`
 - `$rc_annual` → `subscription_yearly_practice`
 
 ### 3. "studio" Offering (set as Current)
+
 Add 2 packages linked to Studio products:
+
 - `$rc_monthly` → `subscription_monthly_studio`
 - `$rc_annual` → `subscription_yearly_studio`
 
@@ -83,6 +93,7 @@ Mark "studio" as the current offering for new users.
 ### 1. SubscriptionContext (`apps/aiponge/src/contexts/SubscriptionContext.tsx`)
 
 Central subscription management with:
+
 - ✅ SDK initialization with user ID
 - ✅ Real-time customer info updates via listener
 - ✅ Entitlement checking for tier-specific entitlements (`personal`, `practice`, `studio`)
@@ -91,19 +102,20 @@ Central subscription management with:
 - ✅ Comprehensive error mapping
 
 **Usage:**
+
 ```typescript
 import { useSubscription } from '../contexts/SubscriptionContext';
 
 function MyComponent() {
   const {
-    currentTier,      // 'guest' | 'explorer' | 'personal' | 'practice' | 'studio'
-    tierConfig,       // Current tier's feature limits and configuration
-    offerings,        // Available packages (monthly, yearly)
-    customerInfo,     // Full customer information
-    isLoading,        // Loading state
-    purchasePackage,  // Function to purchase a package
+    currentTier, // 'guest' | 'explorer' | 'personal' | 'practice' | 'studio'
+    tierConfig, // Current tier's feature limits and configuration
+    offerings, // Available packages (monthly, yearly)
+    customerInfo, // Full customer information
+    isLoading, // Loading state
+    purchasePackage, // Function to purchase a package
     restorePurchases, // Function to restore previous purchases
-    showCustomerCenter // Function to show subscription management
+    showCustomerCenter, // Function to show subscription management
   } = useSubscription();
 
   // Check if user has access to a specific tier or higher
@@ -121,6 +133,7 @@ function MyComponent() {
 ### 2. RevenueCat Native Paywall (`apps/aiponge/src/components/RevenueCatPaywall.tsx`)
 
 Uses RevenueCat's built-in Paywall UI:
+
 ```typescript
 import { RevenueCatPaywall } from '../components/RevenueCatPaywall';
 
@@ -135,6 +148,7 @@ function MyScreen() {
 ```
 
 **Features:**
+
 - ✅ Automatically displays current offering
 - ✅ Handles purchase flow
 - ✅ Handles restore flow
@@ -144,6 +158,7 @@ function MyScreen() {
 ### 3. Customer Center (`apps/member/src/components/CustomerCenter.tsx`)
 
 Subscription management UI:
+
 ```typescript
 import { presentCustomerCenter } from '../components/CustomerCenter';
 
@@ -153,6 +168,7 @@ async function showManageSubscription() {
 ```
 
 **Features:**
+
 - ✅ Subscription status display
 - ✅ Manage subscription options
 - ✅ Restore purchases
@@ -162,6 +178,7 @@ async function showManageSubscription() {
 ### 4. Usage Tracking (`apps/member/src/hooks/useUsageTracking.ts`)
 
 Feature gating based on subscription tier:
+
 ```typescript
 import { useUsageTracking } from '../hooks/useUsageTracking';
 
@@ -171,7 +188,7 @@ function MusicGeneration() {
   const handleGenerateSong = async () => {
     // Check if user can generate songs based on their tier limits
     const check = checkFeature('songs');
-    
+
     if (!check.allowed) {
       // Show upgrade prompt
       alert(check.reason);
@@ -203,52 +220,56 @@ Comprehensive error mapping in SubscriptionContext:
 
 ```typescript
 // Network errors
-PURCHASES_ERROR_CODE.NETWORK_ERROR
-PURCHASES_ERROR_CODE.OFFLINE_CONNECTION_ERROR
+PURCHASES_ERROR_CODE.NETWORK_ERROR;
+PURCHASES_ERROR_CODE.OFFLINE_CONNECTION_ERROR;
 
 // Purchase errors
-PURCHASES_ERROR_CODE.PURCHASE_NOT_ALLOWED_ERROR
-PURCHASES_ERROR_CODE.PAYMENT_PENDING_ERROR
-PURCHASES_ERROR_CODE.PRODUCT_ALREADY_PURCHASED_ERROR
+PURCHASES_ERROR_CODE.PURCHASE_NOT_ALLOWED_ERROR;
+PURCHASES_ERROR_CODE.PAYMENT_PENDING_ERROR;
+PURCHASES_ERROR_CODE.PRODUCT_ALREADY_PURCHASED_ERROR;
 
 // Store errors
-PURCHASES_ERROR_CODE.STORE_PROBLEM_ERROR
+PURCHASES_ERROR_CODE.STORE_PROBLEM_ERROR;
 
 // Configuration errors
-PURCHASES_ERROR_CODE.CONFIGURATION_ERROR
+PURCHASES_ERROR_CODE.CONFIGURATION_ERROR;
 ```
 
 All errors show user-friendly alert dialogs with actionable messages.
 
 ## 📊 Feature Limits
 
-| Tier | Songs/Month | Lyrics/Month | Insights/Month |
-|------|-------------|--------------|----------------|
-| Guest (free, no account) | 1 | 1 | 0 |
-| Explorer (free, registered) | 2 | 4 | 3 |
-| Personal ($9.99/mo) | 15 | 30 | 30 |
-| Practice ($49/mo) | 50 | 100 | Unlimited |
-| Studio ($149/mo) | 150 | 300 | Unlimited |
+| Tier                        | Songs/Month | Lyrics/Month | Insights/Month |
+| --------------------------- | ----------- | ------------ | -------------- |
+| Guest (free, no account)    | 1           | 1            | 0              |
+| Explorer (free, registered) | 2           | 4            | 3              |
+| Personal ($9.99/mo)         | 15          | 30           | 30             |
+| Practice ($49/mo)           | 50          | 100          | Unlimited      |
+| Studio ($149/mo)            | 150         | 300          | Unlimited      |
 
 Configured in backend: `packages/services/user-service/src/features/subscriptions/domain/subscription-limits.ts`
 
 ## 🧪 Testing
 
 ### Test Mode (Current)
+
 Using test API key: `test_OoYuuZCdLnIovhBKFOykEpmGvab`
 
 **Test Features:**
+
 - ✅ No real charges
 - ✅ Instant purchase completion
 - ✅ All RevenueCat features available
 - ✅ Works in Expo Go (Preview API Mode)
 
 ### Expo Go Limitations
+
 - Shows mock data only
 - Need **development build** for real purchases
 - Create development build: `eas build --profile development --platform ios`
 
 ### Production Setup
+
 1. Replace test key with production keys in Replit Secrets
 2. Create development build or standalone app
 3. Test real purchases with sandbox accounts
@@ -256,17 +277,22 @@ Using test API key: `test_OoYuuZCdLnIovhBKFOykEpmGvab`
 ## 🎨 Customization
 
 ### Custom Paywall Screen
+
 Already implemented: `apps/member/src/screens/Paywall.tsx`
+
 - Custom design matching app theme
 - Dynamic pricing from RevenueCat
 - Conversion-optimized layout
 
 Use either:
+
 - **Custom Paywall** - Your branded design
 - **RevenueCat Paywall** - Native UI with zero design work
 
 ### Subscription Screen
+
 `apps/member/src/components/SubscriptionTabScreen.tsx`
+
 - Shows current subscription tier and status
 - Quick access to upgrade or manage subscription
 
@@ -275,10 +301,12 @@ Use either:
 ### 1. Create Products
 
 **iOS (App Store Connect):**
+
 1. Create subscriptions in App Store Connect
 2. Note the Product IDs
 
 **Android (Google Play Console):**
+
 1. Create subscriptions in Google Play Console
 2. Note the Product IDs
 
@@ -310,6 +338,7 @@ Mark your preferred offering as "Current" - this is what the app will display by
 ## 📝 Best Practices
 
 ### ✅ DO
+
 - Always check `currentTier` and `tierConfig` before gating features
 - Use `purchasePackage()` for purchases (handles errors)
 - Use `restorePurchases()` for restore (shows user feedback)
@@ -318,6 +347,7 @@ Mark your preferred offering as "Current" - this is what the app will display by
 - Test with RevenueCat's test mode first
 
 ### ❌ DON'T
+
 - Don't hard-code product IDs in the app
 - Don't bypass entitlement checks
 - Don't allow usage beyond the tier's configured limits
@@ -327,6 +357,7 @@ Mark your preferred offering as "Current" - this is what the app will display by
 ## 🐛 Debugging
 
 Enable debug logs:
+
 ```typescript
 // Already configured in SubscriptionContext for __DEV__ mode
 await Purchases.setLogLevel(LOG_LEVEL.DEBUG);
@@ -334,12 +365,12 @@ await Purchases.setLogLevel(LOG_LEVEL.DEBUG);
 
 **Common Issues:**
 
-| Issue | Solution |
-|-------|----------|
-| Paywall shows loading forever | Check API key is configured, check network connection |
-| "No offerings found" | Verify offering is marked as "Current" in RevenueCat dashboard |
+| Issue                         | Solution                                                           |
+| ----------------------------- | ------------------------------------------------------------------ |
+| Paywall shows loading forever | Check API key is configured, check network connection              |
+| "No offerings found"          | Verify offering is marked as "Current" in RevenueCat dashboard     |
 | Purchase doesn't grant access | Check entitlement ID matches (`personal`, `practice`, or `studio`) |
-| Restore doesn't work | Ensure user is signed in with same Apple/Google account |
+| Restore doesn't work          | Ensure user is signed in with same Apple/Google account            |
 
 ## 📚 Additional Resources
 

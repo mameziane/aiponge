@@ -59,7 +59,10 @@ export class UpdateUserUseCase {
 
       let profile: Record<string, string | undefined> & Record<string, unknown> = {};
       try {
-        profile = typeof user.profile === 'string' ? JSON.parse(user.profile) : (user.profile as Record<string, string | undefined> & Record<string, unknown>) || {};
+        profile =
+          typeof user.profile === 'string'
+            ? JSON.parse(user.profile)
+            : (user.profile as Record<string, string | undefined> & Record<string, unknown>) || {};
       } catch {
         profile = {};
       }

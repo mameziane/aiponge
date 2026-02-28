@@ -22,7 +22,11 @@ export class ReservationRepository {
       type TxResult =
         | { type: 'not_found' }
         | { type: 'insufficient'; currentBalance: number }
-        | { type: 'success'; updatedCredits: typeof userCredits.$inferSelect; transaction: typeof creditTransactions.$inferSelect };
+        | {
+            type: 'success';
+            updatedCredits: typeof userCredits.$inferSelect;
+            transaction: typeof creditTransactions.$inferSelect;
+          };
 
       const result: TxResult = await this.db.transaction(
         async tx => {
@@ -148,9 +152,7 @@ export class ReservationRepository {
       }
 
       if (locked.status !== GENERATION_STATUS.PENDING) {
-        throw BillingError.internalError(
-          `Credit reservation already processed with status: ${locked.status}`
-        );
+        throw BillingError.internalError(`Credit reservation already processed with status: ${locked.status}`);
       }
 
       await tx

@@ -2,7 +2,11 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { Request, Response } from 'express';
 
 const mockLogger = vi.hoisted(() => ({
-  info: vi.fn(), debug: vi.fn(), warn: vi.fn(), error: vi.fn(), child: vi.fn(),
+  info: vi.fn(),
+  debug: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  child: vi.fn(),
 }));
 vi.mock('@aiponge/platform-core', () => ({
   createLogger: () => mockLogger,
@@ -55,13 +59,32 @@ function createMockRes() {
     statusCode: 200,
     _data: undefined as unknown,
     _headers: resHeaders,
-    status: vi.fn(function (this: Record<string, unknown>, c: number) { this.statusCode = c; return this; }),
-    json: vi.fn(function (this: Record<string, unknown>, d: unknown) { this._data = d; return this; }),
-    send: vi.fn(function (this: Record<string, unknown>, d: unknown) { this._data = d; return this; }),
-    set: vi.fn(function (_k: string, v: string) { resHeaders[_k] = v; return res; }),
-    setHeader: vi.fn(function (_k: string, v: string) { resHeaders[_k] = v; return res; }),
-    getHeader: vi.fn(function (_k: string) { return resHeaders[_k]; }),
-    get: vi.fn(function (_k: string) { return resHeaders[_k]; }),
+    status: vi.fn(function (this: Record<string, unknown>, c: number) {
+      this.statusCode = c;
+      return this;
+    }),
+    json: vi.fn(function (this: Record<string, unknown>, d: unknown) {
+      this._data = d;
+      return this;
+    }),
+    send: vi.fn(function (this: Record<string, unknown>, d: unknown) {
+      this._data = d;
+      return this;
+    }),
+    set: vi.fn(function (_k: string, v: string) {
+      resHeaders[_k] = v;
+      return res;
+    }),
+    setHeader: vi.fn(function (_k: string, v: string) {
+      resHeaders[_k] = v;
+      return res;
+    }),
+    getHeader: vi.fn(function (_k: string) {
+      return resHeaders[_k];
+    }),
+    get: vi.fn(function (_k: string) {
+      return resHeaders[_k];
+    }),
     end: vi.fn().mockReturnThis(),
     on: vi.fn(function (_event: string, cb: () => void) {
       if (_event === 'finish') finishListeners.push(cb);
@@ -171,7 +194,12 @@ describe('ResponseCacheMiddleware', () => {
     it('should cache miss after TTL expires', async () => {
       const middleware = createResponseCacheMiddleware({ ttlMs: 60000 });
 
-      const req1 = createMockReq({ method: 'GET', url: '/ttl-expire', originalUrl: '/ttl-expire', path: '/ttl-expire' });
+      const req1 = createMockReq({
+        method: 'GET',
+        url: '/ttl-expire',
+        originalUrl: '/ttl-expire',
+        path: '/ttl-expire',
+      });
       const res1 = createMockRes();
       const next1 = vi.fn();
       await middleware(req1, res1, next1);
@@ -183,7 +211,12 @@ describe('ResponseCacheMiddleware', () => {
 
       vi.advanceTimersByTime(60001);
 
-      const req2 = createMockReq({ method: 'GET', url: '/ttl-expire', originalUrl: '/ttl-expire', path: '/ttl-expire' });
+      const req2 = createMockReq({
+        method: 'GET',
+        url: '/ttl-expire',
+        originalUrl: '/ttl-expire',
+        path: '/ttl-expire',
+      });
       const res2 = createMockRes();
       const next2 = vi.fn();
       await middleware(req2, res2, next2);

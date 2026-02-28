@@ -139,7 +139,11 @@ export interface PublicAlbumTrackRow {
 export class MusicAccessRepository {
   private db = getDatabase();
 
-  async getAccessibleTrack(trackId: string, userId: string, accessibleCreatorIds: string[]): Promise<AccessibleTrackRow | null> {
+  async getAccessibleTrack(
+    trackId: string,
+    userId: string,
+    accessibleCreatorIds: string[]
+  ): Promise<AccessibleTrackRow | null> {
     const accessCondition = MusicVisibilityService.buildTrackAccessCondition(userId, accessibleCreatorIds);
 
     const result = await this.db.execute(sql`
@@ -171,14 +175,30 @@ export class MusicAccessRepository {
       LIMIT 1
     `);
 
-    return (result.rows?.[0] as { id: string; file_url: string; user_id: string; visibility: string; album_user_id: string }) || null;
+    return (
+      (result.rows?.[0] as {
+        id: string;
+        file_url: string;
+        user_id: string;
+        visibility: string;
+        album_user_id: string;
+      }) || null
+    );
   }
 
   async getAccessibleTrackForTimingAnalysis(
     trackId: string,
     userId: string,
     accessibleCreatorIds: string[]
-  ): Promise<{ id: string; title: string; file_url: string; lyrics_id: string | null; user_id: string; album_id: string; visibility: string } | null> {
+  ): Promise<{
+    id: string;
+    title: string;
+    file_url: string;
+    lyrics_id: string | null;
+    user_id: string;
+    album_id: string;
+    visibility: string;
+  } | null> {
     const accessCondition = MusicVisibilityService.buildTrackAccessCondition(userId, accessibleCreatorIds);
 
     const result = await this.db.execute(sql`
@@ -190,7 +210,17 @@ export class MusicAccessRepository {
       LIMIT 1
     `);
 
-    return (result.rows?.[0] as { id: string; title: string; file_url: string; lyrics_id: string | null; user_id: string; album_id: string; visibility: string }) || null;
+    return (
+      (result.rows?.[0] as {
+        id: string;
+        title: string;
+        file_url: string;
+        lyrics_id: string | null;
+        user_id: string;
+        album_id: string;
+        visibility: string;
+      }) || null
+    );
   }
 
   async getAccessibleTrackForPlay(
@@ -256,7 +286,11 @@ export class MusicAccessRepository {
     return { tracks: items as unknown as AccessibleTrackRow[], nextCursor, hasMore };
   }
 
-  async getAccessibleAlbum(albumId: string, userId: string, accessibleCreatorIds: string[]): Promise<AccessibleAlbumRow | null> {
+  async getAccessibleAlbum(
+    albumId: string,
+    userId: string,
+    accessibleCreatorIds: string[]
+  ): Promise<AccessibleAlbumRow | null> {
     const accessCondition = MusicVisibilityService.buildAlbumAccessCondition(userId, accessibleCreatorIds);
 
     const result = await this.db.execute(sql`
@@ -269,7 +303,11 @@ export class MusicAccessRepository {
     return (result.rows?.[0] as unknown as AccessibleAlbumRow) || null;
   }
 
-  async getAccessibleAlbums(userId: string, accessibleCreatorIds: string[], filters: AlbumFilters): Promise<AccessibleAlbumRow[]> {
+  async getAccessibleAlbums(
+    userId: string,
+    accessibleCreatorIds: string[],
+    filters: AlbumFilters
+  ): Promise<AccessibleAlbumRow[]> {
     const limit = filters.limit || 20;
     const offset = filters.offset || 0;
 
@@ -338,7 +376,10 @@ export class MusicAccessRepository {
     return (result.rows?.[0] as unknown as AccessiblePlaylistRow) || null;
   }
 
-  async getCatalogTracks(librarianIds: string[], filters: CatalogFilters): Promise<{ tracks: AccessibleTrackRow[]; total: number }> {
+  async getCatalogTracks(
+    librarianIds: string[],
+    filters: CatalogFilters
+  ): Promise<{ tracks: AccessibleTrackRow[]; total: number }> {
     const limit = filters.limit || 20;
     const offset = filters.offset || 0;
     const search = filters.search || '';

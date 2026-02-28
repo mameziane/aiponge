@@ -1,7 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const mockLogger = vi.hoisted(() => ({
-  info: vi.fn(), debug: vi.fn(), warn: vi.fn(), error: vi.fn(), child: vi.fn(),
+  info: vi.fn(),
+  debug: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  child: vi.fn(),
 }));
 
 const mockHttpGet = vi.hoisted(() => vi.fn());
@@ -19,7 +23,10 @@ vi.mock('@aiponge/platform-core', () => ({
     }
   },
   createHttpClient: vi.fn(() => ({
-    get: mockHttpGet, post: vi.fn(), put: vi.fn(), delete: vi.fn(),
+    get: mockHttpGet,
+    post: vi.fn(),
+    put: vi.fn(),
+    delete: vi.fn(),
   })),
   ServiceRegistry: {},
   hasService: () => false,
@@ -27,8 +34,8 @@ vi.mock('@aiponge/platform-core', () => ({
   waitForService: vi.fn(),
   listServices: () => [],
   createServiceUrlsConfig: vi.fn(() => ({})),
-  errorMessage: vi.fn((err: unknown) => err instanceof Error ? err.message : String(err)),
-  errorStack: vi.fn((err: unknown) => err instanceof Error ? err.stack : ''),
+  errorMessage: vi.fn((err: unknown) => (err instanceof Error ? err.message : String(err))),
+  errorStack: vi.fn((err: unknown) => (err instanceof Error ? err.stack : '')),
   withResilience: vi.fn((fn: (...args: unknown[]) => unknown) => fn),
   createIntervalScheduler: vi.fn(() => ({ start: vi.fn(), stop: vi.fn() })),
 }));
@@ -80,9 +87,16 @@ describe('DownloadExternalFileUseCase', () => {
     } as unknown as IStorageProvider;
 
     mockRepository = {
-      save: vi.fn(), findById: vi.fn(), findByPath: vi.fn(), findByUserId: vi.fn(),
-      delete: vi.fn(), exists: vi.fn(), updateMetadata: vi.fn(), findExpired: vi.fn(),
-      markFileAsOrphaned: vi.fn(), search: vi.fn(),
+      save: vi.fn(),
+      findById: vi.fn(),
+      findByPath: vi.fn(),
+      findByUserId: vi.fn(),
+      delete: vi.fn(),
+      exists: vi.fn(),
+      updateMetadata: vi.fn(),
+      findExpired: vi.fn(),
+      markFileAsOrphaned: vi.fn(),
+      search: vi.fn(),
     } as unknown as IStorageRepository;
 
     useCase = new DownloadExternalFileUseCase(mockProvider, mockRepository);

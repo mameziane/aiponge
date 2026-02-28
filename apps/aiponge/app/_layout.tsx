@@ -55,7 +55,11 @@ if (typeof ErrorUtils !== 'undefined') {
   const previousHandler = ErrorUtils.getGlobalHandler();
   ErrorUtils.setGlobalHandler((error: Error, isFatal?: boolean) => {
     let stack: string | undefined;
-    try { stack = error?.stack; } catch { stack = '[error.stack threw — possible Hermes GC corruption]'; }
+    try {
+      stack = error?.stack;
+    } catch {
+      stack = '[error.stack threw — possible Hermes GC corruption]';
+    }
     logger.error('[GLOBAL] Unhandled native error', {
       message: error?.message,
       stack,
@@ -100,7 +104,7 @@ export default function RootLayout() {
   useEffect(() => {
     // Check if splash video has been shown before (first launch only)
     AsyncStorage.getItem(SPLASH_SHOWN_KEY)
-      .then((value) => {
+      .then(value => {
         if (value === 'true') {
           // Splash was already shown, skip it
           logger.debug('[RootLayout] Splash already shown, skipping video');
@@ -110,7 +114,7 @@ export default function RootLayout() {
           setShowSplash(true);
         }
       })
-      .catch((error) => {
+      .catch(error => {
         logger.warn('[RootLayout] Error checking splash state, showing splash', { error });
         setShowSplash(true);
       });
@@ -132,14 +136,14 @@ export default function RootLayout() {
     // i18nReady is the promise from i18n.init() - must complete before using i18n APIs
     i18nReady
       .then(() => initI18n())
-      .then((result) => {
+      .then(result => {
         setLanguageLoaded(true);
         if (result.requiresRTLReload) {
           logger.info('[RootLayout] RTL mismatch detected, triggering reload');
           reloadAppForRTL();
         }
       })
-      .catch((error) => {
+      .catch(error => {
         logger.error('[RootLayout] Failed to load language preferences, using default', { error });
         // Still mark as loaded to prevent splash screen deadlock
         setLanguageLoaded(true);
@@ -156,7 +160,7 @@ export default function RootLayout() {
     if (fontsLoaded && languageLoaded && showSplash === false) {
       // Returning user - hide native splash and show app
       logger.debug('[RootLayout] Returning user ready, hiding native splash');
-      SplashScreen.hideAsync().catch((e) => {
+      SplashScreen.hideAsync().catch(e => {
         logger.warn('[RootLayout] Error hiding native splash', { error: e });
       });
     }
@@ -164,11 +168,19 @@ export default function RootLayout() {
 
   const handleRootError = useCallback((error: Error, errorInfo: React.ErrorInfo) => {
     let stack: string | undefined;
-    try { stack = error.stack; } catch { stack = '[error.stack threw — possible Hermes GC corruption]'; }
+    try {
+      stack = error.stack;
+    } catch {
+      stack = '[error.stack threw — possible Hermes GC corruption]';
+    }
     // Wrap componentStack access: on iOS 26, if the Hermes GC heap is corrupted, accessing
     // errorInfo.componentStack triggers GCScope::_newChunkAndPHV → secondary EXC_BAD_ACCESS.
     let componentStack: string | undefined;
-    try { componentStack = errorInfo?.componentStack ?? undefined; } catch { componentStack = '[componentStack threw — possible Hermes GC corruption]'; }
+    try {
+      componentStack = errorInfo?.componentStack ?? undefined;
+    } catch {
+      componentStack = '[componentStack threw — possible Hermes GC corruption]';
+    }
     logger.error('Root ErrorBoundary caught error', {
       error: error.message,
       stack,
@@ -196,7 +208,7 @@ export default function RootLayout() {
   if (!fontsLoaded || !languageLoaded || showSplash === null) {
     return null;
   }
-  
+
   // First launch - show the video splash
   if (showSplash === true) {
     return <AnimatedSplashScreen onFinish={handleSplashFinish} />;

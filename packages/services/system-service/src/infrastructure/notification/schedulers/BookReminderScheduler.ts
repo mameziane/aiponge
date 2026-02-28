@@ -57,7 +57,9 @@ export class BookReminderScheduler extends BaseScheduler {
 
     const DIRECT_TIMEOUT_MS = 25000;
     const directResult = await Promise.race<'done' | 'timeout'>([
-      processBookReminderJob({ data: jobData, id: correlationId } as unknown as Parameters<typeof processBookReminderJob>[0])
+      processBookReminderJob({ data: jobData, id: correlationId } as unknown as Parameters<
+        typeof processBookReminderJob
+      >[0])
         .then(() => 'done' as const)
         .catch(err => {
           this.logger.error('Direct book reminder execution failed', { error: err?.message });
@@ -72,9 +74,10 @@ export class BookReminderScheduler extends BaseScheduler {
 
     return {
       success: true,
-      message: directResult === 'timeout'
-        ? 'Book reminder direct execution timed out - consider enabling Redis for reliable scheduling'
-        : 'Book reminder processed via direct execution',
+      message:
+        directResult === 'timeout'
+          ? 'Book reminder direct execution timed out - consider enabling Redis for reliable scheduling'
+          : 'Book reminder processed via direct execution',
       data: { correlationId, mode: 'direct', timedOut: directResult === 'timeout' },
       durationMs: 0,
     };

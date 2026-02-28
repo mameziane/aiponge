@@ -114,7 +114,9 @@ export class UnpromoteEntryUseCase {
     const chapters = await this.chapterRepo.getByBook(sharedBook.id);
     for (const chapter of chapters) {
       const entries = await this.entryRepo.getByChapter(chapter.id);
-      const promoted = entries.find(e => e.metadata && (e.metadata as Record<string, unknown>).sourceEntryId === sourceEntryId);
+      const promoted = entries.find(
+        e => e.metadata && (e.metadata as Record<string, unknown>).sourceEntryId === sourceEntryId
+      );
       if (promoted) {
         return promoted;
       }

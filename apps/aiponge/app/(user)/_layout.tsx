@@ -21,11 +21,11 @@ import { useSubscriptionData } from '../../src/contexts/SubscriptionContext';
 import { isProfessionalTier } from '@aiponge/shared-contracts';
 
 // Selection context type for book screen
-export type BookSelectionContext = 
-  | 'no-books'         // No books exist
-  | 'book'             // Book is selected/opened (default when books exist)
-  | 'chapter'          // Chapter is expanded/selected
-  | 'entry';           // Entry is selected/opened
+export type BookSelectionContext =
+  | 'no-books' // No books exist
+  | 'book' // Book is selected/opened (default when books exist)
+  | 'chapter' // Chapter is expanded/selected
+  | 'entry'; // Entry is selected/opened
 
 // Context for chapter modal and entry creation triggers
 export const ChapterModalContext = React.createContext<{
@@ -123,67 +123,92 @@ export default function TabLayout() {
     }
   }, [pathname, router, isPro, triggerBookCreation]);
 
-  const getTabTitle = useCallback((routeName: string): string => {
-    const titleKeys: Record<string, string> = {
-      create: 'navigation.create',
-      music: 'navigation.myMusic',
-      books: 'navigation.myBooks',
-      reflect: 'navigation.reflect',
-      reports: 'navigation.reports',
-    };
-    return t(titleKeys[routeName] || routeName);
-  }, [t]);
+  const getTabTitle = useCallback(
+    (routeName: string): string => {
+      const titleKeys: Record<string, string> = {
+        create: 'navigation.create',
+        music: 'navigation.myMusic',
+        books: 'navigation.myBooks',
+        reflect: 'navigation.reflect',
+        reports: 'navigation.reports',
+      };
+      return t(titleKeys[routeName] || routeName);
+    },
+    [t]
+  );
 
-  const tabBarStyle = useMemo(() => ({
-    backgroundColor: colors.background.primary,
-    borderTopColor: colors.border.primary,
-    borderTopWidth: 1,
-    paddingHorizontal: 0,
-    paddingTop: 8,
-    paddingBottom: 12,
-    height: 70,
-    overflow: 'visible' as const,
-  }), [colors.background.primary, colors.border.primary]);
+  const tabBarStyle = useMemo(
+    () => ({
+      backgroundColor: colors.background.primary,
+      borderTopColor: colors.border.primary,
+      borderTopWidth: 1,
+      paddingHorizontal: 0,
+      paddingTop: 8,
+      paddingBottom: 12,
+      height: 70,
+      overflow: 'visible' as const,
+    }),
+    [colors.background.primary, colors.border.primary]
+  );
 
-  const tabBarItemStyle = useMemo(() => ({
-    flex: 1,
-    justifyContent: 'center' as const,
-    alignItems: 'center' as const,
-  }), []);
-
-  const renderTabBar = useCallback(
-    (props: React.ComponentProps<typeof AppTabBar>) => <AppTabBar {...props} />,
+  const tabBarItemStyle = useMemo(
+    () => ({
+      flex: 1,
+      justifyContent: 'center' as const,
+      alignItems: 'center' as const,
+    }),
     []
   );
 
-  const screenOptions = useCallback(({ route }: { route: { name: string } }) => ({
-    freezeOnBlur: true,
-    headerShown: true,
-    header: () => <UnifiedHeader title={getTabTitle(route.name)} />,
-    tabBarStyle,
-    tabBarItemStyle,
-    tabBarActiveTintColor: colors.text.primary,
-    tabBarInactiveTintColor: colors.text.secondary,
-  }), [getTabTitle, tabBarStyle, tabBarItemStyle, colors.text.primary, colors.text.secondary]);
+  const renderTabBar = useCallback((props: React.ComponentProps<typeof AppTabBar>) => <AppTabBar {...props} />, []);
 
-  const contextValue = React.useMemo(() => ({
-    triggerChapterModal,
-    chapterModalTrigger,
-    triggerEntryCreation,
-    entryCreationTrigger,
-    triggerSongCreation,
-    songCreationTrigger,
-    triggerBookCreation,
-    bookCreationTrigger,
-    bookViewMode,
-    setBookViewMode,
-    selectionContext,
-    setSelectionContext,
-    selectedEntryId,
-    setSelectedEntryId,
-    bookCount,
-    setBookCount,
-  }), [triggerChapterModal, chapterModalTrigger, triggerEntryCreation, entryCreationTrigger, triggerSongCreation, songCreationTrigger, triggerBookCreation, bookCreationTrigger, bookViewMode, selectionContext, selectedEntryId, bookCount]);
+  const screenOptions = useCallback(
+    ({ route }: { route: { name: string } }) => ({
+      freezeOnBlur: true,
+      headerShown: true,
+      header: () => <UnifiedHeader title={getTabTitle(route.name)} />,
+      tabBarStyle,
+      tabBarItemStyle,
+      tabBarActiveTintColor: colors.text.primary,
+      tabBarInactiveTintColor: colors.text.secondary,
+    }),
+    [getTabTitle, tabBarStyle, tabBarItemStyle, colors.text.primary, colors.text.secondary]
+  );
+
+  const contextValue = React.useMemo(
+    () => ({
+      triggerChapterModal,
+      chapterModalTrigger,
+      triggerEntryCreation,
+      entryCreationTrigger,
+      triggerSongCreation,
+      songCreationTrigger,
+      triggerBookCreation,
+      bookCreationTrigger,
+      bookViewMode,
+      setBookViewMode,
+      selectionContext,
+      setSelectionContext,
+      selectedEntryId,
+      setSelectedEntryId,
+      bookCount,
+      setBookCount,
+    }),
+    [
+      triggerChapterModal,
+      chapterModalTrigger,
+      triggerEntryCreation,
+      entryCreationTrigger,
+      triggerSongCreation,
+      songCreationTrigger,
+      triggerBookCreation,
+      bookCreationTrigger,
+      bookViewMode,
+      selectionContext,
+      selectedEntryId,
+      bookCount,
+    ]
+  );
 
   if (userModeActiveState === null) {
     return <View style={{ flex: 1, backgroundColor: colors.background.primary }} />;
@@ -200,111 +225,105 @@ export default function TabLayout() {
       <TrackAlarmHandler />
       <PushNotificationInitializer />
       <ShareIntentHandler />
-      <Tabs
-        tabBar={renderTabBar}
-        screenOptions={screenOptions}
-    >
-      <Tabs.Screen
-        name="music"
-        options={{
-          title: t('navigation.myMusic'),
-          tabBarIcon: ({ color, size = 24, focused }) => (
-            <Ionicons name={focused ? "musical-notes" : "musical-notes-outline"} color={color} size={size} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="books"
-        options={{
-          title: t('navigation.myBooks'),
-          tabBarIcon: ({ color, size = 24, focused }) => <Ionicons name={focused ? "book" : "book-outline"} color={color} size={size} />,
-        }}
-      />
-      <Tabs.Screen
-        name="create"
-        options={{
-          title: pathname.includes('books') && isPro
-            ? t('navigation.tabBook')
-            : pathname.includes('books')
-            ? t('navigation.tabEntry')
-            : pathname.includes('reflect')
-            ? t('navigation.tabInsight')
-            : pathname.includes('music')
-            ? t('navigation.tabSong')
-            : t('navigation.tabCreate'),
-          tabBarLabelStyle: [
-            styles.bookLabel,
-            pathname.includes('create') && { opacity: 0.4 },
-          ],
-          tabBarIcon: ({ focused }) => (
-            <View style={[styles.createIconWrapper, pathname.includes('create') && { opacity: 0.4 }]}>
-              <Ionicons name="add-circle" color={colors.text.primary} size={48} />
-            </View>
-          ),
-          tabBarItemStyle: {
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            overflow: 'visible',
-          },
-        }}
-        listeners={{
-          tabPress: (e) => {
-            e.preventDefault();
-            if (!pathname.includes('create')) {
-              handleCreatePress();
-            }
-          },
-        }}
-      />
-      <Tabs.Screen
-        name="reflect"
-        options={{
-          title: t('navigation.reflect'),
-          tabBarIcon: ({ color, size = 24, focused }) => (
-            <Ionicons
-              name={focused ? "bulb" : "bulb-outline"}
-              color={hasEntries ? color : colors.text.tertiary}
-              size={size}
-            />
-          ),
-          tabBarLabelStyle: !hasEntries ? { color: colors.text.tertiary } : undefined,
-        }}
-        listeners={{
-          tabPress: (e) => {
-            if (!hasEntries) {
+      <Tabs tabBar={renderTabBar} screenOptions={screenOptions}>
+        <Tabs.Screen
+          name="music"
+          options={{
+            title: t('navigation.myMusic'),
+            tabBarIcon: ({ color, size = 24, focused }) => (
+              <Ionicons name={focused ? 'musical-notes' : 'musical-notes-outline'} color={color} size={size} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="books"
+          options={{
+            title: t('navigation.myBooks'),
+            tabBarIcon: ({ color, size = 24, focused }) => (
+              <Ionicons name={focused ? 'book' : 'book-outline'} color={color} size={size} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="create"
+          options={{
+            title:
+              pathname.includes('books') && isPro
+                ? t('navigation.tabBook')
+                : pathname.includes('books')
+                  ? t('navigation.tabEntry')
+                  : pathname.includes('reflect')
+                    ? t('navigation.tabInsight')
+                    : pathname.includes('music')
+                      ? t('navigation.tabSong')
+                      : t('navigation.tabCreate'),
+            tabBarLabelStyle: [styles.bookLabel, pathname.includes('create') && { opacity: 0.4 }],
+            tabBarIcon: ({ focused }) => (
+              <View style={[styles.createIconWrapper, pathname.includes('create') && { opacity: 0.4 }]}>
+                <Ionicons name="add-circle" color={colors.text.primary} size={48} />
+              </View>
+            ),
+            tabBarItemStyle: {
+              flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+              overflow: 'visible',
+            },
+          }}
+          listeners={{
+            tabPress: e => {
               e.preventDefault();
-              Alert.alert(
-                t('navigation.reflectDisabledTitle'),
-                t('navigation.reflectDisabledMessage'),
-              );
-            }
-          },
-        }}
-      />
-      <Tabs.Screen
-        name="reports"
-        options={{
-          title: t('navigation.reports'),
-          tabBarIcon: ({ color, size = 24, focused }) => (
-            <Ionicons name={focused ? "people" : "people-outline"} color={color} size={size} />
-          ),
-        }}
-      />
-      {/* Stack screens - hidden from tab bar but accessible via navigation */}
-      <Tabs.Screen
-        name="creator-dashboard"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="studio"
-        options={{
-          href: null,
-        }}
-      />
-    </Tabs>
+              if (!pathname.includes('create')) {
+                handleCreatePress();
+              }
+            },
+          }}
+        />
+        <Tabs.Screen
+          name="reflect"
+          options={{
+            title: t('navigation.reflect'),
+            tabBarIcon: ({ color, size = 24, focused }) => (
+              <Ionicons
+                name={focused ? 'bulb' : 'bulb-outline'}
+                color={hasEntries ? color : colors.text.tertiary}
+                size={size}
+              />
+            ),
+            tabBarLabelStyle: !hasEntries ? { color: colors.text.tertiary } : undefined,
+          }}
+          listeners={{
+            tabPress: e => {
+              if (!hasEntries) {
+                e.preventDefault();
+                Alert.alert(t('navigation.reflectDisabledTitle'), t('navigation.reflectDisabledMessage'));
+              }
+            },
+          }}
+        />
+        <Tabs.Screen
+          name="reports"
+          options={{
+            title: t('navigation.reports'),
+            tabBarIcon: ({ color, size = 24, focused }) => (
+              <Ionicons name={focused ? 'people' : 'people-outline'} color={color} size={size} />
+            ),
+          }}
+        />
+        {/* Stack screens - hidden from tab bar but accessible via navigation */}
+        <Tabs.Screen
+          name="creator-dashboard"
+          options={{
+            href: null,
+          }}
+        />
+        <Tabs.Screen
+          name="studio"
+          options={{
+            href: null,
+          }}
+        />
+      </Tabs>
     </ChapterModalContext.Provider>
   );
 }

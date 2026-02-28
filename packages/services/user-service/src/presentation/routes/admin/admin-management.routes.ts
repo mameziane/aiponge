@@ -55,7 +55,8 @@ export function registerAdminManagementRoutes(router: Router, deps: AdminManagem
           return;
         }
 
-        const { CreatorMemberRepository } = await import('../../../infrastructure/repositories/CreatorMemberRepository');
+        const { CreatorMemberRepository } =
+          await import('../../../infrastructure/repositories/CreatorMemberRepository');
         const { getDatabase } = await import('../../../infrastructure/database/DatabaseConnectionFactory');
         const repo = new CreatorMemberRepository(getDatabase());
 

@@ -20,7 +20,10 @@ vi.mock('@aiponge/platform-core', () => ({
     getServicePort: vi.fn(() => 3020),
   },
   serializeError: vi.fn((e: unknown) => String(e)),
-  getValidation: () => ({ validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(), validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next() }),
+  getValidation: () => ({
+    validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+    validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+  }),
 }));
 
 vi.mock('@services/gatewayFetch', () => ({
@@ -129,7 +132,10 @@ describe('Librarian Content Routes', () => {
         .set('x-user-role', 'librarian');
 
       expect(res.status).toBe(200);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/config/librarian-defaults'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/config/librarian-defaults'),
+        expect.anything()
+      );
     });
   });
 

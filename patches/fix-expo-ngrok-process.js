@@ -1,7 +1,7 @@
-const { promisify } = require("util");
-const { spawn, exec: execCallback } = require("child_process");
+const { promisify } = require('util');
+const { spawn, exec: execCallback } = require('child_process');
 const exec = promisify(execCallback);
-const bin = require("@expo/ngrok-bin");
+const bin = require('@expo/ngrok-bin');
 
 const ready = /starting web service.*addr=(\d+\.\d+\.\d+\.\d+:\d+)/;
 const inUse = /address already in use/;
@@ -24,7 +24,7 @@ function getActiveProcess() {
 }
 
 function parseAddr(message) {
-  if (message[0] === "{") {
+  if (message[0] === '{') {
     try {
       const parsed = JSON.parse(message);
       if (parsed.addr) return parsed.addr;
@@ -37,9 +37,9 @@ function parseAddr(message) {
 }
 
 async function startProcess(opts) {
-  const start = ["start", "--none", "--log=stdout"];
-  if (opts.region) start.push("--region=" + opts.region);
-  if (opts.configPath) start.push("--config=" + opts.configPath);
+  const start = ['start', '--none', '--log=stdout'];
+  if (opts.region) start.push('--region=' + opts.region);
+  if (opts.configPath) start.push('--config=' + opts.configPath);
 
   const ngrok = spawn(bin, start, { windowsHide: true });
 
@@ -49,16 +49,16 @@ async function startProcess(opts) {
     reject = rej;
   });
 
-  ngrok.stdout.on("data", (data) => {
+  ngrok.stdout.on('data', data => {
     const msg = data.toString().trim();
     if (opts.onLogEvent) {
       opts.onLogEvent(msg);
     }
     if (opts.onStatusChange) {
-      if (msg.match("client session established")) {
-        opts.onStatusChange("connected");
-      } else if (msg.match("session closed, starting reconnect loop")) {
-        opts.onStatusChange("closed");
+      if (msg.match('client session established')) {
+        opts.onStatusChange('connected');
+      } else if (msg.match('session closed, starting reconnect loop')) {
+        opts.onStatusChange('closed');
       }
     }
 
@@ -70,20 +70,20 @@ async function startProcess(opts) {
       } else if (msg.match(inUse)) {
         reject(new Error(msg.substring(0, 10000)));
       }
-    })
+    });
   });
 
-  ngrok.stderr.on("data", (data) => {
+  ngrok.stderr.on('data', data => {
     const msg = data.toString().substring(0, 10000);
     reject(new Error(msg));
   });
 
-  ngrok.on("exit", () => {
+  ngrok.on('exit', () => {
     processPromise = null;
     activeProcess = null;
   });
 
-  ngrok.on("error", (err) => {
+  ngrok.on('error', err => {
     reject(err);
   });
 
@@ -96,9 +96,9 @@ async function startProcess(opts) {
     throw ex;
   } finally {
     if (!opts.onLogEvent && !opts.onStatusChange) {
-      ngrok.stdout.removeAllListeners("data");
+      ngrok.stdout.removeAllListeners('data');
     }
-    ngrok.stderr.removeAllListeners("data");
+    ngrok.stderr.removeAllListeners('data');
   }
 }
 
@@ -106,42 +106,42 @@ function killProcess() {
   if (!activeProcess) {
     return Promise.resolve();
   }
-  return new Promise((resolve) => {
-    activeProcess.on("exit", () => resolve());
+  return new Promise(resolve => {
+    activeProcess.on('exit', () => resolve());
     activeProcess.kill();
   });
 }
 
-process.on("exit", () => {
+process.on('exit', () => {
   if (activeProcess) {
     activeProcess.kill();
   }
 });
 
 async function setAuthtoken(optsOrToken) {
-  const isOpts = typeof optsOrToken !== "string";
+  const isOpts = typeof optsOrToken !== 'string';
   const opts = isOpts ? optsOrToken : {};
   const token = isOpts ? opts.authtoken : optsOrToken;
 
-  const authtoken = ["config", "add-authtoken", token];
-  if (opts.configPath) authtoken.push("--config=" + opts.configPath);
+  const authtoken = ['config', 'add-authtoken', token];
+  if (opts.configPath) authtoken.push('--config=' + opts.configPath);
 
   const ngrok = spawn(bin, authtoken, { windowsHide: true });
 
   const killed = new Promise((resolve, reject) => {
-    ngrok.stdout.once("data", () => resolve());
-    ngrok.stderr.once("data", (data) => {
+    ngrok.stdout.once('data', () => resolve());
+    ngrok.stderr.once('data', data => {
       const msg = data.toString();
-      if (msg.includes("Authtoken saved")) {
+      if (msg.includes('Authtoken saved')) {
         resolve();
       } else {
-        reject(new Error("cant set authtoken: " + msg));
+        reject(new Error('cant set authtoken: ' + msg));
       }
     });
-    ngrok.on("close", (code) => {
+    ngrok.on('close', code => {
       if (code === 0) resolve();
     });
-    ngrok.on("error", (err) => reject(err));
+    ngrok.on('error', err => reject(err));
   });
 
   try {
@@ -153,7 +153,7 @@ async function setAuthtoken(optsOrToken) {
 
 async function getVersion(opts = {}) {
   const { stdout } = await exec(`${bin} version`);
-  return stdout.replace("ngrok version", "").trim();
+  return stdout.replace('ngrok version', '').trim();
 }
 
 module.exports = {

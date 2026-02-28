@@ -179,7 +179,9 @@ export function registerLibraryRoutes(router: Router, deps: LibraryRouteDeps): v
     }
 
     let closed = false;
-    req.on('close', () => { closed = true; });
+    req.on('close', () => {
+      closed = true;
+    });
 
     const pollInterval = setInterval(async () => {
       if (closed) {
@@ -430,9 +432,10 @@ export function registerLibraryRoutes(router: Router, deps: LibraryRouteDeps): v
       }
 
       const validDepthLevels = ['brief', 'standard', 'deep'];
-      const resolvedDepth = typeof depthLevel === 'string' && validDepthLevels.includes(depthLevel)
-        ? (depthLevel as 'brief' | 'standard' | 'deep')
-        : 'standard';
+      const resolvedDepth =
+        typeof depthLevel === 'string' && validDepthLevels.includes(depthLevel)
+          ? (depthLevel as 'brief' | 'standard' | 'deep')
+          : 'standard';
 
       const result = await cloneBookUseCase.execute({
         userId,
@@ -448,7 +451,11 @@ export function registerLibraryRoutes(router: Router, deps: LibraryRouteDeps): v
           ServiceErrors.notFound(res, 'Source book', req);
           return;
         }
-        if (result.error?.includes('subscription') || result.error?.includes('tier') || result.error?.includes('Personal')) {
+        if (
+          result.error?.includes('subscription') ||
+          result.error?.includes('tier') ||
+          result.error?.includes('Personal')
+        ) {
           res.status(402).json({ success: false, error: result.error });
           return;
         }

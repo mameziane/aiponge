@@ -22,6 +22,7 @@ Development: http://localhost:${API_GATEWAY_PORT:-8080}
 Returns the health status of the API Gateway and connected services.
 
 **Response:**
+
 ```json
 {
   "status": "healthy",
@@ -62,7 +63,7 @@ All API requests are proxied to appropriate microservices:
 - `/api/storage/*` → Storage Service
 - `/api/system/*` → System Service
 
-*Note: Service ports are dynamically assigned via centralized configuration system*
+_Note: Service ports are dynamically assigned via centralized configuration system_
 
 ## Authentication
 
@@ -75,12 +76,14 @@ Authorization: Bearer <jwt-token>
 ## Rate Limiting
 
 API requests are rate limited:
+
 - **Default**: 1000 requests per 15 minutes per IP
 - **Authenticated**: Higher limits based on user tier
 
 ## CORS Policy
 
 Allowed origins:
+
 - aiponge App (via getServiceUrl('aiponge'))
 
 ## Error Responses

@@ -1,11 +1,6 @@
 import { EntryRecord, InsightRecord } from '@domains/profile';
 import { PatternRecord, ProfileAnalyticsRecord } from '@domains/profile';
-import {
-  UserHighlightData,
-  HighlightCategory,
-  parseConfidence,
-  getHighConfidenceInsights,
-} from './highlight-types';
+import { UserHighlightData, HighlightCategory, parseConfidence, getHighConfidenceInsights } from './highlight-types';
 import type { ProfileHighlight } from './GenerateProfileHighlightsUseCase';
 
 export class HighlightIdentificationService {
@@ -128,10 +123,7 @@ export class HighlightIdentificationService {
       }));
   }
 
-  identifyGrowthMoments(
-    analytics: ProfileAnalyticsRecord[],
-    _entries: EntryRecord[]
-  ): Partial<ProfileHighlight>[] {
+  identifyGrowthMoments(analytics: ProfileAnalyticsRecord[], _entries: EntryRecord[]): Partial<ProfileHighlight>[] {
     const highlights: Partial<ProfileHighlight>[] = [];
 
     analytics.forEach(analytic => {

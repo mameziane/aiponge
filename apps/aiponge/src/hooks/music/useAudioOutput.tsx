@@ -36,9 +36,7 @@ const isExpoGo = Constants.appOwnership === 'expo';
 // Metro redirects the require() to a stub on iOS (see metro.config.js), and
 // react-native.config.js excludes the native binary entirely, preventing the
 // background thread from starting.
-const iosVersionMajor = Platform.OS === 'ios'
-  ? parseInt(String(Platform.Version).split('.')[0], 10)
-  : 0;
+const iosVersionMajor = Platform.OS === 'ios' ? parseInt(String(Platform.Version).split('.')[0], 10) : 0;
 const isIOS26OrLater = iosVersionMajor >= 26;
 
 // Stub implementation for Expo Go and iOS 26 (native modules not available / unsafe)
@@ -64,7 +62,9 @@ if (!isExpoGo && !isIOS26OrLater) {
     logger.warn('[useAudioOutput] Failed to load @siteed/expo-audio-studio, using stub', { error });
   }
 } else if (isIOS26OrLater) {
-  logger.warn('[useAudioOutput] iPhone OS 26+ — expo-audio-studio disabled (AVAudioSession crash). Audio device detection unavailable.');
+  logger.warn(
+    '[useAudioOutput] iPhone OS 26+ — expo-audio-studio disabled (AVAudioSession crash). Audio device detection unavailable.'
+  );
 } else {
   logger.info('[useAudioOutput] Running in Expo Go - using stub (requires development build for device detection)');
 }

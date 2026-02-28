@@ -8,7 +8,7 @@ router.get(
   '/',
   ...createPolicyRoute({
     service: 'user-service',
-    path: (req) => `/api/users/${extractAuthContext(req).userId}/init`,
+    path: req => `/api/users/${extractAuthContext(req).userId}/init`,
     logPrefix: '[INIT]',
     policies: {
       auth: { required: true, injectUserId: true },

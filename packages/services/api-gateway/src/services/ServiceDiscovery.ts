@@ -269,7 +269,10 @@ export class ServiceDiscovery {
     // Standard envelope: { success: true, data: { services: [...] } }
     // Or direct: { services: [...] } or raw array
     const responseObj = discoveryData as Record<string, unknown>;
-    const payload = responseObj.data && typeof responseObj.data === 'object' ? responseObj.data as Record<string, unknown> : responseObj;
+    const payload =
+      responseObj.data && typeof responseObj.data === 'object'
+        ? (responseObj.data as Record<string, unknown>)
+        : responseObj;
 
     if (Array.isArray(discoveryData)) {
       return discoveryData;

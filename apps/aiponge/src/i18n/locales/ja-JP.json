@@ -216,8 +216,6 @@
       "subtitle": "サブタイトル",
       "author": "原著者",
       "category": "カテゴリ",
-      "era": "時代",
-      "tradition": "伝統",
       "visibility": "可視性",
       "createFailed": "書籍の作成に失敗しました",
       "updateFailed": "書籍の更新に失敗しました",

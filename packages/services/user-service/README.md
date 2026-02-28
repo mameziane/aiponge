@@ -7,7 +7,7 @@ Unified service combining User Authentication, Profiles, and User Intelligence (
 This is a **modular monolith** with three bounded contexts:
 
 1. **Auth Module** - User authentication, accounts
-2. **Profile Module** - User profiles, onboarding  
+2. **Profile Module** - User profiles, onboarding
 3. **Intelligence Module** - Entries, insights, reflections, analytics
 
 See [ARCHITECTURE.md](./ARCHITECTURE.md) for detailed architecture documentation.
@@ -41,17 +41,20 @@ npm run db:push:force
 ## API Endpoints
 
 ### Auth Module
+
 - `POST /api/users/register` - Register new user
 - `POST /api/users/login` - Authenticate user
 - `GET /api/users/:id` - Get user details
 - `POST /api/invitations` - Create invitation
 
 ### Profile Module
+
 - `GET /api/profiles/:userId` - Get user profile
 - `PUT /api/profiles/:userId` - Update profile
 - `GET /api/profiles/:userId/summary` - Get profile summary
 
 ### Intelligence Module
+
 - `POST /api/entries` - Create entry
 - `GET /api/entries/:userId` - Get user entries
 - `GET /api/entries/id/:id` - Get entry by ID

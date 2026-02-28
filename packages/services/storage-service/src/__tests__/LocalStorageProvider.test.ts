@@ -120,7 +120,9 @@ class MockLocalStorageProvider {
     try {
       const fullPath = path.join(this.basePath, prefix);
       const entries = await (fsPromises.readdir as Mock)(fullPath);
-      return entries.filter((e: Record<string, unknown>) => !(e as { isDirectory: () => boolean }).isDirectory()).map((e: Record<string, unknown>) => (e as { name: string }).name);
+      return entries
+        .filter((e: Record<string, unknown>) => !(e as { isDirectory: () => boolean }).isDirectory())
+        .map((e: Record<string, unknown>) => (e as { name: string }).name);
     } catch {
       return [];
     }
@@ -246,7 +248,7 @@ describe('LocalStorageProvider', () => {
       const fileStats = { size: fileContent.length, mtime: new Date() };
 
       mockReadFile.mockResolvedValue(fileContent);
-      mockStat.mockResolvedValue(fileStats as unknown as import("fs").Stats);
+      mockStat.mockResolvedValue(fileStats as unknown as import('fs').Stats);
 
       const result = await provider.download(filePath);
 
@@ -349,7 +351,7 @@ describe('LocalStorageProvider', () => {
         mtime: new Date('2025-01-01'),
       };
 
-      mockStat.mockResolvedValue(fileStats as unknown as import("fs").Stats);
+      mockStat.mockResolvedValue(fileStats as unknown as import('fs').Stats);
       mockReadFile.mockResolvedValue(fileContent);
 
       const metadata = await provider.getMetadata(filePath);
@@ -438,7 +440,9 @@ describe('LocalStorageProvider', () => {
           { name: 'subdir', isDirectory: () => true } as unknown as import('fs').Dirent,
           { name: 'file1.txt', isDirectory: () => false } as unknown as import('fs').Dirent,
         ])
-        .mockResolvedValueOnce([{ name: 'nested-file.txt', isDirectory: () => false } as unknown as import('fs').Dirent]);
+        .mockResolvedValueOnce([
+          { name: 'nested-file.txt', isDirectory: () => false } as unknown as import('fs').Dirent,
+        ]);
 
       const files = await provider.listFiles(prefix);
 

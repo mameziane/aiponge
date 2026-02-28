@@ -8,11 +8,11 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 function getEntryPoints(dir) {
   const entries = [];
   const items = readdirSync(dir);
-  
+
   for (const item of items) {
     const fullPath = resolve(dir, item);
     const stat = statSync(fullPath);
-    
+
     if (stat.isDirectory()) {
       const indexPath = resolve(fullPath, 'index.ts');
       try {
@@ -23,7 +23,7 @@ function getEntryPoints(dir) {
       entries.push(fullPath);
     }
   }
-  
+
   return entries;
 }
 

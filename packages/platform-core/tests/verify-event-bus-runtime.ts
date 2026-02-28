@@ -26,11 +26,11 @@ async function verifyEventBus() {
   // Step 2: Create event bus client
   console.log('Step 2: Creating event bus client...');
   const eventBus = createEventBusClient(serviceName);
-  
+
   // Wait for Redis connection to establish
   console.log('  Waiting for Redis connection...');
   await new Promise(resolve => setTimeout(resolve, 1000));
-  
+
   const isConnected = eventBus.getConnectionStatus();
   console.log(`  ✓ Event bus created (Redis connected: ${isConnected})\n`);
 
@@ -75,11 +75,11 @@ async function verifyEventBus() {
   // Step 7: Verify results
   console.log('Step 7: Verification Results');
   console.log('----------------------------------------');
-  
+
   // In single-process mode with Redis, events published go to Redis
   // and are received back by subscribers on the same connection
   const success = receivedEvents.length === testEvents.length || isConnected;
-  
+
   if (receivedEvents.length === testEvents.length) {
     console.log(`✅ SUCCESS: All ${testEvents.length} events were published and received`);
     console.log(`✅ Event IDs verified:`);
@@ -96,7 +96,7 @@ async function verifyEventBus() {
   } else {
     console.log(`❌ FAILURE: Redis not connected and no events received`);
   }
-  
+
   console.log(`\n✅ Prometheus metrics available: ${prometheusMetrics ? 'YES' : 'NO'}`);
 
   // Step 8: Shutdown
@@ -111,7 +111,7 @@ async function verifyEventBus() {
   process.exit(success ? 0 : 1);
 }
 
-verifyEventBus().catch((error) => {
+verifyEventBus().catch(error => {
   console.error('Verification failed with error:', error);
   process.exit(1);
 });

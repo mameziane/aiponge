@@ -48,7 +48,12 @@ export class MetricsCollector {
     // Clean old metrics
     this.cleanOldMetrics(name);
 
-    publishAnalyticsMetric('ai-config-service', { metricName: name, metricValue: value, metricType: 'gauge', labels: tags });
+    publishAnalyticsMetric('ai-config-service', {
+      metricName: name,
+      metricValue: value,
+      metricType: 'gauge',
+      labels: tags,
+    });
   }
 
   /**

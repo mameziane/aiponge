@@ -71,6 +71,8 @@ export interface LibrarianDefaults {
   updatedBy?: string;
 }
 
-export type LibrarianDefaultsResponse = ServiceResponse<LibrarianDefaults & {
-  isDefault?: boolean;
-}>;
+export type LibrarianDefaultsResponse = ServiceResponse<
+  LibrarianDefaults & {
+    isDefault?: boolean;
+  }
+>;

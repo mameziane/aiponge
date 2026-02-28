@@ -1,7 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const mockLogger = vi.hoisted(() => ({
-  info: vi.fn(), debug: vi.fn(), warn: vi.fn(), error: vi.fn(), child: vi.fn(),
+  info: vi.fn(),
+  debug: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  child: vi.fn(),
 }));
 
 const mockHttpClient = vi.hoisted(() => ({
@@ -68,9 +72,7 @@ describe('ProvidersServiceClient', () => {
 
     it('should handle provider invocation error', async () => {
       mockHttpClient.post.mockRejectedValue(new Error('Provider timeout'));
-      await expect(
-        client.invokeProvider({ operation: 'generate', data: {} })
-      ).rejects.toThrow('Provider timeout');
+      await expect(client.invokeProvider({ operation: 'generate', data: {} })).rejects.toThrow('Provider timeout');
     });
   });
 
@@ -99,9 +101,7 @@ describe('ProvidersServiceClient', () => {
 
       const result = await client.getProviderHealth();
 
-      expect(mockHttpClient.get).toHaveBeenCalledWith(
-        expect.stringContaining('/api/providers/health')
-      );
+      expect(mockHttpClient.get).toHaveBeenCalledWith(expect.stringContaining('/api/providers/health'));
       expect(result).toEqual(mockHealth);
     });
 
@@ -118,9 +118,7 @@ describe('ProvidersServiceClient', () => {
 
       const result = await client.getProviderHealthById('p1');
 
-      expect(mockHttpClient.get).toHaveBeenCalledWith(
-        expect.stringContaining('/api/providers/health/p1')
-      );
+      expect(mockHttpClient.get).toHaveBeenCalledWith(expect.stringContaining('/api/providers/health/p1'));
       expect(result).toEqual(mockHealth);
     });
 
@@ -146,10 +144,9 @@ describe('ProvidersServiceClient', () => {
 
       const result = await client.testProvider('p1', { prompt: 'test' });
 
-      expect(mockHttpClient.post).toHaveBeenCalledWith(
-        expect.stringContaining('/api/providers/test/p1'),
-        { testPayload: { prompt: 'test' } }
-      );
+      expect(mockHttpClient.post).toHaveBeenCalledWith(expect.stringContaining('/api/providers/test/p1'), {
+        testPayload: { prompt: 'test' },
+      });
       expect(result).toEqual(mockResult);
     });
   });
@@ -176,10 +173,9 @@ describe('ProvidersServiceClient', () => {
 
       await client.configureLoadBalancing({ type: 'round_robin' });
 
-      expect(mockHttpClient.post).toHaveBeenCalledWith(
-        expect.stringContaining('/api/providers/load-balancing'),
-        { type: 'round_robin' }
-      );
+      expect(mockHttpClient.post).toHaveBeenCalledWith(expect.stringContaining('/api/providers/load-balancing'), {
+        type: 'round_robin',
+      });
     });
   });
 
@@ -201,9 +197,7 @@ describe('ProvidersServiceClient', () => {
 
       const result = await client.getUsageStatistics();
 
-      expect(mockHttpClient.get).toHaveBeenCalledWith(
-        expect.stringContaining('/api/providers/usage')
-      );
+      expect(mockHttpClient.get).toHaveBeenCalledWith(expect.stringContaining('/api/providers/usage'));
       expect(result).toEqual(mockStats);
     });
 
@@ -212,9 +206,7 @@ describe('ProvidersServiceClient', () => {
 
       await client.getUsageStatistics(60);
 
-      expect(mockHttpClient.get).toHaveBeenCalledWith(
-        expect.stringContaining('/api/providers/usage?timeRange=60')
-      );
+      expect(mockHttpClient.get).toHaveBeenCalledWith(expect.stringContaining('/api/providers/usage?timeRange=60'));
     });
   });
 
@@ -243,9 +235,7 @@ describe('ProvidersServiceClient', () => {
 
       const result = await client.removeProvider('p1');
 
-      expect(mockHttpClient.delete).toHaveBeenCalledWith(
-        expect.stringContaining('/api/providers/p1')
-      );
+      expect(mockHttpClient.delete).toHaveBeenCalledWith(expect.stringContaining('/api/providers/p1'));
       expect(result).toBe(true);
     });
 
@@ -293,9 +283,7 @@ describe('ProvidersServiceClient', () => {
 
       const result = await client.getProviderCatalog();
 
-      expect(mockHttpClient.get).toHaveBeenCalledWith(
-        expect.stringContaining('/api/providers/catalog')
-      );
+      expect(mockHttpClient.get).toHaveBeenCalledWith(expect.stringContaining('/api/providers/catalog'));
       expect(result).toEqual(mockCatalog);
     });
 
@@ -304,9 +292,7 @@ describe('ProvidersServiceClient', () => {
 
       await client.getProviderCatalog('llm');
 
-      expect(mockHttpClient.get).toHaveBeenCalledWith(
-        expect.stringContaining('/api/providers/catalog?type=llm')
-      );
+      expect(mockHttpClient.get).toHaveBeenCalledWith(expect.stringContaining('/api/providers/catalog?type=llm'));
     });
   });
 
@@ -322,35 +308,29 @@ describe('ProvidersServiceClient', () => {
     it('should get a single provider configuration', async () => {
       mockHttpClient.get.mockResolvedValue({ id: 'p1' });
       await client.getProviderConfiguration('p1');
-      expect(mockHttpClient.get).toHaveBeenCalledWith(
-        expect.stringContaining('/api/providers/configurations/p1')
-      );
+      expect(mockHttpClient.get).toHaveBeenCalledWith(expect.stringContaining('/api/providers/configurations/p1'));
     });
 
     it('should create a provider configuration', async () => {
       mockHttpClient.post.mockResolvedValue({ id: 'p1' });
       await client.createProviderConfiguration({ name: 'Test' });
-      expect(mockHttpClient.post).toHaveBeenCalledWith(
-        expect.stringContaining('/api/providers/configurations'),
-        { name: 'Test' }
-      );
+      expect(mockHttpClient.post).toHaveBeenCalledWith(expect.stringContaining('/api/providers/configurations'), {
+        name: 'Test',
+      });
     });
 
     it('should update a provider configuration', async () => {
       mockHttpClient.patch.mockResolvedValue({ id: 'p1' });
       await client.updateProviderConfiguration('p1', { name: 'Updated' });
-      expect(mockHttpClient.patch).toHaveBeenCalledWith(
-        expect.stringContaining('/api/providers/configurations/p1'),
-        { name: 'Updated' }
-      );
+      expect(mockHttpClient.patch).toHaveBeenCalledWith(expect.stringContaining('/api/providers/configurations/p1'), {
+        name: 'Updated',
+      });
     });
 
     it('should delete a provider configuration', async () => {
       mockHttpClient.delete.mockResolvedValue({});
       await client.deleteProviderConfiguration('p1');
-      expect(mockHttpClient.delete).toHaveBeenCalledWith(
-        expect.stringContaining('/api/providers/configurations/p1')
-      );
+      expect(mockHttpClient.delete).toHaveBeenCalledWith(expect.stringContaining('/api/providers/configurations/p1'));
     });
 
     it('should set provider as primary', async () => {

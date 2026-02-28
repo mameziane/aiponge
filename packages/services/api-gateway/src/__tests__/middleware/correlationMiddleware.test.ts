@@ -2,7 +2,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Request, Response } from 'express';
 
 const mockLogger = vi.hoisted(() => ({
-  info: vi.fn(), debug: vi.fn(), warn: vi.fn(), error: vi.fn(), child: vi.fn(),
+  info: vi.fn(),
+  debug: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  child: vi.fn(),
 }));
 vi.mock('@aiponge/platform-core', () => ({
   createLogger: () => mockLogger,
@@ -41,10 +45,20 @@ function createMockRes() {
   const res = {
     statusCode: 200,
     _headers: resHeaders,
-    setHeader: vi.fn(function (this: Record<string, unknown>, k: string, v: string) { resHeaders[k] = v; return this; }),
-    set: vi.fn(function (this: Record<string, unknown>, k: string, v: string) { resHeaders[k] = v; return this; }),
-    getHeader: vi.fn(function (_k: string) { return resHeaders[_k]; }),
-    get: vi.fn(function (_k: string) { return resHeaders[_k]; }),
+    setHeader: vi.fn(function (this: Record<string, unknown>, k: string, v: string) {
+      resHeaders[k] = v;
+      return this;
+    }),
+    set: vi.fn(function (this: Record<string, unknown>, k: string, v: string) {
+      resHeaders[k] = v;
+      return this;
+    }),
+    getHeader: vi.fn(function (_k: string) {
+      return resHeaders[_k];
+    }),
+    get: vi.fn(function (_k: string) {
+      return resHeaders[_k];
+    }),
     on: vi.fn(function (_event: string, cb: () => void) {
       if (_event === 'finish') finishListeners.push(cb);
     }),

@@ -158,7 +158,9 @@ export class PromoteEntryUseCase {
     const chapters = await this.chapterRepo.getByBook(sharedBook.id);
     for (const chapter of chapters) {
       const entries = await this.entryRepo.getByChapter(chapter.id);
-      const existing = entries.find(e => e.metadata && (e.metadata as Record<string, unknown>).sourceEntryId === sourceEntryId);
+      const existing = entries.find(
+        e => e.metadata && (e.metadata as Record<string, unknown>).sourceEntryId === sourceEntryId
+      );
       if (existing) {
         return existing;
       }

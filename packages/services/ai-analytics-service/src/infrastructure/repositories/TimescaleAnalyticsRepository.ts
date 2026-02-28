@@ -359,11 +359,7 @@ export class TimescaleAnalyticsRepository implements IAnalyticsRepository {
     return this.userActivity.getUserActivityLogs(filter);
   }
 
-  getUserActivitySummary(options: {
-    startTime?: Date;
-    endTime?: Date;
-    groupBy?: 'action' | 'hour' | 'day';
-  }): Promise<{
+  getUserActivitySummary(options: { startTime?: Date; endTime?: Date; groupBy?: 'action' | 'hour' | 'day' }): Promise<{
     totalActions: number;
     uniqueUsers: number;
     byAction: Record<string, number>;

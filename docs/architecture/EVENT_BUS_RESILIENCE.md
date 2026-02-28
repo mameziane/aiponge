@@ -31,11 +31,13 @@ The event bus uses Redis Pub/Sub for cross-service communication, with an automa
 ## Event Types and Channels
 
 ### Analytics Events (Fire-and-Forget)
+
 - `aiponge:events:analytics.events.batch` - Batched analytics events
 - `aiponge:events:analytics.metric.recorded` - Individual metrics
 - `aiponge:events:analytics.provider.usage` - AI provider usage tracking
 
 ### Config Invalidation Events
+
 - `aiponge:events:config.template.invalidated` - Prompt template changes
 - `aiponge:events:config.provider.invalidated` - Provider config changes
 - `aiponge:events:config.cache.invalidate` - General cache invalidation
@@ -60,13 +62,13 @@ spec:
   template:
     spec:
       containers:
-      - name: music
-        env:
-        - name: REDIS_URL
-          valueFrom:
-            secretKeyRef:
-              name: redis-credentials
-              key: url
+        - name: music
+          env:
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: redis-credentials
+                  key: url
 ```
 
 ### Event Handler Idempotency
@@ -76,13 +78,13 @@ All event handlers must be idempotent. The `ConfigEventSubscriber` pattern demon
 ```typescript
 class ConfigEventSubscriber {
   private templateCache = new LRUCache<string, Template>({ max: 500 });
-  
+
   async handleTemplateInvalidated(event: StandardEvent): Promise<void> {
     const { templateId } = event.data;
-    
+
     // Idempotent: deleting a non-existent key is a no-op
     this.templateCache.delete(templateId);
-    
+
     logger.debug('Template cache invalidated', { templateId });
   }
 }
@@ -96,12 +98,12 @@ For events that must be processed exactly once (not applicable to current fire-a
 async handleEventOnce(event: StandardEvent): Promise<void> {
   const lockKey = `aiponge:locks:${event.eventId}`;
   const acquired = await redis.set(lockKey, '1', 'NX', 'EX', 300);
-  
+
   if (!acquired) {
     logger.debug('Event already being processed', { eventId: event.eventId });
     return;
   }
-  
+
   try {
     await this.processEvent(event);
   } finally {
@@ -124,6 +126,7 @@ if (!process.env.REDIS_URL) {
 ```
 
 **Limitations in memory mode:**
+
 - Events only delivered within the same pod
 - No cross-service communication
 - Suitable for development and single-pod deployments
@@ -150,7 +153,7 @@ recordEvent(event: AnalyticsEventData): void {
 The Redis client automatically reconnects on connection loss:
 
 ```typescript
-this.pubClient.on('error', (err) => {
+this.pubClient.on('error', err => {
   logger.error('Redis connection error', { error: err.message });
 });
 
@@ -190,16 +193,16 @@ registerEventBusMetrics('music-service', metrics);
 
 ### Available Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
-| `aiponge_<service>_event_bus_events_published_total` | Counter | Events published via event bus |
-| `aiponge_<service>_event_bus_events_received_total` | Counter | Events received via subscriptions |
-| `aiponge_<service>_event_bus_publish_errors_total` | Counter | Failed publish attempts |
-| `aiponge_<service>_event_bus_subscribe_errors_total` | Counter | Failed subscription handling |
-| `aiponge_<service>_event_bus_connection_status` | Gauge | 1 if connected, 0 if not |
-| `aiponge_<service>_analytics_events_queued_total` | Gauge | Pending events in queue |
-| `aiponge_<service>_analytics_events_published_total` | Counter | Analytics events published |
-| `aiponge_<service>_config_cache_invalidations_total` | Counter | Cache invalidations processed |
+| Metric                                               | Type    | Description                       |
+| ---------------------------------------------------- | ------- | --------------------------------- |
+| `aiponge_<service>_event_bus_events_published_total` | Counter | Events published via event bus    |
+| `aiponge_<service>_event_bus_events_received_total`  | Counter | Events received via subscriptions |
+| `aiponge_<service>_event_bus_publish_errors_total`   | Counter | Failed publish attempts           |
+| `aiponge_<service>_event_bus_subscribe_errors_total` | Counter | Failed subscription handling      |
+| `aiponge_<service>_event_bus_connection_status`      | Gauge   | 1 if connected, 0 if not          |
+| `aiponge_<service>_analytics_events_queued_total`    | Gauge   | Pending events in queue           |
+| `aiponge_<service>_analytics_events_published_total` | Counter | Analytics events published        |
+| `aiponge_<service>_config_cache_invalidations_total` | Counter | Cache invalidations processed     |
 
 ## Health Monitoring
 
@@ -243,11 +246,13 @@ readinessProbe:
 ### Redis Cluster Failure
 
 **Symptoms:**
+
 - Services report `redisEnabled: false` in health checks
 - Events not propagating between services
 - Cache invalidation not working
 
 **Resolution:**
+
 1. Check Redis cluster health: `redis-cli -h $REDIS_HOST ping`
 2. Services auto-fallback to memory mode
 3. Restart pods after Redis recovery to re-establish connections
@@ -255,10 +260,12 @@ readinessProbe:
 ### Event Delivery Lag
 
 **Symptoms:**
+
 - High latency in analytics dashboard
 - Stale cache entries persisting
 
 **Resolution:**
+
 1. Check Redis Pub/Sub backlog: `redis-cli pubsub channels 'aiponge:events:*'`
 2. Scale analytics-service consumers if needed
 3. Review batch sizes in publisher configuration
@@ -278,11 +285,11 @@ curl -X POST http://api-gateway/api/admin/cache/clear \
 
 ### Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `REDIS_URL` | Redis connection string | (memory mode) |
-| `EVENT_BUS_BATCH_SIZE` | Events per batch | 100 |
-| `EVENT_BUS_BATCH_INTERVAL_MS` | Batch interval | 30000 |
+| Variable                      | Description             | Default       |
+| ----------------------------- | ----------------------- | ------------- |
+| `REDIS_URL`                   | Redis connection string | (memory mode) |
+| `EVENT_BUS_BATCH_SIZE`        | Events per batch        | 100           |
+| `EVENT_BUS_BATCH_INTERVAL_MS` | Batch interval          | 30000         |
 
 ### Event Schema Version
 
@@ -306,13 +313,15 @@ All events include a `version` field for schema evolution:
 Analytics recording methods (`recordEvent`, `recordEvents`, `recordMetric`) have been migrated from HTTP to event bus:
 
 **Before (HTTP):**
+
 ```typescript
 await httpClient.post('/api/events/batch', { events });
 ```
 
 **After (Event Bus):**
+
 ```typescript
-eventPublisher.recordEvents(events);  // Fire-and-forget
+eventPublisher.recordEvents(events); // Fire-and-forget
 ```
 
 HTTP endpoints are retained only for query operations that require synchronous responses (e.g., `getMusicAnalytics`, `getSystemAnalytics`).

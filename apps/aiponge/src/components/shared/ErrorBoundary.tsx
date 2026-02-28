@@ -62,15 +62,29 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       // The inner try block uses themed components; the catch block uses a zero-dependency
       // hardcoded layout that cannot fail.
       try {
-        const title = (() => { try { return i18n.t('errorBoundary.title'); } catch { return 'Something went wrong'; } })();
+        const title = (() => {
+          try {
+            return i18n.t('errorBoundary.title');
+          } catch {
+            return 'Something went wrong';
+          }
+        })();
         const message = (() => {
           try {
             return this.props.isSafetyCritical
               ? i18n.t('errorBoundary.safetyCriticalMessage')
               : i18n.t('errorBoundary.message');
-          } catch { return 'An unexpected error occurred. Please try again.'; }
+          } catch {
+            return 'An unexpected error occurred. Please try again.';
+          }
         })();
-        const tryAgain = (() => { try { return i18n.t('errorBoundary.tryAgain'); } catch { return 'Try Again'; } })();
+        const tryAgain = (() => {
+          try {
+            return i18n.t('errorBoundary.tryAgain');
+          } catch {
+            return 'Try Again';
+          }
+        })();
 
         return (
           <View style={styles.container}>

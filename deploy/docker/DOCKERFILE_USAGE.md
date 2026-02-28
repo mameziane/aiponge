@@ -7,6 +7,7 @@ The enhanced `Dockerfile.service` template provides a comprehensive, secure, and
 ## Key Features
 
 ### Security Hardening
+
 - **Multi-stage build**: Separates build and runtime environments
 - **Non-root user execution**: All processes run as unprivileged user
 - **Minimal attack surface**: Alpine Linux base with only essential packages
@@ -15,11 +16,13 @@ The enhanced `Dockerfile.service` template provides a comprehensive, secure, and
 - **File permissions**: Proper ownership and restricted access
 
 ### Performance Optimization
+
 - **BuildKit cache mounts**: Faster npm installs with persistent cache
 - **Production-only runtime**: Dev dependencies excluded from final image
 - **Minimal base image**: Smaller image size and faster deployments
 
 ### Configurability
+
 - **Parameterized ports**: Custom service ports via build args
 - **Dynamic health checks**: Configurable health check endpoints
 - **Custom user names**: Service-specific user configurations
@@ -27,23 +30,25 @@ The enhanced `Dockerfile.service` template provides a comprehensive, secure, and
 
 ## Build Arguments
 
-| Argument | Default | Description |
-|----------|---------|-------------|
-| `NODE_VERSION` | `20.17-alpine` | Node.js version and base image |
-| `SERVICE_PORT` | `3001` | Port the service listens on |
-| `HEALTHCHECK_PATH` | `/health` | Health check endpoint path |
-| `USER_NAME` | `app` | Non-root user name for the service |
-| `START_CMD` | `"npm start"` | Command to start the service |
+| Argument           | Default        | Description                        |
+| ------------------ | -------------- | ---------------------------------- |
+| `NODE_VERSION`     | `20.17-alpine` | Node.js version and base image     |
+| `SERVICE_PORT`     | `3001`         | Port the service listens on        |
+| `HEALTHCHECK_PATH` | `/health`      | Health check endpoint path         |
+| `USER_NAME`        | `app`          | Non-root user name for the service |
+| `START_CMD`        | `"npm start"`  | Command to start the service       |
 
 ## Usage Examples
 
 ### Basic Usage (Default Configuration)
+
 ```bash
 # Uses all default values
 docker build -f deploy/docker/Dockerfile.service -t my-service .
 ```
 
 ### API Gateway Configuration
+
 ```bash
 # Replaces packages/services/api-gateway/Dockerfile
 docker build \
@@ -56,6 +61,7 @@ docker build \
 ```
 
 ### System Service Configuration
+
 ```bash
 # Replaces packages/services/system-service/Dockerfile
 docker build \
@@ -68,6 +74,7 @@ docker build \
 ```
 
 ### Custom Service Configuration
+
 ```bash
 # Custom configuration for specialized services
 docker build \
@@ -95,11 +102,14 @@ docker run \
 ## Migration from Existing Dockerfiles
 
 ### Before (Individual Dockerfiles)
+
 Each service had its own Dockerfile with duplicated security and build logic:
+
 - `packages/services/api-gateway/Dockerfile`
 - `packages/services/system-service/Dockerfile`
 
 ### After (Shared Template)
+
 All services use the same secure, optimized template with service-specific parameters:
 
 ```bash
@@ -112,7 +122,7 @@ services:
       args:
         SERVICE_PORT: 8080
         USER_NAME: gateway
-        
+
   system-service:
     build:
       context: packages/services/system-service

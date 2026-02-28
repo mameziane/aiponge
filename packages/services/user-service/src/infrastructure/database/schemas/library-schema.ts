@@ -65,8 +65,6 @@ export const libBooks = pgTable(
     // Metadata
     category: varchar('category', { length: 100 }), // anxiety, growth, purpose, etc.
     language: varchar('language', { length: 10 }).default('en'),
-    era: varchar('era', { length: 100 }), // Ancient, Medieval, Modern, Contemporary
-    tradition: varchar('tradition', { length: 100 }), // Stoicism, Buddhism, etc.
 
     // Visibility and status (creator-member content model)
     // Visibility: personal (private to creator/members), shared (visible to all followers), public (visible to everyone)

@@ -147,7 +147,10 @@ function generatePerformanceContent(reportData: ReportData): SectionContent {
     data: {
       responseTime: {
         average: avgResponseTime,
-        median: calculatePercentile(reportData.providers.map(p => p.responseTimeMs ?? 0), 50),
+        median: calculatePercentile(
+          reportData.providers.map(p => p.responseTimeMs ?? 0),
+          50
+        ),
         p95: p95ResponseTime,
       },
       throughput: {
@@ -211,7 +214,8 @@ function generateRealTimeContent(reportData: ReportData): SectionContent {
       },
       alerts: {
         active: reportData.anomalies.filter(a => a.status === ALERT_STATUS.ACTIVE).length,
-        critical: reportData.anomalies.filter(a => a.status === ALERT_STATUS.ACTIVE && a.severity === 'critical').length,
+        critical: reportData.anomalies.filter(a => a.status === ALERT_STATUS.ACTIVE && a.severity === 'critical')
+          .length,
       },
     },
     insights: [
@@ -231,7 +235,7 @@ const sectionContentGenerators: Record<string, (reportData: ReportData) => Secti
 
 export function generateSection(
   sectionTemplate: { id: string; title: string; type: 'metrics' | 'analysis' | 'trends' | 'comparison' },
-  reportData: ReportData,
+  reportData: ReportData
 ): ReportSection {
   const generator = sectionContentGenerators[sectionTemplate.id];
   const hasGenerator = !!generator;
@@ -253,7 +257,9 @@ export function generateSection(
 export function generateReportSections(
   reportData: ReportData,
   _request: GenerateInsightReportsRequest,
-  template: { sections: Array<{ id: string; title: string; type: 'metrics' | 'analysis' | 'trends' | 'comparison' }> } | undefined
+  template:
+    | { sections: Array<{ id: string; title: string; type: 'metrics' | 'analysis' | 'trends' | 'comparison' }> }
+    | undefined
 ): ReportSection[] {
   if (!template?.sections) return [];
   return template.sections.map(sectionTemplate => generateSection(sectionTemplate, reportData));
@@ -404,9 +410,7 @@ export function generatePredictiveInsights(
 ): ReportInsight[] {
   const insights: ReportInsight[] = [];
 
-  const requestVolumeTrend = calculateTrend(
-    reportData.providers.map(p => ({ timestamp: p.timestamp, value: 1 }))
-  );
+  const requestVolumeTrend = calculateTrend(reportData.providers.map(p => ({ timestamp: p.timestamp, value: 1 })));
 
   insights.push({
     id: 'trend-001',
@@ -455,10 +459,7 @@ export function generatePredictiveInsights(
   return insights;
 }
 
-export function generateComparisonData(
-  reportData: ReportData,
-  request: GenerateInsightReportsRequest
-): ComparisonData {
+export function generateComparisonData(reportData: ReportData, request: GenerateInsightReportsRequest): ComparisonData {
   const currentPeriod = request.endTime.getTime() - request.startTime.getTime();
   const previousStart = new Date(request.startTime.getTime() - currentPeriod);
   const previousEnd = request.startTime;
@@ -467,7 +468,8 @@ export function generateComparisonData(
     requests: Math.floor(reportData.providers.length * 0.8),
     avgResponseTime:
       reportData.providers.length > 0
-        ? (reportData.providers.reduce((sum, p) => sum + (p.responseTimeMs ?? 0), 0) / reportData.providers.length) * 1.1
+        ? (reportData.providers.reduce((sum, p) => sum + (p.responseTimeMs ?? 0), 0) / reportData.providers.length) *
+          1.1
         : 0,
     totalCost: reportData.costs.reduce((sum, cost) => sum + cost.totalCost, 0) * 0.9,
   };
@@ -494,7 +496,8 @@ export function generateComparisonData(
       current: currentData.avgResponseTime,
       previous: previousData.avgResponseTime,
       change:
-        ((currentData.avgResponseTime - previousData.avgResponseTime) / Math.max(previousData.avgResponseTime, 1)) * 100,
+        ((currentData.avgResponseTime - previousData.avgResponseTime) / Math.max(previousData.avgResponseTime, 1)) *
+        100,
       changeType:
         currentData.avgResponseTime < previousData.avgResponseTime
           ? ('improvement' as const)
@@ -505,8 +508,7 @@ export function generateComparisonData(
       current: currentData.totalCost,
       previous: previousData.totalCost,
       change: ((currentData.totalCost - previousData.totalCost) / Math.max(previousData.totalCost, 1)) * 100,
-      changeType:
-        currentData.totalCost < previousData.totalCost ? ('improvement' as const) : ('degradation' as const),
+      changeType: currentData.totalCost < previousData.totalCost ? ('improvement' as const) : ('degradation' as const),
     },
   ];
 

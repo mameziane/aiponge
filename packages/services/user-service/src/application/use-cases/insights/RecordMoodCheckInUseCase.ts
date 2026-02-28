@@ -26,7 +26,7 @@ const MOOD_MICRO_QUESTIONS: Record<string, string[]> = {
     'What practice brought you to this place?',
   ],
   frustrated: [
-    'What expectation wasn\'t met?',
+    "What expectation wasn't met?",
     'What outcome would feel satisfying?',
     'Is there a smaller step you could take right now?',
   ],
@@ -36,16 +36,16 @@ const MOOD_MICRO_QUESTIONS: Record<string, string[]> = {
     'Who would you like to share this feeling with?',
   ],
   neutral: [
-    'Is there something beneath the surface you haven\'t noticed?',
+    "Is there something beneath the surface you haven't noticed?",
     'What would make this moment feel more meaningful?',
     'What were you doing just before checking in?',
   ],
 };
 
 const DEFAULT_QUESTIONS = [
-  'What\'s on your mind right now?',
+  "What's on your mind right now?",
   'How has your day been so far?',
-  'Is there anything you\'d like to explore about this feeling?',
+  "Is there anything you'd like to explore about this feeling?",
 ];
 
 export interface RecordMoodCheckInInput {
@@ -81,9 +81,10 @@ export class RecordMoodCheckInUseCase {
 
     let patternConnection: MoodCheckInResult['patternConnection'] = { connected: false };
     const patterns = await this.intelligenceRepo.getUserPatterns(userId, { limit: 10 });
-    const matchingPattern = patterns.find(p =>
-      p.patternName.toLowerCase().includes(mood.toLowerCase()) ||
-      (p.relatedThemes && p.relatedThemes.some(t => t.toLowerCase().includes(mood.toLowerCase())))
+    const matchingPattern = patterns.find(
+      p =>
+        p.patternName.toLowerCase().includes(mood.toLowerCase()) ||
+        (p.relatedThemes && p.relatedThemes.some(t => t.toLowerCase().includes(mood.toLowerCase())))
     );
 
     if (matchingPattern) {

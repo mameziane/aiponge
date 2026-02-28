@@ -47,9 +47,7 @@ function generateServiceConfig(): ExpoServiceConfig {
   // Detect Replit environment and use external dev URL for mobile compatibility
   // IMPORTANT: Replit dev domains handle port routing internally - don't append port to HTTPS URLs
   const replitDevDomain = process.env.REPLIT_DEV_DOMAIN;
-  const apiGatewayUrl = replitDevDomain
-    ? `https://${replitDevDomain}`
-    : `http://localhost:${apiGatewayPort}`;
+  const apiGatewayUrl = replitDevDomain ? `https://${replitDevDomain}` : `http://localhost:${apiGatewayPort}`;
 
   return {
     apiGatewayUrl,

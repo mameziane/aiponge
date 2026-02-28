@@ -28,8 +28,6 @@ export interface CreateBookGenerationRequestData {
 export interface Source {
   author: string;
   work?: string;
-  era?: string;
-  tradition?: string;
 }
 
 export interface GeneratedBookData {
@@ -39,8 +37,6 @@ export interface GeneratedBookData {
   language?: string;
   typeId?: string;
   category?: string;
-  era?: string;
-  tradition?: string;
   chapters: Array<{
     title: string;
     description: string;
@@ -161,10 +157,7 @@ export class BookGenerationRepository {
     return result[0] || null;
   }
 
-  async updateProgress(
-    requestId: string,
-    progress: Record<string, unknown>
-  ): Promise<void> {
+  async updateProgress(requestId: string, progress: Record<string, unknown>): Promise<void> {
     await this.db
       .update(libBookGenerationRequests)
       .set({ progress })
@@ -232,10 +225,7 @@ export class BookGenerationRepository {
         completedAt: new Date(),
       })
       .where(
-        and(
-          inArray(libBookGenerationRequests.status, activeStatuses),
-          isNull(libBookGenerationRequests.deletedAt)
-        )
+        and(inArray(libBookGenerationRequests.status, activeStatuses), isNull(libBookGenerationRequests.deletedAt))
       )
       .returning();
 

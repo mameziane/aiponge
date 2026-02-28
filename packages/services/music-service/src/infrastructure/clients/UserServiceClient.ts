@@ -664,7 +664,12 @@ export class UserServiceClient implements IUserServiceClient {
               allowed: boolean;
               reason?: string;
               code?: string;
-              subscription?: { tier: string; isPaidTier: boolean; usage: { current: number; limit: number; remaining: number }; resetAt?: string };
+              subscription?: {
+                tier: string;
+                isPaidTier: boolean;
+                usage: { current: number; limit: number; remaining: number };
+                resetAt?: string;
+              };
               credits?: { currentBalance: number; required: number; hasCredits: boolean; shortfall?: number };
               shouldUpgrade?: boolean;
               upgradeMessage?: string;
@@ -677,12 +682,7 @@ export class UserServiceClient implements IUserServiceClient {
           });
 
           if (data?.success && data.data) {
-            tryParseServiceResponse(
-              QuotaCheckResponseSchema,
-              data,
-              'user-service',
-              'checkQuota'
-            );
+            tryParseServiceResponse(QuotaCheckResponseSchema, data, 'user-service', 'checkQuota');
 
             return {
               success: true,
@@ -797,12 +797,16 @@ export class UserServiceClient implements IUserServiceClient {
             success?: boolean;
             data?: { settledAmount?: number; refundedAmount?: number };
             error?: string;
-          }>(getServiceUrl(SERVICE_NAME) + `/api/credits/reservations/${reservationId}/settle`, {
-            actualAmount,
-            metadata,
-          }, {
-            headers: { 'x-user-id': userId },
-          });
+          }>(
+            getServiceUrl(SERVICE_NAME) + `/api/credits/reservations/${reservationId}/settle`,
+            {
+              actualAmount,
+              metadata,
+            },
+            {
+              headers: { 'x-user-id': userId },
+            }
+          );
 
           if (data?.success) {
             return {
@@ -842,11 +846,15 @@ export class UserServiceClient implements IUserServiceClient {
           const data = await this.httpClient.post<{
             success?: boolean;
             error?: string;
-          }>(getServiceUrl(SERVICE_NAME) + `/api/credits/reservations/${reservationId}/cancel`, {
-            reason,
-          }, {
-            headers: { 'x-user-id': userId },
-          });
+          }>(
+            getServiceUrl(SERVICE_NAME) + `/api/credits/reservations/${reservationId}/cancel`,
+            {
+              reason,
+            },
+            {
+              headers: { 'x-user-id': userId },
+            }
+          );
 
           return { success: !!data?.success };
         } catch (error) {

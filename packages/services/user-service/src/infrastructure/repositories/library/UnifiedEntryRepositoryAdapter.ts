@@ -1,8 +1,5 @@
 import { DatabaseConnection } from '../../database/DatabaseConnectionFactory';
-import {
-  libBooks,
-  libEntries,
-} from '../../database/schemas/library-schema';
+import { libBooks, libEntries } from '../../database/schemas/library-schema';
 import { eq, and, desc, sql, isNull, gte, lte } from 'drizzle-orm';
 import type {
   IEntryRepository,

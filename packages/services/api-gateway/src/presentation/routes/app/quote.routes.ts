@@ -58,7 +58,7 @@ router.post(
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        const errorData = await parseErrorBody(response, '[QUOTE GENERATE]') as Record<string, unknown>;
+        const errorData = (await parseErrorBody(response, '[QUOTE GENERATE]')) as Record<string, unknown>;
         logger.warn('[QUOTE] AI service returned error', {
           userId,
           requestId,
@@ -147,7 +147,8 @@ router.get(
 
         if (entriesResponse.ok) {
           const entriesData = (await entriesResponse.json()) as Record<string, unknown>;
-          const entries = (entriesData.data as Record<string, unknown>)?.entries || entriesData.entries || entriesData.data || [];
+          const entries =
+            (entriesData.data as Record<string, unknown>)?.entries || entriesData.entries || entriesData.data || [];
 
           if (Array.isArray(entries) && entries.length > 0) {
             // Use the most recent entry primarily, with context from others
@@ -159,7 +160,9 @@ router.get(
             if (recentEntries.length > 0) {
               // Combine recent entries for richer context
               recentEntriesSummary =
-                recentEntries.length === 1 ? String(recentEntries[0]) : `Recent reflections: ${recentEntries.join(' | ')}`;
+                recentEntries.length === 1
+                  ? String(recentEntries[0])
+                  : `Recent reflections: ${recentEntries.join(' | ')}`;
 
               logger.debug('[QUOTE] Using recent entries for personalization', {
                 userId,
@@ -196,7 +199,7 @@ router.get(
       clearTimeout(aiTimeoutId);
 
       if (!response.ok) {
-        const errorData = await parseErrorBody(response, '[QUOTE GENERATE GET]') as Record<string, unknown>;
+        const errorData = (await parseErrorBody(response, '[QUOTE GENERATE GET]')) as Record<string, unknown>;
         logger.warn('[QUOTE] AI service returned error', {
           userId,
           requestId,

@@ -16,16 +16,16 @@ After consolidating the database schema, we identified **~2,500 lines of paralle
 
 ### Parallel Data-Access Paths to Unify
 
-| File/Function | Lines | Current State | Action | Status |
-|---------------|-------|---------------|--------|--------|
-| `DrizzleUserTrackRepository.ts` | 340 | Wraps unified `mus_tracks` | MERGE into unified repo | ⬜ Pending |
-| `DrizzleUserAlbumRepository.ts` | 336 | Wraps unified `mus_albums` | MERGE into unified repo | ⬜ Pending |
-| `DrizzleUserLyricsRepository.ts` | 121 | Wraps unified `mus_lyrics` | MERGE into unified repo | ⬜ Pending |
-| `UserTrack` entity | ~150 | Separate domain entity | UNIFY with TrackEntity | ⬜ Pending |
-| `UserAlbum` entity | ~100 | Separate domain entity | UNIFY with Album | ⬜ Pending |
-| `UserTrackGenerationService.ts` | 657 | Parallel user generation | MERGE with visibility config | ✅ Completed |
-| `LibraryTrackGenerationService.ts` | 575 | Parallel librarian generation | REMOVE after merge | ✅ Completed |
-| `LibraryAlbumGenerationService` + `UserAlbumGenerationService` | 180 | Two classes in same file | MERGE into single class | ⬜ Pending |
+| File/Function                                                  | Lines | Current State                 | Action                       | Status       |
+| -------------------------------------------------------------- | ----- | ----------------------------- | ---------------------------- | ------------ |
+| `DrizzleUserTrackRepository.ts`                                | 340   | Wraps unified `mus_tracks`    | MERGE into unified repo      | ⬜ Pending   |
+| `DrizzleUserAlbumRepository.ts`                                | 336   | Wraps unified `mus_albums`    | MERGE into unified repo      | ⬜ Pending   |
+| `DrizzleUserLyricsRepository.ts`                               | 121   | Wraps unified `mus_lyrics`    | MERGE into unified repo      | ⬜ Pending   |
+| `UserTrack` entity                                             | ~150  | Separate domain entity        | UNIFY with TrackEntity       | ⬜ Pending   |
+| `UserAlbum` entity                                             | ~100  | Separate domain entity        | UNIFY with Album             | ⬜ Pending   |
+| `UserTrackGenerationService.ts`                                | 657   | Parallel user generation      | MERGE with visibility config | ✅ Completed |
+| `LibraryTrackGenerationService.ts`                             | 575   | Parallel librarian generation | REMOVE after merge           | ✅ Completed |
+| `LibraryAlbumGenerationService` + `UserAlbumGenerationService` | 180   | Two classes in same file      | MERGE into single class      | ⬜ Pending   |
 
 **Total parallel code: ~2,029 lines**
 
@@ -33,13 +33,13 @@ After consolidating the database schema, we identified **~2,500 lines of paralle
 
 ## 2. Code Duplication & Bug Risk Analysis
 
-| Location | What's Duplicated | Lines | Bug Risk | Proposed Fix |
-|----------|-------------------|-------|----------|--------------|
-| `UserTrackGenerationService` vs `LibraryTrackGenerationService` | Entire generation pipeline | ~1,100 | **HIGH** | Create unified `TrackGenerationService` |
-| `LibraryAlbumGenerationService` vs `UserAlbumGenerationService` | Identical pipeline setup | ~180 | **MEDIUM** | Merge into single class |
-| `library-routes.ts` vs `librarian-routes.ts` | Track/album CRUD endpoints | ~600 | **HIGH** | Consolidate routes |
-| `lyrics-routes.ts` vs `shared-lyrics-routes.ts` | Lyrics CRUD endpoints | ~200 | **MEDIUM** | Merge into single file |
-| `DrizzleUserTrackRepository` vs `DrizzleMusicCatalogRepository` | Track query methods | ~150 | **MEDIUM** | Consolidate repos |
+| Location                                                        | What's Duplicated          | Lines  | Bug Risk   | Proposed Fix                            |
+| --------------------------------------------------------------- | -------------------------- | ------ | ---------- | --------------------------------------- |
+| `UserTrackGenerationService` vs `LibraryTrackGenerationService` | Entire generation pipeline | ~1,100 | **HIGH**   | Create unified `TrackGenerationService` |
+| `LibraryAlbumGenerationService` vs `UserAlbumGenerationService` | Identical pipeline setup   | ~180   | **MEDIUM** | Merge into single class                 |
+| `library-routes.ts` vs `librarian-routes.ts`                    | Track/album CRUD endpoints | ~600   | **HIGH**   | Consolidate routes                      |
+| `lyrics-routes.ts` vs `shared-lyrics-routes.ts`                 | Lyrics CRUD endpoints      | ~200   | **MEDIUM** | Merge into single file                  |
+| `DrizzleUserTrackRepository` vs `DrizzleMusicCatalogRepository` | Track query methods        | ~150   | **MEDIUM** | Consolidate repos                       |
 
 **Total duplicated lines at risk: ~2,230 lines**
 
@@ -48,6 +48,7 @@ After consolidating the database schema, we identified **~2,500 lines of paralle
 ## 3. Recommended Folder Structure
 
 ### Current (Role-Organized - Problematic)
+
 ```
 src/
 ├── domains/music-catalog/entities/
@@ -69,6 +70,7 @@ src/
 ```
 
 ### Proposed (Capability-Organized)
+
 ```
 src/
 ├── domains/content/entities/
@@ -94,6 +96,7 @@ src/
 ## 4. Execution Plan
 
 ### Phase 1: Quick Wins (Small effort, immediate clarity) ✅
+
 - [x] D5: Merge `LibraryAlbumGenerationService` + `UserAlbumGenerationService`
   - Created unified `AlbumGenerationService` class with visibility parameter
   - Deprecated classes kept for backward compatibility
@@ -103,6 +106,7 @@ src/
   - Updated `LyricsPreparationService.ts` to use new endpoint
 
 ### Phase 2: Entity Consolidation ✅
+
 - [x] D1: Merge `UserTrack` + `TrackEntity` into single entity
   - Added `visibility` property to UserTrack entity
   - Added `albumId`, `playCount`, `likeCount` properties
@@ -111,6 +115,7 @@ src/
 - [ ] D2: Merge `UserAlbum` into `Album` entity (deferred)
 
 ### Phase 3: Repository Consolidation ✅
+
 - [x] D3: Updated DrizzleUserTrackRepository with visibility support
 - [x] Created UnifiedLyricsRepository consolidating DrizzleLyricsRepository + DrizzleUserLyricsRepository
   - Single repository with visibility parameter (user, shared, personal, draft, all)
@@ -123,6 +128,7 @@ src/
   - ~680 lines consolidated into single implementation
 
 ### Phase 4: Service Consolidation (Highest bug risk reduction) ✅
+
 - [x] D4: Merge generation services into single `TrackGenerationService`
   - Created unified `TrackGenerationService` with `targetVisibility` parameter
   - Personal tracks: `targetVisibility='personal'`, saved with `visibility='personal'`
@@ -132,6 +138,7 @@ src/
   - ~1,234 lines consolidated into single implementation
 
 ### Phase 5: Route Consolidation ✅
+
 - [x] D6: Route consolidation analysis and deprecation
   - Identified duplicate endpoints: `/admin/shared-track/:trackId` DELETE and `/admin/move-to-public` POST
   - These duplicate librarian-routes.ts endpoints with inline auth instead of middleware
@@ -150,6 +157,7 @@ src/
   - No LSP errors after split
 
 ### Phase 6: Structure & Frontend ✅
+
 - [x] D8: Updated exports to reflect consolidated architecture
   - `infrastructure/database/index.ts`: UnifiedAlbumRepository and UnifiedLyricsRepository now primary exports
   - `application/services/index.ts`: TrackGenerationService and AlbumGenerationService now primary exports
@@ -166,6 +174,7 @@ src/
 ## 5. Key Design Decisions
 
 ### Visibility-Based Access Control Pattern
+
 ```typescript
 // Unified repository method signature
 async findTracks(options: {
@@ -182,6 +191,7 @@ async findTracks(options: {
 ```
 
 ### Generation Service Unification Pattern
+
 ```typescript
 // Single service with visibility configuration
 class TrackGenerationService {

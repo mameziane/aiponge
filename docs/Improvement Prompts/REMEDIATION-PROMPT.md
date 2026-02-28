@@ -8,13 +8,13 @@ An audit was performed across all database schemas and application code to ident
 
 ## Completion Status Overview
 
-| Area | Status | Detail |
-|------|--------|--------|
-| Phase 1: `mus_recently_played` columns | **PARTIAL** | 1 of 3 INSERT locations is complete; 2 are missing columns |
-| Phase 2: `mus_playlists` metadata | **MOSTLY DONE** | Missing input validation for 4 fields + `likeCount` has no mutation endpoint |
-| Phase 3: Engagement columns (favorites/follows) | **PARTIAL** | `playCount`/`lastPlayedAt` done for tracks & albums; `rating`, `notes`, `favoriteTrackIds` missing; followed creators have no engagement tracking |
-| Phase 4: User profiling pipeline | **DONE** | All 5 tables have repositories, use cases, scheduled jobs. One gap: `usr_profile_metrics` is never written to |
-| Phase 5: Books/entries/storage/results/tracks | **MOSTLY DONE** | Books and entries fully wired. `mus_results` counters done. 3 storage tables still unused |
+| Area                                            | Status          | Detail                                                                                                                                            |
+| ----------------------------------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Phase 1: `mus_recently_played` columns          | **PARTIAL**     | 1 of 3 INSERT locations is complete; 2 are missing columns                                                                                        |
+| Phase 2: `mus_playlists` metadata               | **MOSTLY DONE** | Missing input validation for 4 fields + `likeCount` has no mutation endpoint                                                                      |
+| Phase 3: Engagement columns (favorites/follows) | **PARTIAL**     | `playCount`/`lastPlayedAt` done for tracks & albums; `rating`, `notes`, `favoriteTrackIds` missing; followed creators have no engagement tracking |
+| Phase 4: User profiling pipeline                | **DONE**        | All 5 tables have repositories, use cases, scheduled jobs. One gap: `usr_profile_metrics` is never written to                                     |
+| Phase 5: Books/entries/storage/results/tracks   | **MOSTLY DONE** | Books and entries fully wired. `mus_results` counters done. 3 storage tables still unused                                                         |
 
 ---
 
@@ -32,6 +32,7 @@ The current INSERT only includes `user_id`, `track_id`, `album_id`, `played_at`,
 3. **`session_id` is missing** — not in the INSERT column list at all
 
 **Fix required:**
+
 - Accept `completionRate`, `deviceType`, and `sessionId` from the request body (same as `streaming-routes.ts` does)
 - Add these 3 columns to the raw SQL INSERT statement
 - Add basic validation (completionRate should be a number 0-1, deviceType should be a string, sessionId should be a string)
@@ -46,12 +47,14 @@ The current INSERT only includes `user_id`, `track_id`, `album_id`, `played_at`,
 **Method:** `recordTrackPlay()` (around line 356)
 
 The current INSERT only includes `user_id`, `track_id`, `played_at`, `duration`. All 4 enrichment columns are missing:
+
 - `completion_rate`
 - `context`
 - `device_type`
 - `session_id`
 
 **Fix required:**
+
 - Extend the `recordTrackPlay()` method signature to accept optional parameters: `completionRate?: number`, `context?: object`, `deviceType?: string`, `sessionId?: string`
 - Include these in the INSERT statement
 - Update all callers of `recordTrackPlay()` to pass through available context
@@ -63,6 +66,7 @@ The current INSERT only includes `user_id`, `track_id`, `played_at`, `duration`.
 **File:** `packages/shared/contracts/src/api/playlists.ts` (around lines 132-152)
 
 The `CreatePlaylistRequestSchema` and `UpdatePlaylistRequestSchema` Zod schemas include `mood` and `genre` but are missing:
+
 - `category` — should be validated (e.g., enum of `'user' | 'featured' | 'algorithm'` or a string with max length)
 - `icon` — should be validated (max length 10, emoji)
 - `color` — should be validated (hex color pattern, max length 20)
@@ -71,6 +75,7 @@ The `CreatePlaylistRequestSchema` and `UpdatePlaylistRequestSchema` Zod schemas 
 The routes currently accept these fields from `req.body` without any validation, which is a data integrity risk.
 
 **Fix required:**
+
 - Add these 4 fields to `CreatePlaylistRequestSchema` and `UpdatePlaylistRequestSchema`
 - Apply the same validation in `packages/shared/contracts/src/api/input-schemas.ts` if a duplicate schema exists there
 
@@ -81,6 +86,7 @@ The routes currently accept these fields from `req.body` without any validation,
 The `likeCount` column on playlists defaults to `0` and is never incremented or decremented. There are follow/unfollow endpoints that manage `followerCount`, but no equivalent like/unlike endpoints.
 
 **Fix required:**
+
 - Add `POST /api/playlists/:playlistId/like` endpoint that increments `like_count`
 - Add `DELETE /api/playlists/:playlistId/like` endpoint that decrements `like_count`
 - Follow the same pattern as the follow/unfollow endpoints in `playlist-routes.ts` (lines 771-854)
@@ -93,6 +99,7 @@ The `likeCount` column on playlists defaults to `0` and is never incremented or 
 These columns exist in the schema but there is no API to set or update them. Tags already have a `PATCH /track/:trackId/favorite/tags` endpoint, but `rating` and `notes` do not.
 
 **Fix required:**
+
 - Add `PATCH /api/library/track/:trackId/favorite/rating` endpoint in `engagement-routes.ts`
   - Accept a `rating` integer (e.g., 1-5)
   - Update `mus_favorite_tracks` SET `rating` WHERE matching user/track
@@ -108,6 +115,7 @@ These columns exist in the schema but there is no API to set or update them. Tag
 Same as Issue 5 but for albums.
 
 **Fix required:**
+
 - Add `PATCH /api/library/album/:albumId/favorite` endpoint in `engagement-routes.ts`
   - Accept optional `rating` (integer 1-5) and `favoriteTrackIds` (array of UUIDs)
   - Update `mus_favorite_albums` SET the provided fields WHERE matching user/album
@@ -139,6 +147,7 @@ The user profiling pipeline populates `usr_profile_theme_frequencies`, `usr_prof
 The table tracks: `userId`, `period`, `insightCount`, `uniqueThemes`.
 
 **Fix required:**
+
 - In the `PatternRecognitionService` (`packages/services/user-service/src/domains/profile/services/PatternRecognitionService.ts`), at the end of `analyzeUserPatterns()` or in the `runBatchAnalysis()` method, add an upsert to `usr_profile_metrics` that records:
   - `period`: current month or week string (e.g., `'2025-W03'` or `'2025-01'`)
   - `insightCount`: count of patterns detected in this run
@@ -152,6 +161,7 @@ The table tracks: `userId`, `period`, `insightCount`, `uniqueThemes`.
 The table schema exists but zero application code writes to it.
 
 **Fix required:**
+
 - Create an `AccessLogRepository` in the storage service with a `logAccess()` method
 - Add middleware or a utility function that logs file access events (download, stream, view) to `stg_access_logs`
 - Call this from the file serving/streaming routes in the storage service
@@ -165,6 +175,7 @@ The table schema exists but zero application code writes to it.
 File versioning logic was never built. The table is only read from in `UnreferencedFileDetectionService`.
 
 **Fix required:**
+
 - Create a `VersionRepository` in the storage service with `createVersion()` and `getVersions()` methods
 - When a file is re-uploaded or regenerated, create a new version record in `stg_versions` instead of overwriting
 - Set `versionNumber` by incrementing the max version for that `fileId`
@@ -178,6 +189,7 @@ File versioning logic was never built. The table is only read from in `Unreferen
 File processing job tracking was never built for the storage service (note: the music service has a similar `mus_audio_jobs` table that IS fully implemented).
 
 **Fix required:**
+
 - Create a `ProcessingJobRepository` in the storage service
 - When file processing is triggered (image resizing, format conversion, etc.), create a job record
 - Update job status as it progresses: `pending` -> `processing` -> `completed`/`failed`
@@ -188,18 +200,18 @@ File processing job tracking was never built for the storage service (note: the 
 
 ## Summary of Required Changes
 
-| # | Priority | File(s) to modify | Effort |
-|---|----------|-------------------|--------|
-| 1 | HIGH | `track-routes.ts` | Small — add 3 columns to existing INSERT |
-| 2 | HIGH | `LibraryOperationsService.ts` + callers | Small — extend method signature and INSERT |
-| 3 | MEDIUM | `contracts/src/api/playlists.ts` | Small — add 4 fields to Zod schemas |
-| 4 | MEDIUM | `playlist-routes.ts` | Medium — new like/unlike endpoints |
-| 5 | MEDIUM | `engagement-routes.ts` | Small — new PATCH endpoints for rating/notes |
-| 6 | MEDIUM | `engagement-routes.ts` | Small — new PATCH endpoint for album favorites |
-| 7 | MEDIUM | `streaming-routes.ts` + `engagement-routes.ts` | Medium — creator play tracking + rating endpoint |
-| 8 | LOW | `PatternRecognitionService.ts` + repository | Small — add metrics upsert at end of analysis |
-| 9 | LOW | New `AccessLogRepository` + storage routes | Medium — new repository + middleware |
-| 10 | LOW | New `VersionRepository` + upload flow | Large — new feature |
-| 11 | LOW | New `ProcessingJobRepository` + processing flow | Large — new feature |
+| #   | Priority | File(s) to modify                               | Effort                                           |
+| --- | -------- | ----------------------------------------------- | ------------------------------------------------ |
+| 1   | HIGH     | `track-routes.ts`                               | Small — add 3 columns to existing INSERT         |
+| 2   | HIGH     | `LibraryOperationsService.ts` + callers         | Small — extend method signature and INSERT       |
+| 3   | MEDIUM   | `contracts/src/api/playlists.ts`                | Small — add 4 fields to Zod schemas              |
+| 4   | MEDIUM   | `playlist-routes.ts`                            | Medium — new like/unlike endpoints               |
+| 5   | MEDIUM   | `engagement-routes.ts`                          | Small — new PATCH endpoints for rating/notes     |
+| 6   | MEDIUM   | `engagement-routes.ts`                          | Small — new PATCH endpoint for album favorites   |
+| 7   | MEDIUM   | `streaming-routes.ts` + `engagement-routes.ts`  | Medium — creator play tracking + rating endpoint |
+| 8   | LOW      | `PatternRecognitionService.ts` + repository     | Small — add metrics upsert at end of analysis    |
+| 9   | LOW      | New `AccessLogRepository` + storage routes      | Medium — new repository + middleware             |
+| 10  | LOW      | New `VersionRepository` + upload flow           | Large — new feature                              |
+| 11  | LOW      | New `ProcessingJobRepository` + processing flow | Large — new feature                              |
 
 Start with Issues 1-2 (highest impact, lowest effort), then Issues 3-7 (medium effort, completes the engagement data model), then Issues 8-11 (lower priority infrastructure).

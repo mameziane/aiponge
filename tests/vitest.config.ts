@@ -10,16 +10,8 @@ export default defineConfig({
     testTimeout: 10000,
     hookTimeout: 60000,
     root: testsDir,
-    include: [
-      'integration/**/*.test.ts',
-      'e2e/**/*.test.ts',
-      'unit/**/*.test.ts',
-    ],
-    exclude: [
-      '**/node_modules/**',
-      '**/dist/**',
-      '**/coverage/**',
-    ],
+    include: ['integration/**/*.test.ts', 'e2e/**/*.test.ts', 'unit/**/*.test.ts'],
+    exclude: ['**/node_modules/**', '**/dist/**', '**/coverage/**'],
     setupFiles: ['./utils/setup.ts'],
     sequence: {
       concurrent: false,

@@ -129,8 +129,14 @@ export class OnboardingController {
         const validVocalGenders = ['f', 'm'];
         const validLanguages = ['auto', 'en', 'es', 'fr', 'de', 'pt', 'ar', 'ja'];
         const validWellnessIntentions = [
-          'stress_relief', 'self_discovery', 'motivation', 'sleep',
-          'focus', 'emotional_healing', 'creative_expression', 'mindfulness',
+          'stress_relief',
+          'self_discovery',
+          'motivation',
+          'sleep',
+          'focus',
+          'emotional_healing',
+          'creative_expression',
+          'mindfulness',
         ];
 
         const validatedPrefs: Record<string, string> = {};
@@ -160,7 +166,8 @@ export class OnboardingController {
           (async () => {
             // Fetch existing prefs and mark profile in parallel
             const [, [existingUser]] = await Promise.all([
-              db.update(usrProfiles)
+              db
+                .update(usrProfiles)
                 .set({ onboardingInitialized: true, lastUpdated: new Date() })
                 .where(eq(usrProfiles.userId, authenticatedUserId)),
               Object.keys(validatedPrefs).length > 0
@@ -177,12 +184,17 @@ export class OnboardingController {
                     : (existingUser.preferences as Record<string, unknown>)
                   : {};
               } catch {
-                logger.warn('Failed to parse existing preferences, using empty object', { userId: authenticatedUserId });
+                logger.warn('Failed to parse existing preferences, using empty object', {
+                  userId: authenticatedUserId,
+                });
               }
 
               const mergedPreferences = { ...existingPrefs, ...validatedPrefs };
               await db.update(users).set({ preferences: mergedPreferences }).where(eq(users.id, authenticatedUserId));
-              logger.info('Saved user preferences during onboarding', { userId: authenticatedUserId, savedPreferences: mergedPreferences });
+              logger.info('Saved user preferences during onboarding', {
+                userId: authenticatedUserId,
+                savedPreferences: mergedPreferences,
+              });
             }
           })(),
 
@@ -202,7 +214,11 @@ export class OnboardingController {
                       visibility: CONTENT_VISIBILITY.PERSONAL,
                       status: CONTENT_LIFECYCLE.ACTIVE,
                     });
-                    logger.info('Created default personal book during onboarding', { userId: authenticatedUserId, bookId: createdBook.id, title: book.title });
+                    logger.info('Created default personal book during onboarding', {
+                      userId: authenticatedUserId,
+                      bookId: createdBook.id,
+                      title: book.title,
+                    });
 
                     const chapterRepo = createDrizzleRepository(ChapterRepository);
                     await chapterRepo.create({
@@ -212,10 +228,15 @@ export class OnboardingController {
                       description: 'Your personal entries',
                       sortOrder: 0,
                     });
-                    logger.info('Default chapter created for onboarding book', { userId: authenticatedUserId, bookId: createdBook.id });
+                    logger.info('Default chapter created for onboarding book', {
+                      userId: authenticatedUserId,
+                      bookId: createdBook.id,
+                    });
                   }
                 } catch (bookError) {
-                  logger.warn('Failed to create book during onboarding (non-fatal)', { error: serializeError(bookError) });
+                  logger.warn('Failed to create book during onboarding (non-fatal)', {
+                    error: serializeError(bookError),
+                  });
                 }
               })()
             : Promise.resolve(),

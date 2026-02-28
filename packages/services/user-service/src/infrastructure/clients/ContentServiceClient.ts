@@ -185,10 +185,12 @@ export class ContentServiceClient {
             statusCode: 200,
           });
 
-          const data = response && typeof response === 'object' ? response as Record<string, unknown> : {};
+          const data = response && typeof response === 'object' ? (response as Record<string, unknown>) : {};
           return {
             success: data.success === true,
-            analysis: (typeof data.analysis === 'object' && data.analysis !== null ? data.analysis : {}) as AnalysisResult,
+            analysis: (typeof data.analysis === 'object' && data.analysis !== null
+              ? data.analysis
+              : {}) as AnalysisResult,
             error: typeof data.error === 'string' ? data.error : undefined,
           };
         } catch (error) {
@@ -464,16 +466,23 @@ export class ContentServiceClient {
             statusCode: 200,
           });
 
-          const responseData = response && typeof response === 'object' ? response as Record<string, unknown> : {};
-          const analysisData = typeof responseData.analysis === 'object' && responseData.analysis !== null
-            ? responseData.analysis as Record<string, unknown>
-            : undefined;
+          const responseData = response && typeof response === 'object' ? (response as Record<string, unknown>) : {};
+          const analysisData =
+            typeof responseData.analysis === 'object' && responseData.analysis !== null
+              ? (responseData.analysis as Record<string, unknown>)
+              : undefined;
           return {
             analysis: {
               sentiment: typeof analysisData?.sentiment === 'string' ? analysisData.sentiment : 'neutral',
-              themes: Array.isArray(analysisData?.themes) ? analysisData.themes.filter((t: unknown): t is string => typeof t === 'string') : [],
-              emotions: Array.isArray(analysisData?.emotions) ? analysisData.emotions.filter((e: unknown): e is string => typeof e === 'string') : [],
-              insights: Array.isArray(analysisData?.insights) ? analysisData.insights.filter((i: unknown): i is string => typeof i === 'string') : [],
+              themes: Array.isArray(analysisData?.themes)
+                ? analysisData.themes.filter((t: unknown): t is string => typeof t === 'string')
+                : [],
+              emotions: Array.isArray(analysisData?.emotions)
+                ? analysisData.emotions.filter((e: unknown): e is string => typeof e === 'string')
+                : [],
+              insights: Array.isArray(analysisData?.insights)
+                ? analysisData.insights.filter((i: unknown): i is string => typeof i === 'string')
+                : [],
             },
           };
         } catch (error) {

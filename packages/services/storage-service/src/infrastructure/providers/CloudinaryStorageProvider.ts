@@ -117,7 +117,13 @@ export class CloudinaryStorageProvider implements IStorageProvider {
       const rawResponse = await this.httpClient.get(url, {
         responseType: 'arraybuffer',
       });
-      const response = rawResponse as { success?: boolean; status?: number; statusText?: string; data?: ArrayBuffer; headers?: Record<string, string> };
+      const response = rawResponse as {
+        success?: boolean;
+        status?: number;
+        statusText?: string;
+        data?: ArrayBuffer;
+        headers?: Record<string, string>;
+      };
 
       if (!response.success) {
         throw StorageError.downloadFailed(

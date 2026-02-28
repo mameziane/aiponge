@@ -20,9 +20,12 @@ vi.mock('@aiponge/platform-core', () => ({
     getServicePort: vi.fn(() => 3020),
   },
   serializeError: vi.fn((e: unknown) => String(e)),
-  errorMessage: vi.fn((e: unknown) => e instanceof Error ? e.message : String(e)),
+  errorMessage: vi.fn((e: unknown) => (e instanceof Error ? e.message : String(e))),
   extractAuthContext: vi.fn((req: Request) => ({ userId: req.headers?.['x-user-id'] || null })),
-  getValidation: () => ({ validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(), validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next() }),
+  getValidation: () => ({
+    validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+    validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+  }),
 }));
 
 vi.mock('@services/gatewayFetch', () => ({
@@ -271,16 +274,12 @@ describe('Admin Routes', () => {
 
   describe('POST /cache/invalidate', () => {
     it('should return 400 without pattern', async () => {
-      const res = await request(app)
-        .post('/api/admin/cache/invalidate')
-        .send({});
+      const res = await request(app).post('/api/admin/cache/invalidate').send({});
       expect(res.status).toBe(400);
     });
 
     it('should return 200 with valid pattern', async () => {
-      const res = await request(app)
-        .post('/api/admin/cache/invalidate')
-        .send({ pattern: '/api/app/library/*' });
+      const res = await request(app).post('/api/admin/cache/invalidate').send({ pattern: '/api/app/library/*' });
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
     });
@@ -288,9 +287,7 @@ describe('Admin Routes', () => {
 
   describe('GET /templates/summary', () => {
     it('should return 200 proxying to user-service', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true, data: { total: 10 } })
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, data: { total: 10 } }));
 
       const res = await request(app).get('/api/admin/templates/summary');
       expect(res.status).toBe(200);

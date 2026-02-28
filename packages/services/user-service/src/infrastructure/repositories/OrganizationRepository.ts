@@ -15,7 +15,10 @@ export class OrganizationRepository {
   constructor(private readonly db: DatabaseConnection) {}
 
   async create(data: InsertOrganization): Promise<Organization> {
-    const [org] = await this.db.insert(usrOrganizations).values(data as typeof usrOrganizations.$inferInsert).returning();
+    const [org] = await this.db
+      .insert(usrOrganizations)
+      .values(data as typeof usrOrganizations.$inferInsert)
+      .returning();
 
     logger.info('Organization created', { orgId: org.id, ownerUserId: data.ownerUserId });
     return org;

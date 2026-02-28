@@ -70,11 +70,15 @@ export function createRequirePermission(serviceName: string) {
       if (hasPermission) {
         next();
       } else {
-        StructuredErrors.forbidden(res, `Requires one of the following permissions: ${requiredPermissions.join(', ')}`, {
-          service: serviceName,
-          correlationId,
-          details: { requiredPermissions, userRoles: authReq.user.roles },
-        });
+        StructuredErrors.forbidden(
+          res,
+          `Requires one of the following permissions: ${requiredPermissions.join(', ')}`,
+          {
+            service: serviceName,
+            correlationId,
+            details: { requiredPermissions, userRoles: authReq.user.roles },
+          }
+        );
         return;
       }
     };
@@ -84,7 +88,8 @@ export function createRequirePermission(serviceName: string) {
 export function createOptionalAuth(serviceName: string) {
   return function optionalAuth(req: Request, _res: Response, next: NextFunction): void {
     const authReq = req as AuthenticatedRequest;
-    authReq.correlationId = authReq.correlationId || (req.headers['x-correlation-id'] as string) || generateCorrelationId();
+    authReq.correlationId =
+      authReq.correlationId || (req.headers['x-correlation-id'] as string) || generateCorrelationId();
     const userId = req.headers['x-user-id'] as string | undefined;
     if (userId) {
       (req as Request & { userId?: string }).userId = userId;
@@ -135,10 +140,7 @@ export function createServiceAuth(serviceName: string, options: ServiceAuthOptio
   return { authMiddleware, optionalAuth, requireRole, requirePermission };
 }
 
-function createVerifiedOptionalAuth(
-  middleware: StandardAuthMiddleware,
-  authOptions: AuthOptions
-): RequestHandler {
+function createVerifiedOptionalAuth(middleware: StandardAuthMiddleware, authOptions: AuthOptions): RequestHandler {
   const jwtService = middleware.getJwtService();
 
   return (req: Request, res: Response, next: NextFunction): void => {
@@ -177,8 +179,7 @@ function createVerifiedOptionalAuth(
 
     try {
       authReq.user = jwtService.verify(token);
-    } catch {
-    }
+    } catch {}
 
     next();
   };

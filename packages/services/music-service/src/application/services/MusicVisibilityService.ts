@@ -32,23 +32,26 @@ export class MusicVisibilityService {
   private userClient: UserServiceClient;
 
   constructor(userClient?: UserServiceClient) {
-    this.userClient = userClient || getServiceRegistry().userClient as UserServiceClient;
+    this.userClient = userClient || (getServiceRegistry().userClient as UserServiceClient);
   }
 
   async resolveAccessibleCreatorIds(userId: string | null): Promise<AccessContext> {
     const [librarianIds, followedCreatorIds] = await Promise.all([
       this.getCachedLibrarianIds(),
       userId
-        ? this.userClient.getAccessibleCreatorIds(userId).then(result => {
-            if (result.success && result.creatorIds) return result.creatorIds;
-            return [] as string[];
-          }).catch((err: unknown) => {
-            logger.warn('Failed to get followed creator IDs, using librarian-only access', {
-              error: err instanceof Error ? err.message : String(err),
-              userId,
-            });
-            return [] as string[];
-          })
+        ? this.userClient
+            .getAccessibleCreatorIds(userId)
+            .then(result => {
+              if (result.success && result.creatorIds) return result.creatorIds;
+              return [] as string[];
+            })
+            .catch((err: unknown) => {
+              logger.warn('Failed to get followed creator IDs, using librarian-only access', {
+                error: err instanceof Error ? err.message : String(err),
+                userId,
+              });
+              return [] as string[];
+            })
         : Promise.resolve([] as string[]),
     ]);
 

@@ -21,23 +21,25 @@ This directory contains the configuration files for app indexing and deep linkin
 
 ## Supported Deep Links
 
-| Path Pattern | Description |
-|--------------|-------------|
-| `/track/:id` | Open specific track in player |
-| `/playlist/:id` | Open playlist view |
-| `/profile/:id` | View user profile |
-| `/share/:id` | Shared content view |
-| `/entry/:id` | View entry details |
-| `/invite/:code` | Handle invite links |
+| Path Pattern    | Description                   |
+| --------------- | ----------------------------- |
+| `/track/:id`    | Open specific track in player |
+| `/playlist/:id` | Open playlist view            |
+| `/profile/:id`  | View user profile             |
+| `/share/:id`    | Shared content view           |
+| `/entry/:id`    | View entry details            |
+| `/invite/:code` | Handle invite links           |
 
 ## Testing
 
 ### iOS Testing
+
 ```bash
 xcrun simctl openurl booted "https://aiponge.com/track/123"
 ```
 
 ### Android Testing
+
 ```bash
 adb shell am start -a android.intent.action.VIEW -d "https://aiponge.com/track/123"
 ```
@@ -45,6 +47,7 @@ adb shell am start -a android.intent.action.VIEW -d "https://aiponge.com/track/1
 ## Expo Router Integration
 
 Deep links are handled by expo-router. Add route handlers in:
+
 - `apps/aiponge/app/track/[id].tsx`
 - `apps/aiponge/app/playlist/[id].tsx`
 - etc.

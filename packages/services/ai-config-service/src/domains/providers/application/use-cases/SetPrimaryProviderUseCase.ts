@@ -124,7 +124,10 @@ export class SetPrimaryProviderUseCase {
       return healthCheckResult;
     } catch (error: unknown) {
       if (!params.force) {
-        throw ConfigError.providerUnavailable(provider.providerId, sanitizeErrorMessage(error instanceof Error ? error : String(error)));
+        throw ConfigError.providerUnavailable(
+          provider.providerId,
+          sanitizeErrorMessage(error instanceof Error ? error : String(error))
+        );
       }
       return {
         success: false,

@@ -141,8 +141,10 @@ export class PatternRecognitionService {
   private async detectTemporalPatterns(userId: string, entries: EntryForAnalysis[]): Promise<PatternInsight[]> {
     const patterns: PatternInsight[] = [];
 
-    const dayPatterns: Record<number, { count: number; moods: string[]; sentiments: string[]; entryIds: string[] }> = {};
-    const hourPatterns: Record<number, { count: number; moods: string[]; sentiments: string[]; entryIds: string[] }> = {};
+    const dayPatterns: Record<number, { count: number; moods: string[]; sentiments: string[]; entryIds: string[] }> =
+      {};
+    const hourPatterns: Record<number, { count: number; moods: string[]; sentiments: string[]; entryIds: string[] }> =
+      {};
 
     for (const entry of entries) {
       const date = new Date(entry.createdAt);
@@ -255,7 +257,10 @@ export class PatternRecognitionService {
 
   private async detectThematicPatterns(userId: string, entries: EntryForAnalysis[]): Promise<PatternInsight[]> {
     const patterns: PatternInsight[] = [];
-    const themeCounts: Record<string, { count: number; sentiments: string[]; relatedTags: string[]; entryIds: string[] }> = {};
+    const themeCounts: Record<
+      string,
+      { count: number; sentiments: string[]; relatedTags: string[]; entryIds: string[] }
+    > = {};
 
     const themeKeywords: Record<string, string[]> = {
       relationships: ['love', 'friend', 'family', 'partner', 'relationship', 'connection', 'lonely', 'together'],

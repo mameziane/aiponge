@@ -246,7 +246,10 @@ export function getServiceByName(name: string): ServiceConfig {
   return service;
 }
 
-export function getDefinitionServicePort(name: string, environment: 'development' | 'production' = 'development'): number {
+export function getDefinitionServicePort(
+  name: string,
+  environment: 'development' | 'production' = 'development'
+): number {
   const service = getServiceByName(name);
 
   if (environment === 'development' && service.port.development) {
@@ -256,7 +259,10 @@ export function getDefinitionServicePort(name: string, environment: 'development
   return service.port.internal;
 }
 
-export function getDefinitionServiceUrl(name: string, environment: 'development' | 'production' = 'development'): string {
+export function getDefinitionServiceUrl(
+  name: string,
+  environment: 'development' | 'production' = 'development'
+): string {
   const port = getDefinitionServicePort(name, environment);
   return `http://localhost:${port}`;
 }
@@ -437,9 +443,7 @@ export function validateDependencies(): DependencyValidationResult {
 /**
  * Get services by startup tier in dependency order
  */
-export function getServicesByTier(
-  tier: 'infrastructure' | 'foundation' | 'application' | 'frontend'
-): ServiceConfig[] {
+export function getServicesByTier(tier: 'infrastructure' | 'foundation' | 'application' | 'frontend'): ServiceConfig[] {
   return SERVICES.filter(s => s.tier === tier);
 }
 

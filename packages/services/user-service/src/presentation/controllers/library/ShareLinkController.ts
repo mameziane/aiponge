@@ -4,11 +4,7 @@ import { sendSuccess, sendCreated, ServiceErrors } from '../../utils/response-he
 import { serializeError, extractAuthContext } from '@aiponge/platform-core';
 import type { ShareLinkContentType } from '@infrastructure/database/schemas/share-link-schema';
 import type { LibraryControllerDeps } from './library-helpers';
-import {
-  logger,
-  handleRequest,
-  formatZodErrors,
-} from './library-helpers';
+import { logger, handleRequest, formatZodErrors } from './library-helpers';
 
 export class ShareLinkController {
   constructor(private readonly deps: LibraryControllerDeps) {}

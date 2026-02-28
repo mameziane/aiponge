@@ -4,12 +4,18 @@ import { Request, Response, NextFunction } from 'express';
 const mockAuthenticate = vi.hoisted(() => vi.fn());
 
 const { StandardAuthMiddleware: MockStandardAuthMiddleware } = vi.hoisted(() => {
-  const cls = function(this: Record<string, unknown>) { this.authenticate = mockAuthenticate; } as unknown as new () => Record<string, unknown>;
+  const cls = function (this: Record<string, unknown>) {
+    this.authenticate = mockAuthenticate;
+  } as unknown as new () => Record<string, unknown>;
   return { StandardAuthMiddleware: cls };
 });
 
 const mockLogger = vi.hoisted(() => ({
-  info: vi.fn(), debug: vi.fn(), warn: vi.fn(), error: vi.fn(), child: vi.fn(),
+  info: vi.fn(),
+  debug: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  child: vi.fn(),
 }));
 vi.mock('@aiponge/platform-core', () => ({
   StandardAuthMiddleware: MockStandardAuthMiddleware,
@@ -26,10 +32,41 @@ import {
 } from '../../presentation/middleware/AuthenticationMiddleware';
 
 function createMockReq(overrides = {}) {
-  return { headers: {}, params: {}, query: {}, body: {}, user: undefined, cookies: {}, ip: '127.0.0.1', method: 'GET', path: '/', get: vi.fn((h: string) => ({} as Record<string, string>)[h]), ...overrides } as unknown as Request;
+  return {
+    headers: {},
+    params: {},
+    query: {},
+    body: {},
+    user: undefined,
+    cookies: {},
+    ip: '127.0.0.1',
+    method: 'GET',
+    path: '/',
+    get: vi.fn((h: string) => (({}) as Record<string, string>)[h]),
+    ...overrides,
+  } as unknown as Request;
 }
 function createMockRes() {
-  const res = { _statusCode: 200, _data: undefined, locals: {}, status: vi.fn(function(this: Record<string, unknown>, c: number) { this._statusCode = c; return this; }), json: vi.fn(function(this: Record<string, unknown>, d: unknown) { this._data = d; return this; }), send: vi.fn(function(this: Record<string, unknown>, d: unknown) { this._data = d; return this; }), set: vi.fn().mockReturnThis(), setHeader: vi.fn().mockReturnThis(), end: vi.fn().mockReturnThis() } as unknown as Response;
+  const res = {
+    _statusCode: 200,
+    _data: undefined,
+    locals: {},
+    status: vi.fn(function (this: Record<string, unknown>, c: number) {
+      this._statusCode = c;
+      return this;
+    }),
+    json: vi.fn(function (this: Record<string, unknown>, d: unknown) {
+      this._data = d;
+      return this;
+    }),
+    send: vi.fn(function (this: Record<string, unknown>, d: unknown) {
+      this._data = d;
+      return this;
+    }),
+    set: vi.fn().mockReturnThis(),
+    setHeader: vi.fn().mockReturnThis(),
+    end: vi.fn().mockReturnThis(),
+  } as unknown as Response;
   return res;
 }
 
@@ -73,9 +110,7 @@ describe('AuthenticationMiddleware', () => {
       mockAuthenticate.mockReturnValue(handler);
 
       authenticationMiddleware();
-      expect(mockAuthenticate).toHaveBeenCalledWith(
-        expect.objectContaining({ allowServiceAuth: true }),
-      );
+      expect(mockAuthenticate).toHaveBeenCalledWith(expect.objectContaining({ allowServiceAuth: true }));
     });
 
     it('should verify default skipPaths contains health check endpoints', () => {
@@ -84,7 +119,7 @@ describe('AuthenticationMiddleware', () => {
 
       authenticationMiddleware();
       expect(mockAuthenticate).toHaveBeenCalledWith(
-        expect.objectContaining({ skipPaths: expect.arrayContaining(['/health', '/metrics']) }),
+        expect.objectContaining({ skipPaths: expect.arrayContaining(['/health', '/metrics']) })
       );
     });
 
@@ -93,9 +128,7 @@ describe('AuthenticationMiddleware', () => {
       mockAuthenticate.mockReturnValue(handler);
 
       authenticationMiddleware({ allowApiKey: true });
-      expect(mockAuthenticate).toHaveBeenCalledWith(
-        expect.objectContaining({ allowApiKey: true }),
-      );
+      expect(mockAuthenticate).toHaveBeenCalledWith(expect.objectContaining({ allowApiKey: true }));
     });
 
     it('should use custom skipPaths when provided', () => {
@@ -103,9 +136,7 @@ describe('AuthenticationMiddleware', () => {
       mockAuthenticate.mockReturnValue(handler);
 
       authenticationMiddleware({ skipPaths: ['/custom'] });
-      expect(mockAuthenticate).toHaveBeenCalledWith(
-        expect.objectContaining({ skipPaths: ['/custom'] }),
-      );
+      expect(mockAuthenticate).toHaveBeenCalledWith(expect.objectContaining({ skipPaths: ['/custom'] }));
     });
 
     it('should always enable allowServiceAuth', () => {
@@ -113,9 +144,7 @@ describe('AuthenticationMiddleware', () => {
       mockAuthenticate.mockReturnValue(handler);
 
       authenticationMiddleware({});
-      expect(mockAuthenticate).toHaveBeenCalledWith(
-        expect.objectContaining({ allowServiceAuth: true }),
-      );
+      expect(mockAuthenticate).toHaveBeenCalledWith(expect.objectContaining({ allowServiceAuth: true }));
     });
   });
 
@@ -138,7 +167,7 @@ describe('AuthenticationMiddleware', () => {
         expect.objectContaining({
           allowServiceAuth: true,
           skipPaths: ['/health', '/metrics'],
-        }),
+        })
       );
     });
 
@@ -147,9 +176,7 @@ describe('AuthenticationMiddleware', () => {
       mockAuthenticate.mockReturnValue(handler);
 
       requireRoles(['admin']);
-      expect(mockAuthenticate).toHaveBeenCalledWith(
-        expect.objectContaining({ allowServiceAuth: true }),
-      );
+      expect(mockAuthenticate).toHaveBeenCalledWith(expect.objectContaining({ allowServiceAuth: true }));
     });
 
     it('should invoke the returned handler when called with request', () => {
@@ -181,9 +208,7 @@ describe('AuthenticationMiddleware', () => {
       mockAuthenticate.mockReturnValue(handler);
 
       requireApiKey();
-      expect(mockAuthenticate).toHaveBeenCalledWith(
-        expect.objectContaining({ allowApiKey: true }),
-      );
+      expect(mockAuthenticate).toHaveBeenCalledWith(expect.objectContaining({ allowApiKey: true }));
     });
 
     it('should ensure allowServiceAuth is true', () => {
@@ -191,9 +216,7 @@ describe('AuthenticationMiddleware', () => {
       mockAuthenticate.mockReturnValue(handler);
 
       requireApiKey();
-      expect(mockAuthenticate).toHaveBeenCalledWith(
-        expect.objectContaining({ allowServiceAuth: true }),
-      );
+      expect(mockAuthenticate).toHaveBeenCalledWith(expect.objectContaining({ allowServiceAuth: true }));
     });
 
     it('should invoke the returned handler when called with request', () => {
@@ -229,7 +252,7 @@ describe('AuthenticationMiddleware', () => {
         expect.objectContaining({
           allowServiceAuth: true,
           skipPaths: ['/health', '/metrics'],
-        }),
+        })
       );
     });
 
@@ -238,9 +261,7 @@ describe('AuthenticationMiddleware', () => {
       mockAuthenticate.mockReturnValue(handler);
 
       requireServiceAuth();
-      expect(mockAuthenticate).toHaveBeenCalledWith(
-        expect.objectContaining({ allowServiceAuth: true }),
-      );
+      expect(mockAuthenticate).toHaveBeenCalledWith(expect.objectContaining({ allowServiceAuth: true }));
     });
 
     it('should invoke the returned handler when called with request', () => {
@@ -272,9 +293,7 @@ describe('AuthenticationMiddleware', () => {
       mockAuthenticate.mockReturnValue(handler);
 
       skipAuth();
-      expect(mockAuthenticate).toHaveBeenCalledWith(
-        expect.objectContaining({}),
-      );
+      expect(mockAuthenticate).toHaveBeenCalledWith(expect.objectContaining({}));
     });
 
     it('should ensure allowServiceAuth is true even when skipping auth', () => {
@@ -282,9 +301,7 @@ describe('AuthenticationMiddleware', () => {
       mockAuthenticate.mockReturnValue(handler);
 
       skipAuth();
-      expect(mockAuthenticate).toHaveBeenCalledWith(
-        expect.objectContaining({ allowServiceAuth: true }),
-      );
+      expect(mockAuthenticate).toHaveBeenCalledWith(expect.objectContaining({ allowServiceAuth: true }));
     });
 
     it('should invoke the returned handler when called with request', () => {

@@ -148,8 +148,6 @@ function buildBookHtml(book: BookDisplay, chapters: ChapterWithEntries[], coverB
     : `<div class="cover-placeholder"><span class="cover-icon">📖</span></div>`;
 
   const metaBadges: string[] = [];
-  if (book.tradition) metaBadges.push(`<span class="badge badge-accent">${escapeHtml(book.tradition)}</span>`);
-  if (book.era) metaBadges.push(`<span class="badge">${escapeHtml(book.era)}</span>`);
   if (book.category) metaBadges.push(`<span class="badge">${escapeHtml(book.category)}</span>`);
 
   const tocItems = chapters

@@ -111,7 +111,9 @@ describe('Security Utils', () => {
 
       expect(results).toHaveLength(2);
       expect((results[0] as unknown as Record<string, Record<string, unknown>>).configuration.api_key).toContain('*');
-      expect((results[1] as unknown as Record<string, Record<string, unknown>>).configuration.secret_key).toContain('*');
+      expect((results[1] as unknown as Record<string, Record<string, unknown>>).configuration.secret_key).toContain(
+        '*'
+      );
     });
   });
 

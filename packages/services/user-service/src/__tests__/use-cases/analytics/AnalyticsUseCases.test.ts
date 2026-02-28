@@ -65,7 +65,14 @@ describe('GenerateUserAnalyticsUseCase', () => {
   it('should generate analytics report with default time range', async () => {
     const mockEntries = [
       { id: '1', userId: 'user-1', content: 'Entry 1', type: 'journal', sentiment: 'positive', createdAt: new Date() },
-      { id: '2', userId: 'user-1', content: 'Entry 2', type: 'reflection', sentiment: 'neutral', createdAt: new Date() },
+      {
+        id: '2',
+        userId: 'user-1',
+        content: 'Entry 2',
+        type: 'reflection',
+        sentiment: 'neutral',
+        createdAt: new Date(),
+      },
       { id: '3', userId: 'user-1', content: 'Entry 3', type: 'journal', sentiment: 'positive', createdAt: new Date() },
     ];
     const mockInsights = [
@@ -141,21 +148,15 @@ describe('GenerateUserAnalyticsUseCase', () => {
   });
 
   it('should throw AnalyticsError when userId is empty', async () => {
-    await expect(
-      useCase.execute({ userId: '', analyticsDepth: 'summary' })
-    ).rejects.toThrow();
+    await expect(useCase.execute({ userId: '', analyticsDepth: 'summary' })).rejects.toThrow();
   });
 
   it('should throw AnalyticsError when userId is whitespace', async () => {
-    await expect(
-      useCase.execute({ userId: '   ', analyticsDepth: 'summary' })
-    ).rejects.toThrow();
+    await expect(useCase.execute({ userId: '   ', analyticsDepth: 'summary' })).rejects.toThrow();
   });
 
   it('should throw AnalyticsError for invalid analytics depth', async () => {
-    await expect(
-      useCase.execute({ userId: 'user-1', analyticsDepth: 'invalid' as any })
-    ).rejects.toThrow();
+    await expect(useCase.execute({ userId: 'user-1', analyticsDepth: 'invalid' as any })).rejects.toThrow();
   });
 
   it('should throw AnalyticsError for invalid date range (start >= end)', async () => {
@@ -195,9 +196,7 @@ describe('GenerateUserAnalyticsUseCase', () => {
   it('should wrap unexpected errors in AnalyticsError.internalError', async () => {
     mockRepo.getEntriesByUser.mockRejectedValue(new Error('DB connection failed'));
 
-    await expect(
-      useCase.execute({ userId: 'user-1', analyticsDepth: 'summary' })
-    ).rejects.toThrow();
+    await expect(useCase.execute({ userId: 'user-1', analyticsDepth: 'summary' })).rejects.toThrow();
   });
 });
 
@@ -277,9 +276,7 @@ describe('GetContentAnalyticsUseCase', () => {
   it('should wrap unexpected errors in AnalyticsError.internalError', async () => {
     mockRepo.getAnalyticsEvents.mockRejectedValue(new Error('Network error'));
 
-    await expect(
-      useCase.execute({ userId: 'user-1' })
-    ).rejects.toThrow();
+    await expect(useCase.execute({ userId: 'user-1' })).rejects.toThrow();
   });
 });
 
@@ -373,30 +370,22 @@ describe('TrackContentViewUseCase', () => {
     });
 
     expect(mockRepo.recordAnalyticsEvent).toHaveBeenCalledTimes(3);
-    const eventTypes = mockRepo.recordAnalyticsEvent.mock.calls.map(
-      (call: any[]) => call[0].eventType
-    );
+    const eventTypes = mockRepo.recordAnalyticsEvent.mock.calls.map((call: any[]) => call[0].eventType);
     expect(eventTypes).toContain('content_viewed');
     expect(eventTypes).toContain('search_result_clicked');
     expect(eventTypes).toContain('content_engaged');
   });
 
   it('should throw when userId is empty', async () => {
-    await expect(
-      useCase.execute({ userId: '', contentId: 'c1', contentType: 'article' })
-    ).rejects.toThrow();
+    await expect(useCase.execute({ userId: '', contentId: 'c1', contentType: 'article' })).rejects.toThrow();
   });
 
   it('should throw when contentId is empty', async () => {
-    await expect(
-      useCase.execute({ userId: 'u1', contentId: '', contentType: 'article' })
-    ).rejects.toThrow();
+    await expect(useCase.execute({ userId: 'u1', contentId: '', contentType: 'article' })).rejects.toThrow();
   });
 
   it('should throw when contentType is empty', async () => {
-    await expect(
-      useCase.execute({ userId: 'u1', contentId: 'c1', contentType: '' })
-    ).rejects.toThrow();
+    await expect(useCase.execute({ userId: 'u1', contentId: 'c1', contentType: '' })).rejects.toThrow();
   });
 
   it('should classify engagement levels correctly based on viewDuration', async () => {
@@ -426,8 +415,6 @@ describe('TrackContentViewUseCase', () => {
   it('should wrap unexpected errors in AnalyticsError.internalError', async () => {
     mockRepo.recordAnalyticsEvent.mockRejectedValue(new Error('DB failure'));
 
-    await expect(
-      useCase.execute({ userId: 'u1', contentId: 'c1', contentType: 'article' })
-    ).rejects.toThrow();
+    await expect(useCase.execute({ userId: 'u1', contentId: 'c1', contentType: 'article' })).rejects.toThrow();
   });
 });

@@ -2,17 +2,21 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Request, Response, NextFunction } from 'express';
 
 let authenticateCallback: ((err?: unknown) => void) | undefined;
-const mockAuthHandler = vi.hoisted(() => vi.fn((_req: Request, _res: Response, next: NextFunction) => {
-  authenticateCallback = next;
-}));
+const mockAuthHandler = vi.hoisted(() =>
+  vi.fn((_req: Request, _res: Response, next: NextFunction) => {
+    authenticateCallback = next;
+  })
+);
 const mockAuthenticate = vi.hoisted(() => vi.fn().mockReturnValue(mockAuthHandler));
 
 const { StandardAuthMiddleware: MockStandardAuthMiddleware } = vi.hoisted(() => {
-  const cls = function(this: Record<string, unknown>) { this.authenticate = mockAuthenticate; } as unknown as new () => Record<string, unknown>;
+  const cls = function (this: Record<string, unknown>) {
+    this.authenticate = mockAuthenticate;
+  } as unknown as new () => Record<string, unknown>;
   return { StandardAuthMiddleware: cls };
 });
 
-vi.mock('@aiponge/platform-core', async (importOriginal) => {
+vi.mock('@aiponge/platform-core', async importOriginal => {
   const actual = await importOriginal<Record<string, unknown>>();
   return {
     ...actual,
@@ -22,7 +26,11 @@ vi.mock('@aiponge/platform-core', async (importOriginal) => {
 });
 
 const mockLogger = vi.hoisted(() => ({
-  info: vi.fn(), debug: vi.fn(), warn: vi.fn(), error: vi.fn(), child: vi.fn(),
+  info: vi.fn(),
+  debug: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  child: vi.fn(),
 }));
 vi.mock('../../config/service-urls', () => ({
   getLogger: () => mockLogger,
@@ -31,10 +39,41 @@ vi.mock('../../config/service-urls', () => ({
 import { jwtAuthMiddleware, optionalJwtAuthMiddleware } from '../../presentation/middleware/jwtAuthMiddleware';
 
 function createMockReq(overrides = {}) {
-  return { headers: {}, params: {}, query: {}, body: {}, user: undefined, cookies: {}, ip: '127.0.0.1', method: 'GET', path: '/', get: vi.fn((h: string) => ({} as Record<string, string>)[h]), ...overrides } as unknown as Request;
+  return {
+    headers: {},
+    params: {},
+    query: {},
+    body: {},
+    user: undefined,
+    cookies: {},
+    ip: '127.0.0.1',
+    method: 'GET',
+    path: '/',
+    get: vi.fn((h: string) => (({}) as Record<string, string>)[h]),
+    ...overrides,
+  } as unknown as Request;
 }
 function createMockRes() {
-  const res = { _statusCode: 200, _data: undefined, locals: {}, status: vi.fn(function(this: Record<string, unknown>, c: number) { this._statusCode = c; return this; }), json: vi.fn(function(this: Record<string, unknown>, d: unknown) { this._data = d; return this; }), send: vi.fn(function(this: Record<string, unknown>, d: unknown) { this._data = d; return this; }), set: vi.fn().mockReturnThis(), setHeader: vi.fn().mockReturnThis(), end: vi.fn().mockReturnThis() } as unknown as Response;
+  const res = {
+    _statusCode: 200,
+    _data: undefined,
+    locals: {},
+    status: vi.fn(function (this: Record<string, unknown>, c: number) {
+      this._statusCode = c;
+      return this;
+    }),
+    json: vi.fn(function (this: Record<string, unknown>, d: unknown) {
+      this._data = d;
+      return this;
+    }),
+    send: vi.fn(function (this: Record<string, unknown>, d: unknown) {
+      this._data = d;
+      return this;
+    }),
+    set: vi.fn().mockReturnThis(),
+    setHeader: vi.fn().mockReturnThis(),
+    end: vi.fn().mockReturnThis(),
+  } as unknown as Response;
   return res;
 }
 
@@ -104,14 +143,16 @@ describe('jwtAuthMiddleware', () => {
       authenticateCallback!();
 
       expect(res.status).toHaveBeenCalledWith(401);
-      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-        error: expect.objectContaining({
-          code: 'UNAUTHORIZED',
-          details: expect.objectContaining({
-            code: 'INVALID_TOKEN',
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          error: expect.objectContaining({
+            code: 'UNAUTHORIZED',
+            details: expect.objectContaining({
+              code: 'INVALID_TOKEN',
+            }),
           }),
-        }),
-      }));
+        })
+      );
       expect(next).not.toHaveBeenCalledWith();
     });
 

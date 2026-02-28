@@ -5,129 +5,129 @@
 
 export default {
   rules: {
-  'no-direct-fetch': {
-    meta: {
-      type: 'problem',
-      docs: {
-        description: 'Disallow direct fetch/axios calls, use service layer instead',
-        category: 'Best Practices',
+    'no-direct-fetch': {
+      meta: {
+        type: 'problem',
+        docs: {
+          description: 'Disallow direct fetch/axios calls, use service layer instead',
+          category: 'Best Practices',
+        },
+        fixable: null,
+        schema: [],
       },
-      fixable: null,
-      schema: []
+      create(context) {
+        return {
+          CallExpression(node) {
+            if (
+              node.callee.name === 'fetch' ||
+              (node.callee.type === 'MemberExpression' && node.callee.object.name === 'axios') ||
+              (node.callee.type === 'MemberExpression' && node.callee.object.name === 'http')
+            ) {
+              context.report({
+                node,
+                message: 'Direct HTTP calls are prohibited. Use service layer instead.',
+              });
+            }
+          },
+        };
+      },
     },
-    create(context) {
-      return {
-        CallExpression(node) {
-          if (
-            (node.callee.name === 'fetch') ||
-            (node.callee.type === 'MemberExpression' && 
-             node.callee.object.name === 'axios') ||
-            (node.callee.type === 'MemberExpression' && 
-             node.callee.object.name === 'http')
-          ) {
-            context.report({
-              node,
-              message: 'Direct HTTP calls are prohibited. Use service layer instead.'
-            });
-          }
-        }
-      };
-    }
-  },
 
-  'enforce-service-layer': {
-    meta: {
-      type: 'suggestion',
-      docs: {
-        description: 'Enforce proper service layer usage',
-        category: 'Architecture',
+    'enforce-service-layer': {
+      meta: {
+        type: 'suggestion',
+        docs: {
+          description: 'Enforce proper service layer usage',
+          category: 'Architecture',
+        },
+        schema: [],
       },
-      schema: []
-    },
-    create(context) {
-      return {
-        ImportDeclaration(node) {
-          if (node.source.value && 
+      create(context) {
+        return {
+          ImportDeclaration(node) {
+            if (
+              node.source.value &&
               typeof node.source.value === 'string' &&
-              node.source.value.includes('direct-api')) {
-            context.report({
-              node,
-              message: 'Direct API imports are discouraged. Use service layer instead.'
-            });
-          }
-        }
-      };
-    }
-  },
-
-  'no-ui-in-services': {
-    meta: {
-      type: 'problem',
-      docs: {
-        description: 'Prevent UI components from being imported in service layer',
-        category: 'Architecture',
+              node.source.value.includes('direct-api')
+            ) {
+              context.report({
+                node,
+                message: 'Direct API imports are discouraged. Use service layer instead.',
+              });
+            }
+          },
+        };
       },
-      schema: []
     },
-    create(context) {
-      return {
-        ImportDeclaration(node) {
-          if (node.source.value && 
+
+    'no-ui-in-services': {
+      meta: {
+        type: 'problem',
+        docs: {
+          description: 'Prevent UI components from being imported in service layer',
+          category: 'Architecture',
+        },
+        schema: [],
+      },
+      create(context) {
+        return {
+          ImportDeclaration(node) {
+            if (
+              node.source.value &&
               typeof node.source.value === 'string' &&
-              (node.source.value.includes('/components/') || 
-               node.source.value.includes('/pages/'))) {
-            context.report({
-              node,
-              message: 'Services should not import UI components. Keep services UI-agnostic.'
-            });
-          }
-        }
-      };
-    }
-  },
-
-  'enforce-typed-responses': {
-    meta: {
-      type: 'suggestion',
-      docs: {
-        description: 'Enforce typed API responses',
-        category: 'Type Safety',
+              (node.source.value.includes('/components/') || node.source.value.includes('/pages/'))
+            ) {
+              context.report({
+                node,
+                message: 'Services should not import UI components. Keep services UI-agnostic.',
+              });
+            }
+          },
+        };
       },
-      schema: []
     },
-    create(context) {
-      return {
-        // Simplified implementation
-        ReturnStatement(node) {
-          // Basic check for untyped returns in API functions
-          return;
-        }
-      };
-    }
-  },
 
-  'hook-naming-convention': {
-    meta: {
-      type: 'problem',
-      docs: {
-        description: 'Enforce proper hook naming conventions',
-        category: 'Naming',
+    'enforce-typed-responses': {
+      meta: {
+        type: 'suggestion',
+        docs: {
+          description: 'Enforce typed API responses',
+          category: 'Type Safety',
+        },
+        schema: [],
       },
-      schema: []
+      create(context) {
+        return {
+          // Simplified implementation
+          ReturnStatement(node) {
+            // Basic check for untyped returns in API functions
+            return;
+          },
+        };
+      },
     },
-    create(context) {
-      return {
-        FunctionDeclaration(node) {
-          if (node.id && node.id.name && node.id.name.startsWith('use') && 
-              !node.id.name.match(/^use[A-Z]/)) {
-            context.report({
-              node,
-              message: 'Hook names must start with "use" followed by a capital letter.'
-            });
-          }
-        }
-      };
-    }
-  }
-  }
+
+    'hook-naming-convention': {
+      meta: {
+        type: 'problem',
+        docs: {
+          description: 'Enforce proper hook naming conventions',
+          category: 'Naming',
+        },
+        schema: [],
+      },
+      create(context) {
+        return {
+          FunctionDeclaration(node) {
+            if (node.id && node.id.name && node.id.name.startsWith('use') && !node.id.name.match(/^use[A-Z]/)) {
+              context.report({
+                node,
+                message: 'Hook names must start with "use" followed by a capital letter.',
+              });
+            }
+          },
+        };
+      },
+    },
+  },
 };

@@ -2,7 +2,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Request } from 'express';
 
 const mockLogger = vi.hoisted(() => ({
-  info: vi.fn(), debug: vi.fn(), warn: vi.fn(), error: vi.fn(), child: vi.fn(),
+  info: vi.fn(),
+  debug: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  child: vi.fn(),
 }));
 
 vi.mock('@aiponge/platform-core', () => ({
@@ -11,7 +15,9 @@ vi.mock('@aiponge/platform-core', () => ({
   getServiceUrl: vi.fn().mockReturnValue('http://localhost:3007'),
   getServicePort: vi.fn().mockReturnValue(8080),
   serializeError: vi.fn().mockReturnValue({ message: 'error' }),
-  withServiceResilience: vi.fn().mockImplementation((_service: string, _op: string, fn: () => Promise<unknown>) => fn()),
+  withServiceResilience: vi
+    .fn()
+    .mockImplementation((_service: string, _op: string, fn: () => Promise<unknown>) => fn()),
   DomainError: class DomainError extends Error {
     public statusCode: number;
     constructor(message: string, statusCode: number = 500) {
@@ -75,7 +81,10 @@ describe('MusicServiceClient', () => {
     vi.clearAllMocks();
     mockHttpClient = createMockHttpClient();
     mockReq = createMockRequest();
-    client = new MusicServiceClient(mockHttpClient as unknown as Parameters<typeof MusicServiceClient.prototype.constructor>[0], mockReq);
+    client = new MusicServiceClient(
+      mockHttpClient as unknown as Parameters<typeof MusicServiceClient.prototype.constructor>[0],
+      mockReq
+    );
   });
 
   describe('getRecentMusic', () => {

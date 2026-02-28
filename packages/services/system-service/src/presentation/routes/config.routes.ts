@@ -40,14 +40,12 @@ router.get('/librarian-defaults', async (req, res) => {
       availableOptions: {
         ...DEFAULT_LIBRARIAN_DEFAULTS.availableOptions,
         ...stored.availableOptions,
-        targetLanguages:
-          stored.availableOptions?.targetLanguages?.length
-            ? stored.availableOptions.targetLanguages
-            : DEFAULT_LIBRARIAN_DEFAULTS.availableOptions.targetLanguages,
-        genres:
-          stored.availableOptions?.genres?.length
-            ? stored.availableOptions.genres
-            : DEFAULT_LIBRARIAN_DEFAULTS.availableOptions.genres,
+        targetLanguages: stored.availableOptions?.targetLanguages?.length
+          ? stored.availableOptions.targetLanguages
+          : DEFAULT_LIBRARIAN_DEFAULTS.availableOptions.targetLanguages,
+        genres: stored.availableOptions?.genres?.length
+          ? stored.availableOptions.genres
+          : DEFAULT_LIBRARIAN_DEFAULTS.availableOptions.genres,
       },
     };
 

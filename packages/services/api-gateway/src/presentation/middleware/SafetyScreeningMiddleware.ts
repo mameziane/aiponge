@@ -267,15 +267,26 @@ export function attachSafetyScreeningToRoutes(
   ];
 
   for (const route of contentRoutes) {
-    const originalHandler = (router as { stack: Array<{ route?: { path: string; methods?: Record<string, boolean>; stack: Array<{ handle: unknown }> } }> }).stack.find(
-      (layer: { route?: { path: string; methods?: Record<string, boolean> } }) => layer.route?.path === route.path && layer.route?.methods?.[route.method]
+    const originalHandler = (
+      router as {
+        stack: Array<{
+          route?: { path: string; methods?: Record<string, boolean>; stack: Array<{ handle: unknown }> };
+        }>;
+      }
+    ).stack.find(
+      (layer: { route?: { path: string; methods?: Record<string, boolean> } }) =>
+        layer.route?.path === route.path && layer.route?.methods?.[route.method]
     );
 
     if (originalHandler) {
       const existingHandlers = originalHandler.route!.stack.map((s: { handle: unknown }) => s.handle);
       originalHandler.route!.stack = [];
 
-      (router as unknown as Record<string, (...args: unknown[]) => void>)[route.method](route.path, middleware, ...existingHandlers);
+      (router as unknown as Record<string, (...args: unknown[]) => void>)[route.method](
+        route.path,
+        middleware,
+        ...existingHandlers
+      );
 
       logger.debug('Safety screening attached to route', {
         method: route.method.toUpperCase(),

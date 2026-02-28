@@ -7,7 +7,7 @@ const mockLogger = vi.hoisted(() => ({
   error: vi.fn(),
 }));
 
-vi.mock('@aiponge/platform-core', async (importOriginal) => {
+vi.mock('@aiponge/platform-core', async importOriginal => {
   const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
   return {
     ...actual,
@@ -43,7 +43,7 @@ const createMockDb = () => {
   const db: Record<string, ReturnType<typeof vi.fn>> = {
     select: vi.fn().mockReturnThis(),
     from: vi.fn().mockReturnThis(),
-    where: vi.fn(() => mockWhereResult !== null ? Promise.resolve(mockWhereResult) : db),
+    where: vi.fn(() => (mockWhereResult !== null ? Promise.resolve(mockWhereResult) : db)),
     limit: vi.fn().mockImplementation(() => Promise.resolve(mockLimitResult)),
   };
   return db;
@@ -202,9 +202,9 @@ describe('ContentTemplateService', () => {
       mockLimitResult = [mockTemplate];
       service = new ContentTemplateService(mockDb);
 
-      await expect(
-        service.processTemplate('process-test', { tone: 'casual' })
-      ).rejects.toThrow('Missing required template variables: topic');
+      await expect(service.processTemplate('process-test', { tone: 'casual' })).rejects.toThrow(
+        'Missing required template variables: topic'
+      );
     });
 
     it('should use fallback for missing optional variable', async () => {
@@ -232,9 +232,6 @@ describe('ContentTemplateService', () => {
       expect(result.metadata.processingTime).toBeGreaterThanOrEqual(0);
     });
   });
-
-
-
 
   describe('Template Search', () => {
     const mockTemplates = [

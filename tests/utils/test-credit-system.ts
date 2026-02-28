@@ -34,10 +34,8 @@ async function sleep(ms: number) {
 // Test 1: Credit Balance Endpoint
 async function testCreditBalance() {
   try {
-    const response = await axios.get(
-      `${API_BASE_URL}/api/app/credits/balance?userId=${TEST_USER_ID}`
-    );
-    
+    const response = await axios.get(`${API_BASE_URL}/api/app/credits/balance?userId=${TEST_USER_ID}`);
+
     const balance = response.data;
     if (balance && typeof balance.currentBalance === 'number') {
       logTest(
@@ -62,7 +60,7 @@ async function testCreditTransactions() {
     const response = await axios.get(
       `${API_BASE_URL}/api/app/credits/transactions?userId=${TEST_USER_ID}&limit=10&offset=0`
     );
-    
+
     const data = response.data;
     if (data && Array.isArray(data.transactions)) {
       const { transactions, total } = data;
@@ -71,7 +69,7 @@ async function testCreditTransactions() {
         true,
         `Found ${total} total transactions, showing ${transactions.length}`
       );
-      
+
       // Show recent transactions
       if (transactions.length > 0) {
         console.log('   Recent transactions:');
@@ -94,41 +92,33 @@ async function testCreditTransactions() {
 async function testCreditValidation(currentBalance: number) {
   try {
     // Test with sufficient credits (if available)
-    const sufficientTest = await axios.post(
-      `${API_BASE_URL}/api/app/credits/validate`,
-      {
-        userId: TEST_USER_ID,
-        requiredCredits: 15
-      }
-    );
-    
+    const sufficientTest = await axios.post(`${API_BASE_URL}/api/app/credits/validate`, {
+      userId: TEST_USER_ID,
+      requiredCredits: 15,
+    });
+
     const hasSufficient = currentBalance >= 15;
     const validationPassed = sufficientTest.data.valid === hasSufficient;
-    
+
     logTest(
       'Credit Validation (15 credits)',
       validationPassed,
-      hasSufficient 
-        ? 'User has sufficient credits' 
-        : 'User has insufficient credits (as expected)'
+      hasSufficient ? 'User has sufficient credits' : 'User has insufficient credits (as expected)'
     );
-    
+
     // Test with excessive credits (should fail)
-    const excessiveTest = await axios.post(
-      `${API_BASE_URL}/api/app/credits/validate`,
-      {
-        userId: TEST_USER_ID,
-        requiredCredits: 999999
-      }
-    );
-    
+    const excessiveTest = await axios.post(`${API_BASE_URL}/api/app/credits/validate`, {
+      userId: TEST_USER_ID,
+      requiredCredits: 999999,
+    });
+
     const shouldFail = excessiveTest.data.valid === false;
     logTest(
       'Credit Validation (999999 credits - should fail)',
       shouldFail,
       shouldFail ? 'Correctly rejected excessive credit requirement' : 'ERROR: Should have failed'
     );
-    
+
     return validationPassed && shouldFail;
   } catch (error: any) {
     // 400/403 errors are expected for insufficient credits
@@ -144,7 +134,7 @@ async function testCreditValidation(currentBalance: number) {
 // Test 4: Pre-flight Music Generation Validation (NO actual generation)
 async function testMusicGenerationPreflight(currentBalance: number) {
   console.log('\n🎵 Testing Music Generation Pre-flight Validation (NO credits will be used)');
-  
+
   try {
     // If user has 0 credits, this should be rejected BEFORE calling MusicAPI
     const response = await axios.post(
@@ -153,13 +143,13 @@ async function testMusicGenerationPreflight(currentBalance: number) {
         userId: TEST_USER_ID,
         prompt: 'TEST - This should not generate music',
         musicType: 'song',
-        quality: 'standard'
+        quality: 'standard',
       },
       {
-        validateStatus: () => true // Don't throw on error status
+        validateStatus: () => true, // Don't throw on error status
       }
     );
-    
+
     // Check if insufficient credits
     if (currentBalance < 15) {
       // Should be rejected with 402 or 403
@@ -167,8 +157,8 @@ async function testMusicGenerationPreflight(currentBalance: number) {
       logTest(
         'Pre-flight Validation (Insufficient Credits)',
         wasRejected,
-        wasRejected 
-          ? `✅ Generation blocked BEFORE calling MusicAPI (saved 15 credits!)` 
+        wasRejected
+          ? `✅ Generation blocked BEFORE calling MusicAPI (saved 15 credits!)`
           : `❌ ERROR: Request should have been rejected`
       );
       return wasRejected;
@@ -189,9 +179,7 @@ async function testMusicGenerationPreflight(currentBalance: number) {
       logTest(
         'Pre-flight Validation (Insufficient Credits)',
         isCorrectError,
-        isCorrectError 
-          ? 'Correctly rejected with error before calling MusicAPI' 
-          : 'Wrong error status code'
+        isCorrectError ? 'Correctly rejected with error before calling MusicAPI' : 'Wrong error status code'
       );
       return isCorrectError;
     } else {
@@ -204,28 +192,32 @@ async function testMusicGenerationPreflight(currentBalance: number) {
 // Test 5: Concurrent Request Handling (atomicity test)
 async function testConcurrentRequests() {
   console.log('\n⚡ Testing Concurrent Credit Operations (Atomicity)');
-  
+
   try {
     // Make multiple validation requests concurrently
-    const promises = Array(5).fill(null).map(() =>
-      axios.post(`${API_BASE_URL}/api/app/credits/validate`, {
-        userId: TEST_USER_ID,
-        requiredCredits: 15
-      }).catch(e => ({ error: true, status: e.response?.status }))
-    );
-    
+    const promises = Array(5)
+      .fill(null)
+      .map(() =>
+        axios
+          .post(`${API_BASE_URL}/api/app/credits/validate`, {
+            userId: TEST_USER_ID,
+            requiredCredits: 15,
+          })
+          .catch(e => ({ error: true, status: e.response?.status }))
+      );
+
     const responses = await Promise.all(promises);
-    
+
     // All should have consistent results
     const successCount = responses.filter((r: any) => !r.error && r.data?.success).length;
     const failCount = responses.filter((r: any) => r.error || !r.data?.success).length;
-    
+
     logTest(
       'Concurrent Request Consistency',
       true,
       `${successCount} succeeded, ${failCount} failed - All returned consistent results`
     );
-    
+
     return true;
   } catch (error: any) {
     logTest('Concurrent Request Consistency', false, undefined, error.message);
@@ -236,16 +228,16 @@ async function testConcurrentRequests() {
 // Main test execution
 async function runTests() {
   console.log('🧪 Credit System Integration Tests');
-  console.log('=' .repeat(60));
+  console.log('='.repeat(60));
   console.log(`API: ${API_BASE_URL}`);
   console.log(`Test User: ${TEST_USER_ID}`);
-  console.log('=' .repeat(60));
+  console.log('='.repeat(60));
   console.log();
-  
+
   // Wait for services to be ready
   console.log('⏳ Waiting for services to be ready...');
   await sleep(2000);
-  
+
   // Test 1: Balance
   console.log('💰 Testing Credit Balance & Transactions');
   const balance = await testCreditBalance();
@@ -253,39 +245,39 @@ async function runTests() {
     console.log('\n❌ Cannot proceed without balance data');
     return;
   }
-  
+
   // Test 2: Transactions
   await testCreditTransactions();
-  
+
   console.log();
-  
+
   // Test 3: Validation
   console.log('🔍 Testing Credit Validation');
   await testCreditValidation(balance.currentBalance);
-  
+
   console.log();
-  
+
   // Test 4: Pre-flight validation (critical - prevents wasting credits)
   const preflightPassed = await testMusicGenerationPreflight(balance.currentBalance);
-  
+
   console.log();
-  
+
   // Test 5: Concurrent requests
   await testConcurrentRequests();
-  
+
   // Summary
   console.log();
-  console.log('=' .repeat(60));
+  console.log('='.repeat(60));
   console.log('📊 Test Summary');
-  console.log('=' .repeat(60));
-  
+  console.log('='.repeat(60));
+
   const passed = results.filter(r => r.passed).length;
   const total = results.length;
   const percentage = Math.round((passed / total) * 100);
-  
+
   console.log(`Passed: ${passed}/${total} (${percentage}%)`);
   console.log();
-  
+
   if (passed === total) {
     console.log('✅ All tests passed!');
     console.log();

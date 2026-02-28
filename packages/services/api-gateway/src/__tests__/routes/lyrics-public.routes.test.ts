@@ -20,7 +20,10 @@ vi.mock('@aiponge/platform-core', () => ({
     getServicePort: vi.fn(() => 3020),
   },
   serializeError: vi.fn((e: unknown) => String(e)),
-  getValidation: () => ({ validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(), validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next() }),
+  getValidation: () => ({
+    validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+    validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+  }),
 }));
 
 vi.mock('@services/gatewayFetch', () => ({
@@ -126,8 +129,7 @@ describe('Lyrics Public Routes', () => {
       };
       mockGatewayFetch.mockResolvedValueOnce(mockResponse(lyricsData));
 
-      const res = await request(app)
-        .get('/api/app/lyrics-public/id/lyrics-123');
+      const res = await request(app).get('/api/app/lyrics-public/id/lyrics-123');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -141,9 +143,7 @@ describe('Lyrics Public Routes', () => {
       };
       mockGatewayFetch.mockResolvedValueOnce(mockResponse(lyricsData));
 
-      const res = await request(app)
-        .get('/api/app/lyrics-public/id/lyrics-123')
-        .set('x-user-id', 'user-123');
+      const res = await request(app).get('/api/app/lyrics-public/id/lyrics-123').set('x-user-id', 'user-123');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -151,12 +151,9 @@ describe('Lyrics Public Routes', () => {
     });
 
     it('should return error status when upstream fails', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ message: 'Lyrics not found' }, 404)
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ message: 'Lyrics not found' }, 404));
 
-      const res = await request(app)
-        .get('/api/app/lyrics-public/id/nonexistent');
+      const res = await request(app).get('/api/app/lyrics-public/id/nonexistent');
 
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);

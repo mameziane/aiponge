@@ -30,7 +30,7 @@ vi.mock('@aiponge/platform-core', () => ({
   waitForService: vi.fn(),
   listServices: vi.fn(),
   createServiceUrlsConfig: vi.fn(() => ({ getServiceUrl: vi.fn() })),
-  errorMessage: vi.fn((err: unknown) => err instanceof Error ? err.message : String(err)),
+  errorMessage: vi.fn((err: unknown) => (err instanceof Error ? err.message : String(err))),
   serializeError: vi.fn((err: unknown) => err),
 }));
 
@@ -175,9 +175,7 @@ describe('DrizzleStreamingRepository', () => {
     it('should update session fields', async () => {
       await repository.updateSession('session-1', { status: 'paused' } as unknown as Record<string, unknown>);
 
-      expect(mockDb.set).toHaveBeenCalledWith(
-        expect.objectContaining({ status: 'paused' })
-      );
+      expect(mockDb.set).toHaveBeenCalledWith(expect.objectContaining({ status: 'paused' }));
     });
   });
 

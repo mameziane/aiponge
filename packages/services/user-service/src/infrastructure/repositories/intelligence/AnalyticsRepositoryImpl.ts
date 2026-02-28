@@ -10,7 +10,12 @@ import {
   usrProfileAnalytics as profileAnalytics,
   usrPatternReactions,
 } from '../../database/schemas/profile-schema';
-import type { UserPattern, ProfileAnalytics, PatternReaction, NewPatternReaction } from '../../../domains/insights/types';
+import type {
+  UserPattern,
+  ProfileAnalytics,
+  PatternReaction,
+  NewPatternReaction,
+} from '../../../domains/insights/types';
 import { getLogger } from '../../../config/service-urls';
 import { ProfileError } from '../../../application/errors/errors';
 
@@ -49,7 +54,11 @@ export class AnalyticsRepositoryPart {
   async createPatternReaction(reactionData: NewPatternReaction): Promise<PatternReaction> {
     const patternReactionsTable = usrPatternReactions;
     const [reaction] = await this.db.insert(patternReactionsTable).values(reactionData).returning();
-    logger.info('Pattern reaction created', { id: reaction.id, patternId: reaction.patternId, reaction: reaction.reaction });
+    logger.info('Pattern reaction created', {
+      id: reaction.id,
+      patternId: reaction.patternId,
+      reaction: reaction.reaction,
+    });
     return reaction;
   }
 

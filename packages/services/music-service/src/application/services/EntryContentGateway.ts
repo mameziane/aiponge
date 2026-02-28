@@ -156,10 +156,13 @@ export class EntryContentGateway {
 
     try {
       // Use new /entries/* endpoint
-      const response = await this.httpClient.getWithResponse<Record<string, unknown>>(`${this.userServiceUrl}/api/entries/id/${entryId}`, {
-        headers: { 'x-user-id': userId, 'x-request-id': requestId },
-        timeout: 30000,
-      });
+      const response = await this.httpClient.getWithResponse<Record<string, unknown>>(
+        `${this.userServiceUrl}/api/entries/id/${entryId}`,
+        {
+          headers: { 'x-user-id': userId, 'x-request-id': requestId },
+          timeout: 30000,
+        }
+      );
 
       if (!response.ok) {
         logger.error('Failed to fetch entry', { entryId, status: response.status });
@@ -200,10 +203,13 @@ export class EntryContentGateway {
   async fetchUserPreferences(userId: string, requestId: string): Promise<FetchPreferencesResult> {
     try {
       // Use correct endpoint: /api/profiles/:userId (userId in path, not header-only)
-      const response = await this.httpClient.getWithResponse<Record<string, unknown>>(`${this.userServiceUrl}/api/profiles/${userId}`, {
-        headers: { 'x-user-id': userId, 'x-request-id': requestId },
-        timeout: 30000,
-      });
+      const response = await this.httpClient.getWithResponse<Record<string, unknown>>(
+        `${this.userServiceUrl}/api/profiles/${userId}`,
+        {
+          headers: { 'x-user-id': userId, 'x-request-id': requestId },
+          timeout: 30000,
+        }
+      );
 
       if (!response.ok) {
         logger.warn('Failed to fetch user preferences', { userId, status: response.status });
@@ -276,10 +282,13 @@ export class EntryContentGateway {
    */
   async fetchChapterIdForEntry(entryId: string, userId: string, requestId: string): Promise<string | undefined> {
     try {
-      const response = await this.httpClient.getWithResponse<Record<string, unknown>>(`${this.userServiceUrl}/api/entries/id/${entryId}`, {
-        headers: { 'x-user-id': userId, 'x-request-id': requestId },
-        timeout: 30000,
-      });
+      const response = await this.httpClient.getWithResponse<Record<string, unknown>>(
+        `${this.userServiceUrl}/api/entries/id/${entryId}`,
+        {
+          headers: { 'x-user-id': userId, 'x-request-id': requestId },
+          timeout: 30000,
+        }
+      );
 
       if (response.ok) {
         const data = response.data as { data?: { chapterId?: string } };

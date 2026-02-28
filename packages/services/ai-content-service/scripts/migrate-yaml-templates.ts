@@ -62,7 +62,15 @@ async function loadYAMLTemplate(filePath: string): Promise<Record<string, unknow
 
 function extractTemplateData(yamlData: YAMLTemplate, fileName: string): Record<string, unknown> {
   // Extract metadata from either 'metadata' or 'meta' sections
-  const meta: { id?: string; version?: string; category?: string; description?: string; author?: string; tags?: string[]; name?: string } = yamlData.metadata || yamlData.meta || {};
+  const meta: {
+    id?: string;
+    version?: string;
+    category?: string;
+    description?: string;
+    author?: string;
+    tags?: string[];
+    name?: string;
+  } = yamlData.metadata || yamlData.meta || {};
   const templateId = meta.id || fileName.replace(/\.[^/.]+$/, '');
   const version = meta.version || '1.0.0';
   const category = meta.category || 'general';
@@ -71,15 +79,20 @@ function extractTemplateData(yamlData: YAMLTemplate, fileName: string): Record<s
   const tags = meta.tags || [];
 
   // Extract prompts from either 'template' or 'prompt_structure' sections
-  const prompts: { system_prompt?: string; user_prompt?: string; user_prompt_structure?: string } = yamlData.template || yamlData.prompt_structure || {};
+  const prompts: { system_prompt?: string; user_prompt?: string; user_prompt_structure?: string } =
+    yamlData.template || yamlData.prompt_structure || {};
   const systemPrompt = prompts.system_prompt || '';
   const userPromptStructure = prompts.user_prompt_structure || prompts.user_prompt || '';
 
   // Extract variables
   const variables = Array.isArray(yamlData.variables) ? yamlData.variables : [];
-  const requiredVariables = variables.filter((v: { name: string; required?: boolean; default?: unknown }) => v.required === true).map((v: { name: string; required?: boolean; default?: unknown }) => v.name);
+  const requiredVariables = variables
+    .filter((v: { name: string; required?: boolean; default?: unknown }) => v.required === true)
+    .map((v: { name: string; required?: boolean; default?: unknown }) => v.name);
   const optionalVariables = variables
-    .filter((v: { name: string; required?: boolean; default?: unknown }) => v.required === false || v.required === undefined)
+    .filter(
+      (v: { name: string; required?: boolean; default?: unknown }) => v.required === false || v.required === undefined
+    )
     .map((v: { name: string; required?: boolean; default?: unknown }) => v.name);
 
   const asRecord = (val: unknown): Record<string, unknown> | undefined =>
@@ -92,7 +105,8 @@ function extractTemplateData(yamlData: YAMLTemplate, fileName: string): Record<s
   const inferenceRules = asRecord(yamlData.inference)?.rules || yamlData.inference_rules || [];
 
   // Extract cultural adaptations
-  const culturalAdaptations = asRecord(yamlData.cultural_adaptations)?.adaptations || yamlData.cultural_adaptations || [];
+  const culturalAdaptations =
+    asRecord(yamlData.cultural_adaptations)?.adaptations || yamlData.cultural_adaptations || [];
 
   // Extract quality metrics
   const qualityMetrics = asRecord(yamlData.quality_metrics)?.metrics || yamlData.quality_metrics || [];

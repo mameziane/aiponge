@@ -67,7 +67,10 @@ export class CloneBookUseCase {
     const { userId, userRole, sourceBookId, modificationPrompt, language, depthLevel = 'standard' } = input;
 
     if (!modificationPrompt || modificationPrompt.trim().length < 10) {
-      return { success: false, error: 'Please describe how you would like to adapt this book (at least 10 characters)' };
+      return {
+        success: false,
+        error: 'Please describe how you would like to adapt this book (at least 10 characters)',
+      };
     }
 
     if (modificationPrompt.length > 500) {
@@ -122,11 +125,16 @@ export class CloneBookUseCase {
         bookTypeId: sourceBook.typeId || undefined,
       });
 
-      this.generateClone(bookRequest.id, sourceBook, chapters, modificationPrompt.trim(), language || 'en-US', depthLevel).catch(
-        err => {
-          logger.error('Background clone generation failed', { requestId: bookRequest.id, error: err });
-        }
-      );
+      this.generateClone(
+        bookRequest.id,
+        sourceBook,
+        chapters,
+        modificationPrompt.trim(),
+        language || 'en-US',
+        depthLevel
+      ).catch(err => {
+        logger.error('Background clone generation failed', { requestId: bookRequest.id, error: err });
+      });
 
       return { success: true, requestId: bookRequest.id, status: 'pending' };
     } catch (error) {
@@ -228,8 +236,6 @@ export class CloneBookUseCase {
   "subtitle": "string (concise subtitle, max 100 chars)",
   "description": "string (brief overview)",
   "category": "string (one of: emotions, growth, purpose, relationships, mindfulness, resilience, wisdom, creativity, spirituality, wellbeing, educational)",
-  "era": "string or null (historical era if the content draws from a specific period, e.g. 'Ancient', 'Medieval', 'Modern'; null if not applicable)",
-  "tradition": "string or null (philosophical or spiritual tradition if relevant, e.g. 'Stoic', 'Buddhist', 'Humanist'; null if not applicable)",
   "chapters": [
     {
       "title": "string",
@@ -250,8 +256,7 @@ Guidelines:
 - Each entry content should be ${depthCfg.wordsPerEntry} words
 - Write in language: ${language}
 - The content must be actionable and grounded in the user's adaptation request
-- Keep the spirit and structure of the source, but fully tailor the content
-- Set era and tradition only when the content meaningfully draws from a specific tradition; otherwise use null`;
+- Keep the spirit and structure of the source, but fully tailor the content`;
 
       const userPrompt = `SOURCE BOOK:\n${sourceContext}\n\nUSER ADAPTATION REQUEST:\n${modificationPrompt}\n\nGenerate the complete personalized book now.`;
 
@@ -275,13 +280,22 @@ Guidelines:
         throw new Error(`LLM generation failed: ${errorData}`);
       }
 
-      const llmResult = (llmResponse.data && typeof llmResponse.data === 'object' ? llmResponse.data : {}) as Record<string, unknown>;
+      const llmResult = (llmResponse.data && typeof llmResponse.data === 'object' ? llmResponse.data : {}) as Record<
+        string,
+        unknown
+      >;
       if (!llmResult.success || !llmResult.data) {
-        const errObj = typeof llmResult.error === 'object' && llmResult.error !== null ? (llmResult.error as Record<string, unknown>) : null;
+        const errObj =
+          typeof llmResult.error === 'object' && llmResult.error !== null
+            ? (llmResult.error as Record<string, unknown>)
+            : null;
         throw new Error(typeof errObj?.message === 'string' ? errObj.message : 'Provider invocation failed');
       }
 
-      const llmData = (typeof llmResult.data === 'object' && llmResult.data !== null ? llmResult.data : {}) as Record<string, unknown>;
+      const llmData = (typeof llmResult.data === 'object' && llmResult.data !== null ? llmResult.data : {}) as Record<
+        string,
+        unknown
+      >;
       const generatedContent = llmData.result || llmData.content || llmData.text;
       if (!generatedContent) {
         throw new Error('LLM returned empty response');
@@ -296,8 +310,6 @@ Guidelines:
           typeId: sourceBook.typeId || BOOK_TYPE_IDS.PERSONAL,
           language,
           subtitle: bookData.subtitle || sourceBook.subtitle || undefined,
-          era: (bookData.era && bookData.era !== 'null' ? bookData.era : null) ?? sourceBook.era ?? undefined,
-          tradition: (bookData.tradition && bookData.tradition !== 'null' ? bookData.tradition : null) ?? sourceBook.tradition ?? undefined,
         },
         usedSystemPrompt: systemPrompt,
         usedUserPrompt: userPrompt,
@@ -341,7 +353,10 @@ Guidelines:
 
     const jsonMatch = jsonString.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
-      logger.error('No JSON object found in clone LLM response', { requestId, content: contentString.substring(0, 500) });
+      logger.error('No JSON object found in clone LLM response', {
+        requestId,
+        content: contentString.substring(0, 500),
+      });
       throw new Error('No JSON found in LLM response');
     }
 

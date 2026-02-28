@@ -119,9 +119,7 @@ describe('AuthRepository', () => {
     });
 
     it('should throw error for duplicate email', async () => {
-      mockDbResult.mocks.returning.mockRejectedValue(
-        new Error('duplicate key value violates unique constraint')
-      );
+      mockDbResult.mocks.returning.mockRejectedValue(new Error('duplicate key value violates unique constraint'));
 
       await expect(
         repo.createUser({ email: 'dup@example.com', passwordHash: 'hash' } as unknown as Record<string, unknown>)
@@ -213,9 +211,7 @@ describe('AuthRepository', () => {
 
       expect(result.passwordHash).toBe('new_hash');
       expect(mockDbResult.mocks.update).toHaveBeenCalledWith(expect.anything());
-      expect(mockDbResult.mocks.set).toHaveBeenCalledWith(
-        expect.objectContaining({ passwordHash: 'new_hash' })
-      );
+      expect(mockDbResult.mocks.set).toHaveBeenCalledWith(expect.objectContaining({ passwordHash: 'new_hash' }));
       expect(mockDbResult.mocks.updateWhere).toHaveBeenCalledWith(expect.anything());
       expect(mockDbResult.mocks.updateReturning).toHaveBeenCalled();
     });

@@ -1,11 +1,13 @@
 # ESLint Rules Strategy
 
 ## Overview
+
 Aiponge's ESLint configuration balances code quality enforcement with development flexibility. Rules are categorized into three tiers based on their impact on correctness, runtime safety, and code maintainability.
 
 ## Rule Tiers
 
 ### Tier 1: Correctness Rules (ERROR - Block Commits)
+
 These rules catch **real bugs** that would cause runtime errors or data corruption. They MUST remain as errors.
 
 ```javascript
@@ -21,6 +23,7 @@ These rules catch **real bugs** that would cause runtime errors or data corrupti
 **Rationale**: These errors cause immediate runtime failures or undefined behavior. Allowing them as warnings would let production bugs slip through.
 
 ### Tier 2: Type Safety Rules (WARN/OFF - Gradual Improvement)
+
 TypeScript-specific rules that improve type safety but require significant refactoring.
 
 ```javascript
@@ -32,6 +35,7 @@ TypeScript-specific rules that improve type safety but require significant refac
 **Rationale**: These improve type safety but are pervasive in the codebase. Warnings allow gradual cleanup without blocking development.
 
 ### Tier 3: Code Quality Rules (WARN - Best Practices)
+
 Style and complexity rules that improve maintainability but don't affect correctness.
 
 ```javascript
@@ -48,6 +52,7 @@ Style and complexity rules that improve maintainability but don't affect correct
 **Rationale**: These catch suboptimal patterns but don't cause runtime errors. Warnings encourage improvement without blocking feature work.
 
 ### Tier 4: Architecture Enforcement (WARN - Development Phase)
+
 Custom rules enforcing Aiponge's microservices architecture. Currently warnings during active development.
 
 ```javascript
@@ -64,15 +69,18 @@ Custom rules enforcing Aiponge's microservices architecture. Currently warnings 
 ## Global Configuration
 
 ### Added Globals (Node.js Runtime)
+
 ```javascript
 URL: 'readonly',
 URLSearchParams: 'readonly',
 AbortController: 'readonly',
 AbortSignal: 'readonly',
 ```
+
 Prevents false `no-undef` errors for standard Web APIs available in Node.js.
 
 ### Disabled Rules
+
 ```javascript
 'no-console': 'off', // Too strict for current codebase
 '@typescript-eslint/no-unsafe-*': 'off', // Requires parser services (too slow)
@@ -82,12 +90,14 @@ Prevents false `no-undef` errors for standard Web APIs available in Node.js.
 ## Future Hardening Plan
 
 **Before Production Release:**
+
 1. Upgrade architecture rules from `warn` to `error`
 2. Fix all remaining `no-unused-vars` warnings
 3. Reduce `no-explicit-any` usage to <5% of codebase
 4. Consider adding `no-console` as error in services (enforce Winston)
 
 **Metrics to Track:**
+
 - Total ESLint warnings (target: <100 per service)
 - `@typescript-eslint/no-explicit-any` count (target: <50 total)
 - Architecture rule violations (target: 0)
@@ -95,6 +105,7 @@ Prevents false `no-undef` errors for standard Web APIs available in Node.js.
 ## Quality Check Integration
 
 The `scripts/full-quality-check.ts` runs ESLint across all packages:
+
 - **Errors**: Block quality check (exit code 1)
 - **Warnings**: Logged but don't block (exit code 0)
 - **Timeout**: 120 seconds for full monorepo scan
@@ -106,6 +117,7 @@ The `scripts/full-quality-check.ts` runs ESLint across all packages:
 **Production**: All Tier 1 rules enforced, zero tolerance for correctness issues
 
 ## Related Documentation
+
 - [Quality Check Guide](./QUALITY_CHECK_GUIDE.md)
 - [Security Audit](./SECURITY_AUDIT.md)
 - Custom ESLint rules: `eslint-local-rules.js`

@@ -5,7 +5,22 @@
  */
 
 import { Entry, InsertEntry, Chapter, InsertChapter, Illustration } from '@domains/library/types';
-import { Insight, NewInsight, Reflection, NewReflection, ReflectionTurn, NewReflectionTurn, UserPattern, ProfileAnalytics, PatternReaction, NewPatternReaction, MoodCheckin, NewMoodCheckin, PersonalNarrative, NewPersonalNarrative } from '@domains/insights/types';
+import {
+  Insight,
+  NewInsight,
+  Reflection,
+  NewReflection,
+  ReflectionTurn,
+  NewReflectionTurn,
+  UserPattern,
+  ProfileAnalytics,
+  PatternReaction,
+  NewPatternReaction,
+  MoodCheckin,
+  NewMoodCheckin,
+  PersonalNarrative,
+  NewPersonalNarrative,
+} from '@domains/insights/types';
 
 export interface EntryFilter {
   isArchived?: boolean;

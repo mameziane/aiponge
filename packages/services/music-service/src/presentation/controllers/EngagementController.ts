@@ -222,8 +222,12 @@ export class EngagementController {
         ...Array.from(listenedByDate.keys()),
         ...Array.from(scheduledByDate.keys()),
       ]);
-      const activities: Array<{ date: string; tracksCreated: number; tracksListened: number; tracksScheduled: number }> =
-        [];
+      const activities: Array<{
+        date: string;
+        tracksCreated: number;
+        tracksListened: number;
+        tracksScheduled: number;
+      }> = [];
 
       Array.from(allDates).forEach(date => {
         activities.push({
@@ -432,10 +436,13 @@ export class EngagementController {
 
       const { getServiceUrl } = await import('@aiponge/platform-core');
       const userServiceUrl = getServiceUrl('user-service');
-      const userResponse = await internalHttpClient.getWithResponse<{ success?: boolean; user?: { role?: string } }>(`${userServiceUrl}/api/auth/me`, {
-        headers: { 'x-user-id': adminUserId, Authorization: req.headers.authorization || '' },
-        timeout: 30000,
-      });
+      const userResponse = await internalHttpClient.getWithResponse<{ success?: boolean; user?: { role?: string } }>(
+        `${userServiceUrl}/api/auth/me`,
+        {
+          headers: { 'x-user-id': adminUserId, Authorization: req.headers.authorization || '' },
+          timeout: 30000,
+        }
+      );
       const userData = userResponse.data;
       const userRole = userData.user?.role;
 
@@ -488,10 +495,13 @@ export class EngagementController {
 
       const { getServiceUrl } = await import('@aiponge/platform-core');
       const userServiceUrl = getServiceUrl('user-service');
-      const userResponse = await internalHttpClient.getWithResponse<{ success?: boolean; user?: { role?: string } }>(`${userServiceUrl}/api/auth/me`, {
-        headers: { 'x-user-id': adminUserId, Authorization: req.headers.authorization || '' },
-        timeout: 30000,
-      });
+      const userResponse = await internalHttpClient.getWithResponse<{ success?: boolean; user?: { role?: string } }>(
+        `${userServiceUrl}/api/auth/me`,
+        {
+          headers: { 'x-user-id': adminUserId, Authorization: req.headers.authorization || '' },
+          timeout: 30000,
+        }
+      );
       const userData = userResponse.data;
       const userRole = userData.user?.role;
 
@@ -808,7 +818,10 @@ export class EngagementController {
 
       const { rating, notes, tags } = req.body;
 
-      if (rating !== undefined && (typeof rating !== 'number' || rating < 1 || rating > 5 || !Number.isInteger(rating))) {
+      if (
+        rating !== undefined &&
+        (typeof rating !== 'number' || rating < 1 || rating > 5 || !Number.isInteger(rating))
+      ) {
         ServiceErrors.badRequest(res, 'Rating must be an integer between 1 and 5', req);
         return;
       }
@@ -875,7 +888,10 @@ export class EngagementController {
 
       const { rating, favoriteTrackIds } = req.body;
 
-      if (rating !== undefined && (typeof rating !== 'number' || rating < 1 || rating > 5 || !Number.isInteger(rating))) {
+      if (
+        rating !== undefined &&
+        (typeof rating !== 'number' || rating < 1 || rating > 5 || !Number.isInteger(rating))
+      ) {
         ServiceErrors.badRequest(res, 'Rating must be an integer between 1 and 5', req);
         return;
       }

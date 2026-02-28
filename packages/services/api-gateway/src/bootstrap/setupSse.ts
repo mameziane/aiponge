@@ -5,7 +5,11 @@ import type { GatewayAppContext } from './context';
 
 export function setupSse(app: express.Application, ctx: GatewayAppContext): void {
   app.get('/api/v1/events', (req: Request, res: Response) => {
-    const userId = (req as unknown as Record<string, unknown>).userId as string | undefined || ((req as unknown as Record<string, unknown>).user as Record<string, unknown> | undefined)?.id as string | undefined;
+    const userId =
+      ((req as unknown as Record<string, unknown>).userId as string | undefined) ||
+      (((req as unknown as Record<string, unknown>).user as Record<string, unknown> | undefined)?.id as
+        | string
+        | undefined);
     const clientId = `${userId || 'anon'}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const sseManager = getSSEManager();
     sseManager.addClient(req, res, clientId, userId);

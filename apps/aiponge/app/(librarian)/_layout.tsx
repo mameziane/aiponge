@@ -29,7 +29,13 @@ export default function LibrarianLayout() {
   const { t } = useTranslation();
   const colors = useThemeColors();
   const pathname = usePathname();
-  const { status, isAuthenticated, roleVerified } = useAuthStore(useShallow((state) => ({ status: state.status, isAuthenticated: state.isAuthenticated, roleVerified: state.roleVerified })));
+  const { status, isAuthenticated, roleVerified } = useAuthStore(
+    useShallow(state => ({
+      status: state.status,
+      isAuthenticated: state.isAuthenticated,
+      roleVerified: state.roleVerified,
+    }))
+  );
   const isLibrarian = useIsLibrarian();
   const isAuthLoading = status === 'loading' || status === 'idle';
   const isRoleLoading = isAuthenticated && !roleVerified;
@@ -38,7 +44,6 @@ export default function LibrarianLayout() {
   const [musicCreationTrigger, setMusicCreationTrigger] = useState(0);
   const [lastContentTab, setLastContentTab] = useState<'books' | 'music'>('books');
   const pendingTriggerRef = useRef<'books' | 'music' | null>(null);
-
 
   const isOnLibraryTab = pathname.includes('library');
   const isOnBooksTab = pathname.includes('books');
@@ -61,12 +66,15 @@ export default function LibrarianLayout() {
     }
   }, [isOnBooksTab, isOnLibraryTab]);
 
-  const contextValue = useMemo(() => ({
-    bookCreationTrigger,
-    triggerBookCreation: () => setBookCreationTrigger(prev => prev + 1),
-    musicCreationTrigger,
-    triggerMusicCreation: () => setMusicCreationTrigger(prev => prev + 1),
-  }), [bookCreationTrigger, musicCreationTrigger]);
+  const contextValue = useMemo(
+    () => ({
+      bookCreationTrigger,
+      triggerBookCreation: () => setBookCreationTrigger(prev => prev + 1),
+      musicCreationTrigger,
+      triggerMusicCreation: () => setMusicCreationTrigger(prev => prev + 1),
+    }),
+    [bookCreationTrigger, musicCreationTrigger]
+  );
 
   const handleCreatePress = useCallback(() => {
     if (isOnDiscoverTab || lastContentTab === 'music') {
@@ -94,12 +102,14 @@ export default function LibrarianLayout() {
 
   if (isAuthLoading || isRoleLoading) {
     return (
-      <View style={{
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: colors.background.primary,
-      }}>
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: colors.background.primary,
+        }}
+      >
         <ActivityIndicator size="large" color={colors.brand.primary} />
       </View>
     );
@@ -110,14 +120,14 @@ export default function LibrarianLayout() {
   }
 
   if (!isLibrarian) {
-    return <Redirect href={"/(user)/books" as any} />;
+    return <Redirect href={'/(user)/books' as any} />;
   }
 
   return (
     <LibrarianCreateContext.Provider value={contextValue}>
       <Tabs
         initialRouteName="books"
-        tabBar={(props) => <AppTabBar {...props} />}
+        tabBar={props => <AppTabBar {...props} />}
         screenOptions={({ route }) => ({
           headerShown: true,
           header: () => {
@@ -175,7 +185,7 @@ export default function LibrarianLayout() {
           options={{
             title: t('librarian.tabs.books') || 'Books',
             tabBarIcon: ({ color, size = 24, focused }) => (
-              <Ionicons name={focused ? "book" : "book-outline"} color={color} size={size} />
+              <Ionicons name={focused ? 'book' : 'book-outline'} color={color} size={size} />
             ),
           }}
         />
@@ -184,7 +194,7 @@ export default function LibrarianLayout() {
           options={{
             title: t('librarian.tabs.music') || 'Music',
             tabBarIcon: ({ color, size = 24, focused }) => (
-              <Ionicons name={focused ? "musical-notes" : "musical-notes-outline"} color={color} size={size} />
+              <Ionicons name={focused ? 'musical-notes' : 'musical-notes-outline'} color={color} size={size} />
             ),
           }}
         />
@@ -206,7 +216,7 @@ export default function LibrarianLayout() {
             },
           }}
           listeners={{
-            tabPress: (e) => {
+            tabPress: e => {
               e.preventDefault();
               handleCreatePress();
             },
@@ -217,7 +227,7 @@ export default function LibrarianLayout() {
           options={{
             title: t('librarian.tabs.studio') || 'Studio',
             tabBarIcon: ({ color, size = 24, focused }) => (
-              <Ionicons name={focused ? "color-palette" : "color-palette-outline"} color={color} size={size} />
+              <Ionicons name={focused ? 'color-palette' : 'color-palette-outline'} color={color} size={size} />
             ),
           }}
         />
@@ -226,7 +236,7 @@ export default function LibrarianLayout() {
           options={{
             title: t('librarian.tabs.settings') || 'Settings',
             tabBarIcon: ({ color, size = 24, focused }) => (
-              <Ionicons name={focused ? "settings" : "settings-outline"} color={color} size={size} />
+              <Ionicons name={focused ? 'settings' : 'settings-outline'} color={color} size={size} />
             ),
           }}
         />

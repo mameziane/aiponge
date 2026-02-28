@@ -9,12 +9,7 @@ import {
 } from '../../database/schemas/library-schema';
 import { eq, and, asc, desc, sql, ilike, or, inArray, isNull, type SQL } from 'drizzle-orm';
 import { getLogger } from '../../../config/service-urls';
-import {
-  BOOK_LIFECYCLE,
-  encodeCursor,
-  decodeCursor,
-  type CursorPaginatedResponse,
-} from '@aiponge/shared-contracts';
+import { BOOK_LIFECYCLE, encodeCursor, decodeCursor, type CursorPaginatedResponse } from '@aiponge/shared-contracts';
 import { ChapterRepository } from './ChapterRepository';
 
 const logger = getLogger('library-repository');
@@ -50,8 +45,6 @@ export interface CreateBookData {
   isReadOnly?: boolean;
   category?: string;
   language?: string;
-  era?: string | null;
-  tradition?: string | null;
   visibility?: string;
   status?: string;
   systemType?: string;
@@ -64,8 +57,6 @@ export interface UpdateBookData {
   author?: string;
   category?: string;
   language?: string;
-  era?: string | null;
-  tradition?: string | null;
   visibility?: string;
   status?: string;
   isReadOnly?: boolean;
@@ -319,8 +310,6 @@ export class BookRepository {
         isReadOnly: libBooks.isReadOnly,
         category: libBooks.category,
         language: libBooks.language,
-        era: libBooks.era,
-        tradition: libBooks.tradition,
         visibility: libBooks.visibility,
         status: libBooks.status,
         systemType: libBooks.systemType,
@@ -353,8 +342,6 @@ export class BookRepository {
       isReadOnly: row.isReadOnly,
       category: row.category,
       language: row.language,
-      era: row.era,
-      tradition: row.tradition,
       visibility: row.visibility,
       status: row.status,
       systemType: row.systemType,
@@ -380,8 +367,6 @@ export class BookRepository {
       isReadOnly: data.isReadOnly ?? false,
       category: data.category,
       language: data.language ?? 'en',
-      era: data.era,
-      tradition: data.tradition,
       visibility: data.visibility ?? CONTENT_VISIBILITY.PERSONAL,
       status: data.status ?? BOOK_LIFECYCLE.ACTIVE,
       systemType: data.systemType,

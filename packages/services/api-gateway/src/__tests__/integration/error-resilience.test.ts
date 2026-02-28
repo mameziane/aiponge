@@ -17,7 +17,7 @@ const mockLogger = vi.hoisted(() => ({
   debug: vi.fn(),
 }));
 
-vi.mock('@aiponge/platform-core', async (importOriginal) => {
+vi.mock('@aiponge/platform-core', async importOriginal => {
   const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
   return {
     ...actual,
@@ -238,8 +238,12 @@ describe('Error Scenarios and Resilience Integration Tests', () => {
 
       const statsResponse = await request(app).get('/test/stats').expect(200);
 
-      const service1Stats = statsResponse.body.data.find((s: Record<string, unknown>) => s.name === 'aggregation-service-1');
-      const service2Stats = statsResponse.body.data.find((s: Record<string, unknown>) => s.name === 'aggregation-service-2');
+      const service1Stats = statsResponse.body.data.find(
+        (s: Record<string, unknown>) => s.name === 'aggregation-service-1'
+      );
+      const service2Stats = statsResponse.body.data.find(
+        (s: Record<string, unknown>) => s.name === 'aggregation-service-2'
+      );
 
       // Service 1 should have failures
       expect(service1Stats.failures).toBeGreaterThan(0);
@@ -285,8 +289,12 @@ describe('Error Scenarios and Resilience Integration Tests', () => {
 
       expect(statsResponse.body.data.length).toBeGreaterThanOrEqual(2);
 
-      const service1Stats = statsResponse.body.data.find((s: Record<string, unknown>) => s.name === 'aggregation-service-1');
-      const service2Stats = statsResponse.body.data.find((s: Record<string, unknown>) => s.name === 'aggregation-service-2');
+      const service1Stats = statsResponse.body.data.find(
+        (s: Record<string, unknown>) => s.name === 'aggregation-service-1'
+      );
+      const service2Stats = statsResponse.body.data.find(
+        (s: Record<string, unknown>) => s.name === 'aggregation-service-2'
+      );
 
       expect(service1Stats).toBeDefined();
       expect(service2Stats).toBeDefined();

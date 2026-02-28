@@ -1,14 +1,18 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 const mockLogger = vi.hoisted(() => ({
-  info: vi.fn(), debug: vi.fn(), warn: vi.fn(), error: vi.fn(), child: vi.fn(),
+  info: vi.fn(),
+  debug: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  child: vi.fn(),
 }));
 
 vi.mock('@aiponge/platform-core', () => ({
   createLogger: () => mockLogger,
   getLogger: () => mockLogger,
   withResilience: vi.fn().mockImplementation((_name: string, fn: () => Promise<unknown>) => fn()),
-  errorMessage: vi.fn((err: unknown) => err instanceof Error ? err.message : String(err)),
+  errorMessage: vi.fn((err: unknown) => (err instanceof Error ? err.message : String(err))),
   createIntervalScheduler: vi.fn(() => ({ start: vi.fn(), stop: vi.fn() })),
   DomainError: class DomainError extends Error {
     public statusCode: number;
@@ -58,7 +62,14 @@ vi.mock('../../errors', () => ({
 const originalEnv = { ...process.env };
 
 interface MusicApiCreditsServiceInstance {
-  getCachedCredits: () => { credits: number; extraCredits: number; totalCredits: number; lastSyncedAt: Date; nextSyncAt: Date; error?: string } | null;
+  getCachedCredits: () => {
+    credits: number;
+    extraCredits: number;
+    totalCredits: number;
+    lastSyncedAt: Date;
+    nextSyncAt: Date;
+    error?: string;
+  } | null;
   initialize: () => Promise<void>;
   refreshCredits: () => Promise<{ credits: number; extraCredits: number; totalCredits: number }>;
   shutdown: () => void;
@@ -77,7 +88,9 @@ describe('MusicApiCreditsService', () => {
     vi.resetModules();
     const mod = await import('../../services/MusicApiCreditsService');
     const modRecord = mod as Record<string, unknown>;
-    let svc = (modRecord.MusicApiCreditsService || modRecord.default) as MusicApiCreditsServiceInstance | { getInstance: () => MusicApiCreditsServiceInstance };
+    let svc = (modRecord.MusicApiCreditsService || modRecord.default) as
+      | MusicApiCreditsServiceInstance
+      | { getInstance: () => MusicApiCreditsServiceInstance };
 
     if (svc && 'getInstance' in svc && typeof svc.getInstance === 'function') {
       service = svc.getInstance();
@@ -199,7 +212,9 @@ describe('MusicApiCreditsService', () => {
 
     it('should skip concurrent sync when one is already in progress', async () => {
       let resolveFirst: (value?: unknown) => void;
-      const firstCallPromise = new Promise(resolve => { resolveFirst = resolve; });
+      const firstCallPromise = new Promise(resolve => {
+        resolveFirst = resolve;
+      });
 
       (globalThis.fetch as ReturnType<typeof vi.fn>).mockImplementation(() => {
         return firstCallPromise.then(() => ({

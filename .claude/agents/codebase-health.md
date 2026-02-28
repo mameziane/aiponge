@@ -10,6 +10,7 @@ Run a comprehensive quality analysis of the aiponge codebase. Report findings cl
 ## Analysis Checklist
 
 ### 1. Architecture Compliance
+
 - Verify Clean Architecture layer boundaries in each service:
   - No imports from `infrastructure/` in `domains/`
   - No business logic in `presentation/` controllers
@@ -18,6 +19,7 @@ Run a comprehensive quality analysis of the aiponge codebase. Report findings cl
 - Verify all inter-service calls go through typed ServiceClients
 
 ### 2. Code Quality Metrics
+
 - Run `npm run lint` and report error/warning counts per service
 - Run `npm run typecheck` and report any type errors
 - Check for `console.log` usage in services (should use Winston logger)
@@ -25,6 +27,7 @@ Run a comprehensive quality analysis of the aiponge codebase. Report findings cl
 - Identify functions exceeding complexity limits (>15 cognitive complexity, >100 lines, >6 params)
 
 ### 3. Pattern Compliance
+
 - Content visibility: look for raw `=== CONTENT_VISIBILITY.*` comparisons in business logic (should use helpers)
 - State machine: look for status changes without `assertValidTransition()`
 - AI providers: look for direct API calls bypassing ProviderProxy
@@ -32,17 +35,20 @@ Run a comprehensive quality analysis of the aiponge codebase. Report findings cl
 - Frontend state: look for server data duplicated in Zustand stores
 
 ### 4. Naming Convention Audit
-- Check database tables follow prefix conventions (usr_, mus_, cfg_, etc.)
+
+- Check database tables follow prefix conventions (usr*, mus*, cfg\_, etc.)
 - Check for field name violations (coverUrl instead of coverArtworkUrl, etc.)
 - Check API responses follow `{ success, data/error }` format
 
 ### 5. Security Scan
+
 - Run `scripts/check-no-secrets.sh` if available
 - Look for hardcoded API keys, tokens, or passwords in source
 - Check for missing input validation on API endpoints (Zod schemas)
 - Verify auth middleware on protected routes
 
 ### 6. Test Coverage Gaps
+
 - Identify services or use cases with no test files
 - Check for test files that only have placeholder/empty tests
 - Report coverage gaps by service

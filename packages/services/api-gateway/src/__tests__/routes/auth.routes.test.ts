@@ -44,17 +44,13 @@ describe('Auth Routes', () => {
   describe('Proxy configuration', () => {
     it('should create proxy middleware with changeOrigin', async () => {
       const { createProxyMiddleware } = await import('http-proxy-middleware');
-      expect(createProxyMiddleware).toHaveBeenCalledWith(
-        expect.objectContaining({ changeOrigin: true })
-      );
+      expect(createProxyMiddleware).toHaveBeenCalledWith(expect.objectContaining({ changeOrigin: true }));
     });
   });
 
   describe('POST /auth/register', () => {
     it('should proxy registration requests', async () => {
-      const res = await request(app)
-        .post('/auth/register')
-        .send({ email: 'test@example.com', password: 'pass123' });
+      const res = await request(app).post('/auth/register').send({ email: 'test@example.com', password: 'pass123' });
       expect(res.status).toBe(200);
       expect(res.body.proxied).toBe(true);
     });
@@ -62,9 +58,7 @@ describe('Auth Routes', () => {
 
   describe('POST /auth/login', () => {
     it('should proxy login requests', async () => {
-      const res = await request(app)
-        .post('/auth/login')
-        .send({ email: 'test@example.com', password: 'pass123' });
+      const res = await request(app).post('/auth/login').send({ email: 'test@example.com', password: 'pass123' });
       expect(res.status).toBe(200);
       expect(res.body.proxied).toBe(true);
     });
@@ -80,9 +74,7 @@ describe('Auth Routes', () => {
 
   describe('POST /auth/authenticate', () => {
     it('should proxy token authentication', async () => {
-      const res = await request(app)
-        .post('/auth/authenticate')
-        .send({ token: 'jwt-token' });
+      const res = await request(app).post('/auth/authenticate').send({ token: 'jwt-token' });
       expect(res.status).toBe(200);
     });
   });
@@ -103,27 +95,21 @@ describe('Auth Routes', () => {
 
   describe('POST /auth/sms/send-code', () => {
     it('should proxy SMS code sending', async () => {
-      const res = await request(app)
-        .post('/auth/sms/send-code')
-        .send({ phone: '+1234567890' });
+      const res = await request(app).post('/auth/sms/send-code').send({ phone: '+1234567890' });
       expect(res.status).toBe(200);
     });
   });
 
   describe('POST /auth/sms/verify-code', () => {
     it('should proxy SMS code verification', async () => {
-      const res = await request(app)
-        .post('/auth/sms/verify-code')
-        .send({ phone: '+1234567890', code: '123456' });
+      const res = await request(app).post('/auth/sms/verify-code').send({ phone: '+1234567890', code: '123456' });
       expect(res.status).toBe(200);
     });
   });
 
   describe('POST /auth/password/request-reset', () => {
     it('should proxy password reset request', async () => {
-      const res = await request(app)
-        .post('/auth/password/request-reset')
-        .send({ email: 'test@example.com' });
+      const res = await request(app).post('/auth/password/request-reset').send({ email: 'test@example.com' });
       expect(res.status).toBe(200);
     });
   });

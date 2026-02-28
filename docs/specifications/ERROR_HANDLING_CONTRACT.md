@@ -14,7 +14,9 @@ This document defines the standardized error handling patterns for the Aiponge m
 ### Location: `src/utils/errorSerialization.ts`
 
 #### `serializeError(error, url?, correlationId?): SerializedError`
+
 Converts any error type to a standardized structure:
+
 ```typescript
 interface SerializedError {
   message: string;
@@ -27,14 +29,18 @@ interface SerializedError {
 ```
 
 #### `logError(error, context?, url?, correlationId?): SerializedError`
+
 Logs error with full context and returns serialized form:
+
 - Uses appropriate log level based on status code
 - 5xx → `logger.error`
 - 4xx → `logger.warn`
 - Silences expected 404s on auth endpoints
 
 #### `getTranslatedFriendlyMessage(error, t): string`
+
 Returns user-friendly translated message:
+
 - Maps error codes to translation keys
 - Falls back to original message for 4xx errors
 - Returns generic message for unknown errors
@@ -42,7 +48,9 @@ Returns user-friendly translated message:
 ### Location: `src/lib/queryErrorHandler.ts`
 
 #### `createQueryErrorHandler(toast, context, endpoint, customTitle?, t?)`
+
 Creates standardized handler for React Query queries:
+
 ```typescript
 const { data } = useQuery({
   queryKey: ['/api/music'],
@@ -51,7 +59,9 @@ const { data } = useQuery({
 ```
 
 #### `createMutationErrorHandler(toast, context, endpoint, customTitle?, t?)`
+
 Creates standardized handler for React Query mutations:
+
 ```typescript
 const mutation = useMutation({
   mutationFn: createTrack,
@@ -60,7 +70,9 @@ const mutation = useMutation({
 ```
 
 #### `createSilentErrorHandler(context, endpoint)`
+
 Logs error without showing toast (for background operations):
+
 ```typescript
 const analyticsQuery = useQuery({
   queryKey: ['/api/analytics'],
@@ -70,21 +82,22 @@ const analyticsQuery = useQuery({
 
 ## Standard Error Codes
 
-| Code | HTTP Status | Translation Key | User Message |
-|------|-------------|-----------------|--------------|
-| `UNAUTHORIZED` | 401 | `errors.sessionExpired` | Your session has expired. Please log in again. |
-| `FORBIDDEN` | 403 | `errors.noPermission` | You don't have permission to perform this action. |
-| `NOT_FOUND` | 404 | `errors.notFound` | The requested item was not found. |
-| `ALREADY_EXISTS` | 409 | `errors.alreadyExists` | This item already exists. |
-| `VALIDATION_ERROR` | 400 | `errors.validationError` | Please check your input and try again. |
-| `RATE_LIMIT_EXCEEDED` | 429 | `errors.rateLimitExceeded` | Too many requests. Please try again later. |
-| `SERVICE_UNAVAILABLE` | 503 | `errors.serviceUnavailable` | Service temporarily unavailable. Please try again shortly. |
-| `TIMEOUT_ERROR` | - | `errors.timeout` | Request timed out. Please try again. |
-| `ERR_NETWORK` | - | `errors.offline` | You appear to be offline. Please check your connection. |
+| Code                  | HTTP Status | Translation Key             | User Message                                               |
+| --------------------- | ----------- | --------------------------- | ---------------------------------------------------------- |
+| `UNAUTHORIZED`        | 401         | `errors.sessionExpired`     | Your session has expired. Please log in again.             |
+| `FORBIDDEN`           | 403         | `errors.noPermission`       | You don't have permission to perform this action.          |
+| `NOT_FOUND`           | 404         | `errors.notFound`           | The requested item was not found.                          |
+| `ALREADY_EXISTS`      | 409         | `errors.alreadyExists`      | This item already exists.                                  |
+| `VALIDATION_ERROR`    | 400         | `errors.validationError`    | Please check your input and try again.                     |
+| `RATE_LIMIT_EXCEEDED` | 429         | `errors.rateLimitExceeded`  | Too many requests. Please try again later.                 |
+| `SERVICE_UNAVAILABLE` | 503         | `errors.serviceUnavailable` | Service temporarily unavailable. Please try again shortly. |
+| `TIMEOUT_ERROR`       | -           | `errors.timeout`            | Request timed out. Please try again.                       |
+| `ERR_NETWORK`         | -           | `errors.offline`            | You appear to be offline. Please check your connection.    |
 
 ## Implementation Pattern
 
 ### For Queries
+
 ```typescript
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -109,6 +122,7 @@ function MyComponent() {
 ```
 
 ### For Mutations
+
 ```typescript
 import { useMutation } from '@tanstack/react-query';
 import { createMutationErrorHandler } from '../lib/queryErrorHandler';
@@ -119,7 +133,7 @@ function MyComponent() {
   const { toast } = useToast();
 
   const mutation = useMutation({
-    mutationFn: (data) => apiRequest('/api/resource', { method: 'POST', body: data }),
+    mutationFn: data => apiRequest('/api/resource', { method: 'POST', body: data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/resource'] });
       toast({ title: t('common.success'), description: t('resource.created') });
@@ -136,6 +150,7 @@ function MyComponent() {
 ```
 
 ### For Direct API Calls
+
 ```typescript
 import { logError, getTranslatedFriendlyMessage } from '../utils/errorSerialization';
 
@@ -155,6 +170,7 @@ async function fetchData() {
 ## Migration Guide
 
 ### Old Pattern (Deprecated)
+
 ```typescript
 // ❌ Don't do this
 try {
@@ -166,6 +182,7 @@ try {
 ```
 
 ### New Pattern (Preferred)
+
 ```typescript
 // ✅ Do this
 try {
@@ -185,7 +202,7 @@ try {
 The `axiosApiClient` reports backend unavailability through the `setBackendErrorReporter`:
 
 ```typescript
-apiClient.setBackendErrorReporter((error) => {
+apiClient.setBackendErrorReporter(error => {
   const serialized = serializeError(error);
   if (isBackendUnavailableError(serialized)) {
     // Show global "backend unavailable" banner
@@ -197,6 +214,7 @@ apiClient.setBackendErrorReporter((error) => {
 ## Fallback Translator
 
 When no translation function is provided, the error handlers use a fallback that:
+
 1. Returns string fallback parameters directly
 2. Returns `defaultValue` from options objects
 3. Falls back to the translation key itself

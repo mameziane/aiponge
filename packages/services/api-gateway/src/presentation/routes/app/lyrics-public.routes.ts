@@ -55,7 +55,7 @@ router.get(
     });
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[PUBLIC LYRICS]') as Record<string, unknown>;
+      const errorData = (await parseErrorBody(response, '[PUBLIC LYRICS]')) as Record<string, unknown>;
       logger.error('[PUBLIC LYRICS] Failed', {
         lyricsId,
         status: response.status,

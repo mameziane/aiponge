@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import type { PsychologicalFramework, FrameworkCategory, FrameworkFilter } from '../domains/frameworks/domain/entities/PsychologicalFramework';
+import type {
+  PsychologicalFramework,
+  FrameworkCategory,
+  FrameworkFilter,
+} from '../domains/frameworks/domain/entities/PsychologicalFramework';
 
 describe('PsychologicalFramework', () => {
   describe('PsychologicalFramework entity', () => {
@@ -200,9 +204,51 @@ describe('PsychologicalFramework', () => {
 
     it('should sort frameworks by sortOrder', () => {
       const frameworks: PsychologicalFramework[] = [
-        { id: '3', name: 'Third', shortName: 'T3', category: 'cognitive', description: '', keyPrinciples: [], therapeuticGoals: [], triggerPatterns: [], songStructureHint: null, isEnabled: true, sortOrder: 3, createdAt: new Date(), updatedAt: new Date() },
-        { id: '1', name: 'First', shortName: 'T1', category: 'cognitive', description: '', keyPrinciples: [], therapeuticGoals: [], triggerPatterns: [], songStructureHint: null, isEnabled: true, sortOrder: 1, createdAt: new Date(), updatedAt: new Date() },
-        { id: '2', name: 'Second', shortName: 'T2', category: 'cognitive', description: '', keyPrinciples: [], therapeuticGoals: [], triggerPatterns: [], songStructureHint: null, isEnabled: true, sortOrder: 2, createdAt: new Date(), updatedAt: new Date() },
+        {
+          id: '3',
+          name: 'Third',
+          shortName: 'T3',
+          category: 'cognitive',
+          description: '',
+          keyPrinciples: [],
+          therapeuticGoals: [],
+          triggerPatterns: [],
+          songStructureHint: null,
+          isEnabled: true,
+          sortOrder: 3,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: '1',
+          name: 'First',
+          shortName: 'T1',
+          category: 'cognitive',
+          description: '',
+          keyPrinciples: [],
+          therapeuticGoals: [],
+          triggerPatterns: [],
+          songStructureHint: null,
+          isEnabled: true,
+          sortOrder: 1,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: '2',
+          name: 'Second',
+          shortName: 'T2',
+          category: 'cognitive',
+          description: '',
+          keyPrinciples: [],
+          therapeuticGoals: [],
+          triggerPatterns: [],
+          songStructureHint: null,
+          isEnabled: true,
+          sortOrder: 2,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
       ];
 
       const sorted = [...frameworks].sort((a, b) => a.sortOrder - b.sortOrder);

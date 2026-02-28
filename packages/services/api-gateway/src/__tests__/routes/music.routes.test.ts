@@ -21,7 +21,10 @@ vi.mock('@aiponge/platform-core', () => ({
     getServicePort: vi.fn(() => 3020),
   },
   serializeError: vi.fn((e: unknown) => String(e)),
-  getValidation: () => ({ validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(), validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next() }),
+  getValidation: () => ({
+    validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+    validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+  }),
 }));
 
 vi.mock('@services/gatewayFetch', () => ({
@@ -115,9 +118,7 @@ describe('Music Routes', () => {
 
   describe('POST /generate', () => {
     it('should return 401 when no user ID', async () => {
-      const res = await request(app)
-        .post('/api/app/music/generate')
-        .send({ entryContent: 'test' });
+      const res = await request(app).post('/api/app/music/generate').send({ entryContent: 'test' });
       expect(res.status).toBe(401);
     });
 
@@ -151,7 +152,10 @@ describe('Music Routes', () => {
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/quota/'), expect.anything());
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/music/generate-track'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/music/generate-track'),
+        expect.anything()
+      );
     });
 
     it('should return 403 when quota exceeded', async () => {
@@ -163,7 +167,11 @@ describe('Music Routes', () => {
               allowed: false,
               code: 'QUOTA_EXCEEDED',
               reason: 'Monthly limit reached',
-              subscription: { tier: TIER_IDS.EXPLORER, isPaidTier: false, usage: { current: 5, limit: 5, remaining: 0 } },
+              subscription: {
+                tier: TIER_IDS.EXPLORER,
+                isPaidTier: false,
+                usage: { current: 5, limit: 5, remaining: 0 },
+              },
               credits: { currentBalance: 0, required: 1, hasCredits: false },
               shouldUpgrade: true,
             },
@@ -190,9 +198,7 @@ describe('Music Routes', () => {
       });
       const incrementResp = mockResponse({ success: true });
 
-      mockGatewayFetch
-        .mockResolvedValueOnce(musicResp)
-        .mockResolvedValueOnce(incrementResp);
+      mockGatewayFetch.mockResolvedValueOnce(musicResp).mockResolvedValueOnce(incrementResp);
 
       const res = await request(app)
         .post('/api/app/music/generate')
@@ -201,7 +207,10 @@ describe('Music Routes', () => {
         .send({ entryContent: 'test' });
 
       expect(res.status).toBe(200);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/library/generate-track'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/library/generate-track'),
+        expect.anything()
+      );
     });
   });
 
@@ -261,29 +270,31 @@ describe('Music Routes', () => {
     });
 
     it('should proxy batch update', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true, data: { updated: 1 } })
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, data: { updated: 1 } }));
       const res = await request(app)
         .patch('/api/app/music/tracks/batch')
         .set('x-user-id', 'user-123')
         .send({ trackIds: ['t1'], visibility: 'private' });
       expect(res.status).toBe(200);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/library/tracks/batch'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/library/tracks/batch'),
+        expect.anything()
+      );
     });
   });
 
   describe('POST /favorites/batch', () => {
     it('should proxy batch favorites', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true })
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true }));
       const res = await request(app)
         .post('/api/app/music/favorites/batch')
         .set('x-user-id', 'user-123')
         .send({ trackIds: ['t1', 't2'] });
       expect(res.status).toBe(200);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/library/favorites/batch'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/library/favorites/batch'),
+        expect.anything()
+      );
     });
   });
 });

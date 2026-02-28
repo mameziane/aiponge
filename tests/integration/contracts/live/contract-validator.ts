@@ -1,6 +1,6 @@
 /**
  * Live API Contract Validator
- * 
+ *
  * Utilities for validating actual API responses against Zod schemas.
  * This catches frontend-backend mismatches before they reach production.
  */
@@ -104,7 +104,7 @@ export class ContractValidator {
       } else if (typeof error === 'string') {
         errorMessage = error;
       }
-      
+
       const result: ContractValidationResult = {
         endpoint: config.endpoint,
         method: config.method,
@@ -150,9 +150,7 @@ export class ContractValidator {
     const failed = this.results.filter(r => r.status === 'fail').length;
     const skipped = this.results.filter(r => r.status === 'skip').length;
     const durations = this.results.filter(r => r.status !== 'skip').map(r => r.duration);
-    const avgDuration = durations.length > 0 
-      ? durations.reduce((a, b) => a + b, 0) / durations.length 
-      : 0;
+    const avgDuration = durations.length > 0 ? durations.reduce((a, b) => a + b, 0) / durations.length : 0;
 
     return {
       total: this.results.length,
@@ -166,7 +164,7 @@ export class ContractValidator {
 
   printSummary(): void {
     const summary = this.getSummary();
-    
+
     console.log('\n' + '='.repeat(60));
     console.log('📋 LIVE API CONTRACT VALIDATION SUMMARY');
     console.log('='.repeat(60));
@@ -175,7 +173,7 @@ export class ContractValidator {
     console.log(`❌ Failed:        ${summary.failed}`);
     console.log(`⏭️  Skipped:       ${summary.skipped}`);
     console.log(`⏱️  Avg Duration:  ${summary.avgDuration}ms`);
-    
+
     if (summary.failures.length > 0) {
       console.log('\n🔴 Contract Violations:');
       for (const failure of summary.failures) {
@@ -188,7 +186,7 @@ export class ContractValidator {
         }
       }
     }
-    
+
     console.log('='.repeat(60));
   }
 

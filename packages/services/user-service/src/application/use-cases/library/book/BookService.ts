@@ -32,8 +32,6 @@ export const createBookInputSchema = z.object({
   isReadOnly: z.boolean().optional(),
   category: z.string().max(100).optional(),
   language: z.string().max(10).optional(),
-  era: z.string().max(100).nullish(),
-  tradition: z.string().max(100).nullish(),
   visibility: ContentVisibilitySchema.optional(),
 });
 
@@ -47,8 +45,6 @@ export const updateBookInputSchema = z.object({
   isReadOnly: z.boolean().optional(),
   category: z.string().max(100).optional(),
   language: z.string().max(10).optional(),
-  era: z.string().max(100).nullish(),
-  tradition: z.string().max(100).nullish(),
   visibility: ContentVisibilitySchema.optional(),
   status: z.enum(['draft', 'active', 'archived']).optional(),
 });
@@ -147,8 +143,6 @@ export class BookService {
         author: parsed.data.author,
         category: parsed.data.category,
         language: parsed.data.language,
-        era: parsed.data.era,
-        tradition: parsed.data.tradition,
         visibility: resolvedVisibility,
         userId: context.userId,
         isReadOnly: resolvedIsReadOnly,

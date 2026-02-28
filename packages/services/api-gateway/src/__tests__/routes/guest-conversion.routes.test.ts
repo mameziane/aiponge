@@ -20,7 +20,10 @@ vi.mock('@aiponge/platform-core', () => ({
     getServicePort: vi.fn(() => 3020),
   },
   serializeError: vi.fn((e: unknown) => String(e)),
-  getValidation: () => ({ validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(), validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next() }),
+  getValidation: () => ({
+    validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+    validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+  }),
 }));
 
 vi.mock('@services/gatewayFetch', () => ({
@@ -111,14 +114,15 @@ describe('Guest Conversion Routes', () => {
 
   describe('GET /policy', () => {
     it('should return 200 without auth (public endpoint)', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true, data: { thresholds: {}, messages: {} } })
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, data: { thresholds: {}, messages: {} } }));
 
       const res = await request(app).get('/api/app/guest-conversion/policy');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/guest-conversion/policy'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/guest-conversion/policy'),
+        expect.anything()
+      );
     });
   });
 
@@ -129,24 +133,21 @@ describe('Guest Conversion Routes', () => {
     });
 
     it('should return 200 with user-id', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true, data: { isGuest: true, actionsCount: 3 } })
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, data: { isGuest: true, actionsCount: 3 } }));
 
-      const res = await request(app)
-        .get('/api/app/guest-conversion/state')
-        .set('x-user-id', 'user-123');
+      const res = await request(app).get('/api/app/guest-conversion/state').set('x-user-id', 'user-123');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/guest-conversion/'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/guest-conversion/'),
+        expect.anything()
+      );
     });
   });
 
   describe('POST /event', () => {
     it('should return 401 without user-id', async () => {
-      const res = await request(app)
-        .post('/api/app/guest-conversion/event')
-        .send({ eventType: 'song_created' });
+      const res = await request(app).post('/api/app/guest-conversion/event').send({ eventType: 'song_created' });
       expect(res.status).toBe(401);
     });
 
@@ -159,16 +160,17 @@ describe('Guest Conversion Routes', () => {
     });
 
     it('should return 200 for valid event', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true, data: { shouldPrompt: false } })
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, data: { shouldPrompt: false } }));
 
       const res = await request(app)
         .post('/api/app/guest-conversion/event')
         .set('x-user-id', 'user-123')
         .send({ eventType: 'song_created' });
       expect(res.status).toBe(200);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/guest-conversion/'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/guest-conversion/'),
+        expect.anything()
+      );
     });
   });
 
@@ -179,15 +181,14 @@ describe('Guest Conversion Routes', () => {
     });
 
     it('should return 200 with user-id', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true, data: { converted: true } })
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, data: { converted: true } }));
 
-      const res = await request(app)
-        .post('/api/app/guest-conversion/convert')
-        .set('x-user-id', 'user-123');
+      const res = await request(app).post('/api/app/guest-conversion/convert').set('x-user-id', 'user-123');
       expect(res.status).toBe(200);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/guest-conversion/'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/guest-conversion/'),
+        expect.anything()
+      );
     });
   });
 });

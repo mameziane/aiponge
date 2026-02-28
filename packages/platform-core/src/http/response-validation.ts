@@ -7,28 +7,20 @@ const logger = createLogger('response-validation');
 export class ContractViolationError extends ServiceError {
   readonly zodError: ZodError;
 
-  constructor(
-    sourceService: string,
-    operation: string,
-    zodError: ZodError
-  ) {
-    super(
-      'ContractViolationError',
-      `Response contract violation from ${sourceService} in ${operation}`,
-      {
-        statusCode: 502,
-        code: 'CONTRACT_VIOLATION',
-        details: {
-          sourceService,
-          operation,
-          issues: zodError.issues.map(i => ({
-            path: i.path.join('.'),
-            message: i.message,
-            code: i.code,
-          })),
-        },
-      }
-    );
+  constructor(sourceService: string, operation: string, zodError: ZodError) {
+    super('ContractViolationError', `Response contract violation from ${sourceService} in ${operation}`, {
+      statusCode: 502,
+      code: 'CONTRACT_VIOLATION',
+      details: {
+        sourceService,
+        operation,
+        issues: zodError.issues.map(i => ({
+          path: i.path.join('.'),
+          message: i.message,
+          code: i.code,
+        })),
+      },
+    });
     this.zodError = zodError;
   }
 }

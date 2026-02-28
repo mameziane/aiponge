@@ -1,7 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const mockLogger = vi.hoisted(() => ({
-  info: vi.fn(), debug: vi.fn(), warn: vi.fn(), error: vi.fn(), child: vi.fn(),
+  info: vi.fn(),
+  debug: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  child: vi.fn(),
 }));
 vi.mock('@aiponge/platform-core', () => ({
   createLogger: () => mockLogger,
@@ -99,21 +103,25 @@ describe('GetOptimizedStreamUrlUseCase', () => {
     it('should throw when track is not ready for streaming', async () => {
       mockAudioClient.isTrackReady.mockResolvedValue(false);
 
-      await expect(useCase.execute({
-        trackId: 'track-1',
-        preferredQuality: StreamQuality.HIGH,
-      })).rejects.toThrow(StreamingError);
+      await expect(
+        useCase.execute({
+          trackId: 'track-1',
+          preferredQuality: StreamQuality.HIGH,
+        })
+      ).rejects.toThrow(StreamingError);
     });
 
     it('should throw when no suitable quality is available', async () => {
       mockAudioClient.isTrackReady.mockResolvedValue(true);
       mockAudioClient.getAvailableQualities.mockResolvedValue([]);
 
-      await expect(useCase.execute({
-        trackId: 'track-1',
-        preferredQuality: StreamQuality.LOSSLESS,
-        fallbackToLower: false,
-      })).rejects.toThrow(StreamingError);
+      await expect(
+        useCase.execute({
+          trackId: 'track-1',
+          preferredQuality: StreamQuality.LOSSLESS,
+          fallbackToLower: false,
+        })
+      ).rejects.toThrow(StreamingError);
     });
   });
 
@@ -121,10 +129,12 @@ describe('GetOptimizedStreamUrlUseCase', () => {
     it('should throw StreamingError when audio client fails', async () => {
       mockAudioClient.isTrackReady.mockRejectedValue(new Error('Service timeout'));
 
-      await expect(useCase.execute({
-        trackId: 'track-1',
-        preferredQuality: StreamQuality.HIGH,
-      })).rejects.toThrow(StreamingError);
+      await expect(
+        useCase.execute({
+          trackId: 'track-1',
+          preferredQuality: StreamQuality.HIGH,
+        })
+      ).rejects.toThrow(StreamingError);
     });
 
     it('should not fail when analytics recording fails', async () => {

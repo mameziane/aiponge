@@ -146,14 +146,22 @@ vi.mock('../../../infrastructure/clients', () => ({
 }));
 
 const mockBookGenerationRepo = {
-  createRequest: vi.fn().mockResolvedValue({ id: 'req-1', status: 'pending', userId: 'user-123', primaryGoal: 'test', createdAt: new Date() }),
+  createRequest: vi.fn().mockResolvedValue({
+    id: 'req-1',
+    status: 'pending',
+    userId: 'user-123',
+    primaryGoal: 'test',
+    createdAt: new Date(),
+  }),
   getActiveRequestForUser: vi.fn().mockResolvedValue(null),
   getRequestByIdAndUser: vi.fn().mockResolvedValue(null),
   updateStatus: vi.fn().mockResolvedValue(undefined),
   getRequestById: vi.fn().mockResolvedValue(null),
 };
 const mockBookTypeRepoInternal = {
-  getById: vi.fn().mockResolvedValue({ id: 'personal', promptTemplateId: 'personal-book', isUserCreatable: true, isEditable: true }),
+  getById: vi
+    .fn()
+    .mockResolvedValue({ id: 'personal', promptTemplateId: 'personal-book', isUserCreatable: true, isEditable: true }),
 };
 const mockSubscriptionRepo = {
   getSubscriptionByUserId: vi.fn().mockResolvedValue({ status: 'active', subscriptionTier: 'personal' }),
@@ -200,8 +208,6 @@ function makeBook(overrides: Record<string, unknown> = {}) {
     isReadOnly: false,
     category: null,
     language: null,
-    era: null,
-    tradition: null,
     visibility: 'personal',
     status: 'active',
     systemType: null,
@@ -324,9 +330,7 @@ describe('Library Use Cases', () => {
           getByBook: vi.fn().mockResolvedValue([]),
         };
 
-        const { BookService } = await import(
-          '../../../application/use-cases/library/book/BookService'
-        );
+        const { BookService } = await import('../../../application/use-cases/library/book/BookService');
         bookService = new BookService(
           mockBookRepo,
           mockBookTypeRepo,
@@ -337,10 +341,7 @@ describe('Library Use Cases', () => {
       });
 
       it('should create a book successfully', async () => {
-        const result = await bookService.create(
-          { typeId: 'personal', title: 'My Book' },
-          createContext()
-        );
+        const result = await bookService.create({ typeId: 'personal', title: 'My Book' }, createContext());
         expect(result.success).toBe(true);
         if (result.success) {
           expect(result.data.book.title).toBe('Test Book');
@@ -349,10 +350,7 @@ describe('Library Use Cases', () => {
       });
 
       it('should return validation error for empty title', async () => {
-        const result = await bookService.create(
-          { typeId: 'personal', title: '' },
-          createContext()
-        );
+        const result = await bookService.create({ typeId: 'personal', title: '' }, createContext());
         expect(result.success).toBe(false);
         if (!result.success) {
           expect(result.error.code).toBe('VALIDATION_ERROR');
@@ -361,10 +359,7 @@ describe('Library Use Cases', () => {
 
       it('should return not found when book type does not exist', async () => {
         mockBookTypeRepo.getById.mockResolvedValue(null);
-        const result = await bookService.create(
-          { typeId: 'nonexistent', title: 'My Book' },
-          createContext()
-        );
+        const result = await bookService.create({ typeId: 'nonexistent', title: 'My Book' }, createContext());
         expect(result.success).toBe(false);
         if (!result.success) {
           expect(result.error.code).toBe('NOT_FOUND');
@@ -389,22 +384,14 @@ describe('Library Use Cases', () => {
       });
 
       it('should update a book successfully', async () => {
-        const result = await bookService.update(
-          TEST_BOOK_ID,
-          { title: 'Updated Title' },
-          createContext()
-        );
+        const result = await bookService.update(TEST_BOOK_ID, { title: 'Updated Title' }, createContext());
         expect(result.success).toBe(true);
         expect(mockBookRepo.update).toHaveBeenCalledWith(TEST_BOOK_ID, { title: 'Updated Title' });
       });
 
       it('should return not found on update for missing book', async () => {
         mockBookRepo.getById.mockResolvedValue(null);
-        const result = await bookService.update(
-          'missing-id',
-          { title: 'Updated' },
-          createContext()
-        );
+        const result = await bookService.update('missing-id', { title: 'Updated' }, createContext());
         expect(result.success).toBe(false);
         if (!result.success) {
           expect(result.error.code).toBe('NOT_FOUND');
@@ -413,11 +400,7 @@ describe('Library Use Cases', () => {
 
       it('should return forbidden when updating read-only book', async () => {
         mockBookRepo.getById.mockResolvedValue(makeBook({ isReadOnly: true }));
-        const result = await bookService.update(
-          TEST_BOOK_ID,
-          { title: 'Updated' },
-          createContext()
-        );
+        const result = await bookService.update(TEST_BOOK_ID, { title: 'Updated' }, createContext());
         expect(result.success).toBe(false);
         if (!result.success) {
           expect(result.error.code).toBe('FORBIDDEN');
@@ -469,9 +452,7 @@ describe('Library Use Cases', () => {
         });
         mockAuthRepo.getUserById.mockResolvedValue({ id: TEST_USER_ID, role: 'user' });
 
-        const { GenerateBookUseCase } = await import(
-          '../../../application/use-cases/library/GenerateBookUseCase'
-        );
+        const { GenerateBookUseCase } = await import('../../../application/use-cases/library/GenerateBookUseCase');
         useCase = new GenerateBookUseCase();
       });
 
@@ -565,17 +546,13 @@ describe('Library Use Cases', () => {
           updateChapterCount: vi.fn().mockResolvedValue(undefined),
         };
 
-        const { CreateChapterUseCase } = await import(
-          '../../../application/use-cases/library/chapter/CreateChapterUseCase'
-        );
+        const { CreateChapterUseCase } =
+          await import('../../../application/use-cases/library/chapter/CreateChapterUseCase');
         useCase = new CreateChapterUseCase(mockChapterRepo, mockBookRepo);
       });
 
       it('should create a chapter successfully', async () => {
-        const result = await useCase.execute(
-          { bookId: TEST_BOOK_ID, title: 'Chapter 1' },
-          createContext()
-        );
+        const result = await useCase.execute({ bookId: TEST_BOOK_ID, title: 'Chapter 1' }, createContext());
         expect(result.success).toBe(true);
         if (result.success) {
           expect(result.data.chapter.title).toBe('Test Chapter');
@@ -584,10 +561,7 @@ describe('Library Use Cases', () => {
       });
 
       it('should return validation error for invalid bookId', async () => {
-        const result = await useCase.execute(
-          { bookId: 'not-a-uuid', title: 'Chapter 1' },
-          createContext()
-        );
+        const result = await useCase.execute({ bookId: 'not-a-uuid', title: 'Chapter 1' }, createContext());
         expect(result.success).toBe(false);
         if (!result.success) {
           expect(result.error.code).toBe('VALIDATION_ERROR');
@@ -596,10 +570,7 @@ describe('Library Use Cases', () => {
 
       it('should return not found when book does not exist', async () => {
         mockBookRepo.getById.mockResolvedValue(null);
-        const result = await useCase.execute(
-          { bookId: TEST_BOOK_ID, title: 'Chapter 1' },
-          createContext()
-        );
+        const result = await useCase.execute({ bookId: TEST_BOOK_ID, title: 'Chapter 1' }, createContext());
         expect(result.success).toBe(false);
         if (!result.success) {
           expect(result.error.code).toBe('NOT_FOUND');
@@ -622,9 +593,8 @@ describe('Library Use Cases', () => {
           updateChapterCount: vi.fn().mockResolvedValue(undefined),
         };
 
-        const { DeleteChapterUseCase } = await import(
-          '../../../application/use-cases/library/chapter/DeleteChapterUseCase'
-        );
+        const { DeleteChapterUseCase } =
+          await import('../../../application/use-cases/library/chapter/DeleteChapterUseCase');
         useCase = new DeleteChapterUseCase(mockChapterRepo, mockBookRepo);
       });
 
@@ -664,9 +634,7 @@ describe('Library Use Cases', () => {
           getByChapter: vi.fn().mockResolvedValue([]),
         };
 
-        const { GetChapterUseCase } = await import(
-          '../../../application/use-cases/library/chapter/GetChapterUseCase'
-        );
+        const { GetChapterUseCase } = await import('../../../application/use-cases/library/chapter/GetChapterUseCase');
         useCase = new GetChapterUseCase(mockChapterRepo, mockBookRepo, mockIllustrationRepo);
       });
 
@@ -710,9 +678,7 @@ describe('Library Use Cases', () => {
           updateEntryCount: vi.fn().mockResolvedValue(undefined),
         };
 
-        const { CreateEntryUseCase } = await import(
-          '../../../application/use-cases/library/entry/CreateEntryUseCase'
-        );
+        const { CreateEntryUseCase } = await import('../../../application/use-cases/library/entry/CreateEntryUseCase');
         useCase = new CreateEntryUseCase(mockEntryRepo, mockChapterRepo, mockBookRepo);
       });
 
@@ -774,9 +740,7 @@ describe('Library Use Cases', () => {
           getByEntry: vi.fn().mockResolvedValue([]),
         };
 
-        const { GetEntryUseCase } = await import(
-          '../../../application/use-cases/library/entry/GetEntryUseCase'
-        );
+        const { GetEntryUseCase } = await import('../../../application/use-cases/library/entry/GetEntryUseCase');
         useCase = new GetEntryUseCase(mockEntryRepo, mockChapterRepo, mockBookRepo, mockIllustrationRepo);
       });
 
@@ -817,18 +781,12 @@ describe('Library Use Cases', () => {
           getById: vi.fn().mockResolvedValue(makeBook()),
         };
 
-        const { UpdateEntryUseCase } = await import(
-          '../../../application/use-cases/library/entry/UpdateEntryUseCase'
-        );
+        const { UpdateEntryUseCase } = await import('../../../application/use-cases/library/entry/UpdateEntryUseCase');
         useCase = new UpdateEntryUseCase(mockEntryRepo, mockChapterRepo, mockBookRepo);
       });
 
       it('should update an entry successfully', async () => {
-        const result = await useCase.execute(
-          TEST_ENTRY_ID,
-          { content: 'Updated content' },
-          createContext()
-        );
+        const result = await useCase.execute(TEST_ENTRY_ID, { content: 'Updated content' }, createContext());
         expect(result.success).toBe(true);
         if (result.success) {
           expect(result.data.changes.fieldsUpdated).toContain('content');
@@ -838,11 +796,7 @@ describe('Library Use Cases', () => {
 
       it('should return not found for missing entry', async () => {
         mockEntryRepo.getById.mockResolvedValue(null);
-        const result = await useCase.execute(
-          'missing-id',
-          { content: 'Updated' },
-          createContext()
-        );
+        const result = await useCase.execute('missing-id', { content: 'Updated' }, createContext());
         expect(result.success).toBe(false);
         if (!result.success) {
           expect(result.error.code).toBe('NOT_FOUND');
@@ -888,15 +842,8 @@ describe('Library Use Cases', () => {
           getByEntry: vi.fn().mockResolvedValue([]),
         };
 
-        const { DeleteEntryUseCase } = await import(
-          '../../../application/use-cases/library/entry/DeleteEntryUseCase'
-        );
-        useCase = new DeleteEntryUseCase(
-          mockEntryRepo,
-          mockChapterRepo,
-          mockBookRepo,
-          mockIllustrationRepo
-        );
+        const { DeleteEntryUseCase } = await import('../../../application/use-cases/library/entry/DeleteEntryUseCase');
+        useCase = new DeleteEntryUseCase(mockEntryRepo, mockChapterRepo, mockBookRepo, mockIllustrationRepo);
       });
 
       it('should delete an entry successfully', async () => {
@@ -954,9 +901,7 @@ describe('Library Use Cases', () => {
           getByEntry: vi.fn().mockResolvedValue([]),
         };
 
-        const { ListEntriesUseCase } = await import(
-          '../../../application/use-cases/library/entry/ListEntriesUseCase'
-        );
+        const { ListEntriesUseCase } = await import('../../../application/use-cases/library/entry/ListEntriesUseCase');
         useCase = new ListEntriesUseCase(mockEntryRepo, mockChapterRepo, mockBookRepo, mockIllustrationRepo);
       });
 
@@ -1005,9 +950,8 @@ describe('Library Use Cases', () => {
           updateEntry: vi.fn().mockResolvedValue(makeEntry()),
         };
 
-        const { ArchiveEntryUseCase } = await import(
-          '../../../application/use-cases/library/entry/ArchiveEntryUseCase'
-        );
+        const { ArchiveEntryUseCase } =
+          await import('../../../application/use-cases/library/entry/ArchiveEntryUseCase');
         useCase = new ArchiveEntryUseCase(mockIntelligenceRepo);
       });
 
@@ -1032,9 +976,7 @@ describe('Library Use Cases', () => {
 
       it('should throw when entry not found', async () => {
         mockIntelligenceRepo.findEntryById.mockResolvedValue(null);
-        await expect(
-          useCase.execute({ entryId: 'missing-id', userId: TEST_USER_ID, archive: true })
-        ).rejects.toThrow();
+        await expect(useCase.execute({ entryId: 'missing-id', userId: TEST_USER_ID, archive: true })).rejects.toThrow();
       });
 
       it('should throw when user does not own the entry', async () => {
@@ -1045,9 +987,7 @@ describe('Library Use Cases', () => {
       });
 
       it('should throw when entryId is empty', async () => {
-        await expect(
-          useCase.execute({ entryId: '', userId: TEST_USER_ID, archive: true })
-        ).rejects.toThrow();
+        await expect(useCase.execute({ entryId: '', userId: TEST_USER_ID, archive: true })).rejects.toThrow();
       });
     });
 
@@ -1072,21 +1012,19 @@ describe('Library Use Cases', () => {
         mockBookRepo = {
           getById: vi.fn().mockResolvedValue(makeBook()),
           getBySystemType: vi.fn().mockResolvedValue(null),
-          getOrCreateSharedNotesBook: vi.fn().mockResolvedValue(makeBook({ id: 'shared-book-id', visibility: 'shared' })),
+          getOrCreateSharedNotesBook: vi
+            .fn()
+            .mockResolvedValue(makeBook({ id: 'shared-book-id', visibility: 'shared' })),
           updateEntryCount: vi.fn().mockResolvedValue(undefined),
         };
 
-        const { PromoteEntryUseCase } = await import(
-          '../../../application/use-cases/library/entry/PromoteEntryUseCase'
-        );
+        const { PromoteEntryUseCase } =
+          await import('../../../application/use-cases/library/entry/PromoteEntryUseCase');
         useCase = new PromoteEntryUseCase(mockEntryRepo, mockChapterRepo, mockBookRepo);
       });
 
       it('should promote an entry to shared library', async () => {
-        const result = await useCase.execute(
-          { entryId: TEST_ENTRY_ID },
-          createContext()
-        );
+        const result = await useCase.execute({ entryId: TEST_ENTRY_ID }, createContext());
         expect(result.success).toBe(true);
         if (result.success) {
           expect(result.data.originalEntryId).toBe(TEST_ENTRY_ID);
@@ -1096,10 +1034,7 @@ describe('Library Use Cases', () => {
 
       it('should return not found for missing entry', async () => {
         mockEntryRepo.getById.mockResolvedValue(null);
-        const result = await useCase.execute(
-          { entryId: TEST_ENTRY_ID },
-          createContext()
-        );
+        const result = await useCase.execute({ entryId: TEST_ENTRY_ID }, createContext());
         expect(result.success).toBe(false);
         if (!result.success) {
           expect(result.error.code).toBe('NOT_FOUND');
@@ -1107,10 +1042,7 @@ describe('Library Use Cases', () => {
       });
 
       it('should return validation error for invalid entryId format', async () => {
-        const result = await useCase.execute(
-          { entryId: 'not-a-uuid' },
-          createContext()
-        );
+        const result = await useCase.execute({ entryId: 'not-a-uuid' }, createContext());
         expect(result.success).toBe(false);
         if (!result.success) {
           expect(result.error.code).toBe('VALIDATION_ERROR');
@@ -1127,9 +1059,9 @@ describe('Library Use Cases', () => {
       beforeEach(async () => {
         mockEntryRepo = {
           getById: vi.fn().mockResolvedValue(makeEntry()),
-          getByChapter: vi.fn().mockResolvedValue([
-            makeEntry({ id: 'promoted-copy', metadata: { sourceEntryId: TEST_ENTRY_ID } }),
-          ]),
+          getByChapter: vi
+            .fn()
+            .mockResolvedValue([makeEntry({ id: 'promoted-copy', metadata: { sourceEntryId: TEST_ENTRY_ID } })]),
           delete: vi.fn().mockResolvedValue(undefined),
         };
         mockChapterRepo = {
@@ -1143,17 +1075,13 @@ describe('Library Use Cases', () => {
           updateEntryCount: vi.fn().mockResolvedValue(undefined),
         };
 
-        const { UnpromoteEntryUseCase } = await import(
-          '../../../application/use-cases/library/entry/UnpromoteEntryUseCase'
-        );
+        const { UnpromoteEntryUseCase } =
+          await import('../../../application/use-cases/library/entry/UnpromoteEntryUseCase');
         useCase = new UnpromoteEntryUseCase(mockEntryRepo, mockChapterRepo, mockBookRepo);
       });
 
       it('should unpromote an entry successfully', async () => {
-        const result = await useCase.execute(
-          { entryId: TEST_ENTRY_ID },
-          createContext()
-        );
+        const result = await useCase.execute({ entryId: TEST_ENTRY_ID }, createContext());
         expect(result.success).toBe(true);
         if (result.success) {
           expect(result.data.originalEntryId).toBe(TEST_ENTRY_ID);
@@ -1163,10 +1091,7 @@ describe('Library Use Cases', () => {
 
       it('should return not found for missing entry', async () => {
         mockEntryRepo.getById.mockResolvedValue(null);
-        const result = await useCase.execute(
-          { entryId: TEST_ENTRY_ID },
-          createContext()
-        );
+        const result = await useCase.execute({ entryId: TEST_ENTRY_ID }, createContext());
         expect(result.success).toBe(false);
         if (!result.success) {
           expect(result.error.code).toBe('NOT_FOUND');
@@ -1175,10 +1100,7 @@ describe('Library Use Cases', () => {
 
       it('should return validation error when entry not promoted', async () => {
         mockBookRepo.getBySystemType.mockResolvedValue(null);
-        const result = await useCase.execute(
-          { entryId: TEST_ENTRY_ID },
-          createContext()
-        );
+        const result = await useCase.execute({ entryId: TEST_ENTRY_ID }, createContext());
         expect(result.success).toBe(false);
         if (!result.success) {
           expect(result.error.code).toBe('VALIDATION_ERROR');
@@ -1201,9 +1123,8 @@ describe('Library Use Cases', () => {
           recordAnalyticsEvent: vi.fn().mockResolvedValue(undefined),
         };
 
-        const { DetectEntryPatternsUseCase } = await import(
-          '../../../application/use-cases/library/entry/DetectEntryPatternsUseCase'
-        );
+        const { DetectEntryPatternsUseCase } =
+          await import('../../../application/use-cases/library/entry/DetectEntryPatternsUseCase');
         useCase = new DetectEntryPatternsUseCase(mockAnalysisRepo);
       });
 
@@ -1220,16 +1141,12 @@ describe('Library Use Cases', () => {
       });
 
       it('should throw when less than 3 entries', async () => {
-        mockAnalysisRepo.getEntriesByUser.mockResolvedValue([
-          { id: '1', content: 'Short', createdAt: new Date() },
-        ]);
+        mockAnalysisRepo.getEntriesByUser.mockResolvedValue([{ id: '1', content: 'Short', createdAt: new Date() }]);
         await expect(useCase.execute({ userId: TEST_USER_ID })).rejects.toThrow();
       });
 
       it('should throw for invalid minConfidence', async () => {
-        await expect(
-          useCase.execute({ userId: TEST_USER_ID, minConfidence: 2 })
-        ).rejects.toThrow();
+        await expect(useCase.execute({ userId: TEST_USER_ID, minConfidence: 2 })).rejects.toThrow();
       });
     });
 
@@ -1239,18 +1156,17 @@ describe('Library Use Cases', () => {
 
       beforeEach(async () => {
         mockIntelligenceRepo = {
-          findEntriesByUserId: vi.fn().mockResolvedValue([
-            makeEntry({ id: 'e1', content: 'Entry one content for analysis' }),
-          ]),
+          findEntriesByUserId: vi
+            .fn()
+            .mockResolvedValue([makeEntry({ id: 'e1', content: 'Entry one content for analysis' })]),
           findEntriesByIds: vi.fn().mockResolvedValue([]),
           createInsightsBulk: vi.fn().mockResolvedValue([]),
           updateEntriesBatch: vi.fn().mockResolvedValue(1),
           findInsightsByEntryId: vi.fn().mockResolvedValue([]),
         };
 
-        const { BatchAnalyzeEntriesUseCase } = await import(
-          '../../../application/use-cases/library/entry/BatchAnalyzeEntriesUseCase'
-        );
+        const { BatchAnalyzeEntriesUseCase } =
+          await import('../../../application/use-cases/library/entry/BatchAnalyzeEntriesUseCase');
         useCase = new BatchAnalyzeEntriesUseCase(mockIntelligenceRepo);
       });
 
@@ -1265,22 +1181,16 @@ describe('Library Use Cases', () => {
       });
 
       it('should throw when userId is empty', async () => {
-        await expect(
-          useCase.execute({ userId: '', analysisTypes: ['sentiment'] })
-        ).rejects.toThrow();
+        await expect(useCase.execute({ userId: '', analysisTypes: ['sentiment'] })).rejects.toThrow();
       });
 
       it('should throw when analysisTypes is empty', async () => {
-        await expect(
-          useCase.execute({ userId: TEST_USER_ID, analysisTypes: [] })
-        ).rejects.toThrow();
+        await expect(useCase.execute({ userId: TEST_USER_ID, analysisTypes: [] })).rejects.toThrow();
       });
 
       it('should throw when no entries found', async () => {
         mockIntelligenceRepo.findEntriesByUserId.mockResolvedValue([]);
-        await expect(
-          useCase.execute({ userId: TEST_USER_ID, analysisTypes: ['sentiment'] })
-        ).rejects.toThrow();
+        await expect(useCase.execute({ userId: TEST_USER_ID, analysisTypes: ['sentiment'] })).rejects.toThrow();
       });
     });
 
@@ -1295,9 +1205,8 @@ describe('Library Use Cases', () => {
           addEntryIllustration: vi.fn().mockResolvedValue({ id: 'img-1', url: 'https://example.com/img.jpg' }),
         };
 
-        const { AddEntryImageUseCase } = await import(
-          '../../../application/use-cases/library/entry/EntryImagesUseCase'
-        );
+        const { AddEntryImageUseCase } =
+          await import('../../../application/use-cases/library/entry/EntryImagesUseCase');
         useCase = new AddEntryImageUseCase(mockIntelligenceRepo);
       });
 
@@ -1327,7 +1236,10 @@ describe('Library Use Cases', () => {
 
       it('should throw when max images exceeded', async () => {
         mockIntelligenceRepo.findEntryIllustrations.mockResolvedValue([
-          { id: '1' }, { id: '2' }, { id: '3' }, { id: '4' },
+          { id: '1' },
+          { id: '2' },
+          { id: '3' },
+          { id: '4' },
         ]);
         await expect(
           useCase.execute({ entryId: TEST_ENTRY_ID, userId: TEST_USER_ID, url: 'https://example.com/img.jpg' })
@@ -1346,9 +1258,8 @@ describe('Library Use Cases', () => {
           findEntryIllustrations: vi.fn().mockResolvedValue([]),
         };
 
-        const { RemoveEntryImageUseCase } = await import(
-          '../../../application/use-cases/library/entry/EntryImagesUseCase'
-        );
+        const { RemoveEntryImageUseCase } =
+          await import('../../../application/use-cases/library/entry/EntryImagesUseCase');
         useCase = new RemoveEntryImageUseCase(mockIntelligenceRepo);
       });
 
@@ -1379,9 +1290,8 @@ describe('Library Use Cases', () => {
           findEntryIllustrations: vi.fn().mockResolvedValue([{ id: 'img-1' }]),
         };
 
-        const { GetEntryImagesUseCase } = await import(
-          '../../../application/use-cases/library/entry/EntryImagesUseCase'
-        );
+        const { GetEntryImagesUseCase } =
+          await import('../../../application/use-cases/library/entry/EntryImagesUseCase');
         useCase = new GetEntryImagesUseCase(mockIntelligenceRepo);
       });
 
@@ -1396,16 +1306,12 @@ describe('Library Use Cases', () => {
 
       it('should throw when entry not found', async () => {
         mockIntelligenceRepo.findEntryById.mockResolvedValue(null);
-        await expect(
-          useCase.execute({ entryId: 'missing', userId: TEST_USER_ID })
-        ).rejects.toThrow();
+        await expect(useCase.execute({ entryId: 'missing', userId: TEST_USER_ID })).rejects.toThrow();
       });
 
       it('should throw when user does not own entry', async () => {
         mockIntelligenceRepo.findEntryById.mockResolvedValue(makeEntry({ userId: OTHER_USER_ID }));
-        await expect(
-          useCase.execute({ entryId: TEST_ENTRY_ID, userId: TEST_USER_ID })
-        ).rejects.toThrow();
+        await expect(useCase.execute({ entryId: TEST_ENTRY_ID, userId: TEST_USER_ID })).rejects.toThrow();
       });
     });
 
@@ -1419,9 +1325,8 @@ describe('Library Use Cases', () => {
           reorderEntryIllustrations: vi.fn().mockResolvedValue([{ id: 'img-2' }, { id: 'img-1' }]),
         };
 
-        const { ReorderEntryImagesUseCase } = await import(
-          '../../../application/use-cases/library/entry/EntryImagesUseCase'
-        );
+        const { ReorderEntryImagesUseCase } =
+          await import('../../../application/use-cases/library/entry/EntryImagesUseCase');
         useCase = new ReorderEntryImagesUseCase(mockIntelligenceRepo);
       });
 
@@ -1435,9 +1340,7 @@ describe('Library Use Cases', () => {
       });
 
       it('should throw when imageIds is empty', async () => {
-        await expect(
-          useCase.execute({ entryId: TEST_ENTRY_ID, userId: TEST_USER_ID, imageIds: [] })
-        ).rejects.toThrow();
+        await expect(useCase.execute({ entryId: TEST_ENTRY_ID, userId: TEST_USER_ID, imageIds: [] })).rejects.toThrow();
       });
 
       it('should throw when user does not own entry', async () => {
@@ -1471,15 +1374,9 @@ describe('Library Use Cases', () => {
           getById: vi.fn().mockResolvedValue(makeEntry()),
         };
 
-        const { AddIllustrationUseCase } = await import(
-          '../../../application/use-cases/library/illustration/AddIllustrationUseCase'
-        );
-        useCase = new AddIllustrationUseCase(
-          mockIllustrationRepo,
-          mockBookRepo,
-          mockChapterRepo,
-          mockEntryRepo
-        );
+        const { AddIllustrationUseCase } =
+          await import('../../../application/use-cases/library/illustration/AddIllustrationUseCase');
+        useCase = new AddIllustrationUseCase(mockIllustrationRepo, mockBookRepo, mockChapterRepo, mockEntryRepo);
       });
 
       it('should add an illustration to a book', async () => {
@@ -1569,15 +1466,9 @@ describe('Library Use Cases', () => {
           getById: vi.fn().mockResolvedValue(makeEntry()),
         };
 
-        const { RemoveIllustrationUseCase } = await import(
-          '../../../application/use-cases/library/illustration/RemoveIllustrationUseCase'
-        );
-        useCase = new RemoveIllustrationUseCase(
-          mockIllustrationRepo,
-          mockBookRepo,
-          mockChapterRepo,
-          mockEntryRepo
-        );
+        const { RemoveIllustrationUseCase } =
+          await import('../../../application/use-cases/library/illustration/RemoveIllustrationUseCase');
+        useCase = new RemoveIllustrationUseCase(mockIllustrationRepo, mockBookRepo, mockChapterRepo, mockEntryRepo);
       });
 
       it('should remove an illustration', async () => {
@@ -1609,10 +1500,12 @@ describe('Library Use Cases', () => {
       beforeEach(async () => {
         mockIllustrationRepo = {
           updateSortOrder: vi.fn().mockResolvedValue(undefined),
-          getByEntry: vi.fn().mockResolvedValue([
-            makeIllustration({ id: 'ill-1', sortOrder: 0 }),
-            makeIllustration({ id: 'ill-2', sortOrder: 1 }),
-          ]),
+          getByEntry: vi
+            .fn()
+            .mockResolvedValue([
+              makeIllustration({ id: 'ill-1', sortOrder: 0 }),
+              makeIllustration({ id: 'ill-2', sortOrder: 1 }),
+            ]),
         };
         mockEntryRepo = {
           getById: vi.fn().mockResolvedValue(makeEntry()),
@@ -1624,23 +1517,13 @@ describe('Library Use Cases', () => {
           getById: vi.fn().mockResolvedValue(makeBook()),
         };
 
-        const { ReorderIllustrationsUseCase } = await import(
-          '../../../application/use-cases/library/illustration/ReorderIllustrationsUseCase'
-        );
-        useCase = new ReorderIllustrationsUseCase(
-          mockIllustrationRepo,
-          mockEntryRepo,
-          mockChapterRepo,
-          mockBookRepo
-        );
+        const { ReorderIllustrationsUseCase } =
+          await import('../../../application/use-cases/library/illustration/ReorderIllustrationsUseCase');
+        useCase = new ReorderIllustrationsUseCase(mockIllustrationRepo, mockEntryRepo, mockChapterRepo, mockBookRepo);
       });
 
       it('should reorder illustrations', async () => {
-        const result = await useCase.execute(
-          TEST_ENTRY_ID,
-          ['ill-2', 'ill-1'],
-          createContext()
-        );
+        const result = await useCase.execute(TEST_ENTRY_ID, ['ill-2', 'ill-1'], createContext());
         expect(result.success).toBe(true);
         if (result.success) {
           expect(result.data.illustrations.length).toBe(2);
@@ -1658,11 +1541,7 @@ describe('Library Use Cases', () => {
 
       it('should return not found for missing entry', async () => {
         mockEntryRepo.getById.mockResolvedValue(null);
-        const result = await useCase.execute(
-          'missing-entry',
-          ['ill-1'],
-          createContext()
-        );
+        const result = await useCase.execute('missing-entry', ['ill-1'], createContext());
         expect(result.success).toBe(false);
         if (!result.success) {
           expect(result.error.code).toBe('NOT_FOUND');
@@ -1680,7 +1559,11 @@ describe('Library Use Cases', () => {
       beforeEach(async () => {
         mockIllustrationRepo = {
           getBookCover: vi.fn().mockResolvedValue(null),
-          create: vi.fn().mockResolvedValue(makeIllustration({ url: 'https://example.com/cover.jpg', artworkUrl: 'https://example.com/cover.jpg' })),
+          create: vi
+            .fn()
+            .mockResolvedValue(
+              makeIllustration({ url: 'https://example.com/cover.jpg', artworkUrl: 'https://example.com/cover.jpg' })
+            ),
         };
         mockBookRepo = {
           getById: vi.fn().mockResolvedValue(makeBook()),
@@ -1692,22 +1575,13 @@ describe('Library Use Cases', () => {
           getByBook: vi.fn().mockResolvedValue([]),
         };
 
-        const { GenerateBookCoverUseCase } = await import(
-          '../../../application/use-cases/library/illustration/GenerateBookCoverUseCase'
-        );
-        useCase = new GenerateBookCoverUseCase(
-          mockIllustrationRepo,
-          mockBookRepo,
-          mockBookTypeRepo,
-          mockEntryRepo
-        );
+        const { GenerateBookCoverUseCase } =
+          await import('../../../application/use-cases/library/illustration/GenerateBookCoverUseCase');
+        useCase = new GenerateBookCoverUseCase(mockIllustrationRepo, mockBookRepo, mockBookTypeRepo, mockEntryRepo);
       });
 
       it('should generate a book cover', async () => {
-        const result = await useCase.execute(
-          { bookId: TEST_BOOK_ID, title: 'My Book' },
-          createContext()
-        );
+        const result = await useCase.execute({ bookId: TEST_BOOK_ID, title: 'My Book' }, createContext());
         expect(result.success).toBe(true);
         if (result.success) {
           expect(result.data.artworkUrl).toBeDefined();
@@ -1717,10 +1591,7 @@ describe('Library Use Cases', () => {
       it('should return existing cover if one exists', async () => {
         const existingCover = makeIllustration();
         mockIllustrationRepo.getBookCover.mockResolvedValue(existingCover);
-        const result = await useCase.execute(
-          { bookId: TEST_BOOK_ID, title: 'My Book' },
-          createContext()
-        );
+        const result = await useCase.execute({ bookId: TEST_BOOK_ID, title: 'My Book' }, createContext());
         expect(result.success).toBe(true);
         if (result.success) {
           expect(result.data.illustration.id).toBe(existingCover.id);
@@ -1730,10 +1601,7 @@ describe('Library Use Cases', () => {
 
       it('should return not found for missing book', async () => {
         mockBookRepo.getById.mockResolvedValue(null);
-        const result = await useCase.execute(
-          { bookId: 'missing', title: 'My Book' },
-          createContext()
-        );
+        const result = await useCase.execute({ bookId: 'missing', title: 'My Book' }, createContext());
         expect(result.success).toBe(false);
         if (!result.success) {
           expect(result.error.code).toBe('NOT_FOUND');

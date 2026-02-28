@@ -395,9 +395,11 @@ export function createResponseCacheMiddleware(
         res.status(cached.statusCode).send(cached.body);
 
         if (isStale) {
-          tryAcquireRevalidationLock(cacheKey).then(acquired => {
-            if (acquired) void revalidateInBackground(req, cacheKey, mergedConfig);
-          }).catch(() => {});
+          tryAcquireRevalidationLock(cacheKey)
+            .then(acquired => {
+              if (acquired) void revalidateInBackground(req, cacheKey, mergedConfig);
+            })
+            .catch(() => {});
         }
         return;
       }
@@ -526,8 +528,7 @@ export async function getCacheStats(): Promise<typeof cacheStats & { memoryCache
         redisErrors: parseInt(values[3] ?? '0') || 0,
         memoryCacheSize: memoryCache.size,
       };
-    } catch {
-    }
+    } catch {}
   }
   return { ...cacheStats, memoryCacheSize: memoryCache.size };
 }

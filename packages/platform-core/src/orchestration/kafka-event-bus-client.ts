@@ -27,7 +27,10 @@ const TOPIC_PREFIX = 'aiponge.events.';
 interface KafkaProducerLike {
   connect(): Promise<void>;
   disconnect(): Promise<void>;
-  send(record: { topic: string; messages: Array<{ key: string; value: string; headers?: Record<string, string> }> }): Promise<unknown>;
+  send(record: {
+    topic: string;
+    messages: Array<{ key: string; value: string; headers?: Record<string, string> }>;
+  }): Promise<unknown>;
   on?(event: string, listener: (...args: unknown[]) => void): void;
 }
 
@@ -35,7 +38,13 @@ interface KafkaConsumerLike {
   connect(): Promise<void>;
   disconnect(): Promise<void>;
   subscribe(options: { topic: string; fromBeginning: boolean }): Promise<void>;
-  run(options: { eachMessage: (payload: { topic: string; partition: number; message: { value: Buffer | null; offset: string } }) => Promise<void> }): Promise<void>;
+  run(options: {
+    eachMessage: (payload: {
+      topic: string;
+      partition: number;
+      message: { value: Buffer | null; offset: string };
+    }) => Promise<void>;
+  }): Promise<void>;
   on?(event: string, listener: (...args: unknown[]) => void): void;
 }
 
@@ -43,7 +52,9 @@ interface KafkaAdminLike {
   connect(): Promise<void>;
   disconnect(): Promise<void>;
   listTopics(): Promise<string[]>;
-  createTopics(options: { topics: Array<{ topic: string; numPartitions: number; replicationFactor: number }> }): Promise<boolean>;
+  createTopics(options: {
+    topics: Array<{ topic: string; numPartitions: number; replicationFactor: number }>;
+  }): Promise<boolean>;
 }
 
 interface KafkaInstanceLike {
@@ -569,7 +580,11 @@ export class KafkaEventBusClient implements IStandardizedEventBusClient {
         data1: String(this.TOPIC_PARTITIONS),
       });
     } catch (error: unknown) {
-      if (error instanceof Error && ((error as Error & { type?: string }).type === 'TOPIC_ALREADY_EXISTS' || error.message?.includes('already exists'))) {
+      if (
+        error instanceof Error &&
+        ((error as Error & { type?: string }).type === 'TOPIC_ALREADY_EXISTS' ||
+          error.message?.includes('already exists'))
+      ) {
         this.knownTopics.add(topic);
         return;
       }
@@ -628,7 +643,15 @@ export class KafkaEventBusClient implements IStandardizedEventBusClient {
 
     this.consumerRunning = true;
     await this.consumer.run({
-      eachMessage: async ({ topic: msgTopic, partition, message }: { topic: string; partition: number; message: { value: Buffer | null; offset: string } }) => {
+      eachMessage: async ({
+        topic: msgTopic,
+        partition,
+        message,
+      }: {
+        topic: string;
+        partition: number;
+        message: { value: Buffer | null; offset: string };
+      }) => {
         try {
           const event: StandardEvent = JSON.parse(message.value!.toString());
           const callbacks = this.subscriptions.get(event.type);

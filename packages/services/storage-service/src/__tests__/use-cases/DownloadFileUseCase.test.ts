@@ -1,7 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const mockLogger = vi.hoisted(() => ({
-  info: vi.fn(), debug: vi.fn(), warn: vi.fn(), error: vi.fn(), child: vi.fn(),
+  info: vi.fn(),
+  debug: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  child: vi.fn(),
 }));
 
 vi.mock('@aiponge/platform-core', () => ({
@@ -17,7 +21,10 @@ vi.mock('@aiponge/platform-core', () => ({
     }
   },
   createHttpClient: vi.fn(() => ({
-    get: vi.fn(), post: vi.fn(), put: vi.fn(), delete: vi.fn(),
+    get: vi.fn(),
+    post: vi.fn(),
+    put: vi.fn(),
+    delete: vi.fn(),
   })),
   ServiceRegistry: {},
   hasService: () => false,
@@ -25,8 +32,8 @@ vi.mock('@aiponge/platform-core', () => ({
   waitForService: vi.fn(),
   listServices: () => [],
   createServiceUrlsConfig: vi.fn(() => ({})),
-  errorMessage: vi.fn((err: unknown) => err instanceof Error ? err.message : String(err)),
-  errorStack: vi.fn((err: unknown) => err instanceof Error ? err.stack : ''),
+  errorMessage: vi.fn((err: unknown) => (err instanceof Error ? err.message : String(err))),
+  errorStack: vi.fn((err: unknown) => (err instanceof Error ? err.stack : '')),
   withResilience: vi.fn((fn: (...args: unknown[]) => unknown) => fn),
   createIntervalScheduler: vi.fn(() => ({ start: vi.fn(), stop: vi.fn() })),
 }));
@@ -37,7 +44,9 @@ import { FileEntity } from '../../domains/entities/FileEntity';
 import type { IStorageProvider } from '../../application/interfaces/IStorageProvider';
 import type { IStorageRepository } from '../../application/interfaces/IStorageRepository';
 
-function createMockFileEntity(overrides: Partial<{ id: string; isPublic: boolean; userId: string; uploadedBy: string }> = {}): FileEntity {
+function createMockFileEntity(
+  overrides: Partial<{ id: string; isPublic: boolean; userId: string; uploadedBy: string }> = {}
+): FileEntity {
   return new FileEntity(
     overrides.id || 'file-123',
     'test-file.txt',
@@ -127,7 +136,9 @@ describe('DownloadFileUseCase', () => {
     });
 
     it('should download a file by filePath', async () => {
-      (mockRepository.findByPath as ReturnType<typeof vi.fn>).mockResolvedValue(createMockFileEntity({ isPublic: true }));
+      (mockRepository.findByPath as ReturnType<typeof vi.fn>).mockResolvedValue(
+        createMockFileEntity({ isPublic: true })
+      );
 
       const result = await useCase.execute({ filePath: 'user/user-1/general/test.txt', userId: 'user-1' });
 
@@ -171,7 +182,9 @@ describe('DownloadFileUseCase', () => {
         createMockFileEntity({ uploadedBy: 'other-user', isPublic: false })
       );
 
-      await expect(useCase.execute({ fileId: 'file-123', userId: 'unauthorized-user' })).rejects.toThrow('You do not have permission');
+      await expect(useCase.execute({ fileId: 'file-123', userId: 'unauthorized-user' })).rejects.toThrow(
+        'You do not have permission'
+      );
     });
 
     it('should allow download of public files by any user', async () => {

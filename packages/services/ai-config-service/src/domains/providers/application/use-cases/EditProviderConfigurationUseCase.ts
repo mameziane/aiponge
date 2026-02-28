@@ -687,9 +687,12 @@ export class EditProviderConfigurationUseCase {
       if (!this.templateClient) {
         throw new DomainError('Template client not available', 503);
       }
-      const testPrompt = await this.templateClient.getProviderTestPrompt(providerType as 'llm' | 'image' | 'video' | 'music' | 'audio' | 'text', {
-        test_context: 'provider_configuration_edit',
-      });
+      const testPrompt = await this.templateClient.getProviderTestPrompt(
+        providerType as 'llm' | 'image' | 'video' | 'music' | 'audio' | 'text',
+        {
+          test_context: 'provider_configuration_edit',
+        }
+      );
 
       const testPayloads: Record<string, Record<string, unknown>> = {
         llm: { prompt: testPrompt, maxTokens: 1 },

@@ -129,7 +129,7 @@ router.post(
       });
 
       if (!response.ok) {
-        const errorData = await parseErrorBody(response, '[GIFT CLAIM]') as Record<string, unknown>;
+        const errorData = (await parseErrorBody(response, '[GIFT CLAIM]')) as Record<string, unknown>;
         res.status(response.status).json({
           success: false,
           message: errorData.message || 'Failed to claim gift',

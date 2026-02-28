@@ -5,6 +5,7 @@ This directory contains all development tools, scripts, and configurations for t
 ## Directory Structure
 
 ### `eslint/`
+
 ESLint configuration and custom rules for API architecture enforcement.
 
 - `eslint.config.js` - Main ESLint configuration
@@ -14,6 +15,7 @@ ESLint configuration and custom rules for API architecture enforcement.
   - `index.js` - Rule exports
 
 ### `deployment/`
+
 Production deployment and infrastructure management scripts.
 
 - `deploy-production.ts` - Production deployment orchestration
@@ -23,6 +25,7 @@ Production deployment and infrastructure management scripts.
 - `verify-deployment-fixes.ts` - Post-deployment verification
 
 ### `validation/`
+
 Code quality, architecture validation, and linting tools.
 
 - `architectural-linter.js` - Architecture pattern validation
@@ -37,6 +40,7 @@ Code quality, architecture validation, and linting tools.
 - `package.json` - Validation tools dependencies
 
 ### `architecture/`
+
 Architecture compliance and testing scripts.
 
 - `architectural-lint.js` - Architecture linting orchestrator
@@ -47,7 +51,9 @@ Architecture compliance and testing scripts.
 ## Usage
 
 ### ESLint Configuration
+
 The ESLint configuration is symlinked to the project root for proper ESLint functionality:
+
 ```bash
 # Lint specific files
 npx eslint apps/aiponge/src/screens/
@@ -56,6 +62,7 @@ npx eslint .
 ```
 
 ### Deployment Scripts
+
 ```bash
 # Deploy to production
 npx tsx deploy/scripts/deploy-production.ts
@@ -64,6 +71,7 @@ npx tsx deploy/scripts/validate-deployment-config.ts
 ```
 
 ### Architecture Validation
+
 ```bash
 # Run all architecture checks
 node tools/architecture/run-all-architectural-checks.js
@@ -72,6 +80,7 @@ node tools/architecture/comprehensive-architectural-check.js
 ```
 
 ### Code Validation
+
 ```bash
 # Check circular dependencies
 node tools/validation/circular-dependency-checker.js

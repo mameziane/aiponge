@@ -142,8 +142,8 @@ vi.mock('../../../infrastructure/services/TokenBlacklistService', () => ({
   },
 }));
 
-vi.mock('drizzle-orm', async (importOriginal) => {
-  const actual = await importOriginal() as Record<string, unknown>;
+vi.mock('drizzle-orm', async importOriginal => {
+  const actual = (await importOriginal()) as Record<string, unknown>;
   return {
     ...actual,
     eq: vi.fn((_col: unknown, val: unknown) => ({ column: _col, value: val })),
@@ -358,9 +358,7 @@ describe('Auth Use Cases', () => {
     });
 
     it('should handle server errors gracefully', async () => {
-      (mockAuthRepo.registerUserWithProfile as ReturnType<typeof vi.fn>).mockRejectedValue(
-        new Error('Database error')
-      );
+      (mockAuthRepo.registerUserWithProfile as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Database error'));
 
       const result = await useCase.execute({ email: 'new@example.com', password: 'password123' });
 
@@ -612,9 +610,7 @@ describe('Auth Use Cases', () => {
     });
 
     it('should handle errors gracefully', async () => {
-      (mockAuthRepo.registerUserWithProfile as ReturnType<typeof vi.fn>).mockRejectedValue(
-        new Error('Database error')
-      );
+      (mockAuthRepo.registerUserWithProfile as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Database error'));
 
       const result = await useCase.execute();
 
@@ -829,9 +825,7 @@ describe('Auth Use Cases', () => {
     });
 
     it('should return success for guest users (security)', async () => {
-      (mockAuthRepo.findUserByEmail as ReturnType<typeof vi.fn>).mockResolvedValue(
-        createMockUser({ isGuest: true })
-      );
+      (mockAuthRepo.findUserByEmail as ReturnType<typeof vi.fn>).mockResolvedValue(createMockUser({ isGuest: true }));
 
       const result = await useCase.requestResetCode({ email: 'guest@example.com' });
 
@@ -965,9 +959,7 @@ describe('Auth Use Cases', () => {
     });
 
     it('should handle errors gracefully', async () => {
-      (mockAuthRepo.cleanupExpiredSmsCode as ReturnType<typeof vi.fn>).mockRejectedValue(
-        new Error('Database error')
-      );
+      (mockAuthRepo.cleanupExpiredSmsCode as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Database error'));
 
       const result = await useCase.execute({ phoneE164: '+1234567890', purpose: 'registration' });
 

@@ -535,7 +535,9 @@ describe('UpdateUserUseCase', () => {
 
   it('should update user profile successfully', async () => {
     const user = createMockUser();
-    const updatedUser = createMockUser({ profile: { firstName: 'Updated', lastName: 'Doe', displayName: 'Updated Doe' } });
+    const updatedUser = createMockUser({
+      profile: { firstName: 'Updated', lastName: 'Doe', displayName: 'Updated Doe' },
+    });
 
     (mockAuthRepo.findUserById as ReturnType<typeof vi.fn>).mockResolvedValue(user);
     (mockAuthRepo.updateUser as ReturnType<typeof vi.fn>).mockResolvedValue(updatedUser);
@@ -823,7 +825,8 @@ describe('ExportUserDataUseCase', () => {
     const mockUser = createMockUser();
     (mockDb.select as ReturnType<typeof vi.fn>).mockReturnValue({
       from: vi.fn().mockReturnValue({
-        where: vi.fn()
+        where: vi
+          .fn()
           .mockResolvedValueOnce([mockUser])
           .mockResolvedValueOnce([{ userId: 'user-123' }])
           .mockResolvedValueOnce([])
@@ -860,7 +863,8 @@ describe('ExportUserDataUseCase', () => {
     const mockUser = createMockUser();
     (mockDb.select as ReturnType<typeof vi.fn>).mockReturnValue({
       from: vi.fn().mockReturnValue({
-        where: vi.fn()
+        where: vi
+          .fn()
           .mockResolvedValueOnce([mockUser])
           .mockResolvedValueOnce([{ userId: 'user-123' }])
           .mockResolvedValueOnce([])
@@ -973,9 +977,7 @@ describe('AssignLibrarianRoleUseCase', () => {
   it('should abort role assignment if credit allocation fails', async () => {
     const user = createMockUser({ role: 'user' });
     (mockAuthRepo.findUserById as ReturnType<typeof vi.fn>).mockResolvedValue(user);
-    (mockCreditRepo.refundCredits as ReturnType<typeof vi.fn>).mockRejectedValue(
-      new Error('Credit service down')
-    );
+    (mockCreditRepo.refundCredits as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Credit service down'));
 
     const result = await useCase.execute({
       userId: 'user-123',

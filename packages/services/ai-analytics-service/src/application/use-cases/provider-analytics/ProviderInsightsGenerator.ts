@@ -1,10 +1,5 @@
 import { ProviderAnalytics, ProviderPerformanceMetrics } from '../../../domains/entities/ProviderAnalytics';
-import type {
-  ProviderSummaryStats,
-  ProviderHealthSummary,
-  ProviderCostAnalysis,
-  ProviderInsight,
-} from './types';
+import type { ProviderSummaryStats, ProviderHealthSummary, ProviderCostAnalysis, ProviderInsight } from './types';
 
 export class ProviderInsightsGenerator {
   async generateProviderInsights(

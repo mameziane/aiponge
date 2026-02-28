@@ -223,7 +223,9 @@ export function safeStringify(obj: unknown, maxSize = 10000): string {
 /**
  * Development console format
  */
-export function createDevFormat(correlationStorage: { getStore: () => LogContext | undefined }): winston.Logform.Format {
+export function createDevFormat(correlationStorage: {
+  getStore: () => LogContext | undefined;
+}): winston.Logform.Format {
   return winston.format.combine(
     winston.format.timestamp({ format: 'HH:mm:ss' }),
     winston.format.colorize(),
@@ -245,7 +247,9 @@ export function createDevFormat(correlationStorage: { getStore: () => LogContext
  * Production JSON format
  * Applies both secret and PII masking for compliance
  */
-export function createProdFormat(correlationStorage: { getStore: () => LogContext | undefined }): winston.Logform.Format {
+export function createProdFormat(correlationStorage: {
+  getStore: () => LogContext | undefined;
+}): winston.Logform.Format {
   return winston.format.combine(
     winston.format.timestamp(),
     winston.format.errors({ stack: true }),

@@ -1,14 +1,8 @@
 import { Request, Response } from 'express';
 import { sendSuccess, ServiceErrors } from '../../utils/response-helpers';
-import {
-  LibIllustrationCreateSchema as illustrationCreateSchema,
-} from '@aiponge/shared-contracts';
+import { LibIllustrationCreateSchema as illustrationCreateSchema } from '@aiponge/shared-contracts';
 import type { LibraryControllerDeps } from './library-helpers';
-import {
-  formatZodErrors,
-  buildContext,
-  handleUseCaseResult,
-} from './library-helpers';
+import { formatZodErrors, buildContext, handleUseCaseResult } from './library-helpers';
 
 export class IllustrationController {
   constructor(private readonly deps: LibraryControllerDeps) {}

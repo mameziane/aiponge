@@ -25,7 +25,11 @@ interface OtelTraceApi {
 }
 
 interface OtelPropagator {
-  inject(context: unknown, carrier: Record<string, string>, setter: { set: (c: Record<string, string>, key: string, value: string) => void }): void;
+  inject(
+    context: unknown,
+    carrier: Record<string, string>,
+    setter: { set: (c: Record<string, string>, key: string, value: string) => void }
+  ): void;
 }
 
 let otelModules: { traceApi: OtelTraceApi; propagator: OtelPropagator } | null = null;

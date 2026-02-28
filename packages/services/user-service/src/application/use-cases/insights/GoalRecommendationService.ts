@@ -153,11 +153,7 @@ export class GoalRecommendationService {
     }
   }
 
-  calculateGoalInsights(
-    goals: UserGoal[],
-    _analysisData: GoalAnalysisData,
-    _recommendations: GoalRecommendation[]
-  ) {
+  calculateGoalInsights(goals: UserGoal[], _analysisData: GoalAnalysisData, _recommendations: GoalRecommendation[]) {
     const activeGoals = goals.filter(g => g.status === GOAL_STATUS.ACTIVE);
     const avgProgress =
       activeGoals.length > 0

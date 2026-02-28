@@ -282,7 +282,11 @@ export class OrderRepository {
     return { updated: true };
   }
 
-  async getOrders(userId: string, limit: number = 20, offset: number = 0): Promise<(typeof creditOrders.$inferSelect)[]> {
+  async getOrders(
+    userId: string,
+    limit: number = 20,
+    offset: number = 0
+  ): Promise<(typeof creditOrders.$inferSelect)[]> {
     const orders = await this.db
       .select()
       .from(creditOrders)

@@ -16,7 +16,8 @@
       "distribution": "internal",
       "channel": "preview",
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://aiponge.replit.app"
+        "EXPO_PUBLIC_API_URL": "https://api-gateway-production-5ed3.up.railway.app",
+        "EXPO_PUBLIC_REVENUECAT_IOS_KEY": "appl_hJOGHcsJzyOkUMImGRRzSgzBxZy"
       },
       "ios": {
         "simulator": false
@@ -25,7 +26,8 @@
     "production": {
       "channel": "production",
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://aiponge.replit.app"
+        "EXPO_PUBLIC_API_URL": "https://api-gateway-production-5ed3.up.railway.app",
+        "EXPO_PUBLIC_REVENUECAT_IOS_KEY": "appl_hJOGHcsJzyOkUMImGRRzSgzBxZy"
       }
     }
   },

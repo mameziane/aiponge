@@ -346,19 +346,31 @@ export async function fetchExploreFeedOptimized(
     const wip = (row.works_in_progress || []) as Record<string, unknown>[];
 
     const feed: ExploreFeedData = {
-      recentlyPlayed: normalizeTrackCollection(normalizeKeys<Record<string, unknown>[]>(rp)) as unknown as ExploreTrack[],
-      yourCreations: normalizeTrackCollection(normalizeKeys<Record<string, unknown>[]>(yc)) as unknown as ExploreTrack[],
-      yourTopSongs: normalizeTrackCollection(normalizeKeys<Record<string, unknown>[]>(yts)) as unknown as ExploreTrack[],
+      recentlyPlayed: normalizeTrackCollection(
+        normalizeKeys<Record<string, unknown>[]>(rp)
+      ) as unknown as ExploreTrack[],
+      yourCreations: normalizeTrackCollection(
+        normalizeKeys<Record<string, unknown>[]>(yc)
+      ) as unknown as ExploreTrack[],
+      yourTopSongs: normalizeTrackCollection(
+        normalizeKeys<Record<string, unknown>[]>(yts)
+      ) as unknown as ExploreTrack[],
       featuredPlaylists: normalizeKeys<Record<string, unknown>[]>(fp) as unknown as ExplorePlaylist[],
-      popularTracks: normalizeTrackCollection(normalizeKeys<Record<string, unknown>[]>(pt)) as unknown as ExploreTrack[],
+      popularTracks: normalizeTrackCollection(
+        normalizeKeys<Record<string, unknown>[]>(pt)
+      ) as unknown as ExploreTrack[],
       topCharts: normalizeTrackCollection(
         tc.map((track, index) => {
           const normalized = normalizeKeys<Record<string, unknown>>(track);
           return { ...normalized, rank: index + 1 };
         })
       ) as unknown as ExploreTrack[],
-      recommendations: normalizeTrackCollection(normalizeKeys<Record<string, unknown>[]>(rec)) as unknown as ExploreTrack[],
-      worksInProgress: normalizeTrackCollection(normalizeKeys<Record<string, unknown>[]>(wip)) as unknown as ExploreTrack[],
+      recommendations: normalizeTrackCollection(
+        normalizeKeys<Record<string, unknown>[]>(rec)
+      ) as unknown as ExploreTrack[],
+      worksInProgress: normalizeTrackCollection(
+        normalizeKeys<Record<string, unknown>[]>(wip)
+      ) as unknown as ExploreTrack[],
     };
 
     logger.info('ExploreFeed - Optimized query completed', {

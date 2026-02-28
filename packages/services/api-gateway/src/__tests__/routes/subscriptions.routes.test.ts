@@ -21,7 +21,10 @@ vi.mock('@aiponge/platform-core', () => ({
     getServicePort: vi.fn(() => 3020),
   },
   serializeError: vi.fn((e: unknown) => String(e)),
-  getValidation: () => ({ validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(), validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next() }),
+  getValidation: () => ({
+    validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+    validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+  }),
 }));
 
 vi.mock('@services/gatewayFetch', () => ({
@@ -120,7 +123,10 @@ describe('Subscriptions Routes', () => {
       const res = await request(app).get('/api/app/subscriptions/config');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/subscriptions/config'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/subscriptions/config'),
+        expect.anything()
+      );
     });
   });
 
@@ -135,9 +141,7 @@ describe('Subscriptions Routes', () => {
         mockResponse({ success: true, data: { songs: { current: 0, limit: 5 } } })
       );
 
-      const res = await request(app)
-        .get('/api/app/subscriptions/usage')
-        .set('x-user-id', 'user-123');
+      const res = await request(app).get('/api/app/subscriptions/usage').set('x-user-id', 'user-123');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/subscriptions/'), expect.anything());
@@ -146,9 +150,7 @@ describe('Subscriptions Routes', () => {
 
   describe('POST /increment-usage', () => {
     it('should return 401 without user-id', async () => {
-      const res = await request(app)
-        .post('/api/app/subscriptions/increment-usage')
-        .send({ type: 'songs' });
+      const res = await request(app).post('/api/app/subscriptions/increment-usage').send({ type: 'songs' });
       expect(res.status).toBe(401);
     });
 
@@ -161,9 +163,7 @@ describe('Subscriptions Routes', () => {
     });
 
     it('should return 200 for valid usage type', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true })
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true }));
 
       const res = await request(app)
         .post('/api/app/subscriptions/increment-usage')

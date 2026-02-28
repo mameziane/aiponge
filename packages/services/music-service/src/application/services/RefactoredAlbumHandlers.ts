@@ -516,19 +516,17 @@ export class DefaultUserContextFetcher implements UserContextFetcher {
     return {
       preferences: prefResult.success ? prefResult.preferences : undefined,
       narrativeSeeds: seedsResult.success ? seedsResult.seeds : undefined,
-      persona: personaResult.success && personaResult.persona
-        ? (personaResult.persona as unknown as Record<string, unknown>)
-        : undefined,
+      persona:
+        personaResult.success && personaResult.persona
+          ? (personaResult.persona as unknown as Record<string, unknown>)
+          : undefined,
     };
   }
 }
 
 export async function createRefactoredPipelineDependencies(deps: RefactoredHandlerDependencies) {
-  const {
-    DefaultAlbumCreationHandler,
-    DefaultArtworkGenerationHandler,
-    DefaultAlbumLinkingHandler,
-  } = await import('./AlbumPipelineHandlers');
+  const { DefaultAlbumCreationHandler, DefaultArtworkGenerationHandler, DefaultAlbumLinkingHandler } =
+    await import('./AlbumPipelineHandlers');
 
   return {
     albumCreationHandler: new DefaultAlbumCreationHandler(),

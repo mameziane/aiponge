@@ -83,8 +83,7 @@ export class AuthenticateUserUseCase {
         profile = {};
       }
 
-      const toString = (v: unknown, fallback: string): string =>
-        typeof v === 'string' ? v : fallback;
+      const toString = (v: unknown, fallback: string): string => (typeof v === 'string' ? v : fallback);
 
       const userData = {
         id: user.id,

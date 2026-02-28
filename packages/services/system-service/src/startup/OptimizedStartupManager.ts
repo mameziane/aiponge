@@ -6,7 +6,10 @@
  */
 
 import { StartupOrchestrator, type StartupConfiguration, type StartupWave } from './StartupOrchestrator';
-import { ServiceDependencyOrchestrator, type ServiceRegistryEntry } from '../domains/discovery/services/ServiceDependencyOrchestrator';
+import {
+  ServiceDependencyOrchestrator,
+  type ServiceRegistryEntry,
+} from '../domains/discovery/services/ServiceDependencyOrchestrator';
 import { SERVICE_DEPENDENCY_MANIFEST, validateDependencyDAG } from '../config/services.dependency.manifest';
 import { getLogger } from '../config/service-urls';
 import { errorMessage } from '@aiponge/platform-core';
@@ -173,7 +176,9 @@ export class OptimizedStartupManager {
 
       const optimizedResult: OptimizedStartupResult = {
         success: result.success,
-        mode: (this.startupOrchestrator as unknown as { config: StartupConfiguration }).config.enableOptimization ? 'optimized' : 'parallel',
+        mode: (this.startupOrchestrator as unknown as { config: StartupConfiguration }).config.enableOptimization
+          ? 'optimized'
+          : 'parallel',
         totalTime,
         wavesExecuted: result.wavesExecuted,
         servicesStarted: result.servicesStarted,
@@ -231,7 +236,8 @@ export class OptimizedStartupManager {
         estimatedTime: 3000, // Estimate 3 seconds per wave
       })),
       totalEstimatedTime,
-      optimizationEnabled: (this.startupOrchestrator as unknown as { config: StartupConfiguration }).config.enableOptimization,
+      optimizationEnabled: (this.startupOrchestrator as unknown as { config: StartupConfiguration }).config
+        .enableOptimization,
     };
   }
 
@@ -240,7 +246,13 @@ export class OptimizedStartupManager {
    */
   private calculateStartupAnalytics(
     waves: StartupWave[],
-    result: { success: boolean; totalTime: number; wavesExecuted: number; servicesStarted: string[]; errors: Array<{ service: string; error: string }> },
+    result: {
+      success: boolean;
+      totalTime: number;
+      wavesExecuted: number;
+      servicesStarted: string[];
+      errors: Array<{ service: string; error: string }>;
+    },
     actualTotalTime: number
   ): OptimizedStartupResult['analytics'] {
     // Calculate wave breakdown

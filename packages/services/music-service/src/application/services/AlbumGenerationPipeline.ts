@@ -235,7 +235,13 @@ export type SubPhaseCallback = (
 ) => Promise<void>;
 
 export interface CachedUserContext {
-  readonly preferences?: { currentMood?: string; displayName?: string; languagePreference?: string; emotionalState?: string; wellnessIntention?: string };
+  readonly preferences?: {
+    currentMood?: string;
+    displayName?: string;
+    languagePreference?: string;
+    emotionalState?: string;
+    wellnessIntention?: string;
+  };
   readonly narrativeSeeds?: { keywords?: string[]; emotionalProfile?: Record<string, unknown> };
   readonly persona?: Record<string, unknown>;
 }
@@ -1072,14 +1078,12 @@ export class AlbumGenerationPipeline {
       pendingCount: pendingSyncs.length,
     });
 
-    this.dependencies.lyricsSync
-      .syncAllPending(pendingSyncs, context.albumRequestId)
-      .catch(error => {
-        logger.error('Background lyrics sync batch failed', {
-          albumRequestId: context.albumRequestId,
-          error: error instanceof Error ? error.message : String(error),
-        });
+    this.dependencies.lyricsSync.syncAllPending(pendingSyncs, context.albumRequestId).catch(error => {
+      logger.error('Background lyrics sync batch failed', {
+        albumRequestId: context.albumRequestId,
+        error: error instanceof Error ? error.message : String(error),
       });
+    });
   }
 
   private determineStatus(context: ProgressContext): 'queued' | 'processing' | 'completed' | 'partial' | 'failed' {

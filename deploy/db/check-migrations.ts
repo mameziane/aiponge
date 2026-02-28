@@ -1,17 +1,17 @@
 #!/usr/bin/env npx tsx
 /**
  * Migration Safety Check Script
- * 
+ *
  * Pre-deployment validation for database migrations.
  * Detects pending migrations and warns about destructive changes.
- * 
+ *
  * Usage:
  *   npx tsx scripts/check-migrations.ts [service]
- * 
+ *
  * Examples:
  *   npx tsx scripts/check-migrations.ts          # Check all services
  *   npx tsx scripts/check-migrations.ts user     # Check user-service only
- * 
+ *
  * In CI, set ALLOW_DESTRUCTIVE_MIGRATIONS=true to proceed with destructive changes.
  */
 
@@ -29,20 +29,39 @@ interface ServiceConfig {
 const SERVICES: ServiceConfig[] = [
   { name: 'user-service', path: 'packages/services/user-service', tablePrefix: 'usr_', envVar: 'USER_DATABASE_URL' },
   { name: 'music-service', path: 'packages/services/music-service', tablePrefix: 'mus_', envVar: 'MUSIC_DATABASE_URL' },
-  { name: 'ai-content-service', path: 'packages/services/ai-content-service', tablePrefix: 'aic_', envVar: 'AI_CONTENT_DATABASE_URL' },
-  { name: 'ai-config-service', path: 'packages/services/ai-config-service', tablePrefix: 'cfg_', envVar: 'AI_CONFIG_DATABASE_URL' },
-  { name: 'ai-analytics-service', path: 'packages/services/ai-analytics-service', tablePrefix: 'aia_', envVar: 'AI_ANALYTICS_DATABASE_URL' },
-  { name: 'system-service', path: 'packages/services/system-service', tablePrefix: 'sys_', envVar: 'SYSTEM_DATABASE_URL' },
-  { name: 'storage-service', path: 'packages/services/storage-service', tablePrefix: 'stg_', envVar: 'STORAGE_DATABASE_URL' },
+  {
+    name: 'ai-content-service',
+    path: 'packages/services/ai-content-service',
+    tablePrefix: 'aic_',
+    envVar: 'AI_CONTENT_DATABASE_URL',
+  },
+  {
+    name: 'ai-config-service',
+    path: 'packages/services/ai-config-service',
+    tablePrefix: 'cfg_',
+    envVar: 'AI_CONFIG_DATABASE_URL',
+  },
+  {
+    name: 'ai-analytics-service',
+    path: 'packages/services/ai-analytics-service',
+    tablePrefix: 'aia_',
+    envVar: 'AI_ANALYTICS_DATABASE_URL',
+  },
+  {
+    name: 'system-service',
+    path: 'packages/services/system-service',
+    tablePrefix: 'sys_',
+    envVar: 'SYSTEM_DATABASE_URL',
+  },
+  {
+    name: 'storage-service',
+    path: 'packages/services/storage-service',
+    tablePrefix: 'stg_',
+    envVar: 'STORAGE_DATABASE_URL',
+  },
 ];
 
-const DESTRUCTIVE_PATTERNS = [
-  /DROP\s+TABLE/i,
-  /DROP\s+COLUMN/i,
-  /ALTER\s+.*\s+TYPE/i,
-  /DELETE\s+FROM/i,
-  /TRUNCATE/i,
-];
+const DESTRUCTIVE_PATTERNS = [/DROP\s+TABLE/i, /DROP\s+COLUMN/i, /ALTER\s+.*\s+TYPE/i, /DELETE\s+FROM/i, /TRUNCATE/i];
 
 function isDestructive(sql: string): boolean {
   return DESTRUCTIVE_PATTERNS.some(pattern => pattern.test(sql));
@@ -50,7 +69,7 @@ function isDestructive(sql: string): boolean {
 
 function checkService(service: ServiceConfig): { hasPending: boolean; isDestructive: boolean; error?: string } {
   const drizzleDir = path.join(service.path, 'drizzle');
-  
+
   if (!fs.existsSync(drizzleDir)) {
     return { hasPending: false, isDestructive: false };
   }
@@ -63,10 +82,10 @@ function checkService(service: ServiceConfig): { hasPending: boolean; isDestruct
     });
 
     const hasPending = output.includes('migration file') || output.includes('changes detected');
-    
+
     const migrationFiles = fs.readdirSync(drizzleDir).filter(f => f.endsWith('.sql'));
     const latestMigration = migrationFiles.sort().pop();
-    
+
     let destructive = false;
     if (latestMigration) {
       const sqlContent = fs.readFileSync(path.join(drizzleDir, latestMigration), 'utf-8');
@@ -85,9 +104,7 @@ function checkService(service: ServiceConfig): { hasPending: boolean; isDestruct
 
 function main() {
   const targetService = process.argv[2];
-  const servicesToCheck = targetService 
-    ? SERVICES.filter(s => s.name.includes(targetService))
-    : SERVICES;
+  const servicesToCheck = targetService ? SERVICES.filter(s => s.name.includes(targetService)) : SERVICES;
 
   if (servicesToCheck.length === 0) {
     console.error(`❌ No service found matching: ${targetService}`);
@@ -101,7 +118,7 @@ function main() {
 
   for (const service of servicesToCheck) {
     const result = checkService(service);
-    
+
     if (result.error) {
       console.log(`⚠️  ${service.name}: Check failed - ${result.error.substring(0, 100)}`);
       continue;
@@ -112,7 +129,7 @@ function main() {
     } else {
       hasPending = true;
       console.log(`⚠️  ${service.name}: Pending migrations detected`);
-      
+
       if (result.isDestructive) {
         hasDestructive = true;
         console.log(`   🔴 DESTRUCTIVE CHANGES DETECTED - Review carefully!`);
@@ -129,7 +146,7 @@ function main() {
 
   if (hasDestructive) {
     console.log('⚠️  Destructive migrations detected!\n');
-    
+
     if (process.env.CI) {
       if (process.env.ALLOW_DESTRUCTIVE_MIGRATIONS === 'true') {
         console.log('✅ ALLOW_DESTRUCTIVE_MIGRATIONS=true - proceeding with destructive changes\n');

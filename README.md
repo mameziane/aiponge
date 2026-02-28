@@ -23,16 +23,16 @@ aiponge/
 
 ## Microservices
 
-| Service | Port | Description |
-|---------|------|-------------|
-| `system-service` | 3001 | Service discovery, monitoring, notifications |
-| `storage-service` | 3002 | File storage (S3, GCS, Cloudinary) |
-| `user-service` | 3003 | Authentication, profiles, library, billing |
-| `ai-config-service` | 3004 | AI provider configuration, credentials |
-| `ai-content-service` | 3005 | AI content generation, prompt templates |
-| `ai-analytics-service` | 3006 | Request tracing, usage analytics |
-| `music-service` | 3007 | Music generation, streaming, playlists |
-| `api-gateway` | 8080 | Unified API entry point, routing, rate limiting |
+| Service                | Port | Description                                     |
+| ---------------------- | ---- | ----------------------------------------------- |
+| `system-service`       | 3001 | Service discovery, monitoring, notifications    |
+| `storage-service`      | 3002 | File storage (S3, GCS, Cloudinary)              |
+| `user-service`         | 3003 | Authentication, profiles, library, billing      |
+| `ai-config-service`    | 3004 | AI provider configuration, credentials          |
+| `ai-content-service`   | 3005 | AI content generation, prompt templates         |
+| `ai-analytics-service` | 3006 | Request tracing, usage analytics                |
+| `music-service`        | 3007 | Music generation, streaming, playlists          |
+| `api-gateway`          | 8080 | Unified API entry point, routing, rate limiting |
 
 ## Prerequisites
 
@@ -68,24 +68,24 @@ Copy `docs/.env.example` to `.env` at the project root. Each service also has it
 
 ### Required Variables
 
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `DATABASE_URL` | PostgreSQL connection string | `postgresql://user:pass@localhost:5432/aiponge` |
-| `JWT_SECRET` | JWT signing secret (min 32 chars) | `openssl rand -base64 32` |
-| `OPENAI_API_KEY` | OpenAI API key for AI features | `sk-...` |
+| Variable         | Description                       | Example                                         |
+| ---------------- | --------------------------------- | ----------------------------------------------- |
+| `DATABASE_URL`   | PostgreSQL connection string      | `postgresql://user:pass@localhost:5432/aiponge` |
+| `JWT_SECRET`     | JWT signing secret (min 32 chars) | `openssl rand -base64 32`                       |
+| `OPENAI_API_KEY` | OpenAI API key for AI features    | `sk-...`                                        |
 
 ### Optional Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `REDIS_URL` | Redis connection string | `redis://localhost:6379` |
-| `NODE_ENV` | Environment mode | `development` |
-| `LOG_LEVEL` | Logging verbosity | `info` |
-| `CORS_ALLOWED_ORIGINS` | Comma-separated allowed origins | `http://localhost:5000` |
-| `SENTRY_DSN` | Sentry error tracking DSN | (empty) |
-| `MUSICAPI_API_KEY` | MusicAPI.ai key for music generation | |
-| `ANTHROPIC_API_KEY` | Anthropic API key (optional) | |
-| `ELEVENLABS_API_KEY` | ElevenLabs API key (optional) | |
+| Variable               | Description                          | Default                  |
+| ---------------------- | ------------------------------------ | ------------------------ |
+| `REDIS_URL`            | Redis connection string              | `redis://localhost:6379` |
+| `NODE_ENV`             | Environment mode                     | `development`            |
+| `LOG_LEVEL`            | Logging verbosity                    | `info`                   |
+| `CORS_ALLOWED_ORIGINS` | Comma-separated allowed origins      | `http://localhost:5000`  |
+| `SENTRY_DSN`           | Sentry error tracking DSN            | (empty)                  |
+| `MUSICAPI_API_KEY`     | MusicAPI.ai key for music generation |                          |
+| `ANTHROPIC_API_KEY`    | Anthropic API key (optional)         |                          |
+| `ELEVENLABS_API_KEY`   | ElevenLabs API key (optional)        |                          |
 
 ### Service-Specific .env.example Files
 
@@ -190,21 +190,27 @@ docker compose -f deploy/docker/docker-compose.yml up -d
 ## Key Patterns
 
 ### Clean Architecture
+
 Each service follows Clean Architecture with layers:
+
 - `domains/` — Business entities and domain logic
 - `application/` — Use cases and application services
 - `infrastructure/` — Database, external APIs, repositories
 - `presentation/` — Controllers, routes, middleware
 
 ### Path Aliases
+
 All services use TypeScript path aliases:
+
 ```typescript
 import { UserEntity } from '@domains/identity';
 import { UserRepository } from '@infrastructure/repositories';
 ```
 
 ### Barrel Exports
+
 Modules expose functionality through `index.ts` files:
+
 ```typescript
 import { AuthController, ProfileController } from '@presentation/controllers';
 ```
@@ -212,6 +218,7 @@ import { AuthController, ProfileController } from '@presentation/controllers';
 ## CI/CD
 
 GitHub Actions workflows in `.github/workflows/`:
+
 - `build-test.yml` — Lint, test, type-check, Docker build, Trivy vulnerability scanning
 - `deploy-aws.yml` — Deploy to AWS ECS with post-deployment smoke tests
 - `.github/dependabot.yml` — Automated dependency updates

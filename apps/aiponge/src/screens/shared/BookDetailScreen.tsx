@@ -281,8 +281,6 @@ export function BookDetailScreen({ mode = 'view' }: BookDetailScreenProps) {
         subtitle: mb.subtitle || undefined,
         coverIllustrationUrl: mb.coverIllustrationUrl || undefined,
         author: mb.author || undefined,
-        era: mb.era || undefined,
-        tradition: mb.tradition || undefined,
         category: mb.category || 'general',
         description: mb.description || undefined,
         status: mb.status || undefined,
@@ -323,8 +321,6 @@ export function BookDetailScreen({ mode = 'view' }: BookDetailScreenProps) {
       description: book.description,
       coverIllustrationUrl: book.coverIllustrationUrl,
       author: book.author,
-      era: book.era,
-      tradition: book.tradition,
       category: book.category,
       chapterCount: book.chapters?.length ?? 0,
       entryCount: 0,
@@ -629,16 +625,6 @@ export function BookDetailScreen({ mode = 'view' }: BookDetailScreenProps) {
           <View style={styles.authorBadgeRow}>
             {book.author && <Text style={styles.author}>by {book.author}</Text>}
             <View style={styles.badgeGroup}>
-              {book.tradition && (
-                <View style={[styles.badge, { backgroundColor: categoryColor }]}>
-                  <Text style={styles.badgeText}>{book.tradition}</Text>
-                </View>
-              )}
-              {book.era && (
-                <View style={styles.badge}>
-                  <Text style={styles.badgeText}>{book.era}</Text>
-                </View>
-              )}
               <View style={[styles.badge, { backgroundColor: categoryColor }]}>
                 <Text style={styles.badgeText}>{book.category}</Text>
               </View>

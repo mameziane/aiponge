@@ -1,5 +1,9 @@
 import { getLogger } from '../../config/service-urls';
-import { LyricsPreparationService, LyricsPreparationRequest, type CachedUserContextInput } from '../services/LyricsPreparationService';
+import {
+  LyricsPreparationService,
+  LyricsPreparationRequest,
+  type CachedUserContextInput,
+} from '../services/LyricsPreparationService';
 import { EntryContent } from '../services/EntryContentGateway';
 import { GenerateArtworkUseCase } from '../use-cases/music/GenerateArtworkUseCase';
 import { StorageServiceClient } from '../../infrastructure/clients/StorageServiceClient';
@@ -96,8 +100,20 @@ export interface LyricsGenerationParams {
   culturalLanguages?: string[];
   skipCache?: boolean;
   visibility?: ContentVisibility;
-  cachedUserContext?: { preferences?: Record<string, unknown>; narrativeSeeds?: Record<string, unknown>; persona?: Record<string, unknown> };
-  bookContext?: { bookType?: string; bookTitle?: string; bookDescription?: string; chapterTitle?: string; bookCategory?: string; bookTags?: string[]; bookThemes?: string[] };
+  cachedUserContext?: {
+    preferences?: Record<string, unknown>;
+    narrativeSeeds?: Record<string, unknown>;
+    persona?: Record<string, unknown>;
+  };
+  bookContext?: {
+    bookType?: string;
+    bookTitle?: string;
+    bookDescription?: string;
+    chapterTitle?: string;
+    bookCategory?: string;
+    bookTags?: string[];
+    bookThemes?: string[];
+  };
 }
 
 export interface LyricsResult {

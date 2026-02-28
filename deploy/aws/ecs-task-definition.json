@@ -18,9 +18,9 @@
         }
       ],
       "environment": [
-        {"name": "NODE_ENV", "value": "production"},
-        {"name": "PORT", "value": "3000"},
-        {"name": "CLUSTER_WORKERS", "value": "auto"},
+        { "name": "NODE_ENV", "value": "production" },
+        { "name": "PORT", "value": "3000" },
+        { "name": "CLUSTER_WORKERS", "value": "auto" },
         { "name": "SHUTDOWN_TIMEOUT_MS", "value": "30000" },
         { "name": "MAINTENANCE_MODE", "value": "false" },
         { "name": "MAINTENANCE_RETRY_AFTER", "value": "300" },
@@ -32,11 +32,11 @@
         { "name": "CACHE_TTL_DEFAULT", "value": "300" }
       ],
       "secrets": [
-        {"name": "DATABASE_URL", "valueFrom": "${AWS_SECRETS_ARN}:DATABASE_URL::"},
-        {"name": "REDIS_URL", "valueFrom": "${AWS_SECRETS_ARN}:REDIS_URL::"},
-        {"name": "JWT_SECRET", "valueFrom": "${AWS_SECRETS_ARN}:JWT_SECRET::"},
-        {"name": "INTERNAL_SERVICE_SECRET", "valueFrom": "${AWS_SECRETS_ARN}:INTERNAL_SERVICE_SECRET::"},
-        {"name": "REDIS_CLUSTER_NODES", "valueFrom": "${AWS_SECRETS_ARN}:REDIS_CLUSTER_NODES::"}
+        { "name": "DATABASE_URL", "valueFrom": "${AWS_SECRETS_ARN}:DATABASE_URL::" },
+        { "name": "REDIS_URL", "valueFrom": "${AWS_SECRETS_ARN}:REDIS_URL::" },
+        { "name": "JWT_SECRET", "valueFrom": "${AWS_SECRETS_ARN}:JWT_SECRET::" },
+        { "name": "INTERNAL_SERVICE_SECRET", "valueFrom": "${AWS_SECRETS_ARN}:INTERNAL_SERVICE_SECRET::" },
+        { "name": "REDIS_CLUSTER_NODES", "valueFrom": "${AWS_SECRETS_ARN}:REDIS_CLUSTER_NODES::" }
       ],
       "healthCheck": {
         "command": ["CMD-SHELL", "curl -f http://localhost:3000/health || exit 1"],

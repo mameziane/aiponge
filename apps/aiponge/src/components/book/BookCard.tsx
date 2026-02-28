@@ -61,8 +61,6 @@ export interface BookCardData {
   description?: string;
   coverIllustrationUrl?: string;
   author?: string;
-  era?: string;
-  tradition?: string;
   category: string;
   language?: string;
   visibility?: string;
@@ -389,7 +387,6 @@ export const BookCard = memo(
       prevProps.book.coverIllustrationUrl === nextProps.book.coverIllustrationUrl &&
       prevProps.book.author === nextProps.book.author &&
       prevProps.book.category === nextProps.book.category &&
-      prevProps.book.tradition === nextProps.book.tradition &&
       prevProps.book.visibility === nextProps.book.visibility &&
       prevProps.book.chapterCount === nextProps.book.chapterCount &&
       prevProps.book.entryCount === nextProps.book.entryCount &&

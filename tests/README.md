@@ -51,6 +51,7 @@ tests/
 ## Test Categories
 
 ### Unit Tests
+
 Fast, isolated tests that don't require external services. Located in each service's `src/tests/unit/` directory.
 
 ```bash
@@ -60,6 +61,7 @@ bash tests/scripts/run-unit.sh
 ```
 
 ### Contract Tests
+
 Validate type contracts and API schemas between services. Don't require running services.
 
 ```bash
@@ -69,6 +71,7 @@ bash tests/scripts/run-contracts.sh
 ```
 
 ### Integration Tests
+
 Cross-service communication tests. **Require backend services running.**
 
 ```bash
@@ -78,6 +81,7 @@ bash tests/scripts/run-integration.sh
 ```
 
 ### E2E Tests
+
 Full user flow tests (entry-to-song pipeline, smoke tests). **Require backend services running.**
 
 ```bash
@@ -89,16 +93,19 @@ bash tests/scripts/run-e2e.sh
 ## Running Tests
 
 ### Run All Tests
+
 ```bash
 npx tsx tests/scripts/run-all-tests.ts
 ```
 
 ### Quick Tests (No Services Required)
+
 ```bash
 npx tsx tests/scripts/run-all-tests.ts --quick
 ```
 
 ### Specific Category
+
 ```bash
 npx tsx tests/scripts/run-all-tests.ts --unit
 npx tsx tests/scripts/run-all-tests.ts --contracts
@@ -107,6 +114,7 @@ npx tsx tests/scripts/run-all-tests.ts --e2e
 ```
 
 ### Help
+
 ```bash
 npx tsx tests/scripts/run-all-tests.ts --help
 ```
@@ -114,10 +122,12 @@ npx tsx tests/scripts/run-all-tests.ts --help
 ## Prerequisites
 
 ### For Unit & Contract Tests
+
 - Node.js and npm installed
 - Dependencies installed (`npm install`)
 
 ### For Integration & E2E Tests
+
 - All of the above
 - Backend services running (`npm run dev`)
 - Services accessible at `http://localhost:8080`
@@ -136,28 +146,35 @@ This order ensures fast feedback (unit tests fail fast) before running slower te
 ## Adding New Tests
 
 ### Unit Tests
+
 Add to the service's `src/tests/unit/` directory:
+
 ```
 packages/services/<service>/src/tests/unit/MyFeature.test.ts
 ```
 
 ### Integration Tests
+
 Add to the appropriate subdirectory:
+
 - API flows: `tests/integration/api/`
 - Service-specific: `tests/integration/services/<service>/`
 - Contracts: `tests/integration/contracts/`
 
 ### E2E Tests
+
 Add to `tests/e2e/` with descriptive names.
 
 ## Configuration
 
 Each test category has its own Jest configuration:
+
 - `tests/unit/jest.config.js`
 - `tests/integration/jest.config.js`
 - `tests/e2e/jest.config.js`
 
 Common settings:
+
 - Preset: `ts-jest`
 - Environment: `node`
 - Module mappers for `@aiponge/*` packages

@@ -135,7 +135,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: "1.7"
+          terraform_version: '1.7'
 
       - name: Terraform Init
         working-directory: deploy/terraform
@@ -186,7 +186,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: "1.7"
+          terraform_version: '1.7'
 
       - name: Terraform Init
         working-directory: deploy/terraform

@@ -290,7 +290,12 @@ export class ProviderController {
         providers = await db
           .select()
           .from(providerConfigurations)
-          .where(eq(providerConfigurations.providerType, providerType as 'llm' | 'music' | 'image' | 'video' | 'audio' | 'text'));
+          .where(
+            eq(
+              providerConfigurations.providerType,
+              providerType as 'llm' | 'music' | 'image' | 'video' | 'audio' | 'text'
+            )
+          );
       } else {
         // Get all providers
         providers = await db.select().from(providerConfigurations);
@@ -330,7 +335,10 @@ export class ProviderController {
   /**
    * Transform database provider configurations to catalog format
    */
-  private static transformToCatalogFormat(providers: Array<Record<string, unknown>>, filterType?: ProviderCategory): Record<string, ProviderCatalogItem[]> | ProviderCatalogItem[] | undefined {
+  private static transformToCatalogFormat(
+    providers: Array<Record<string, unknown>>,
+    filterType?: ProviderCategory
+  ): Record<string, ProviderCatalogItem[]> | ProviderCatalogItem[] | undefined {
     const catalogItems: Record<string, ProviderCatalogItem[]> = {};
 
     for (const provider of providers) {
@@ -438,7 +446,10 @@ export class ProviderController {
   /**
    * Render template by replacing placeholders with actual values
    */
-  private static renderTemplate(template: Record<string, unknown>, values: Record<string, unknown>): Record<string, unknown> {
+  private static renderTemplate(
+    template: Record<string, unknown>,
+    values: Record<string, unknown>
+  ): Record<string, unknown> {
     const rendered: Record<string, unknown> = {};
 
     for (const [key, value] of Object.entries(template)) {
@@ -484,7 +495,10 @@ export class ProviderController {
     return builtTags;
   }
 
-  private static enrichRenderedTemplate(renderedTemplate: Record<string, unknown>, parameters: Record<string, unknown>): void {
+  private static enrichRenderedTemplate(
+    renderedTemplate: Record<string, unknown>,
+    parameters: Record<string, unknown>
+  ): void {
     // Map vocalGender to vocal_gender for MusicAPI.ai (snake_case required)
     if (parameters.vocalGender && (parameters.vocalGender === 'f' || parameters.vocalGender === 'm')) {
       renderedTemplate.vocal_gender = parameters.vocalGender;
@@ -856,7 +870,12 @@ export class ProviderController {
           providers = await db
             .select()
             .from(providerConfigurations)
-            .where(eq(providerConfigurations.providerType, providerType as 'llm' | 'music' | 'image' | 'video' | 'audio' | 'text'));
+            .where(
+              eq(
+                providerConfigurations.providerType,
+                providerType as 'llm' | 'music' | 'image' | 'video' | 'audio' | 'text'
+              )
+            );
         } else {
           providers = await db.select().from(providerConfigurations);
         }

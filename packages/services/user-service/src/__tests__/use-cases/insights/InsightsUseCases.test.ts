@@ -185,7 +185,24 @@ describe('Insights Use Cases', () => {
         title: 'Emotional Pattern',
         content: 'You show a pattern of emotional awareness',
       };
-      const createdInsight = { id: 'insight-1', ...newInsight, entryId: null, confidence: '0.8', category: 'emotional', themes: null, actionable: true, priority: 1, aiProvider: null, aiModel: null, generatedAt: new Date(), validatedAt: null, validatedBy: null, metadata: null, createdAt: new Date(), deletedAt: null };
+      const createdInsight = {
+        id: 'insight-1',
+        ...newInsight,
+        entryId: null,
+        confidence: '0.8',
+        category: 'emotional',
+        themes: null,
+        actionable: true,
+        priority: 1,
+        aiProvider: null,
+        aiModel: null,
+        generatedAt: new Date(),
+        validatedAt: null,
+        validatedBy: null,
+        metadata: null,
+        createdAt: new Date(),
+        deletedAt: null,
+      };
 
       mockIntelligenceRepo.createInsight.mockResolvedValue(createdInsight);
       mockProfileRepo.incrementInsights.mockResolvedValue(undefined);
@@ -199,7 +216,24 @@ describe('Insights Use Cases', () => {
 
     it('should return insight even if profile metric update fails', async () => {
       const newInsight = { userId: TEST_USER_ID, type: 'cognitive', title: 'Test', content: 'Content' };
-      const createdInsight = { id: 'insight-2', ...newInsight, entryId: null, confidence: null, category: null, themes: null, actionable: null, priority: null, aiProvider: null, aiModel: null, generatedAt: new Date(), validatedAt: null, validatedBy: null, metadata: null, createdAt: new Date(), deletedAt: null };
+      const createdInsight = {
+        id: 'insight-2',
+        ...newInsight,
+        entryId: null,
+        confidence: null,
+        category: null,
+        themes: null,
+        actionable: null,
+        priority: null,
+        aiProvider: null,
+        aiModel: null,
+        generatedAt: new Date(),
+        validatedAt: null,
+        validatedBy: null,
+        metadata: null,
+        createdAt: new Date(),
+        deletedAt: null,
+      };
 
       mockIntelligenceRepo.createInsight.mockResolvedValue(createdInsight);
       mockProfileRepo.incrementInsights.mockRejectedValue(new Error('DB error'));
@@ -229,8 +263,48 @@ describe('Insights Use Cases', () => {
 
     it('should retrieve insights by userId and return summary', async () => {
       const insights = [
-        { id: 'i1', userId: TEST_USER_ID, entryId: null, type: 'emotional', title: 'T1', content: 'C1', confidence: '0.9', category: 'emotional', themes: null, actionable: true, priority: 1, aiProvider: null, aiModel: null, generatedAt: new Date(), validatedAt: null, validatedBy: null, metadata: null, createdAt: new Date(), deletedAt: null },
-        { id: 'i2', userId: TEST_USER_ID, entryId: null, type: 'cognitive', title: 'T2', content: 'C2', confidence: '0.5', category: 'cognitive', themes: null, actionable: false, priority: 2, aiProvider: null, aiModel: null, generatedAt: new Date(), validatedAt: null, validatedBy: null, metadata: null, createdAt: new Date(), deletedAt: null },
+        {
+          id: 'i1',
+          userId: TEST_USER_ID,
+          entryId: null,
+          type: 'emotional',
+          title: 'T1',
+          content: 'C1',
+          confidence: '0.9',
+          category: 'emotional',
+          themes: null,
+          actionable: true,
+          priority: 1,
+          aiProvider: null,
+          aiModel: null,
+          generatedAt: new Date(),
+          validatedAt: null,
+          validatedBy: null,
+          metadata: null,
+          createdAt: new Date(),
+          deletedAt: null,
+        },
+        {
+          id: 'i2',
+          userId: TEST_USER_ID,
+          entryId: null,
+          type: 'cognitive',
+          title: 'T2',
+          content: 'C2',
+          confidence: '0.5',
+          category: 'cognitive',
+          themes: null,
+          actionable: false,
+          priority: 2,
+          aiProvider: null,
+          aiModel: null,
+          generatedAt: new Date(),
+          validatedAt: null,
+          validatedBy: null,
+          metadata: null,
+          createdAt: new Date(),
+          deletedAt: null,
+        },
       ];
       mockIntelligenceRepo.findInsightsByUserId.mockResolvedValue(insights);
 
@@ -245,7 +319,27 @@ describe('Insights Use Cases', () => {
 
     it('should retrieve insights by entryId', async () => {
       const insights = [
-        { id: 'i1', userId: TEST_USER_ID, entryId: TEST_ENTRY_ID, type: 'emotional', title: 'T1', content: 'C1', confidence: '0.8', category: 'emotional', themes: null, actionable: true, priority: 1, aiProvider: null, aiModel: null, generatedAt: new Date(), validatedAt: null, validatedBy: null, metadata: null, createdAt: new Date(), deletedAt: null },
+        {
+          id: 'i1',
+          userId: TEST_USER_ID,
+          entryId: TEST_ENTRY_ID,
+          type: 'emotional',
+          title: 'T1',
+          content: 'C1',
+          confidence: '0.8',
+          category: 'emotional',
+          themes: null,
+          actionable: true,
+          priority: 1,
+          aiProvider: null,
+          aiModel: null,
+          generatedAt: new Date(),
+          validatedAt: null,
+          validatedBy: null,
+          metadata: null,
+          createdAt: new Date(),
+          deletedAt: null,
+        },
       ];
       mockIntelligenceRepo.findInsightsByEntryId.mockResolvedValue(insights);
 
@@ -261,7 +355,27 @@ describe('Insights Use Cases', () => {
 
     it('should throw ownership error if entry insights belong to another user', async () => {
       const insights = [
-        { id: 'i1', userId: 'other-user', entryId: TEST_ENTRY_ID, type: 'emotional', title: 'T1', content: 'C1', confidence: '0.8', category: 'emotional', themes: null, actionable: true, priority: 1, aiProvider: null, aiModel: null, generatedAt: new Date(), validatedAt: null, validatedBy: null, metadata: null, createdAt: new Date(), deletedAt: null },
+        {
+          id: 'i1',
+          userId: 'other-user',
+          entryId: TEST_ENTRY_ID,
+          type: 'emotional',
+          title: 'T1',
+          content: 'C1',
+          confidence: '0.8',
+          category: 'emotional',
+          themes: null,
+          actionable: true,
+          priority: 1,
+          aiProvider: null,
+          aiModel: null,
+          generatedAt: new Date(),
+          validatedAt: null,
+          validatedBy: null,
+          metadata: null,
+          createdAt: new Date(),
+          deletedAt: null,
+        },
       ];
       mockIntelligenceRepo.findInsightsByEntryId.mockResolvedValue(insights);
 
@@ -282,7 +396,18 @@ describe('Insights Use Cases', () => {
 
     it('should create a reflection and update profile metrics', async () => {
       const newReflection = { userId: TEST_USER_ID, challengeQuestion: 'What matters most to you?' };
-      const createdReflection = { id: 'ref-1', ...newReflection, userResponse: null, followUpQuestions: null, isBreakthrough: null, engagementLevel: null, responseTime: null, submittedAt: null, createdAt: new Date(), deletedAt: null };
+      const createdReflection = {
+        id: 'ref-1',
+        ...newReflection,
+        userResponse: null,
+        followUpQuestions: null,
+        isBreakthrough: null,
+        engagementLevel: null,
+        responseTime: null,
+        submittedAt: null,
+        createdAt: new Date(),
+        deletedAt: null,
+      };
 
       mockIntelligenceRepo.createReflection.mockResolvedValue(createdReflection);
       mockProfileRepo.incrementReflections.mockResolvedValue(undefined);
@@ -296,7 +421,18 @@ describe('Insights Use Cases', () => {
 
     it('should return reflection even if profile update fails', async () => {
       const newReflection = { userId: TEST_USER_ID, challengeQuestion: 'What do you value?' };
-      const createdReflection = { id: 'ref-2', ...newReflection, userResponse: null, followUpQuestions: null, isBreakthrough: null, engagementLevel: null, responseTime: null, submittedAt: null, createdAt: new Date(), deletedAt: null };
+      const createdReflection = {
+        id: 'ref-2',
+        ...newReflection,
+        userResponse: null,
+        followUpQuestions: null,
+        isBreakthrough: null,
+        engagementLevel: null,
+        responseTime: null,
+        submittedAt: null,
+        createdAt: new Date(),
+        deletedAt: null,
+      };
 
       mockIntelligenceRepo.createReflection.mockResolvedValue(createdReflection);
       mockProfileRepo.incrementReflections.mockRejectedValue(new Error('Profile DB error'));
@@ -321,10 +457,47 @@ describe('Insights Use Cases', () => {
     });
 
     it('should continue dialogue by answering an unanswered turn', async () => {
-      const reflection = { id: 'ref-1', userId: TEST_USER_ID, challengeQuestion: 'What do you think?', userResponse: null, followUpQuestions: null, isBreakthrough: false, engagementLevel: null, responseTime: null, submittedAt: null, createdAt: new Date(), deletedAt: null };
-      const unansweredTurn = { id: 'turn-1', reflectionId: 'ref-1', turnNumber: 1, question: 'What do you think?', response: null, microInsight: null, therapeuticFramework: 'cognitive-behavioral', respondedAt: null, createdAt: new Date() };
-      const answeredTurn = { ...unansweredTurn, response: 'I feel good about it', microInsight: 'Each reflection brings you closer to understanding yourself better.', respondedAt: new Date() };
-      const nextTurn = { id: 'turn-2', reflectionId: 'ref-1', turnNumber: 2, question: 'How does this connect to other areas of your life?', response: null, microInsight: null, therapeuticFramework: 'acceptance-commitment', respondedAt: null, createdAt: new Date() };
+      const reflection = {
+        id: 'ref-1',
+        userId: TEST_USER_ID,
+        challengeQuestion: 'What do you think?',
+        userResponse: null,
+        followUpQuestions: null,
+        isBreakthrough: false,
+        engagementLevel: null,
+        responseTime: null,
+        submittedAt: null,
+        createdAt: new Date(),
+        deletedAt: null,
+      };
+      const unansweredTurn = {
+        id: 'turn-1',
+        reflectionId: 'ref-1',
+        turnNumber: 1,
+        question: 'What do you think?',
+        response: null,
+        microInsight: null,
+        therapeuticFramework: 'cognitive-behavioral',
+        respondedAt: null,
+        createdAt: new Date(),
+      };
+      const answeredTurn = {
+        ...unansweredTurn,
+        response: 'I feel good about it',
+        microInsight: 'Each reflection brings you closer to understanding yourself better.',
+        respondedAt: new Date(),
+      };
+      const nextTurn = {
+        id: 'turn-2',
+        reflectionId: 'ref-1',
+        turnNumber: 2,
+        question: 'How does this connect to other areas of your life?',
+        response: null,
+        microInsight: null,
+        therapeuticFramework: 'acceptance-commitment',
+        respondedAt: null,
+        createdAt: new Date(),
+      };
 
       mockIntelligenceRepo.findReflectionById.mockResolvedValue(reflection);
       mockIntelligenceRepo.findReflectionTurnsByReflectionId
@@ -349,23 +522,73 @@ describe('Insights Use Cases', () => {
     it('should throw when reflection is not found', async () => {
       mockIntelligenceRepo.findReflectionById.mockResolvedValue(null);
 
-      await expect(useCase.execute({
-        reflectionId: 'nonexistent',
-        userId: TEST_USER_ID,
-        userResponse: 'response',
-      })).rejects.toThrow();
+      await expect(
+        useCase.execute({
+          reflectionId: 'nonexistent',
+          userId: TEST_USER_ID,
+          userResponse: 'response',
+        })
+      ).rejects.toThrow();
     });
 
     it('should detect breakthrough when indicators and depth are present', async () => {
-      const reflection = { id: 'ref-1', userId: TEST_USER_ID, challengeQuestion: 'What patterns do you see?', userResponse: null, followUpQuestions: null, isBreakthrough: false, engagementLevel: null, responseTime: null, submittedAt: null, createdAt: new Date(), deletedAt: null };
+      const reflection = {
+        id: 'ref-1',
+        userId: TEST_USER_ID,
+        challengeQuestion: 'What patterns do you see?',
+        userResponse: null,
+        followUpQuestions: null,
+        isBreakthrough: false,
+        engagementLevel: null,
+        responseTime: null,
+        submittedAt: null,
+        createdAt: new Date(),
+        deletedAt: null,
+      };
       const existingTurns = [
-        { id: 't1', reflectionId: 'ref-1', turnNumber: 1, question: 'Q1', response: 'R1', microInsight: 'M1', therapeuticFramework: 'cbt', respondedAt: new Date(), createdAt: new Date() },
-        { id: 't2', reflectionId: 'ref-1', turnNumber: 2, question: 'Q2', response: 'R2', microInsight: 'M2', therapeuticFramework: 'cbt', respondedAt: new Date(), createdAt: new Date() },
+        {
+          id: 't1',
+          reflectionId: 'ref-1',
+          turnNumber: 1,
+          question: 'Q1',
+          response: 'R1',
+          microInsight: 'M1',
+          therapeuticFramework: 'cbt',
+          respondedAt: new Date(),
+          createdAt: new Date(),
+        },
+        {
+          id: 't2',
+          reflectionId: 'ref-1',
+          turnNumber: 2,
+          question: 'Q2',
+          response: 'R2',
+          microInsight: 'M2',
+          therapeuticFramework: 'cbt',
+          respondedAt: new Date(),
+          createdAt: new Date(),
+        },
       ];
-      const unansweredTurn = { id: 't3', reflectionId: 'ref-1', turnNumber: 3, question: 'Q3', response: null, microInsight: null, therapeuticFramework: 'cbt', respondedAt: null, createdAt: new Date() };
-      const breakthroughResponse = 'I finally realize that I have been avoiding this pattern my entire life and now I understand now that the connection between my feelings and my actions is much deeper than I thought and this makes sense to me in a way it never did before';
+      const unansweredTurn = {
+        id: 't3',
+        reflectionId: 'ref-1',
+        turnNumber: 3,
+        question: 'Q3',
+        response: null,
+        microInsight: null,
+        therapeuticFramework: 'cbt',
+        respondedAt: null,
+        createdAt: new Date(),
+      };
+      const breakthroughResponse =
+        'I finally realize that I have been avoiding this pattern my entire life and now I understand now that the connection between my feelings and my actions is much deeper than I thought and this makes sense to me in a way it never did before';
 
-      const answeredTurn = { ...unansweredTurn, response: breakthroughResponse, microInsight: 'You explored this topic in depth', respondedAt: new Date() };
+      const answeredTurn = {
+        ...unansweredTurn,
+        response: breakthroughResponse,
+        microInsight: 'You explored this topic in depth',
+        respondedAt: new Date(),
+      };
 
       mockIntelligenceRepo.findReflectionById.mockResolvedValue(reflection);
       mockIntelligenceRepo.findReflectionTurnsByReflectionId
@@ -374,7 +597,18 @@ describe('Insights Use Cases', () => {
       mockIntelligenceRepo.getMaxTurnNumber.mockResolvedValue(3);
       mockIntelligenceRepo.updateReflectionTurn.mockResolvedValue(answeredTurn);
       mockIntelligenceRepo.updateReflection.mockResolvedValue({ ...reflection, isBreakthrough: true });
-      mockIntelligenceRepo.createInsight.mockResolvedValue({ id: 'insight-bt-1', userId: TEST_USER_ID, type: 'self_discovered', title: 'Breakthrough', content: breakthroughResponse, category: 'breakthrough', confidence: 'high', actionable: false, generatedAt: new Date(), createdAt: new Date() });
+      mockIntelligenceRepo.createInsight.mockResolvedValue({
+        id: 'insight-bt-1',
+        userId: TEST_USER_ID,
+        type: 'self_discovered',
+        title: 'Breakthrough',
+        content: breakthroughResponse,
+        category: 'breakthrough',
+        confidence: 'high',
+        actionable: false,
+        generatedAt: new Date(),
+        createdAt: new Date(),
+      });
 
       const result = await useCase.execute({
         reflectionId: 'ref-1',
@@ -386,7 +620,9 @@ describe('Insights Use Cases', () => {
       expect(result.synthesis).toBeTruthy();
       expect(result.savedInsightId).toBe('insight-bt-1');
       expect(mockIntelligenceRepo.updateReflection).toHaveBeenCalledWith('ref-1', { isBreakthrough: true });
-      expect(mockIntelligenceRepo.createInsight).toHaveBeenCalledWith(expect.objectContaining({ type: 'self_discovered', category: 'breakthrough' }));
+      expect(mockIntelligenceRepo.createInsight).toHaveBeenCalledWith(
+        expect.objectContaining({ type: 'self_discovered', category: 'breakthrough' })
+      );
     });
   });
 
@@ -400,8 +636,40 @@ describe('Insights Use Cases', () => {
     });
 
     it('should record a mood check-in with pattern connection', async () => {
-      const pattern = { id: 'pat-1', userId: TEST_USER_ID, patternType: 'emotional', patternName: 'Happy moments', description: null, frequency: 5, strength: 'moderate', trend: 'increasing', firstObserved: new Date(), lastObserved: new Date(), relatedThemes: ['joy'], triggerFactors: null, isActive: true, evidenceEntryIds: null, explorationPrompt: null, metadata: null, createdAt: new Date(), updatedAt: new Date() };
-      const checkin = { id: 'mc-1', userId: TEST_USER_ID, mood: 'happy', emotionalIntensity: 7, content: null, triggerTag: null, microQuestion: 'How can you create more moments like this?', microQuestionResponse: null, patternConnectionId: 'pat-1', linkedReflectionId: null, respondedAt: null, createdAt: new Date() };
+      const pattern = {
+        id: 'pat-1',
+        userId: TEST_USER_ID,
+        patternType: 'emotional',
+        patternName: 'Happy moments',
+        description: null,
+        frequency: 5,
+        strength: 'moderate',
+        trend: 'increasing',
+        firstObserved: new Date(),
+        lastObserved: new Date(),
+        relatedThemes: ['joy'],
+        triggerFactors: null,
+        isActive: true,
+        evidenceEntryIds: null,
+        explorationPrompt: null,
+        metadata: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      const checkin = {
+        id: 'mc-1',
+        userId: TEST_USER_ID,
+        mood: 'happy',
+        emotionalIntensity: 7,
+        content: null,
+        triggerTag: null,
+        microQuestion: 'How can you create more moments like this?',
+        microQuestionResponse: null,
+        patternConnectionId: 'pat-1',
+        linkedReflectionId: null,
+        respondedAt: null,
+        createdAt: new Date(),
+      };
 
       mockIntelligenceRepo.findRecentMoodCheckins.mockResolvedValue([]);
       mockIntelligenceRepo.getUserPatterns.mockResolvedValue([pattern]);
@@ -422,7 +690,7 @@ describe('Insights Use Cases', () => {
     it('should clamp emotional intensity to valid range', async () => {
       mockIntelligenceRepo.findRecentMoodCheckins.mockResolvedValue([]);
       mockIntelligenceRepo.getUserPatterns.mockResolvedValue([]);
-      mockIntelligenceRepo.createMoodCheckin.mockImplementation(async (data) => ({
+      mockIntelligenceRepo.createMoodCheckin.mockImplementation(async data => ({
         id: 'mc-2',
         ...data,
         microQuestionResponse: null,
@@ -442,14 +710,58 @@ describe('Insights Use Cases', () => {
 
     it('should detect emerging pattern when same mood is logged frequently', async () => {
       const recentCheckins = [
-        { id: 'mc-a', userId: TEST_USER_ID, mood: 'sad', emotionalIntensity: 5, content: null, triggerTag: null, microQuestion: null, microQuestionResponse: null, patternConnectionId: null, linkedReflectionId: null, respondedAt: null, createdAt: new Date() },
-        { id: 'mc-b', userId: TEST_USER_ID, mood: 'sad', emotionalIntensity: 6, content: null, triggerTag: null, microQuestion: null, microQuestionResponse: null, patternConnectionId: null, linkedReflectionId: null, respondedAt: null, createdAt: new Date() },
-        { id: 'mc-c', userId: TEST_USER_ID, mood: 'sad', emotionalIntensity: 4, content: null, triggerTag: null, microQuestion: null, microQuestionResponse: null, patternConnectionId: null, linkedReflectionId: null, respondedAt: null, createdAt: new Date() },
+        {
+          id: 'mc-a',
+          userId: TEST_USER_ID,
+          mood: 'sad',
+          emotionalIntensity: 5,
+          content: null,
+          triggerTag: null,
+          microQuestion: null,
+          microQuestionResponse: null,
+          patternConnectionId: null,
+          linkedReflectionId: null,
+          respondedAt: null,
+          createdAt: new Date(),
+        },
+        {
+          id: 'mc-b',
+          userId: TEST_USER_ID,
+          mood: 'sad',
+          emotionalIntensity: 6,
+          content: null,
+          triggerTag: null,
+          microQuestion: null,
+          microQuestionResponse: null,
+          patternConnectionId: null,
+          linkedReflectionId: null,
+          respondedAt: null,
+          createdAt: new Date(),
+        },
+        {
+          id: 'mc-c',
+          userId: TEST_USER_ID,
+          mood: 'sad',
+          emotionalIntensity: 4,
+          content: null,
+          triggerTag: null,
+          microQuestion: null,
+          microQuestionResponse: null,
+          patternConnectionId: null,
+          linkedReflectionId: null,
+          respondedAt: null,
+          createdAt: new Date(),
+        },
       ];
       mockIntelligenceRepo.findRecentMoodCheckins.mockResolvedValue(recentCheckins);
       mockIntelligenceRepo.getUserPatterns.mockResolvedValue([]);
-      mockIntelligenceRepo.createMoodCheckin.mockImplementation(async (data) => ({
-        id: 'mc-3', ...data, microQuestionResponse: null, linkedReflectionId: null, respondedAt: null, createdAt: new Date(),
+      mockIntelligenceRepo.createMoodCheckin.mockImplementation(async data => ({
+        id: 'mc-3',
+        ...data,
+        microQuestionResponse: null,
+        linkedReflectionId: null,
+        respondedAt: null,
+        createdAt: new Date(),
       }));
 
       const result = await useCase.execute({
@@ -503,27 +815,33 @@ describe('Insights Use Cases', () => {
     });
 
     it('should throw for invalid analysis depth', async () => {
-      await expect(useCase.execute({
-        userId: TEST_USER_ID,
-        analysisDepth: 'invalid' as any,
-      })).rejects.toThrow();
+      await expect(
+        useCase.execute({
+          userId: TEST_USER_ID,
+          analysisDepth: 'invalid' as any,
+        })
+      ).rejects.toThrow();
     });
 
     it('should throw for invalid date range', async () => {
       const now = new Date();
       const earlier = new Date(now.getTime() - 86400000);
 
-      await expect(useCase.execute({
-        userId: TEST_USER_ID,
-        timeframe: { start: now, end: earlier },
-      })).rejects.toThrow();
+      await expect(
+        useCase.execute({
+          userId: TEST_USER_ID,
+          timeframe: { start: now, end: earlier },
+        })
+      ).rejects.toThrow();
     });
 
     it('should throw for invalid dimensions', async () => {
-      await expect(useCase.execute({
-        userId: TEST_USER_ID,
-        dimensions: ['invalid_dimension'],
-      } as any)).rejects.toThrow();
+      await expect(
+        useCase.execute({
+          userId: TEST_USER_ID,
+          dimensions: ['invalid_dimension'],
+        } as any)
+      ).rejects.toThrow();
     });
   });
 
@@ -537,8 +855,36 @@ describe('Insights Use Cases', () => {
     });
 
     it('should create a reaction and return follow-up action for resonates', async () => {
-      const pattern = { id: 'pat-1', userId: TEST_USER_ID, patternType: 'emotional', patternName: 'Morning Clarity', description: null, frequency: 5, strength: 'moderate', trend: 'stable', firstObserved: new Date(), lastObserved: new Date(), relatedThemes: null, triggerFactors: null, isActive: true, evidenceEntryIds: null, explorationPrompt: null, metadata: null, createdAt: new Date(), updatedAt: new Date() };
-      const reaction = { id: 'pr-1', userId: TEST_USER_ID, patternId: 'pat-1', reaction: 'resonates', explanation: null, followUpReflectionId: null, generatedInsightId: null, createdAt: new Date() };
+      const pattern = {
+        id: 'pat-1',
+        userId: TEST_USER_ID,
+        patternType: 'emotional',
+        patternName: 'Morning Clarity',
+        description: null,
+        frequency: 5,
+        strength: 'moderate',
+        trend: 'stable',
+        firstObserved: new Date(),
+        lastObserved: new Date(),
+        relatedThemes: null,
+        triggerFactors: null,
+        isActive: true,
+        evidenceEntryIds: null,
+        explorationPrompt: null,
+        metadata: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      const reaction = {
+        id: 'pr-1',
+        userId: TEST_USER_ID,
+        patternId: 'pat-1',
+        reaction: 'resonates',
+        explanation: null,
+        followUpReflectionId: null,
+        generatedInsightId: null,
+        createdAt: new Date(),
+      };
 
       mockIntelligenceRepo.getPatternById.mockResolvedValue(pattern);
       mockIntelligenceRepo.createPatternReaction.mockResolvedValue(reaction);
@@ -557,16 +903,46 @@ describe('Insights Use Cases', () => {
     it('should throw when pattern is not found', async () => {
       mockIntelligenceRepo.getPatternById.mockResolvedValue(null);
 
-      await expect(useCase.execute({
-        patternId: 'nonexistent',
-        userId: TEST_USER_ID,
-        reaction: 'resonates',
-      })).rejects.toThrow();
+      await expect(
+        useCase.execute({
+          patternId: 'nonexistent',
+          userId: TEST_USER_ID,
+          reaction: 'resonates',
+        })
+      ).rejects.toThrow();
     });
 
     it('should reduce pattern strength for not_me reaction', async () => {
-      const pattern = { id: 'pat-1', userId: TEST_USER_ID, patternType: 'behavioral', patternName: 'Test Pattern', description: null, frequency: 3, strength: 'moderate', trend: 'stable', firstObserved: new Date(), lastObserved: new Date(), relatedThemes: null, triggerFactors: null, isActive: true, evidenceEntryIds: null, explorationPrompt: null, metadata: null, createdAt: new Date(), updatedAt: new Date() };
-      const reaction = { id: 'pr-2', userId: TEST_USER_ID, patternId: 'pat-1', reaction: 'not_me', explanation: 'Does not fit', followUpReflectionId: null, generatedInsightId: null, createdAt: new Date() };
+      const pattern = {
+        id: 'pat-1',
+        userId: TEST_USER_ID,
+        patternType: 'behavioral',
+        patternName: 'Test Pattern',
+        description: null,
+        frequency: 3,
+        strength: 'moderate',
+        trend: 'stable',
+        firstObserved: new Date(),
+        lastObserved: new Date(),
+        relatedThemes: null,
+        triggerFactors: null,
+        isActive: true,
+        evidenceEntryIds: null,
+        explorationPrompt: null,
+        metadata: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      const reaction = {
+        id: 'pr-2',
+        userId: TEST_USER_ID,
+        patternId: 'pat-1',
+        reaction: 'not_me',
+        explanation: 'Does not fit',
+        followUpReflectionId: null,
+        generatedInsightId: null,
+        createdAt: new Date(),
+      };
 
       mockIntelligenceRepo.getPatternById.mockResolvedValue(pattern);
       mockIntelligenceRepo.createPatternReaction.mockResolvedValue(reaction);
@@ -584,8 +960,36 @@ describe('Insights Use Cases', () => {
     });
 
     it('should set exploration prompt for curious reaction', async () => {
-      const pattern = { id: 'pat-1', userId: TEST_USER_ID, patternType: 'emotional', patternName: 'Curiosity Loop', description: null, frequency: 2, strength: 'moderate', trend: 'stable', firstObserved: new Date(), lastObserved: new Date(), relatedThemes: null, triggerFactors: null, isActive: true, evidenceEntryIds: null, explorationPrompt: null, metadata: null, createdAt: new Date(), updatedAt: new Date() };
-      const reaction = { id: 'pr-3', userId: TEST_USER_ID, patternId: 'pat-1', reaction: 'curious', explanation: null, followUpReflectionId: null, generatedInsightId: null, createdAt: new Date() };
+      const pattern = {
+        id: 'pat-1',
+        userId: TEST_USER_ID,
+        patternType: 'emotional',
+        patternName: 'Curiosity Loop',
+        description: null,
+        frequency: 2,
+        strength: 'moderate',
+        trend: 'stable',
+        firstObserved: new Date(),
+        lastObserved: new Date(),
+        relatedThemes: null,
+        triggerFactors: null,
+        isActive: true,
+        evidenceEntryIds: null,
+        explorationPrompt: null,
+        metadata: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      const reaction = {
+        id: 'pr-3',
+        userId: TEST_USER_ID,
+        patternId: 'pat-1',
+        reaction: 'curious',
+        explanation: null,
+        followUpReflectionId: null,
+        generatedInsightId: null,
+        createdAt: new Date(),
+      };
 
       mockIntelligenceRepo.getPatternById.mockResolvedValue(pattern);
       mockIntelligenceRepo.createPatternReaction.mockResolvedValue(reaction);
@@ -597,9 +1001,12 @@ describe('Insights Use Cases', () => {
         reaction: 'curious',
       });
 
-      expect(mockIntelligenceRepo.updatePattern).toHaveBeenCalledWith('pat-1', expect.objectContaining({
-        explorationPrompt: expect.stringContaining('Curiosity Loop'),
-      }));
+      expect(mockIntelligenceRepo.updatePattern).toHaveBeenCalledWith(
+        'pat-1',
+        expect.objectContaining({
+          explorationPrompt: expect.stringContaining('Curiosity Loop'),
+        })
+      );
     });
   });
 
@@ -614,7 +1021,17 @@ describe('Insights Use Cases', () => {
 
     it('should return existing narrative if recent enough', async () => {
       const recentNarrative = {
-        id: 'narr-1', userId: TEST_USER_ID, periodStart: new Date(Date.now() - 3 * 86400000), periodEnd: new Date(), narrative: 'Recent narrative', dataPointsUsed: 10, breakthroughsReferenced: null, forwardPrompt: 'Forward prompt', userReflection: null, metadata: {}, createdAt: new Date(),
+        id: 'narr-1',
+        userId: TEST_USER_ID,
+        periodStart: new Date(Date.now() - 3 * 86400000),
+        periodEnd: new Date(),
+        narrative: 'Recent narrative',
+        dataPointsUsed: 10,
+        breakthroughsReferenced: null,
+        forwardPrompt: 'Forward prompt',
+        userReflection: null,
+        metadata: {},
+        createdAt: new Date(),
       };
 
       mockIntelligenceRepo.findLatestNarrative.mockResolvedValue(recentNarrative);
@@ -628,15 +1045,71 @@ describe('Insights Use Cases', () => {
     it('should generate a new narrative when no recent one exists', async () => {
       const now = new Date();
       const reflections = [
-        { id: 'r1', userId: TEST_USER_ID, challengeQuestion: 'Q1', userResponse: 'R1', followUpQuestions: null, isBreakthrough: false, engagementLevel: null, responseTime: null, submittedAt: null, createdAt: now, deletedAt: null },
+        {
+          id: 'r1',
+          userId: TEST_USER_ID,
+          challengeQuestion: 'Q1',
+          userResponse: 'R1',
+          followUpQuestions: null,
+          isBreakthrough: false,
+          engagementLevel: null,
+          responseTime: null,
+          submittedAt: null,
+          createdAt: now,
+          deletedAt: null,
+        },
       ];
       const moodCheckins = [
-        { id: 'mc1', userId: TEST_USER_ID, mood: 'happy', emotionalIntensity: 7, content: null, triggerTag: null, microQuestion: null, microQuestionResponse: null, patternConnectionId: null, linkedReflectionId: null, respondedAt: null, createdAt: now },
+        {
+          id: 'mc1',
+          userId: TEST_USER_ID,
+          mood: 'happy',
+          emotionalIntensity: 7,
+          content: null,
+          triggerTag: null,
+          microQuestion: null,
+          microQuestionResponse: null,
+          patternConnectionId: null,
+          linkedReflectionId: null,
+          respondedAt: null,
+          createdAt: now,
+        },
       ];
       const patterns = [
-        { id: 'p1', userId: TEST_USER_ID, patternType: 'emotional', patternName: 'Joy Pattern', description: null, frequency: 3, strength: 'strong', trend: 'increasing', firstObserved: now, lastObserved: now, relatedThemes: null, triggerFactors: null, isActive: true, evidenceEntryIds: null, explorationPrompt: null, metadata: null, createdAt: now, updatedAt: now },
+        {
+          id: 'p1',
+          userId: TEST_USER_ID,
+          patternType: 'emotional',
+          patternName: 'Joy Pattern',
+          description: null,
+          frequency: 3,
+          strength: 'strong',
+          trend: 'increasing',
+          firstObserved: now,
+          lastObserved: now,
+          relatedThemes: null,
+          triggerFactors: null,
+          isActive: true,
+          evidenceEntryIds: null,
+          explorationPrompt: null,
+          metadata: null,
+          createdAt: now,
+          updatedAt: now,
+        },
       ];
-      const createdNarrative = { id: 'narr-2', userId: TEST_USER_ID, periodStart: new Date(Date.now() - 7 * 86400000), periodEnd: now, narrative: 'New narrative', dataPointsUsed: 3, breakthroughsReferenced: null, forwardPrompt: 'Forward prompt', userReflection: null, metadata: {}, createdAt: now };
+      const createdNarrative = {
+        id: 'narr-2',
+        userId: TEST_USER_ID,
+        periodStart: new Date(Date.now() - 7 * 86400000),
+        periodEnd: now,
+        narrative: 'New narrative',
+        dataPointsUsed: 3,
+        breakthroughsReferenced: null,
+        forwardPrompt: 'Forward prompt',
+        userReflection: null,
+        metadata: {},
+        createdAt: now,
+      };
 
       mockIntelligenceRepo.findLatestNarrative.mockResolvedValue(null);
       mockIntelligenceRepo.findReflectionsByUserId.mockResolvedValue(reflections);
@@ -653,7 +1126,19 @@ describe('Insights Use Cases', () => {
     });
 
     it('should respond to a narrative', async () => {
-      const updatedNarrative = { id: 'narr-1', userId: TEST_USER_ID, periodStart: new Date(), periodEnd: new Date(), narrative: 'Text', dataPointsUsed: 5, breakthroughsReferenced: null, forwardPrompt: null, userReflection: 'My reflection', metadata: {}, createdAt: new Date() };
+      const updatedNarrative = {
+        id: 'narr-1',
+        userId: TEST_USER_ID,
+        periodStart: new Date(),
+        periodEnd: new Date(),
+        narrative: 'Text',
+        dataPointsUsed: 5,
+        breakthroughsReferenced: null,
+        forwardPrompt: null,
+        userReflection: 'My reflection',
+        metadata: {},
+        createdAt: new Date(),
+      };
       mockIntelligenceRepo.updateNarrative.mockResolvedValue(updatedNarrative);
 
       const result = await useCase.respondToNarrative({
@@ -679,7 +1164,15 @@ describe('Insights Use Cases', () => {
     it('should extract narrative seeds from entries', async () => {
       const entries = [
         {
-          id: 'e1', userId: TEST_USER_ID, content: 'Today I felt a deep sense of gratitude for my family and the journey we have been on together', entryType: 'journal', moodContext: 'grateful', sentiment: 'positive', emotionalIntensity: 8, tags: ['family', 'gratitude'], createdAt: new Date(),
+          id: 'e1',
+          userId: TEST_USER_ID,
+          content: 'Today I felt a deep sense of gratitude for my family and the journey we have been on together',
+          entryType: 'journal',
+          moodContext: 'grateful',
+          sentiment: 'positive',
+          emotionalIntensity: 8,
+          tags: ['family', 'gratitude'],
+          createdAt: new Date(),
         },
       ];
       mockIntelligenceRepo.findEntriesByUserId.mockResolvedValue(entries);
@@ -695,7 +1188,15 @@ describe('Insights Use Cases', () => {
 
     it('should return empty seeds when no recent entries', async () => {
       const oldEntry = {
-        id: 'e1', userId: TEST_USER_ID, content: 'Old entry', entryType: 'journal', moodContext: null, sentiment: null, emotionalIntensity: null, tags: null, createdAt: new Date('2020-01-01'),
+        id: 'e1',
+        userId: TEST_USER_ID,
+        content: 'Old entry',
+        entryType: 'journal',
+        moodContext: null,
+        sentiment: null,
+        emotionalIntensity: null,
+        tags: null,
+        createdAt: new Date('2020-01-01'),
       };
       mockIntelligenceRepo.findEntriesByUserId.mockResolvedValue([oldEntry]);
 
@@ -708,7 +1209,16 @@ describe('Insights Use Cases', () => {
     it('should respect maxSeeds parameter', async () => {
       const entries = [
         {
-          id: 'e1', userId: TEST_USER_ID, content: 'gratitude family journey reflection love peace harmony strength growth wisdom connection inspiration creativity adventure discovery wonder beauty grace', entryType: 'journal', moodContext: 'happy', sentiment: 'positive', emotionalIntensity: 7, tags: ['reflection', 'growth', 'mindfulness'], createdAt: new Date(),
+          id: 'e1',
+          userId: TEST_USER_ID,
+          content:
+            'gratitude family journey reflection love peace harmony strength growth wisdom connection inspiration creativity adventure discovery wonder beauty grace',
+          entryType: 'journal',
+          moodContext: 'happy',
+          sentiment: 'positive',
+          emotionalIntensity: 7,
+          tags: ['reflection', 'growth', 'mindfulness'],
+          createdAt: new Date(),
         },
       ];
       mockIntelligenceRepo.findEntriesByUserId.mockResolvedValue(entries);
@@ -755,44 +1265,54 @@ describe('Insights Use Cases', () => {
     });
 
     it('should throw when userId is empty', async () => {
-      await expect(useCase.execute({
-        userId: '',
-        goalGenerationMode: 'comprehensive',
-      })).rejects.toThrow();
+      await expect(
+        useCase.execute({
+          userId: '',
+          goalGenerationMode: 'comprehensive',
+        })
+      ).rejects.toThrow();
     });
 
     it('should throw for invalid goal generation mode', async () => {
-      await expect(useCase.execute({
-        userId: TEST_USER_ID,
-        goalGenerationMode: 'invalid' as any,
-      })).rejects.toThrow();
+      await expect(
+        useCase.execute({
+          userId: TEST_USER_ID,
+          goalGenerationMode: 'invalid' as any,
+        })
+      ).rejects.toThrow();
     });
 
     it('should throw for invalid maxNewGoals', async () => {
-      await expect(useCase.execute({
-        userId: TEST_USER_ID,
-        goalGenerationMode: 'comprehensive',
-        maxNewGoals: 25,
-      })).rejects.toThrow();
+      await expect(
+        useCase.execute({
+          userId: TEST_USER_ID,
+          goalGenerationMode: 'comprehensive',
+          maxNewGoals: 25,
+        })
+      ).rejects.toThrow();
     });
 
     it('should throw for invalid confidence threshold', async () => {
-      await expect(useCase.execute({
-        userId: TEST_USER_ID,
-        goalGenerationMode: 'focused',
-        confidenceThreshold: 1.5,
-      })).rejects.toThrow();
+      await expect(
+        useCase.execute({
+          userId: TEST_USER_ID,
+          goalGenerationMode: 'focused',
+          confidenceThreshold: 1.5,
+        })
+      ).rejects.toThrow();
     });
 
     it('should throw for invalid date range', async () => {
       const now = new Date();
       const earlier = new Date(now.getTime() - 86400000);
 
-      await expect(useCase.execute({
-        userId: TEST_USER_ID,
-        goalGenerationMode: 'maintenance',
-        analysisTimeframe: { start: now, end: earlier },
-      })).rejects.toThrow();
+      await expect(
+        useCase.execute({
+          userId: TEST_USER_ID,
+          goalGenerationMode: 'maintenance',
+          analysisTimeframe: { start: now, end: earlier },
+        })
+      ).rejects.toThrow();
     });
   });
 });

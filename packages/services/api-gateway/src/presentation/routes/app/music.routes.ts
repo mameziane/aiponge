@@ -6,11 +6,7 @@
 import { Router } from 'express';
 import { extractAuthContext, getValidation } from '@aiponge/platform-core';
 import { createPolicyRoute } from '../helpers/routeHelpers';
-import {
-  MusicGenerateSchema,
-  isPrivilegedRole,
-  normalizeRole,
-} from '@aiponge/shared-contracts';
+import { MusicGenerateSchema, isPrivilegedRole, normalizeRole } from '@aiponge/shared-contracts';
 
 const { validateBody } = getValidation();
 
@@ -33,9 +29,7 @@ router.post(
     service: 'music-service',
     path: req => {
       const { role } = extractAuthContext(req);
-      return isPrivilegedRole(normalizeRole(role))
-        ? '/api/library/generate-track'
-        : '/api/music/generate-track';
+      return isPrivilegedRole(normalizeRole(role)) ? '/api/library/generate-track' : '/api/music/generate-track';
     },
     logPrefix: '[MUSIC GENERATE]',
     errorMessage: 'Failed to generate music',
@@ -60,9 +54,7 @@ router.post(
     service: 'music-service',
     path: req => {
       const { role } = extractAuthContext(req);
-      return isPrivilegedRole(normalizeRole(role))
-        ? '/api/library/generate-album'
-        : '/api/music/generate-album';
+      return isPrivilegedRole(normalizeRole(role)) ? '/api/library/generate-album' : '/api/music/generate-album';
     },
     logPrefix: '[ALBUM GENERATE]',
     errorMessage: 'Failed to generate album',
@@ -81,9 +73,7 @@ router.post(
     service: 'music-service',
     path: req => {
       const { role } = extractAuthContext(req);
-      return isPrivilegedRole(normalizeRole(role))
-        ? '/api/library/generate-album'
-        : '/api/music/generate-album';
+      return isPrivilegedRole(normalizeRole(role)) ? '/api/library/generate-album' : '/api/music/generate-album';
     },
     logPrefix: '[ALBUM GENERATE ASYNC]',
     errorMessage: 'Failed to start album generation',

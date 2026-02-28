@@ -215,8 +215,6 @@ export function toBookDisplay(
     subtitle: rawBook.subtitle || undefined,
     coverIllustrationUrl: rawBook.coverIllustrationUrl || undefined,
     author: rawBook.author || undefined,
-    era: rawBook.era || undefined,
-    tradition: rawBook.tradition || rawBook.themes?.[0] || undefined,
     category: rawBook.category || rawBook.tags?.[0] || rawBook.themes?.[0] || rawBook.typeId || 'general',
     description: rawBook.description || undefined,
     status: rawBook.status || undefined,
@@ -644,8 +642,6 @@ export interface CreateBookChapter {
     sources?: Array<{
       author: string;
       work?: string;
-      era?: string;
-      tradition?: string;
     }>;
     tags?: string[];
     themes?: string[];
@@ -657,8 +653,6 @@ export interface CreateBookOptions {
   description?: string;
   language?: string;
   category?: string;
-  era?: string;
-  tradition?: string;
   chapters?: CreateBookChapter[];
 }
 
@@ -768,8 +762,6 @@ export function useBooksUnified(options?: UseBooksUnifiedOptions) {
         author: user?.name || undefined,
         language: options.language,
         category: options.category,
-        era: options.era,
-        tradition: options.tradition,
         visibility: defaultVisibility,
         metadata: {
           isDefault: false,

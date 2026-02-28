@@ -159,7 +159,10 @@ export class CreateProviderConfigurationUseCase {
     await this.validateProviderConfiguration(config.providerType, config.configuration);
   }
 
-  private async validateProviderConfiguration(providerType: string, configuration: Record<string, unknown>): Promise<void> {
+  private async validateProviderConfiguration(
+    providerType: string,
+    configuration: Record<string, unknown>
+  ): Promise<void> {
     // Validate endpoint
     if (!configuration.endpoint || typeof configuration.endpoint !== 'string') {
       throw ConfigError.validationError('endpoint', 'Configuration endpoint is required');
@@ -267,9 +270,12 @@ export class CreateProviderConfigurationUseCase {
       if (!this.templateClient) {
         throw new DomainError('Template client not available', 503);
       }
-      const testPrompt = await this.templateClient.getProviderTestPrompt(providerType as 'llm' | 'image' | 'video' | 'music' | 'audio' | 'text', {
-        test_context: 'provider_creation',
-      });
+      const testPrompt = await this.templateClient.getProviderTestPrompt(
+        providerType as 'llm' | 'image' | 'video' | 'music' | 'audio' | 'text',
+        {
+          test_context: 'provider_creation',
+        }
+      );
 
       const testPayloads = {
         llm: { prompt: testPrompt, maxTokens: 10 },

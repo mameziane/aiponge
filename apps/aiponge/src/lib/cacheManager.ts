@@ -126,10 +126,7 @@ const creatorFollowToggle = (e: { userId?: string }): InvalidationTarget[] => [
   t(queryKeys.creators.followed(e.userId)),
 ];
 
-const creditGiftChange: InvalidationTarget[] = [
-  t(queryKeys.credits.gifts()),
-  t(queryKeys.credits.balance()),
-];
+const creditGiftChange: InvalidationTarget[] = [t(queryKeys.credits.gifts()), t(queryKeys.credits.balance())];
 
 const reminderChange: InvalidationTarget[] = [t(queryKeys.reminders.all())];
 
@@ -145,10 +142,7 @@ const playlistListChange: InvalidationTarget[] = [t(queryKeys.playlists.all)];
 const INVALIDATION_RULES: InvalidationMap = {
   BOOK_CREATED: [t(queryKeys.personalBooks.all)],
 
-  BOOK_UPDATED: (e) => [
-    t(queryKeys.personalBooks.all),
-    t(queryKeys.personalBooks.detail(e.bookId)),
-  ],
+  BOOK_UPDATED: e => [t(queryKeys.personalBooks.all), t(queryKeys.personalBooks.detail(e.bookId))],
 
   BOOK_DELETED: [
     t(queryKeys.personalBooks.all),
@@ -157,75 +151,64 @@ const INVALIDATION_RULES: InvalidationMap = {
     t(queryKeys.tracks.myMusic()),
   ],
 
-  CHAPTER_CREATED: (e) => [
+  CHAPTER_CREATED: e => [
     t(queryKeys.chapters.all),
     t(queryKeys.chapters.byBook(e.bookId)),
     t(queryKeys.personalBooks.all),
   ],
 
-  CHAPTER_UPDATED: (e) => [
+  CHAPTER_UPDATED: e => [
     t(queryKeys.chapters.all),
     ...(e.chapterId ? [t(queryKeys.chapters.detail(e.chapterId))] : []),
     ...(e.bookId ? [t(queryKeys.chapters.byBook(e.bookId))] : []),
   ],
 
-  CHAPTER_DELETED: (e) => [
+  CHAPTER_DELETED: e => [
     t(queryKeys.chapters.all),
     t(queryKeys.entries.all),
     ...(e.bookId ? [t(queryKeys.chapters.byBook(e.bookId))] : []),
   ],
 
-  CHAPTER_MOVED: (e) => [
+  CHAPTER_MOVED: e => [
     t(queryKeys.chapters.all),
     t(queryKeys.chapters.byBook(e.fromBookId)),
     t(queryKeys.chapters.byBook(e.toBookId)),
     t(queryKeys.personalBooks.all),
   ],
 
-  ENTRY_CREATED: (e) => [
+  ENTRY_CREATED: e => [
     t(queryKeys.entries.all),
     t(queryKeys.chapters.all),
     ...(e.bookId ? [t(queryKeys.entries.byBook(e.bookId))] : []),
   ],
 
-  ENTRY_UPDATED: (e) => [
-    t(queryKeys.entries.all),
-    t(queryKeys.entries.detail(e.entryId)),
-  ],
+  ENTRY_UPDATED: e => [t(queryKeys.entries.all), t(queryKeys.entries.detail(e.entryId))],
 
-  ENTRY_DELETED: (e) => [
+  ENTRY_DELETED: e => [
     t(queryKeys.entries.all),
     t(queryKeys.chapters.all),
     ...(e.bookId ? [t(queryKeys.entries.byBook(e.bookId))] : []),
   ],
 
-  TRACK_CREATED: (e) => [
+  TRACK_CREATED: e => [
     t(queryKeys.tracks.all),
     t(queryKeys.tracks.private()),
     t(queryKeys.tracks.explore()),
     t(queryKeys.entries.withSongs()),
     t(queryKeys.credits.all),
-    ...(e.entryId ? [
-      t(queryKeys.tracks.byEntry(e.entryId)),
-      t(queryKeys.entries.detail(e.entryId)),
-    ] : []),
-    ...(e.isLibrarian ? [
-      t(queryKeys.sharedLibrary.all),
-      t(queryKeys.sharedLibrary.tracks()),
-      t(queryKeys.sharedLibrary.librarianAlbums()),
-    ] : []),
+    ...(e.entryId ? [t(queryKeys.tracks.byEntry(e.entryId)), t(queryKeys.entries.detail(e.entryId))] : []),
+    ...(e.isLibrarian
+      ? [
+          t(queryKeys.sharedLibrary.all),
+          t(queryKeys.sharedLibrary.tracks()),
+          t(queryKeys.sharedLibrary.librarianAlbums()),
+        ]
+      : []),
   ],
 
-  TRACK_UPDATED: (e) => [
-    t(queryKeys.tracks.all),
-    t(queryKeys.tracks.detail(e.trackId)),
-  ],
+  TRACK_UPDATED: e => [t(queryKeys.tracks.all), t(queryKeys.tracks.detail(e.trackId))],
 
-  TRACK_DELETED: [
-    t(queryKeys.tracks.all),
-    t(queryKeys.entries.withSongs()),
-    t(queryKeys.playlists.all),
-  ],
+  TRACK_DELETED: [t(queryKeys.tracks.all), t(queryKeys.entries.withSongs()), t(queryKeys.playlists.all)],
 
   TRACK_LIKED: trackLikeToggle,
   TRACK_UNLIKED: trackLikeToggle,
@@ -235,10 +218,7 @@ const INVALIDATION_RULES: InvalidationMap = {
   PLAYLIST_CREATED: playlistListChange,
   PLAYLIST_DELETED: playlistListChange,
 
-  PLAYLIST_UPDATED: (e) => [
-    t(queryKeys.playlists.all),
-    t(queryKeys.playlists.detail(e.playlistId)),
-  ],
+  PLAYLIST_UPDATED: e => [t(queryKeys.playlists.all), t(queryKeys.playlists.detail(e.playlistId))],
 
   PLAYLIST_TRACK_ADDED: playlistTrackChange,
   PLAYLIST_TRACK_REMOVED: playlistTrackChange,
@@ -247,77 +227,47 @@ const INVALIDATION_RULES: InvalidationMap = {
 
   ALBUM_CREATED: [t(queryKeys.albums.all)],
 
-  ALBUM_UPDATED: (e) => [
-    t(queryKeys.albums.all),
-    t(queryKeys.albums.detail(e.albumId)),
-  ],
+  ALBUM_UPDATED: e => [t(queryKeys.albums.all), t(queryKeys.albums.detail(e.albumId))],
 
-  ALBUM_DELETED: [
-    t(queryKeys.albums.all, true),
-    t(queryKeys.tracks.myMusic()),
-    t(queryKeys.sharedLibrary.all),
-  ],
+  ALBUM_DELETED: [t(queryKeys.albums.all, true), t(queryKeys.tracks.myMusic()), t(queryKeys.sharedLibrary.all)],
 
   ALBUM_LIKED: albumLikeToggle,
   ALBUM_UNLIKED: albumLikeToggle,
   CREATOR_FOLLOWED: creatorFollowToggle,
   CREATOR_UNFOLLOWED: creatorFollowToggle,
 
-  PROFILE_UPDATED: [
-    t(queryKeys.profile.all),
-    t(queryKeys.appInit.all),
-  ],
+  PROFILE_UPDATED: [t(queryKeys.profile.all), t(queryKeys.appInit.all)],
 
   MUSIC_PREFERENCES_UPDATED: [t(['profile', 'musicPreferences'] as const)],
 
-  CREDITS_CHANGED: [
-    t(queryKeys.credits.all),
-    t(queryKeys.appInit.all),
-  ],
+  CREDITS_CHANGED: [t(queryKeys.credits.all), t(queryKeys.appInit.all)],
 
   REMINDER_UPDATED: reminderChange,
 
   SHARED_LIBRARY_UPDATED: [t(queryKeys.sharedLibrary.all)],
 
-  APP_INIT_REFRESH: [
-    t(queryKeys.appInit.all),
-    t(queryKeys.profile.all),
-    t(queryKeys.credits.all),
-  ],
+  APP_INIT_REFRESH: [t(queryKeys.appInit.all), t(queryKeys.profile.all), t(queryKeys.credits.all)],
 
-  INSIGHT_GENERATED: (e) => [t(queryKeys.entries.insights(e.entryId))],
+  INSIGHT_GENERATED: e => [t(queryKeys.entries.insights(e.entryId))],
 
-  ACTIVITY_SCHEDULE_DELETED: [
-    t(queryKeys.activity.all),
-    t(queryKeys.activity.calendar()),
-  ],
+  ACTIVITY_SCHEDULE_DELETED: [t(queryKeys.activity.all), t(queryKeys.activity.calendar())],
 
-  ACTIVITY_ALARM_DELETED: [
-    t(queryKeys.activity.all),
-    t(queryKeys.activity.alarms()),
-    t(queryKeys.activity.calendar()),
-  ],
+  ACTIVITY_ALARM_DELETED: [t(queryKeys.activity.all), t(queryKeys.activity.alarms()), t(queryKeys.activity.calendar())],
 
   CREDIT_GIFT_SENT: creditGiftChange,
   CREDIT_GIFT_CLAIMED: creditGiftChange,
 
   PATTERN_ANALYZED: [t(queryKeys.patterns.all)],
 
-  TRACK_FEEDBACK_SUBMITTED: (e) => [t(queryKeys.feedback.track(e.trackId))],
+  TRACK_FEEDBACK_SUBMITTED: e => [t(queryKeys.feedback.track(e.trackId))],
 
   ADMIN_CONFIG_UPDATED: [t(queryKeys.admin.all)],
 
-  ADMIN_TEMPLATES_UPDATED: [
-    t(queryKeys.admin.prompts()),
-    t(queryKeys.admin.templates()),
-  ],
+  ADMIN_TEMPLATES_UPDATED: [t(queryKeys.admin.prompts()), t(queryKeys.admin.templates())],
 
   ADMIN_PROVIDERS_UPDATED: [t(queryKeys.admin.all)],
 
-  TRACK_GENERATION_COMPLETED: [
-    t(queryKeys.tracks.private(), true),
-    t(queryKeys.tracks.explore(), true),
-  ],
+  TRACK_GENERATION_COMPLETED: [t(queryKeys.tracks.private(), true), t(queryKeys.tracks.explore(), true)],
 
   ALBUM_GENERATION_COMPLETED: [
     t(queryKeys.albums.all, true),
@@ -328,14 +278,14 @@ const INVALIDATION_RULES: InvalidationMap = {
     t(queryKeys.sharedLibrary.all, true),
   ],
 
-  ACTIVITY_CALENDAR_UPDATED: (e) => [
+  ACTIVITY_CALENDAR_UPDATED: e => [
     t(queryKeys.activity.all),
     t(queryKeys.activity.calendar()),
     t(queryKeys.activity.alarms()),
     ...(e.date ? [t(queryKeys.activity.day(e.date))] : []),
   ],
 
-  PLAYLIST_ARTWORK_UPDATED: (e) => [
+  PLAYLIST_ARTWORK_UPDATED: e => [
     t(queryKeys.playlists.all),
     ...(e.playlistId ? [t(queryKeys.playlists.detail(e.playlistId))] : []),
   ],
@@ -344,107 +294,96 @@ const INVALIDATION_RULES: InvalidationMap = {
   REMINDER_DELETED: reminderChange,
   REMINDER_CREATED: reminderChange,
 
-  PRIVATE_LIBRARY_UPDATED: (e) => [
+  PRIVATE_LIBRARY_UPDATED: e => [
     t(queryKeys.tracks.private()),
     t(queryKeys.tracks.explore()),
     ...(e.playlistId ? [t(queryKeys.playlists.tracks(e.playlistId))] : []),
   ],
 
-  ONBOARDING_COMPLETED: [
-    t(queryKeys.profile.all),
-    t(queryKeys.onboarding.all),
-    t(queryKeys.appInit.all),
-  ],
+  ONBOARDING_COMPLETED: [t(queryKeys.profile.all), t(queryKeys.onboarding.all), t(queryKeys.appInit.all)],
 
-  LIBRARY_BOOK_CREATED: (e) => [
+  LIBRARY_BOOK_CREATED: e => [
     t(queryKeys.library.all),
     t(queryKeys.library.myBooks()),
     t(queryKeys.library.manageBooks()),
     ...(e.typeId ? [t(queryKeys.library.manageBooks(e.typeId))] : []),
-    ...(e.typeId === BOOK_TYPE_IDS.PERSONAL ? [
-      t(queryKeys.library.myPersonalBooks()),
-      t(queryKeys.personalBooks.all),
-    ] : []),
-    ...(e.typeId && e.typeId !== BOOK_TYPE_IDS.PERSONAL ? [
-      t(queryKeys.library.myBooksByType(e.typeId)),
-    ] : []),
+    ...(e.typeId === BOOK_TYPE_IDS.PERSONAL
+      ? [t(queryKeys.library.myPersonalBooks()), t(queryKeys.personalBooks.all)]
+      : []),
+    ...(e.typeId && e.typeId !== BOOK_TYPE_IDS.PERSONAL ? [t(queryKeys.library.myBooksByType(e.typeId))] : []),
   ],
 
-  LIBRARY_BOOK_UPDATED: (e) => [
+  LIBRARY_BOOK_UPDATED: e => [
     t(queryKeys.library.bookDetail(e.bookId)),
     t(queryKeys.library.myBooks()),
     t(queryKeys.library.manageBooks()),
     ...(e.typeId ? [t(queryKeys.library.manageBooks(e.typeId))] : []),
     t(queryKeys.library.manageBookDetail(e.bookId)),
     t(queryKeys.library.publicBooks()),
-    ...(e.typeId === BOOK_TYPE_IDS.PERSONAL ? [
-      t(queryKeys.personalBooks.all),
-      t(queryKeys.personalBooks.detail(e.bookId)),
-    ] : []),
+    ...(e.typeId === BOOK_TYPE_IDS.PERSONAL
+      ? [t(queryKeys.personalBooks.all), t(queryKeys.personalBooks.detail(e.bookId))]
+      : []),
   ],
 
-  LIBRARY_BOOK_DELETED: (e) => [
+  LIBRARY_BOOK_DELETED: e => [
     t(queryKeys.library.all),
     t(queryKeys.library.myBooks()),
     t(queryKeys.library.manageBooks()),
     ...(e.typeId ? [t(queryKeys.library.manageBooks(e.typeId))] : []),
-    ...(e.typeId === BOOK_TYPE_IDS.PERSONAL ? [
-      t(queryKeys.library.myPersonalBooks()),
-      t(queryKeys.personalBooks.all),
-      t(queryKeys.chapters.all),
-      t(queryKeys.entries.all),
-    ] : []),
+    ...(e.typeId === BOOK_TYPE_IDS.PERSONAL
+      ? [
+          t(queryKeys.library.myPersonalBooks()),
+          t(queryKeys.personalBooks.all),
+          t(queryKeys.chapters.all),
+          t(queryKeys.entries.all),
+        ]
+      : []),
   ],
 
-  LIBRARY_BOOK_PUBLISHED: (e) => [
+  LIBRARY_BOOK_PUBLISHED: e => [
     t(queryKeys.library.bookDetail(e.bookId)),
     t(queryKeys.library.publicBooks()),
     t(queryKeys.library.manageBooks()),
     t(queryKeys.library.manageBookDetail(e.bookId)),
   ],
 
-  LIBRARY_CHAPTER_CREATED: (e) => [
+  LIBRARY_CHAPTER_CREATED: e => [
     t(queryKeys.library.chapters(e.bookId)),
     t(queryKeys.library.bookDetail(e.bookId)),
     t(queryKeys.chapters.all),
   ],
 
-  LIBRARY_CHAPTER_UPDATED: (e) => [
+  LIBRARY_CHAPTER_UPDATED: e => [
     t(queryKeys.library.chapterDetail(e.chapterId)),
     ...(e.bookId ? [t(queryKeys.library.chapters(e.bookId))] : []),
     t(queryKeys.chapters.all),
   ],
 
-  LIBRARY_CHAPTER_DELETED: (e) => [
+  LIBRARY_CHAPTER_DELETED: e => [
     t(queryKeys.library.all),
-    ...(e.bookId ? [
-      t(queryKeys.library.chapters(e.bookId)),
-      t(queryKeys.library.bookDetail(e.bookId)),
-    ] : []),
+    ...(e.bookId ? [t(queryKeys.library.chapters(e.bookId)), t(queryKeys.library.bookDetail(e.bookId))] : []),
     t(queryKeys.chapters.all),
   ],
 
-  LIBRARY_ENTRY_CREATED: (e) => [
-    ...(e.chapterId ? [
-      t(queryKeys.library.entries(e.chapterId)),
-      t(queryKeys.library.chapterDetail(e.chapterId)),
-    ] : []),
+  LIBRARY_ENTRY_CREATED: e => [
+    ...(e.chapterId
+      ? [t(queryKeys.library.entries(e.chapterId)), t(queryKeys.library.chapterDetail(e.chapterId))]
+      : []),
     ...(e.bookId ? [t(queryKeys.library.bookDetail(e.bookId))] : []),
     t(queryKeys.entries.all),
   ],
 
-  LIBRARY_ENTRY_UPDATED: (e) => [
+  LIBRARY_ENTRY_UPDATED: e => [
     t(queryKeys.library.entryDetail(e.entryId)),
     ...(e.chapterId ? [t(queryKeys.library.entries(e.chapterId))] : []),
     t(queryKeys.entries.all),
   ],
 
-  LIBRARY_ENTRY_DELETED: (e) => [
+  LIBRARY_ENTRY_DELETED: e => [
     t(queryKeys.library.all),
-    ...(e.chapterId ? [
-      t(queryKeys.library.entries(e.chapterId)),
-      t(queryKeys.library.chapterDetail(e.chapterId)),
-    ] : []),
+    ...(e.chapterId
+      ? [t(queryKeys.library.entries(e.chapterId)), t(queryKeys.library.chapterDetail(e.chapterId))]
+      : []),
     t(queryKeys.entries.all),
     t(queryKeys.chapters.all),
   ],
@@ -452,7 +391,7 @@ const INVALIDATION_RULES: InvalidationMap = {
   LIBRARY_BOOK_SAVED: libraryBookSaveToggle,
   LIBRARY_BOOK_REMOVED: libraryBookSaveToggle,
 
-  LIBRARY_READING_PROGRESS_UPDATED: (e) => [
+  LIBRARY_READING_PROGRESS_UPDATED: e => [
     t(queryKeys.library.readingProgress(e.bookId)),
     t(queryKeys.library.userLibrary()),
   ],
@@ -464,10 +403,7 @@ const INVALIDATION_RULES: InvalidationMap = {
 
   CREATOR_MEMBER_REMOVED: [t(queryKeys.creatorMembers.members())],
 
-  CREATOR_MEMBER_JOINED: [
-    t(queryKeys.creatorMembers.following()),
-    t(queryKeys.creatorMembers.members()),
-  ],
+  CREATOR_MEMBER_JOINED: [t(queryKeys.creatorMembers.following()), t(queryKeys.creatorMembers.members())],
 };
 
 function resolveTargets<E extends CacheEvent>(event: E): InvalidationTarget[] {

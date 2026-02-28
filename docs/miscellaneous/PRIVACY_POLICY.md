@@ -20,17 +20,20 @@ By using aiponge, you agree to the collection and use of information in accordan
 ### 1.1 Information You Provide Directly
 
 **Account Information:**
+
 - Email address (for account creation and authentication)
 - Name (first name, last name, display name)
 - Password (encrypted and securely stored)
 
 **Profile Information:**
+
 - Personal development goals and preferences
 - Psychological wellness preferences
 - Music preferences and listening history
 - Onboarding questionnaire responses
 
 **User-Generated Content:**
+
 - Music playlists and favorites
 - AI-generated insights and affirmations you create
 - Custom music tracks you generate
@@ -39,18 +42,21 @@ By using aiponge, you agree to the collection and use of information in accordan
 ### 1.2 Automatically Collected Information
 
 **Usage Data:**
+
 - App features you use and how often
 - Time spent in the app
 - Content generation requests (music, insights, affirmations)
 - Error logs and crash reports
 
 **Device Information:**
+
 - Device type and operating system version
 - Unique device identifiers
 - App version and build number
 - Network connection type
 
 **Analytics:**
+
 - App performance metrics
 - Feature usage statistics
 - Session duration and frequency
@@ -66,6 +72,7 @@ We do not collect information about you from third-party sources.
 We use the information we collect to:
 
 ### 2.1 Provide and Improve Services
+
 - Create and manage your account
 - Deliver personalized AI-generated content (music, insights, affirmations)
 - Recommend content based on your preferences and psychological profile
@@ -73,16 +80,19 @@ We use the information we collect to:
 - Develop new features and enhance existing ones
 
 ### 2.2 Communication
+
 - Send you service-related notifications
 - Respond to your support requests
 - Provide updates about new features (if you opt-in)
 
 ### 2.3 Security and Compliance
+
 - Detect and prevent fraud or abuse
 - Ensure compliance with legal obligations
 - Protect the security and integrity of our Services
 
 ### 2.4 Analytics and Research
+
 - Understand how users interact with our Services
 - Analyze trends and usage patterns
 - Improve content quality and personalization
@@ -100,25 +110,30 @@ We share your information only in the following limited circumstances:
 We work with trusted third-party service providers who help us operate our Services:
 
 **AI Content Generation:**
+
 - OpenAI and Anthropic (for generating personalized insights and affirmations)
 - Your prompts and preferences are sent to these services to generate content
 - These providers process data according to their own privacy policies
 
 **Music Generation:**
+
 - MusicAPI.ai and ElevenLabs (for AI-powered music creation)
 - Your music preferences and style selections are sent to generate custom tracks
 - Generated music files are stored securely in our cloud storage
 
 **Cloud Infrastructure:**
+
 - Amazon Web Services (AWS) for secure data storage and file hosting
 - PostgreSQL database (Neon) for account and profile data storage
 
 **Analytics:**
+
 - Usage analytics providers to understand app performance and user behavior
 
 ### 3.2 Legal Requirements
 
 We may disclose your information if required to do so by law or in response to:
+
 - Valid legal requests (subpoenas, court orders)
 - Protecting our rights, property, or safety
 - Protecting the rights, property, or safety of our users or the public
@@ -134,6 +149,7 @@ If aiponge is involved in a merger, acquisition, or sale of assets, your informa
 ### 4.1 Where We Store Your Data
 
 Your data is stored securely in cloud infrastructure located in the United States:
+
 - Account data: Encrypted PostgreSQL database (Neon, AWS US-West-2)
 - Generated content: Secure cloud storage (AWS S3)
 - Backups: Encrypted daily backups
@@ -141,6 +157,7 @@ Your data is stored securely in cloud infrastructure located in the United State
 ### 4.2 How We Protect Your Data
 
 **Security Measures:**
+
 - Password encryption using industry-standard bcrypt hashing
 - HTTPS/TLS encryption for all data transmission
 - Secure API authentication with JWT tokens
@@ -148,6 +165,7 @@ Your data is stored securely in cloud infrastructure located in the United State
 - Access controls limiting who can view your data
 
 **Data Retention:**
+
 - Account data: Retained while your account is active
 - Generated content: Retained until you delete it or close your account
 - Usage logs: Retained for up to 90 days for analytics purposes
@@ -161,25 +179,30 @@ Your data is stored securely in cloud infrastructure located in the United State
 You have the right to:
 
 **Access Your Data:**
+
 - View all personal information we have about you
 - Request a copy of your data in a portable format
 
 **Modify Your Data:**
+
 - Update your profile information at any time
 - Change your preferences and settings
 
 **Delete Your Data:**
+
 - Delete individual pieces of content (music, insights)
 - Request deletion of your entire account and associated data
 
 ### 5.2 How to Exercise Your Rights
 
 **In-App Controls:**
+
 - Profile settings: Update your name, email, and preferences
 - Content management: Delete any generated music or insights
 - Account deletion: Available in app settings
 
 **Contact Us:**
+
 - Email: privacy@aiponge.com
 - Support: support@aiponge.com
 
@@ -188,6 +211,7 @@ We will respond to your requests within 30 days.
 ### 5.3 Data Portability
 
 You can request an export of your data, which will include:
+
 - Your profile information
 - Generated music tracks
 - Saved insights and affirmations
@@ -216,6 +240,7 @@ By using our Services, you consent to the transfer of your information to the Un
 Our App may contain links to third-party services or integrate with external platforms:
 
 **AI Providers:**
+
 - OpenAI: https://openai.com/privacy
 - Anthropic: https://www.anthropic.com/privacy
 - MusicAPI.ai: https://musicapi.ai/privacy
@@ -228,11 +253,13 @@ We are not responsible for the privacy practices of these third-party services. 
 ## 9. Cookies and Tracking Technologies
 
 **Mobile App:**
+
 - We do not use cookies in our mobile app
 - We use local storage for authentication tokens and app preferences
 - We use analytics SDKs to track app usage (anonymized)
 
 **Website (if applicable):**
+
 - Essential cookies for website functionality
 - Analytics cookies to improve user experience
 - You can disable cookies in your browser settings
@@ -244,17 +271,21 @@ We are not responsible for the privacy practices of these third-party services. 
 If you are a California resident, you have additional rights under the California Consumer Privacy Act (CCPA):
 
 **Right to Know:**
+
 - What personal information we collect
 - How we use and share your information
 - Request access to your data
 
 **Right to Delete:**
+
 - Request deletion of your personal information
 
 **Right to Opt-Out:**
+
 - We do not sell personal information, so no opt-out is required
 
 **Non-Discrimination:**
+
 - We will not discriminate against you for exercising your privacy rights
 
 To exercise these rights, contact us at privacy@aiponge.com.
@@ -266,11 +297,13 @@ To exercise these rights, contact us at privacy@aiponge.com.
 If you are located in the European Economic Area (EEA), you have rights under the General Data Protection Regulation (GDPR):
 
 **Legal Basis for Processing:**
+
 - Contract: To provide our Services to you
 - Consent: For optional features like marketing communications
 - Legitimate Interest: To improve our Services and prevent fraud
 
 **Your Rights:**
+
 - Right to access, correct, or delete your data
 - Right to data portability
 - Right to withdraw consent
@@ -286,11 +319,13 @@ Contact us at privacy@aiponge.com to exercise these rights.
 We may update this Privacy Policy from time to time to reflect changes in our practices or legal requirements.
 
 **How We Notify You:**
+
 - In-app notification for material changes
 - Email notification if changes affect your rights
 - Updated "Last Updated" date at the top of this policy
 
 **Your Continued Use:**
+
 - By continuing to use Aiponge after changes take effect, you accept the updated Privacy Policy
 - If you do not agree, please stop using our Services and delete your account
 
@@ -312,6 +347,7 @@ If you have questions, concerns, or requests regarding this Privacy Policy or ou
 ## 14. Your Consent
 
 By using aiponge, you consent to:
+
 - Collection and use of information as described in this Privacy Policy
 - Transfer of your data to the United States
 - Use of AI services to generate personalized content
@@ -329,22 +365,22 @@ By using aiponge, you consent to:
 ✅ Email, Name (for account)  
 ✅ Music preferences and generated content  
 ✅ Psychological wellness preferences  
-✅ Usage analytics and app performance  
+✅ Usage analytics and app performance
 
 **How We Use It:**
 ✅ Personalized AI content generation  
 ✅ Music recommendations  
-✅ App improvement and analytics  
+✅ App improvement and analytics
 
 **Who We Share With:**
 ✅ AI providers (OpenAI, Anthropic, MusicAPI.ai, ElevenLabs)  
 ✅ Cloud infrastructure (AWS)  
-❌ We do NOT sell your data  
+❌ We do NOT sell your data
 
 **Your Rights:**
 ✅ Access, modify, or delete your data anytime  
 ✅ Request data export  
-✅ Delete your account  
+✅ Delete your account
 
 ---
 

@@ -1,7 +1,7 @@
 /**
  * Narrative Seeds Integration Tests
  * Tests for the fetchNarrativeSeeds function behavior
- * 
+ *
  * These are standalone unit tests that don't require the full use case
  */
 
@@ -33,20 +33,17 @@ describe('Narrative Seeds API Integration', () => {
       };
     } | null> => {
       try {
-        const response = await fetch(
-          `${userServiceUrl}/api/narrative-seeds/${userId}?maxSeeds=15&timeframeDays=30`,
-          {
-            headers: { 'x-user-id': userId, 'x-request-id': requestId },
-          }
-        );
+        const response = await fetch(`${userServiceUrl}/api/narrative-seeds/${userId}?maxSeeds=15&timeframeDays=30`, {
+          headers: { 'x-user-id': userId, 'x-request-id': requestId },
+        });
 
         if (response.ok) {
           const rawData = await response.json();
-          
+
           if (rawData?.success && rawData?.data) {
             const data = rawData.data;
             const keywords = data.seeds?.map((s: { keyword: string }) => s.keyword) || [];
-            
+
             return {
               keywords,
               emotionalProfile: data.emotionalProfile || {
@@ -67,11 +64,7 @@ describe('Narrative Seeds API Integration', () => {
     it('should return null when user-service is unavailable', async () => {
       global.fetch = vi.fn().mockRejectedValue(new Error('Network error')) as unknown as typeof fetch;
 
-      const result = await fetchNarrativeSeeds(
-        'http://localhost:3002',
-        'user-123',
-        'request-456'
-      );
+      const result = await fetchNarrativeSeeds('http://localhost:3002', 'user-123', 'request-456');
 
       expect(result).toBeNull();
     });
@@ -82,11 +75,7 @@ describe('Narrative Seeds API Integration', () => {
         status: 404,
       }) as unknown as typeof fetch;
 
-      const result = await fetchNarrativeSeeds(
-        'http://localhost:3002',
-        'user-123',
-        'request-456'
-      );
+      const result = await fetchNarrativeSeeds('http://localhost:3002', 'user-123', 'request-456');
 
       expect(result).toBeNull();
     });
@@ -114,11 +103,7 @@ describe('Narrative Seeds API Integration', () => {
         json: () => Promise.resolve(mockResponse),
       }) as unknown as typeof fetch;
 
-      const result = await fetchNarrativeSeeds(
-        'http://localhost:3002',
-        'user-123',
-        'request-456'
-      );
+      const result = await fetchNarrativeSeeds('http://localhost:3002', 'user-123', 'request-456');
 
       expect(result).not.toBeNull();
       expect(result!.keywords).toEqual(['healing', 'growth', 'hopeful']);
@@ -145,11 +130,7 @@ describe('Narrative Seeds API Integration', () => {
         json: () => Promise.resolve(mockResponse),
       }) as unknown as typeof fetch;
 
-      const result = await fetchNarrativeSeeds(
-        'http://localhost:3002',
-        'user-123',
-        'request-456'
-      );
+      const result = await fetchNarrativeSeeds('http://localhost:3002', 'user-123', 'request-456');
 
       expect(result).not.toBeNull();
       expect(result!.keywords).toEqual([]);
@@ -162,11 +143,7 @@ describe('Narrative Seeds API Integration', () => {
       });
       global.fetch = mockFetch as unknown as typeof fetch;
 
-      await fetchNarrativeSeeds(
-        'http://localhost:3002',
-        'user-123',
-        'request-456'
-      );
+      await fetchNarrativeSeeds('http://localhost:3002', 'user-123', 'request-456');
 
       expect(mockFetch).toHaveBeenCalledWith(
         expect.stringContaining('/api/narrative-seeds/user-123'),
@@ -186,11 +163,7 @@ describe('Narrative Seeds API Integration', () => {
       });
       global.fetch = mockFetch as unknown as typeof fetch;
 
-      await fetchNarrativeSeeds(
-        'http://localhost:3002',
-        'user-123',
-        'request-456'
-      );
+      await fetchNarrativeSeeds('http://localhost:3002', 'user-123', 'request-456');
 
       const calledUrl = mockFetch.mock.calls[0][0];
       expect(calledUrl).toContain('maxSeeds=15');
@@ -203,7 +176,7 @@ describe('Narrative Seeds API Integration', () => {
       if (!rawData?.success || !rawData?.data) {
         return null;
       }
-      
+
       const data = rawData.data;
       return {
         keywords: data.seeds?.map((s: { keyword: string }) => s.keyword) || [],
@@ -249,7 +222,7 @@ describe('Narrative Seeds API Integration', () => {
           },
         },
       });
-      
+
       expect(result!.keywords).toEqual(['peace', 'healing']);
       expect(result!.emotionalProfile.dominantMood).toBe('calm');
     });

@@ -233,7 +233,11 @@ export class AnalyticsServiceClient {
           phase: 'analytics_query_start',
         });
 
-        const response = await this.makeRequest<AnalyticsResponse>('POST', '/api/query', query as unknown as Record<string, unknown>);
+        const response = await this.makeRequest<AnalyticsResponse>(
+          'POST',
+          '/api/query',
+          query as unknown as Record<string, unknown>
+        );
 
         this.logger.info('✅ Retrieved analytics records', {
           module: 'analytics_service_client',
@@ -495,7 +499,11 @@ export class AnalyticsServiceClient {
   }
 
   private handleError(error: unknown, context: string): Error {
-    const err = error as { response?: { status: number; data?: { message?: string; error?: string } }; request?: unknown; message?: string };
+    const err = error as {
+      response?: { status: number; data?: { message?: string; error?: string } };
+      request?: unknown;
+      message?: string;
+    };
     if (err.response) {
       const { status, data } = err.response;
       return new Error(`${context}: HTTP ${status} - ${data?.message || data?.error || 'Unknown error'}`);

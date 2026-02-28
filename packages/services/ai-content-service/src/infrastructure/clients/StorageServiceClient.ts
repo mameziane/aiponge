@@ -5,12 +5,7 @@
  * Uses @aiponge/platform-core for logging and local service-urls.ts for service discovery.
  */
 
-import {
-  createLogger,
-  withServiceResilience,
-  type HttpClient,
-  DomainError,
-} from '@aiponge/platform-core';
+import { createLogger, withServiceResilience, type HttpClient, DomainError } from '@aiponge/platform-core';
 import { createServiceClient } from '../../config/service-urls';
 import { Readable } from 'stream';
 

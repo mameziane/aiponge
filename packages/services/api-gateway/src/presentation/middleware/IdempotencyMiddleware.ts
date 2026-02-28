@@ -249,7 +249,9 @@ export function createIdempotencyMiddleware(
 
         res.on('close', () => {
           if (!responseCaptured && !res.writableEnded) {
-            removeEntry(scopedKey, getRedisClient, isRedisReady, memoryStore).catch(err => logger.warn('Failed to remove idempotency entry on close', { key: scopedKey, err: String(err) }));
+            removeEntry(scopedKey, getRedisClient, isRedisReady, memoryStore).catch(err =>
+              logger.warn('Failed to remove idempotency entry on close', { key: scopedKey, err: String(err) })
+            );
           }
         });
 

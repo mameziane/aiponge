@@ -21,7 +21,10 @@ vi.mock('@aiponge/platform-core', () => ({
   },
   serializeError: vi.fn((e: unknown) => String(e)),
   signUserIdHeader: vi.fn((userId: string) => ({ 'x-user-id-signed': userId })),
-  getValidation: () => ({ validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(), validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next() }),
+  getValidation: () => ({
+    validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+    validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+  }),
 }));
 
 vi.mock('@services/gatewayFetch', () => ({
@@ -125,9 +128,7 @@ describe('Safety Routes', () => {
 
   describe('POST /assess-risk', () => {
     it('should return 401 when no user ID', async () => {
-      const res = await request(app)
-        .post('/api/app/safety/assess-risk')
-        .send({ text: 'test content' });
+      const res = await request(app).post('/api/app/safety/assess-risk').send({ text: 'test content' });
       expect(res.status).toBe(401);
     });
 
@@ -152,7 +153,10 @@ describe('Safety Routes', () => {
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.data.level).toBeDefined();
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/internal/safety/analyze'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/internal/safety/analyze'),
+        expect.anything()
+      );
     });
 
     it('should return fallback assessment when upstream fails', async () => {
@@ -166,14 +170,16 @@ describe('Safety Routes', () => {
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.data.source).toBe('fallback');
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/internal/safety/analyze'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/internal/safety/analyze'),
+        expect.anything()
+      );
     });
   });
 
   describe('GET /resources', () => {
     it('should return crisis resources', async () => {
-      const res = await request(app)
-        .get('/api/app/safety/resources');
+      const res = await request(app).get('/api/app/safety/resources');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -183,8 +189,7 @@ describe('Safety Routes', () => {
 
   describe('GET /resources/all', () => {
     it('should return all crisis resources', async () => {
-      const res = await request(app)
-        .get('/api/app/safety/resources/all');
+      const res = await request(app).get('/api/app/safety/resources/all');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);

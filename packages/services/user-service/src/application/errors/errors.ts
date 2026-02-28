@@ -35,7 +35,9 @@ export class AuthError extends AuthErrorBase {
   }
 
   static validationError(field: string, message: string) {
-    return new AuthError(`Validation failed for ${field}: ${message}`, 400, AuthErrorCode.VALIDATION_ERROR, undefined, { field });
+    return new AuthError(`Validation failed for ${field}: ${message}`, 400, AuthErrorCode.VALIDATION_ERROR, undefined, {
+      field,
+    });
   }
 
   static invalidCredentials(message: string = 'Invalid credentials') {
@@ -117,7 +119,13 @@ export class BillingError extends BillingErrorBase {
   }
 
   static validationError(field: string, message: string) {
-    return new BillingError(`Validation failed for ${field}: ${message}`, 400, BillingErrorCode.VALIDATION_ERROR, undefined, { field });
+    return new BillingError(
+      `Validation failed for ${field}: ${message}`,
+      400,
+      BillingErrorCode.VALIDATION_ERROR,
+      undefined,
+      { field }
+    );
   }
 
   static userIdRequired() {
@@ -125,11 +133,15 @@ export class BillingError extends BillingErrorBase {
   }
 
   static invalidFeatureType(featureType?: string) {
-    return new BillingError('Invalid feature type', 400, BillingErrorCode.INVALID_FEATURE_TYPE, undefined, { featureType });
+    return new BillingError('Invalid feature type', 400, BillingErrorCode.INVALID_FEATURE_TYPE, undefined, {
+      featureType,
+    });
   }
 
   static invalidActionType(actionType?: string) {
-    return new BillingError('Invalid action type', 400, BillingErrorCode.INVALID_ACTION_TYPE, undefined, { actionType });
+    return new BillingError('Invalid action type', 400, BillingErrorCode.INVALID_ACTION_TYPE, undefined, {
+      actionType,
+    });
   }
 
   static invalidAmount(message: string = 'Amount must be greater than zero') {
@@ -144,7 +156,10 @@ export class BillingError extends BillingErrorBase {
   }
 
   static quotaExceeded(feature: string, limit: number) {
-    return new BillingError(`Quota exceeded for ${feature}`, 429, BillingErrorCode.QUOTA_EXCEEDED, undefined, { feature, limit });
+    return new BillingError(`Quota exceeded for ${feature}`, 429, BillingErrorCode.QUOTA_EXCEEDED, undefined, {
+      feature,
+      limit,
+    });
   }
 
   static subscriptionRequired(message: string = 'Subscription required') {
@@ -156,7 +171,9 @@ export class BillingError extends BillingErrorBase {
   }
 
   static internalError(message: string, error?: Error) {
-    return new BillingError(message, 500, BillingErrorCode.INTERNAL_ERROR, undefined, { originalError: error?.message });
+    return new BillingError(message, 500, BillingErrorCode.INTERNAL_ERROR, undefined, {
+      originalError: error?.message,
+    });
   }
 }
 
@@ -195,7 +212,13 @@ export class ProfileError extends ProfileErrorBase {
   }
 
   static validationError(field: string, message: string) {
-    return new ProfileError(`Validation failed for ${field}: ${message}`, 400, ProfileErrorCode.VALIDATION_ERROR, undefined, { field });
+    return new ProfileError(
+      `Validation failed for ${field}: ${message}`,
+      400,
+      ProfileErrorCode.VALIDATION_ERROR,
+      undefined,
+      { field }
+    );
   }
 
   static userIdRequired() {
@@ -203,7 +226,10 @@ export class ProfileError extends ProfileErrorBase {
   }
 
   static notFound(resource: string, id: string) {
-    return new ProfileError(`${resource} with id ${id} not found`, 404, ProfileErrorCode.NOT_FOUND, undefined, { resource, id });
+    return new ProfileError(`${resource} with id ${id} not found`, 404, ProfileErrorCode.NOT_FOUND, undefined, {
+      resource,
+      id,
+    });
   }
 
   static invalidDepth(depth?: string) {
@@ -289,7 +315,13 @@ export class LibraryError extends LibraryErrorBase {
   }
 
   static validationError(field: string, message: string) {
-    return new LibraryError(`Validation failed for ${field}: ${message}`, 400, UserLibraryErrorCode.VALIDATION_ERROR, undefined, { field });
+    return new LibraryError(
+      `Validation failed for ${field}: ${message}`,
+      400,
+      UserLibraryErrorCode.VALIDATION_ERROR,
+      undefined,
+      { field }
+    );
   }
 
   static userIdRequired() {
@@ -297,15 +329,21 @@ export class LibraryError extends LibraryErrorBase {
   }
 
   static bookNotFound(bookId: string) {
-    return new LibraryError(`Book not found: ${bookId}`, 404, UserLibraryErrorCode.BOOK_NOT_FOUND, undefined, { bookId });
+    return new LibraryError(`Book not found: ${bookId}`, 404, UserLibraryErrorCode.BOOK_NOT_FOUND, undefined, {
+      bookId,
+    });
   }
 
   static chapterNotFound(chapterId: string) {
-    return new LibraryError(`Chapter not found: ${chapterId}`, 404, UserLibraryErrorCode.CHAPTER_NOT_FOUND, undefined, { chapterId });
+    return new LibraryError(`Chapter not found: ${chapterId}`, 404, UserLibraryErrorCode.CHAPTER_NOT_FOUND, undefined, {
+      chapterId,
+    });
   }
 
   static entryNotFound(entryId: string) {
-    return new LibraryError(`Entry not found: ${entryId}`, 404, UserLibraryErrorCode.ENTRY_NOT_FOUND, undefined, { entryId });
+    return new LibraryError(`Entry not found: ${entryId}`, 404, UserLibraryErrorCode.ENTRY_NOT_FOUND, undefined, {
+      entryId,
+    });
   }
 
   static illustrationNotFound(illustrationId: string) {
@@ -327,7 +365,13 @@ export class LibraryError extends LibraryErrorBase {
   }
 
   static ownershipRequired(resource: string) {
-    return new LibraryError(`You do not own this ${resource}`, 403, UserLibraryErrorCode.OWNERSHIP_REQUIRED, undefined, { resource });
+    return new LibraryError(
+      `You do not own this ${resource}`,
+      403,
+      UserLibraryErrorCode.OWNERSHIP_REQUIRED,
+      undefined,
+      { resource }
+    );
   }
 
   static bookGenerationFailed(message: string, details?: Record<string, unknown>) {
@@ -339,7 +383,9 @@ export class LibraryError extends LibraryErrorBase {
   }
 
   static analysisError(message: string, error?: Error) {
-    return new LibraryError(message, 500, UserLibraryErrorCode.ANALYSIS_ERROR, undefined, { originalError: error?.message });
+    return new LibraryError(message, 500, UserLibraryErrorCode.ANALYSIS_ERROR, undefined, {
+      originalError: error?.message,
+    });
   }
 
   static imageProcessingError(message: string) {
@@ -347,11 +393,19 @@ export class LibraryError extends LibraryErrorBase {
   }
 
   static maxImagesExceeded(max: number) {
-    return new LibraryError(`Maximum ${max} images allowed per entry`, 400, UserLibraryErrorCode.MAX_IMAGES_EXCEEDED, undefined, { max });
+    return new LibraryError(
+      `Maximum ${max} images allowed per entry`,
+      400,
+      UserLibraryErrorCode.MAX_IMAGES_EXCEEDED,
+      undefined,
+      { max }
+    );
   }
 
   static internalError(message: string, error?: Error) {
-    return new LibraryError(message, 500, UserLibraryErrorCode.INTERNAL_ERROR, undefined, { originalError: error?.message });
+    return new LibraryError(message, 500, UserLibraryErrorCode.INTERNAL_ERROR, undefined, {
+      originalError: error?.message,
+    });
   }
 
   static notFound(message: string) {
@@ -403,7 +457,13 @@ export class AnalyticsError extends UserAnalyticsErrorBase {
   }
 
   static validationError(field: string, message: string) {
-    return new AnalyticsError(`Validation failed for ${field}: ${message}`, 400, AnalyticsErrorCode.VALIDATION_ERROR, undefined, { field });
+    return new AnalyticsError(
+      `Validation failed for ${field}: ${message}`,
+      400,
+      AnalyticsErrorCode.VALIDATION_ERROR,
+      undefined,
+      { field }
+    );
   }
 
   static userIdRequired() {
@@ -419,7 +479,9 @@ export class AnalyticsError extends UserAnalyticsErrorBase {
   }
 
   static invalidAnalyticsDepth(depth?: string) {
-    return new AnalyticsError('Invalid analytics depth', 400, AnalyticsErrorCode.INVALID_ANALYTICS_DEPTH, undefined, { depth });
+    return new AnalyticsError('Invalid analytics depth', 400, AnalyticsErrorCode.INVALID_ANALYTICS_DEPTH, undefined, {
+      depth,
+    });
   }
 
   static invalidDateRange(start: Date, end: Date) {
@@ -437,7 +499,9 @@ export class AnalyticsError extends UserAnalyticsErrorBase {
   }
 
   static internalError(message: string, error?: Error) {
-    return new AnalyticsError(message, 500, AnalyticsErrorCode.INTERNAL_ERROR, undefined, { originalError: error?.message });
+    return new AnalyticsError(message, 500, AnalyticsErrorCode.INTERNAL_ERROR, undefined, {
+      originalError: error?.message,
+    });
   }
 }
 
@@ -480,7 +544,13 @@ export class InsightsError extends InsightsErrorBase {
   }
 
   static validationError(field: string, message: string) {
-    return new InsightsError(`Validation failed for ${field}: ${message}`, 400, InsightsErrorCode.VALIDATION_ERROR, undefined, { field });
+    return new InsightsError(
+      `Validation failed for ${field}: ${message}`,
+      400,
+      InsightsErrorCode.VALIDATION_ERROR,
+      undefined,
+      { field }
+    );
   }
 
   static userIdRequired() {
@@ -488,11 +558,19 @@ export class InsightsError extends InsightsErrorBase {
   }
 
   static insightNotFound(insightId: string) {
-    return new InsightsError(`Insight not found: ${insightId}`, 404, InsightsErrorCode.INSIGHT_NOT_FOUND, undefined, { insightId });
+    return new InsightsError(`Insight not found: ${insightId}`, 404, InsightsErrorCode.INSIGHT_NOT_FOUND, undefined, {
+      insightId,
+    });
   }
 
   static reflectionNotFound(reflectionId: string) {
-    return new InsightsError(`Reflection not found: ${reflectionId}`, 404, InsightsErrorCode.REFLECTION_NOT_FOUND, undefined, { reflectionId });
+    return new InsightsError(
+      `Reflection not found: ${reflectionId}`,
+      404,
+      InsightsErrorCode.REFLECTION_NOT_FOUND,
+      undefined,
+      { reflectionId }
+    );
   }
 
   static ownershipRequired(message: string = 'User does not own this insight') {
@@ -500,7 +578,9 @@ export class InsightsError extends InsightsErrorBase {
   }
 
   static invalidAnalysisDepth(depth?: string) {
-    return new InsightsError('Invalid analysis depth', 400, InsightsErrorCode.INVALID_ANALYSIS_DEPTH, undefined, { depth });
+    return new InsightsError('Invalid analysis depth', 400, InsightsErrorCode.INVALID_ANALYSIS_DEPTH, undefined, {
+      depth,
+    });
   }
 
   static invalidDateRange(start: Date, end: Date) {
@@ -514,7 +594,9 @@ export class InsightsError extends InsightsErrorBase {
   }
 
   static invalidGoalMode(mode?: string) {
-    return new InsightsError('Invalid goal generation mode', 400, InsightsErrorCode.INVALID_GOAL_MODE, undefined, { mode });
+    return new InsightsError('Invalid goal generation mode', 400, InsightsErrorCode.INVALID_GOAL_MODE, undefined, {
+      mode,
+    });
   }
 
   static invalidMaxGoals(message: string = 'Max new goals must be between 1 and 20') {
@@ -536,6 +618,8 @@ export class InsightsError extends InsightsErrorBase {
   }
 
   static internalError(message: string, error?: Error) {
-    return new InsightsError(message, 500, InsightsErrorCode.INTERNAL_ERROR, undefined, { originalError: error?.message });
+    return new InsightsError(message, 500, InsightsErrorCode.INTERNAL_ERROR, undefined, {
+      originalError: error?.message,
+    });
   }
 }

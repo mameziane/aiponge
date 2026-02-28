@@ -172,7 +172,7 @@ export class UnifiedLyricsRepository implements IUnifiedLyricsRepository {
     const [result] = await this.db
       .update(lyrics)
       .set({
-        syncedLines: syncedLines as typeof lyrics.$inferInsert['syncedLines'],
+        syncedLines: syncedLines as (typeof lyrics.$inferInsert)['syncedLines'],
         updatedAt: sql`NOW()`,
       })
       .where(and(eq(lyrics.id, id), isNull(lyrics.deletedAt)))

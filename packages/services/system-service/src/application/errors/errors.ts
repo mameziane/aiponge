@@ -18,11 +18,19 @@ export class SystemError extends SystemErrorBase {
   }
 
   static invalidStateTransition(fromState: string, toState: string) {
-    return new SystemError(`Cannot transition from '${fromState}' to '${toState}'`, 422, SystemErrorCodes.INVALID_STATE_TRANSITION);
+    return new SystemError(
+      `Cannot transition from '${fromState}' to '${toState}'`,
+      422,
+      SystemErrorCodes.INVALID_STATE_TRANSITION
+    );
   }
 
   static resourceLimitExceeded(resource: string, limit: number) {
-    return new SystemError(`Resource limit exceeded for ${resource}: ${limit}`, 429, SystemErrorCodes.RESOURCE_LIMIT_EXCEEDED);
+    return new SystemError(
+      `Resource limit exceeded for ${resource}: ${limit}`,
+      429,
+      SystemErrorCodes.RESOURCE_LIMIT_EXCEEDED
+    );
   }
 
   static operationFailed(operation: string, reason: string, cause?: Error) {
@@ -30,7 +38,12 @@ export class SystemError extends SystemErrorBase {
   }
 
   static initializationFailed(component: string, reason: string, cause?: Error) {
-    return new SystemError(`Initialization failed for ${component}: ${reason}`, 500, SystemErrorCodes.INITIALIZATION_FAILED, cause);
+    return new SystemError(
+      `Initialization failed for ${component}: ${reason}`,
+      500,
+      SystemErrorCodes.INITIALIZATION_FAILED,
+      cause
+    );
   }
 }
 
@@ -53,11 +66,19 @@ export class ConfigError extends ConfigErrorBase {
   }
 
   static invalidValue(field: string, value: unknown, reason: string) {
-    return new ConfigError(`Invalid value for ${field}: ${JSON.stringify(value)} - ${reason}`, 400, SysConfigErrorCodes.INVALID_VALUE);
+    return new ConfigError(
+      `Invalid value for ${field}: ${JSON.stringify(value)} - ${reason}`,
+      400,
+      SysConfigErrorCodes.INVALID_VALUE
+    );
   }
 
   static invalidStateTransition(fromState: string, toState: string) {
-    return new ConfigError(`Cannot transition from '${fromState}' to '${toState}'`, 422, SysConfigErrorCodes.INVALID_STATE_TRANSITION);
+    return new ConfigError(
+      `Cannot transition from '${fromState}' to '${toState}'`,
+      422,
+      SysConfigErrorCodes.INVALID_STATE_TRANSITION
+    );
   }
 
   static rateLimitInvalid(reason: string) {
@@ -65,11 +86,19 @@ export class ConfigError extends ConfigErrorBase {
   }
 
   static circuitBreakerInvalid(reason: string) {
-    return new ConfigError(`Invalid circuit breaker configuration: ${reason}`, 400, SysConfigErrorCodes.CIRCUIT_BREAKER_INVALID);
+    return new ConfigError(
+      `Invalid circuit breaker configuration: ${reason}`,
+      400,
+      SysConfigErrorCodes.CIRCUIT_BREAKER_INVALID
+    );
   }
 
   static resourceInvalid(resource: string, reason: string) {
-    return new ConfigError(`Invalid resource configuration for ${resource}: ${reason}`, 400, SysConfigErrorCodes.RESOURCE_INVALID);
+    return new ConfigError(
+      `Invalid resource configuration for ${resource}: ${reason}`,
+      400,
+      SysConfigErrorCodes.RESOURCE_INVALID
+    );
   }
 }
 
@@ -96,7 +125,12 @@ export class MonitoringError extends MonitoringErrorBase {
   }
 
   static healthCheckFailed(service: string, reason: string, cause?: Error) {
-    return new MonitoringError(`Health check failed for ${service}: ${reason}`, 503, MonitoringErrorCodes.HEALTH_CHECK_FAILED, cause);
+    return new MonitoringError(
+      `Health check failed for ${service}: ${reason}`,
+      503,
+      MonitoringErrorCodes.HEALTH_CHECK_FAILED,
+      cause
+    );
   }
 
   static invalidHealthStatus(status: string) {
@@ -104,7 +138,11 @@ export class MonitoringError extends MonitoringErrorBase {
   }
 
   static thresholdExceeded(metric: string, value: number, threshold: number) {
-    return new MonitoringError(`Threshold exceeded for ${metric}: ${value} > ${threshold}`, 422, MonitoringErrorCodes.THRESHOLD_EXCEEDED);
+    return new MonitoringError(
+      `Threshold exceeded for ${metric}: ${value} > ${threshold}`,
+      422,
+      MonitoringErrorCodes.THRESHOLD_EXCEEDED
+    );
   }
 
   static configurationError(reason: string) {
@@ -112,7 +150,11 @@ export class MonitoringError extends MonitoringErrorBase {
   }
 
   static timeout(operation: string, timeoutMs: number) {
-    return new MonitoringError(`Operation '${operation}' timed out after ${timeoutMs}ms`, 504, MonitoringErrorCodes.TIMEOUT);
+    return new MonitoringError(
+      `Operation '${operation}' timed out after ${timeoutMs}ms`,
+      504,
+      MonitoringErrorCodes.TIMEOUT
+    );
   }
 }
 
@@ -133,35 +175,68 @@ const NotificationErrorBase = createDomainServiceError('Notification', Notificat
 
 export class NotificationError extends NotificationErrorBase {
   static preferenceNotFound(userId: string) {
-    return new NotificationError(`Notification preferences not found for user: ${userId}`, 404, NotificationErrorCodes.PREFERENCE_NOT_FOUND);
+    return new NotificationError(
+      `Notification preferences not found for user: ${userId}`,
+      404,
+      NotificationErrorCodes.PREFERENCE_NOT_FOUND
+    );
   }
 
   static templateNotFound(templateId: string) {
-    return new NotificationError(`Notification template not found: ${templateId}`, 404, NotificationErrorCodes.TEMPLATE_NOT_FOUND);
+    return new NotificationError(
+      `Notification template not found: ${templateId}`,
+      404,
+      NotificationErrorCodes.TEMPLATE_NOT_FOUND
+    );
   }
 
   static invalidChannel(channel: string) {
-    return new NotificationError(`Invalid notification channel: ${channel}`, 400, NotificationErrorCodes.INVALID_CHANNEL);
+    return new NotificationError(
+      `Invalid notification channel: ${channel}`,
+      400,
+      NotificationErrorCodes.INVALID_CHANNEL
+    );
   }
 
   static deliveryFailed(channel: string, reason: string, cause?: Error) {
-    return new NotificationError(`Notification delivery failed via ${channel}: ${reason}`, 500, NotificationErrorCodes.DELIVERY_FAILED, cause);
+    return new NotificationError(
+      `Notification delivery failed via ${channel}: ${reason}`,
+      500,
+      NotificationErrorCodes.DELIVERY_FAILED,
+      cause
+    );
   }
 
   static rateLimitExceeded(userId: string) {
-    return new NotificationError(`Notification rate limit exceeded for user: ${userId}`, 429, NotificationErrorCodes.RATE_LIMITED);
+    return new NotificationError(
+      `Notification rate limit exceeded for user: ${userId}`,
+      429,
+      NotificationErrorCodes.RATE_LIMITED
+    );
   }
 
   static providerUnavailable(provider: string) {
-    return new NotificationError(`Notification provider unavailable: ${provider}`, 503, NotificationErrorCodes.PROVIDER_UNAVAILABLE);
+    return new NotificationError(
+      `Notification provider unavailable: ${provider}`,
+      503,
+      NotificationErrorCodes.PROVIDER_UNAVAILABLE
+    );
   }
 
   static invalidPriority(priority: string) {
-    return new NotificationError(`Invalid notification priority: ${priority}`, 400, NotificationErrorCodes.INVALID_PRIORITY);
+    return new NotificationError(
+      `Invalid notification priority: ${priority}`,
+      400,
+      NotificationErrorCodes.INVALID_PRIORITY
+    );
   }
 
   static invalidFrequency(frequency: string) {
-    return new NotificationError(`Invalid notification frequency: ${frequency}`, 400, NotificationErrorCodes.INVALID_FREQUENCY);
+    return new NotificationError(
+      `Invalid notification frequency: ${frequency}`,
+      400,
+      NotificationErrorCodes.INVALID_FREQUENCY
+    );
   }
 
   static invalidTime(time: string, reason: string) {

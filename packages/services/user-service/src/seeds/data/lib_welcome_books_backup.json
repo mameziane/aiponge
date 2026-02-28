@@ -10,8 +10,6 @@
     "isReadOnly": true,
     "category": "growth",
     "language": "ar",
-    "era": "Contemporary",
-    "tradition": "Humanistic",
     "visibility": "shared",
     "status": "active",
     "systemType": "welcome-guide-ar"
@@ -27,8 +25,6 @@
     "isReadOnly": true,
     "category": "growth",
     "language": "de",
-    "era": "Contemporary",
-    "tradition": "Humanistic",
     "visibility": "shared",
     "status": "active",
     "systemType": "welcome-guide-de"
@@ -44,8 +40,6 @@
     "isReadOnly": true,
     "category": "growth",
     "language": "en",
-    "era": "Contemporary",
-    "tradition": "Humanistic",
     "visibility": "shared",
     "status": "active",
     "systemType": "welcome-guide-en"
@@ -61,8 +55,6 @@
     "isReadOnly": true,
     "category": "growth",
     "language": "es",
-    "era": "Contemporary",
-    "tradition": "Humanistic",
     "visibility": "shared",
     "status": "active",
     "systemType": "welcome-guide-es"
@@ -78,8 +70,6 @@
     "isReadOnly": true,
     "category": "growth",
     "language": "fr",
-    "era": "Contemporary",
-    "tradition": "Humanistic",
     "visibility": "shared",
     "status": "active",
     "systemType": "welcome-guide-fr"
@@ -95,8 +85,6 @@
     "isReadOnly": true,
     "category": "growth",
     "language": "ja",
-    "era": "Contemporary",
-    "tradition": "Humanistic",
     "visibility": "shared",
     "status": "active",
     "systemType": "welcome-guide-ja"
@@ -112,8 +100,6 @@
     "isReadOnly": true,
     "category": "growth",
     "language": "pt",
-    "era": "Contemporary",
-    "tradition": "Humanistic",
     "visibility": "shared",
     "status": "active",
     "systemType": "welcome-guide-pt"

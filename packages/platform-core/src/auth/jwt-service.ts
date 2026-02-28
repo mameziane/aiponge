@@ -27,9 +27,7 @@ function validateJwtPayload(decoded: unknown): JwtPayload {
     throw new DomainError('Invalid token payload: missing or invalid email', 401);
   }
 
-  const roles = Array.isArray(obj.roles)
-    ? obj.roles.filter((r): r is string => typeof r === 'string')
-    : [];
+  const roles = Array.isArray(obj.roles) ? obj.roles.filter((r): r is string => typeof r === 'string') : [];
   const permissions = Array.isArray(obj.permissions)
     ? obj.permissions.filter((p): p is string => typeof p === 'string')
     : [];
@@ -52,7 +50,11 @@ export class StandardJWTService {
 
   verify(token: string): JwtPayload {
     try {
-      const decoded = jwt.verify(token, this.secret, { algorithms: ['HS256'], issuer: 'aiponge', audience: 'aiponge-api' });
+      const decoded = jwt.verify(token, this.secret, {
+        algorithms: ['HS256'],
+        issuer: 'aiponge',
+        audience: 'aiponge-api',
+      });
       return validateJwtPayload(decoded);
     } catch (error) {
       if (error instanceof DomainError) throw error;

@@ -1,6 +1,6 @@
 /**
  * Music API Live Contract Tests
- * 
+ *
  * Validates that actual Music API responses match our Zod contracts.
  * These tests pass when services are unavailable (skip) or when contracts match (pass).
  * They fail ONLY when a contract violation is detected.
@@ -23,10 +23,12 @@ import {
 } from '@aiponge/shared-contracts';
 
 function isServiceUnavailable(result: { status: string; error?: string }): boolean {
-  return result.status === 'fail' && 
-    (result.error?.includes('ECONNREFUSED') || 
-     result.error?.includes('fetch failed') ||
-     result.error?.includes('network'));
+  return (
+    result.status === 'fail' &&
+    (result.error?.includes('ECONNREFUSED') ||
+      result.error?.includes('fetch failed') ||
+      result.error?.includes('network'))
+  );
 }
 
 describe('Music API Live Contract Tests', () => {
@@ -35,12 +37,12 @@ describe('Music API Live Contract Tests', () => {
 
   beforeAll(async () => {
     validator = new ContractValidator(SERVICE_URLS.API_GATEWAY);
-    
+
     try {
       const testUser = await createGuestUser();
       if (testUser) {
         authHeaders = {
-          'Authorization': `Bearer ${testUser.accessToken}`,
+          Authorization: `Bearer ${testUser.accessToken}`,
           'x-user-id': testUser.id,
           'Content-Type': 'application/json',
         };
@@ -269,7 +271,7 @@ describe('Music API Live Contract Tests', () => {
   describe('Contract Compliance Summary', () => {
     it('should report music API contract compliance', () => {
       const summary = validator.getSummary();
-      
+
       console.log('\n📊 Music API Contract Compliance:');
       console.log(`   Endpoints tested: ${summary.total}`);
       console.log(`   Contracts valid:  ${summary.passed}`);

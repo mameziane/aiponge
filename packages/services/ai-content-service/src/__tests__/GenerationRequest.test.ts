@@ -2,10 +2,16 @@ import { describe, it, expect, vi } from 'vitest';
 
 vi.mock('@aiponge/platform-core', () => ({
   createLogger: () => ({
-    info: vi.fn(), debug: vi.fn(), warn: vi.fn(), error: vi.fn(),
+    info: vi.fn(),
+    debug: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
   }),
   getLogger: () => ({
-    info: vi.fn(), debug: vi.fn(), warn: vi.fn(), error: vi.fn(),
+    info: vi.fn(),
+    debug: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
   }),
   DomainError: class DomainError extends Error {
     public readonly statusCode: number;
@@ -18,7 +24,10 @@ vi.mock('@aiponge/platform-core', () => ({
 
 vi.mock('../config/service-urls', () => ({
   getLogger: () => ({
-    info: vi.fn(), debug: vi.fn(), warn: vi.fn(), error: vi.fn(),
+    info: vi.fn(),
+    debug: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
   }),
   getServiceUrls: () => ({}),
 }));

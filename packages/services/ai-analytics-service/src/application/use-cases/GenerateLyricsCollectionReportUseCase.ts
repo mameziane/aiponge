@@ -234,13 +234,16 @@ export class GenerateLyricsCollectionReportUseCase {
     const musicServiceUrl = ServiceLocator.getServiceUrl('music-service');
 
     // First, fetch track details to get lyricsId
-    const trackResponse = await httpClient.getWithResponse<Record<string, unknown>>(`${musicServiceUrl}/api/library/track/${trackId}`, {
-      headers: {
-        'x-user-id': userId,
-        'x-request-id': requestId || 'unknown',
-      },
-      timeout: 30000,
-    });
+    const trackResponse = await httpClient.getWithResponse<Record<string, unknown>>(
+      `${musicServiceUrl}/api/library/track/${trackId}`,
+      {
+        headers: {
+          'x-user-id': userId,
+          'x-request-id': requestId || 'unknown',
+        },
+        timeout: 30000,
+      }
+    );
 
     if (!trackResponse.ok) {
       logger.error('Failed to fetch track details', {
@@ -276,13 +279,16 @@ export class GenerateLyricsCollectionReportUseCase {
     }
 
     // Fetch the actual lyrics by ID
-    const lyricsResponse = await httpClient.getWithResponse<Record<string, unknown>>(`${musicServiceUrl}/api/lyrics/${lyricsId}`, {
-      headers: {
-        'x-user-id': userId,
-        'x-request-id': requestId || 'unknown',
-      },
-      timeout: 30000,
-    });
+    const lyricsResponse = await httpClient.getWithResponse<Record<string, unknown>>(
+      `${musicServiceUrl}/api/lyrics/${lyricsId}`,
+      {
+        headers: {
+          'x-user-id': userId,
+          'x-request-id': requestId || 'unknown',
+        },
+        timeout: 30000,
+      }
+    );
 
     if (!lyricsResponse.ok) {
       logger.error('Failed to fetch lyrics', {

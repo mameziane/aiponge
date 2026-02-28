@@ -7,7 +7,11 @@ import { z } from 'zod';
 import { ContentVisibilitySchema, ContentVisibilityWithDefaultSchema } from '@aiponge/shared-contracts';
 import { getValidation } from '@aiponge/platform-core';
 
-const { validateBody: sharedValidateBody, validateQuery: sharedValidateQuery, validateParams: sharedValidateParams } = getValidation();
+const {
+  validateBody: sharedValidateBody,
+  validateQuery: sharedValidateQuery,
+  validateParams: sharedValidateParams,
+} = getValidation();
 
 export const validationSchemas = {
   'generate-music': z.object({

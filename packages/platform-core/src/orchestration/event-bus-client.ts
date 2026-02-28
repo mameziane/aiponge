@@ -114,10 +114,9 @@ export class RedisEventBusClient implements IStandardizedEventBusClient {
       // processes, but individual services remain fully operational.
       // To enable cross-service events, set REDIS_URL in the deployment env.
       const level = process.env.NODE_ENV === 'production' ? 'warn' : 'info';
-      logger[level](
-        'REDIS_URL not configured - event bus operating in memory-only mode for {}',
-        { data0: this.serviceName }
-      );
+      logger[level]('REDIS_URL not configured - event bus operating in memory-only mode for {}', {
+        data0: this.serviceName,
+      });
       this.connected = true;
       this.metrics.setConnectionStatus(true, false);
       this.flushPending();
@@ -280,7 +279,10 @@ export class RedisEventBusClient implements IStandardizedEventBusClient {
       });
     } catch (err: unknown) {
       if (!(err instanceof Error && err.message?.includes('BUSYGROUP'))) {
-        logger.error('Failed to create consumer group', { stream: streamKey, error: err instanceof Error ? err.message : String(err) });
+        logger.error('Failed to create consumer group', {
+          stream: streamKey,
+          error: err instanceof Error ? err.message : String(err),
+        });
       }
     }
   }
@@ -330,7 +332,11 @@ export class RedisEventBusClient implements IStandardizedEventBusClient {
         ...streams,
         ...streams.map(() => '0'),
       ];
-      const results = await (this.redisClient as Redis & { xreadgroup(...args: string[]): Promise<Array<[string, Array<[string, string[]]>]> | null> }).xreadgroup(...pendingArgs);
+      const results = await (
+        this.redisClient as Redis & {
+          xreadgroup(...args: string[]): Promise<Array<[string, Array<[string, string[]]>]> | null>;
+        }
+      ).xreadgroup(...pendingArgs);
       if (results) {
         let totalReclaimed = 0;
         for (const [, entries] of results) {
@@ -377,7 +383,11 @@ export class RedisEventBusClient implements IStandardizedEventBusClient {
           ...streams,
           ...streams.map(() => '>'),
         ];
-        const results = await (this.redisClient as Redis & { xreadgroup(...args: string[]): Promise<Array<[string, Array<[string, string[]]>]> | null> }).xreadgroup(...args);
+        const results = await (
+          this.redisClient as Redis & {
+            xreadgroup(...args: string[]): Promise<Array<[string, Array<[string, string[]]>]> | null>;
+          }
+        ).xreadgroup(...args);
         await this.processStreamEntries(results);
       } catch (error: unknown) {
         if (error instanceof Error && error.message?.includes('NOGROUP')) {

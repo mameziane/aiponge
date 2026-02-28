@@ -15,7 +15,9 @@ export function QueueAutoAdvanceController() {
   console.log('[TRACE-QUEUE] QueueAutoAdvanceController render start');
   useEffect(() => {
     console.log('[TRACE-QUEUE] QueueAutoAdvanceController mounted (useEffect ran)');
-    return () => { console.log('[TRACE-QUEUE] QueueAutoAdvanceController unmounted'); };
+    return () => {
+      console.log('[TRACE-QUEUE] QueueAutoAdvanceController unmounted');
+    };
   }, []);
   useQueueAutoAdvance();
   console.log('[TRACE-QUEUE] useQueueAutoAdvance hook completed');

@@ -8,14 +8,14 @@ See the comprehensive deployment guide: **[docs/AWS_DEPLOYMENT_GUIDE.md](../../d
 
 ## Files
 
-| File | Description |
-|------|-------------|
-| `setup-ecr.sh` | Script to create ECR repositories for all services |
-| `ecs-task-definition.json` | Main ECS task definition template |
-| `cloudfront-distribution.json` | CloudFront CDN distribution configuration |
+| File                                 | Description                                            |
+| ------------------------------------ | ------------------------------------------------------ |
+| `setup-ecr.sh`                       | Script to create ECR repositories for all services     |
+| `ecs-task-definition.json`           | Main ECS task definition template                      |
+| `cloudfront-distribution.json`       | CloudFront CDN distribution configuration              |
 | `iam-ecs-execution-role-policy.json` | IAM policy for ECS task execution (ECR, logs, secrets) |
-| `iam-ecs-task-role-policy.json` | IAM policy for running ECS tasks (S3, metrics, SQS) |
-| `task-definitions/` | Service-specific ECS task definition templates |
+| `iam-ecs-task-role-policy.json`      | IAM policy for running ECS tasks (S3, metrics, SQS)    |
+| `task-definitions/`                  | Service-specific ECS task definition templates         |
 
 ## Quick Start
 

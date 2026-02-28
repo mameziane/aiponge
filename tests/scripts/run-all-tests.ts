@@ -1,16 +1,16 @@
 #!/usr/bin/env tsx
 /**
  * Comprehensive Test Runner
- * 
+ *
  * Orchestrates all tests in logical sequence:
  * 1. Unit tests (fast, isolated) - per service
  * 2. Contract tests (no services required) - type validation
  * 3. Integration tests (services required) - cross-service
  * 4. E2E tests (services required) - full user flows
- * 
+ *
  * Usage:
  *   npx tsx tests/scripts/run-all-tests.ts [options]
- * 
+ *
  * Options:
  *   --unit         Run only unit tests
  *   --integration  Run only integration tests
@@ -58,9 +58,9 @@ function runCommand(command: string, cwd: string, silent = false): { success: bo
     });
     return { success: true, output: output?.toString() || '' };
   } catch (error: any) {
-    return { 
-      success: false, 
-      output: (error.stderr?.toString() || error.stdout?.toString() || error.message || '').slice(0, 300)
+    return {
+      success: false,
+      output: (error.stderr?.toString() || error.stdout?.toString() || error.message || '').slice(0, 300),
     };
   }
 }
@@ -76,20 +76,20 @@ async function checkServicesRunning(): Promise<boolean> {
 
 function runUnitTests(): TestResult[] {
   const results: TestResult[] = [];
-  
+
   for (const service of SERVICES) {
     const servicePath = path.join(ROOT_DIR, 'packages/services', service);
     const unitTestPath = path.join(servicePath, 'src/tests/unit');
     const startTime = Date.now();
-    
+
     if (!existsSync(servicePath)) {
       results.push({ name: service, category: 'unit', status: 'skipped', duration: 0, message: 'Not found' });
       continue;
     }
-    
+
     let success = false;
     let output = '';
-    
+
     if (existsSync(unitTestPath)) {
       const result = runCommand('npx vitest run src/tests/unit --passWithNoTests --reporter=dot', servicePath, true);
       success = result.success;
@@ -99,28 +99,39 @@ function runUnitTests(): TestResult[] {
       success = result.success;
       output = result.output;
     }
-    
+
     if (success || output.includes('No tests found') || output.includes('No test files found')) {
       const noTests = output.includes('No tests found') || output.includes('No test files found');
-      results.push({ name: service, category: 'unit', status: noTests ? 'skipped' : 'passed', duration: Date.now() - startTime });
+      results.push({
+        name: service,
+        category: 'unit',
+        status: noTests ? 'skipped' : 'passed',
+        duration: Date.now() - startTime,
+      });
     } else {
-      results.push({ name: service, category: 'unit', status: 'failed', duration: Date.now() - startTime, message: output.split('\n')[0] });
+      results.push({
+        name: service,
+        category: 'unit',
+        status: 'failed',
+        duration: Date.now() - startTime,
+        message: output.split('\n')[0],
+      });
     }
   }
-  
+
   return results;
 }
 
 function runContractTests(): TestResult {
   const startTime = Date.now();
   const integrationDir = path.join(TESTS_DIR, 'integration');
-  
+
   const { success, output } = runCommand(
     'npx vitest run contracts/shared-contracts --passWithNoTests --reporter=dot',
     integrationDir,
     true
   );
-  
+
   return {
     name: 'shared-contracts',
     category: 'contract',
@@ -133,9 +144,9 @@ function runContractTests(): TestResult {
 function runIntegrationTests(): TestResult {
   const startTime = Date.now();
   const scriptPath = path.join(TESTS_DIR, 'scripts/run-integration.sh');
-  
+
   const { success } = runCommand(`bash ${scriptPath}`, ROOT_DIR, false);
-  
+
   return {
     name: 'integration-suite',
     category: 'integration',
@@ -148,13 +159,9 @@ function runIntegrationTests(): TestResult {
 function runE2ETests(): TestResult {
   const startTime = Date.now();
   const e2eDir = path.join(TESTS_DIR, 'e2e');
-  
-  const { success } = runCommand(
-    'npx vitest run --passWithNoTests --reporter=dot',
-    e2eDir,
-    false
-  );
-  
+
+  const { success } = runCommand('npx vitest run --passWithNoTests --reporter=dot', e2eDir, false);
+
   return {
     name: 'e2e-suite',
     category: 'e2e',
@@ -212,33 +219,33 @@ Examples:
 
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
-  
+
   if (args.includes('--help') || args.includes('-h')) {
     printUsage();
     process.exit(0);
   }
-  
+
   const onlyUnit = args.includes('--unit');
   const onlyContracts = args.includes('--contracts');
   const onlyIntegration = args.includes('--integration');
   const onlyE2E = args.includes('--e2e');
   const quick = args.includes('--quick');
   const hasSpecificFlag = onlyUnit || onlyContracts || onlyIntegration || onlyE2E || quick;
-  
+
   const runUnit = onlyUnit || quick || !hasSpecificFlag;
   const runContracts = onlyContracts || quick || !hasSpecificFlag;
   const runIntegration = onlyIntegration || (!hasSpecificFlag && !quick);
   const runE2E = onlyE2E || (!hasSpecificFlag && !quick);
   const needsServices = runIntegration || runE2E;
-  
+
   console.log('');
   console.log('╔' + '═'.repeat(68) + '╗');
   console.log('║' + '  AIPONGE TEST SUITE'.padEnd(68) + '║');
   console.log('╚' + '═'.repeat(68) + '╝');
-  
+
   const results: TestResult[] = [];
   let servicesAvailable = false;
-  
+
   if (needsServices) {
     servicesAvailable = await checkServicesRunning();
     console.log('');
@@ -249,7 +256,7 @@ async function main(): Promise<void> {
       console.log('   Integration and E2E tests will be skipped');
     }
   }
-  
+
   if (runUnit) {
     printHeader('UNIT TESTS');
     console.log('  Running service unit tests...\n');
@@ -257,7 +264,7 @@ async function main(): Promise<void> {
     unitResults.forEach(r => printResult(r));
     results.push(...unitResults);
   }
-  
+
   if (runContracts) {
     printHeader('CONTRACT TESTS');
     console.log('  Running type contract validation...\n');
@@ -265,12 +272,18 @@ async function main(): Promise<void> {
     printResult(contractResult);
     results.push(contractResult);
   }
-  
+
   if (runIntegration) {
     printHeader('INTEGRATION TESTS');
     if (!servicesAvailable) {
       console.log('  ⏭️  Skipped - services not running\n');
-      results.push({ name: 'integration-suite', category: 'integration', status: 'skipped', duration: 0, message: 'Services not running' });
+      results.push({
+        name: 'integration-suite',
+        category: 'integration',
+        status: 'skipped',
+        duration: 0,
+        message: 'Services not running',
+      });
     } else {
       console.log('  Running cross-service tests...\n');
       const integrationResult = runIntegrationTests();
@@ -278,12 +291,18 @@ async function main(): Promise<void> {
       results.push(integrationResult);
     }
   }
-  
+
   if (runE2E) {
     printHeader('E2E TESTS');
     if (!servicesAvailable) {
       console.log('  ⏭️  Skipped - services not running\n');
-      results.push({ name: 'e2e-suite', category: 'e2e', status: 'skipped', duration: 0, message: 'Services not running' });
+      results.push({
+        name: 'e2e-suite',
+        category: 'e2e',
+        status: 'skipped',
+        duration: 0,
+        message: 'Services not running',
+      });
     } else {
       console.log('  Running end-to-end flows...\n');
       const e2eResult = runE2ETests();
@@ -291,21 +310,21 @@ async function main(): Promise<void> {
       results.push(e2eResult);
     }
   }
-  
+
   printHeader('SUMMARY');
-  
+
   const passed = results.filter(r => r.status === 'passed').length;
   const failed = results.filter(r => r.status === 'failed').length;
   const skipped = results.filter(r => r.status === 'skipped').length;
   const totalDuration = results.reduce((sum, r) => sum + r.duration, 0);
-  
+
   console.log('');
   console.log(`  ✅ Passed:  ${passed}`);
   console.log(`  ❌ Failed:  ${failed}`);
   console.log(`  ⏭️  Skipped: ${skipped}`);
   console.log(`  ⏱️  Duration: ${(totalDuration / 1000).toFixed(1)}s`);
   console.log('');
-  
+
   if (failed > 0) {
     console.log('❌ TESTS FAILED\n');
     results.filter(r => r.status === 'failed').forEach(r => console.log(`  • ${r.name}: ${r.message || 'Failed'}`));

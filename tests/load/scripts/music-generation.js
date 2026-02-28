@@ -40,7 +40,7 @@ export default function () {
   requestDuration.add(Date.now() - startRequest);
 
   check(createRes, {
-    'music request accepted': (r) => r.status === 200 || r.status === 201 || r.status === 202,
+    'music request accepted': r => r.status === 200 || r.status === 201 || r.status === 202,
   });
 
   if (createRes.status >= 200 && createRes.status < 300) {
@@ -56,7 +56,7 @@ export default function () {
           pollDuration.add(Date.now() - startPoll);
 
           check(pollRes, {
-            'poll status ok': (r) => r.status === 200,
+            'poll status ok': r => r.status === 200,
           });
 
           if (pollRes.status === 200) {

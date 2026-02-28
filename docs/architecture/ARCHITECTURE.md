@@ -51,15 +51,16 @@ src/
 
 ### When to Create Subfolders
 
-| Scenario | Action |
-|----------|--------|
-| 1 file | Keep in parent folder with naming suffix |
-| 2 files | Keep in parent folder with naming suffix |
-| 3+ files | Create a subfolder |
+| Scenario | Action                                   |
+| -------- | ---------------------------------------- |
+| 1 file   | Keep in parent folder with naming suffix |
+| 2 files  | Keep in parent folder with naming suffix |
+| 3+ files | Create a subfolder                       |
 
 ### Naming Conventions
 
 Use layer suffixes for files:
+
 - `Alert.entity.ts` - Domain entity
 - `Alert.repository.ts` - Repository interface
 - `AlertRepository.impl.ts` - Repository implementation
@@ -69,6 +70,7 @@ Use layer suffixes for files:
 ### Maximum Nesting Depth
 
 Keep folders within 3 levels per service:
+
 ```
 src/{layer}/{feature}/[file.ts]
 ```
@@ -80,6 +82,7 @@ Reserve a 4th level only for complex submodules (e.g., AI pipelines).
 Some services have intentional bounded contexts with their own Clean Architecture layers:
 
 **system-service subdomains:**
+
 - `discovery/` - Service discovery and orchestration
 - `monitoring/` - Health checks, alerts, metrics
 - `notification/` - Push notifications, email, in-app
@@ -99,6 +102,7 @@ import { FileEntity } from '../../domains/entities/FileEntity';
 ```
 
 **Available barrels:**
+
 - `storage-service`: `domains/entities`, `domains/value-objects`, `infrastructure/database`, `infrastructure/config`, `infrastructure/events`, `infrastructure/services`
 - `system-service`: `domains/entities`, `domains/value-objects`, `application/use-cases`
 - `ai-content-service`: `domains/entities`, `domains/value-objects`
@@ -118,5 +122,6 @@ import { FileEntity } from '../../domains/entities/FileEntity';
 ## Import Path Aliases
 
 Each service has these path aliases in tsconfig:
+
 - `@/` - src root
 - `@aiponge/` - platform-core shared contracts

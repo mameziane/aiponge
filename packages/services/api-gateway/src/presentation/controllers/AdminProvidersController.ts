@@ -73,7 +73,9 @@ export class AdminProvidersController extends BaseAggregationController {
       try {
         const { type, includeAnalytics } = req.query;
         const client = this.getProvidersServiceClient();
-        const response = await client.getProviderConfigurations(type as string, includeAnalytics === 'true') as { data: unknown };
+        const response = (await client.getProviderConfigurations(type as string, includeAnalytics === 'true')) as {
+          data: unknown;
+        };
 
         this.sendSuccessResponse(res, response.data);
       } catch (error) {
@@ -114,7 +116,7 @@ export class AdminProvidersController extends BaseAggregationController {
     await this.asyncHandler(async (req: Request, res: Response) => {
       try {
         const client = this.getProvidersServiceClient();
-        const response = await client.createProviderConfiguration(req.body) as { data: unknown };
+        const response = (await client.createProviderConfiguration(req.body)) as { data: unknown };
 
         this.sendSuccessResponse(res, response.data);
       } catch (error) {
@@ -137,7 +139,7 @@ export class AdminProvidersController extends BaseAggregationController {
           return;
         }
         const client = this.getProvidersServiceClient();
-        const response = await client.updateProviderConfiguration(id, req.body) as { data: unknown };
+        const response = (await client.updateProviderConfiguration(id, req.body)) as { data: unknown };
 
         this.sendSuccessResponse(res, response.data);
       } catch (error) {
@@ -188,14 +190,28 @@ export class AdminProvidersController extends BaseAggregationController {
 
         this.logger.info('Testing provider configuration via ai-config-service', { id });
 
-        const testResponse = await client.testProviderConfiguration(id, req.body) as
-          | { data?: { success?: boolean; latencyMs?: number; response?: string; responseTime?: number; error?: string } }
+        const testResponse = (await client.testProviderConfiguration(id, req.body)) as
+          | {
+              data?: {
+                success?: boolean;
+                latencyMs?: number;
+                response?: string;
+                responseTime?: number;
+                error?: string;
+              };
+            }
           | { success?: boolean; latencyMs?: number; response?: string; responseTime?: number; error?: string };
 
         const result = (testResponse as { data?: Record<string, unknown> })?.data || testResponse;
-        const testResult = result as { success?: boolean; latencyMs?: number; response?: string; responseTime?: number; error?: string };
+        const testResult = result as {
+          success?: boolean;
+          latencyMs?: number;
+          response?: string;
+          responseTime?: number;
+          error?: string;
+        };
 
-        const latencyMs = testResult.latencyMs || testResult.responseTime || (Date.now() - startTime);
+        const latencyMs = testResult.latencyMs || testResult.responseTime || Date.now() - startTime;
 
         this.logger.info('Provider test result', {
           id,
@@ -357,7 +373,7 @@ export class AdminProvidersController extends BaseAggregationController {
       try {
         const client = this.getProvidersServiceClient();
 
-        const configsResponse = await client.getProviderConfigurations() as { data?: unknown };
+        const configsResponse = (await client.getProviderConfigurations()) as { data?: unknown };
         const configs = configsResponse?.data;
         const existingProviders = Array.isArray(configs) ? configs : [];
 
@@ -382,16 +398,20 @@ Return a JSON array where each object has: providerId (kebab-case), providerName
 
 JSON array only, no markdown.`;
 
-        const llmResponse = await client.invokeProvider<{ result?: string }>({
-          providerId: 'openai-llm',
-          operation: 'text_generation',
-          payload: {
-            systemPrompt: 'You are an AI infrastructure expert. Respond ONLY with a valid JSON array. No markdown fences, no explanation.',
-            userPrompt,
-            maxTokens: 2000,
-            temperature: 0.3,
+        const llmResponse = await client.invokeProvider<{ result?: string }>(
+          {
+            providerId: 'openai-llm',
+            operation: 'text_generation',
+            payload: {
+              systemPrompt:
+                'You are an AI infrastructure expert. Respond ONLY with a valid JSON array. No markdown fences, no explanation.',
+              userPrompt,
+              maxTokens: 2000,
+              temperature: 0.3,
+            },
           },
-        }, { timeout: 90000 });
+          { timeout: 90000 }
+        );
 
         if (!llmResponse.success || !llmResponse.data?.result) {
           this.logger.error('LLM provider discovery call failed', { response: llmResponse });

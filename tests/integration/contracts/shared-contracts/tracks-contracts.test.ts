@@ -1,6 +1,6 @@
 /**
  * Tracks API Contract Tests
- * 
+ *
  * Validates track/music playback API contracts.
  */
 
@@ -27,7 +27,7 @@ describe('Tracks API Contracts', () => {
   describe('TrackStatusSchema', () => {
     it('should validate all track statuses', () => {
       const statuses = ['draft', 'processing', 'active', 'deleted', 'published', 'archived', 'removed'];
-      
+
       for (const status of statuses) {
         const result = TrackStatusSchema.safeParse(status);
         expect(result.success).toBe(true);
@@ -43,7 +43,7 @@ describe('Tracks API Contracts', () => {
   describe('TrackQualitySchema', () => {
     it('should validate all quality levels', () => {
       const qualities = ['lossless', 'high', 'medium', 'low'];
-      
+
       for (const quality of qualities) {
         const result = TrackQualitySchema.safeParse(quality);
         expect(result.success).toBe(true);

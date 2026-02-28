@@ -74,10 +74,7 @@ export interface IUserServiceClient {
     error?: string;
   }>;
 
-  incrementUsage(
-    userId: string,
-    type: string
-  ): Promise<{ success: boolean; error?: string }>;
+  incrementUsage(userId: string, type: string): Promise<{ success: boolean; error?: string }>;
 
   reserveCredits(
     userId: string,

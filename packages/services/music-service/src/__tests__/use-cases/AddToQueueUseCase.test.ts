@@ -1,7 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const mockLogger = vi.hoisted(() => ({
-  info: vi.fn(), debug: vi.fn(), warn: vi.fn(), error: vi.fn(), child: vi.fn(),
+  info: vi.fn(),
+  debug: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  child: vi.fn(),
 }));
 vi.mock('@aiponge/platform-core', () => ({
   createLogger: () => mockLogger,
@@ -69,7 +73,9 @@ describe('AddToQueueUseCase', () => {
     it('should add tracks to the end of the queue', async () => {
       const session = createMockSession();
       vi.mocked(mockSessionRepo.findById).mockResolvedValue(session as unknown as Record<string, unknown>);
-      vi.mocked(mockTrackRepo.findTrackById).mockResolvedValue(createMockTrack('track-2') as unknown as Record<string, unknown>);
+      vi.mocked(mockTrackRepo.findTrackById).mockResolvedValue(
+        createMockTrack('track-2') as unknown as Record<string, unknown>
+      );
       vi.mocked(mockSessionRepo.update).mockResolvedValue(session as unknown as Record<string, unknown>);
 
       const result = await useCase.execute({
@@ -79,17 +85,21 @@ describe('AddToQueueUseCase', () => {
 
       expect(result.addedTracks).toBe(1);
       expect(result.message).toContain('1 tracks');
-      expect(mockSessionRepo.update).toHaveBeenCalledWith(expect.objectContaining({
-        id: 'session-1',
-        userId: 'user-1',
-        currentTrackId: 'track-current',
-      }));
+      expect(mockSessionRepo.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: 'session-1',
+          userId: 'user-1',
+          currentTrackId: 'track-current',
+        })
+      );
     });
 
     it('should add tracks after current track when position is next', async () => {
       const session = createMockSession();
       vi.mocked(mockSessionRepo.findById).mockResolvedValue(session as unknown as Record<string, unknown>);
-      vi.mocked(mockTrackRepo.findTrackById).mockResolvedValue(createMockTrack('track-2') as unknown as Record<string, unknown>);
+      vi.mocked(mockTrackRepo.findTrackById).mockResolvedValue(
+        createMockTrack('track-2') as unknown as Record<string, unknown>
+      );
       vi.mocked(mockSessionRepo.update).mockResolvedValue(session as unknown as Record<string, unknown>);
 
       const result = await useCase.execute({
@@ -122,10 +132,12 @@ describe('AddToQueueUseCase', () => {
     it('should throw when session not found', async () => {
       vi.mocked(mockSessionRepo.findById).mockResolvedValue(null);
 
-      await expect(useCase.execute({
-        sessionId: 'nonexistent',
-        trackIds: ['track-1'],
-      })).rejects.toThrow(StreamingError);
+      await expect(
+        useCase.execute({
+          sessionId: 'nonexistent',
+          trackIds: ['track-1'],
+        })
+      ).rejects.toThrow(StreamingError);
     });
 
     it('should throw when some tracks not found', async () => {
@@ -135,10 +147,12 @@ describe('AddToQueueUseCase', () => {
         .mockResolvedValueOnce(createMockTrack('track-2') as unknown as Record<string, unknown>)
         .mockResolvedValueOnce(null);
 
-      await expect(useCase.execute({
-        sessionId: 'session-1',
-        trackIds: ['track-2', 'nonexistent'],
-      })).rejects.toThrow(StreamingError);
+      await expect(
+        useCase.execute({
+          sessionId: 'session-1',
+          trackIds: ['track-2', 'nonexistent'],
+        })
+      ).rejects.toThrow(StreamingError);
     });
   });
 
@@ -146,10 +160,12 @@ describe('AddToQueueUseCase', () => {
     it('should throw StreamingError when repository fails', async () => {
       vi.mocked(mockSessionRepo.findById).mockRejectedValue(new Error('DB error'));
 
-      await expect(useCase.execute({
-        sessionId: 'session-1',
-        trackIds: ['track-1'],
-      })).rejects.toThrow(StreamingError);
+      await expect(
+        useCase.execute({
+          sessionId: 'session-1',
+          trackIds: ['track-1'],
+        })
+      ).rejects.toThrow(StreamingError);
     });
   });
 });

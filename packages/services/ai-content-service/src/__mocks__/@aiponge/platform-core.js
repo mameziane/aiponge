@@ -8,7 +8,7 @@ module.exports = {
     error: jest.fn(),
   })),
   ServiceResponse: {
-    success: (data) => ({ success: true, data }),
-    error: (message) => ({ success: false, error: message }),
+    success: data => ({ success: true, data }),
+    error: message => ({ success: false, error: message }),
   },
 };

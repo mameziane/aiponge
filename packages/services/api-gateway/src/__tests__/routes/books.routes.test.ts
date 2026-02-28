@@ -20,7 +20,10 @@ vi.mock('@aiponge/platform-core', () => ({
     getServicePort: vi.fn(() => 3020),
   },
   serializeError: vi.fn((e: unknown) => String(e)),
-  getValidation: () => ({ validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(), validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next() }),
+  getValidation: () => ({
+    validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+    validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+  }),
 }));
 
 vi.mock('@services/gatewayFetch', () => ({
@@ -107,51 +110,51 @@ describe('Books Routes', () => {
       });
 
       it('should check access', async () => {
-        mockGatewayFetch.mockResolvedValueOnce(
-          mockResponse({ success: true, data: { hasAccess: true } })
-        );
-        const res = await request(app)
-          .get('/api/app/books/generate/access')
-          .set('x-user-id', 'user-123');
+        mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, data: { hasAccess: true } }));
+        const res = await request(app).get('/api/app/books/generate/access').set('x-user-id', 'user-123');
         expect(res.status).toBe(200);
-        expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/books/generation/access'), expect.anything());
+        expect(mockGatewayFetch).toHaveBeenCalledWith(
+          expect.stringContaining('/api/books/generation/access'),
+          expect.anything()
+        );
       });
 
       it('should forward 403 for access denied', async () => {
-        mockGatewayFetch.mockResolvedValueOnce(
-          mockResponse({ error: 'Paid tier feature' }, 403)
-        );
-        const res = await request(app)
-          .get('/api/app/books/generate/access')
-          .set('x-user-id', 'user-123');
+        mockGatewayFetch.mockResolvedValueOnce(mockResponse({ error: 'Paid tier feature' }, 403));
+        const res = await request(app).get('/api/app/books/generate/access').set('x-user-id', 'user-123');
         expect(res.status).toBe(403);
-        expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/books/generation/access'), expect.anything());
+        expect(mockGatewayFetch).toHaveBeenCalledWith(
+          expect.stringContaining('/api/books/generation/access'),
+          expect.anything()
+        );
       });
     });
 
     describe('POST /api/app/books/generate', () => {
       it('should generate a book', async () => {
-        mockGatewayFetch.mockResolvedValueOnce(
-          mockResponse({ success: true, data: { requestId: 'gen-123' } })
-        );
+        mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, data: { requestId: 'gen-123' } }));
         const res = await request(app)
           .post('/api/app/books/generate')
           .set('x-user-id', 'user-123')
           .send({ title: 'My Book' });
         expect(res.status).toBe(201);
-        expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/books/generation'), expect.anything());
+        expect(mockGatewayFetch).toHaveBeenCalledWith(
+          expect.stringContaining('/api/books/generation'),
+          expect.anything()
+        );
       });
 
       it('should forward 402 for insufficient credits', async () => {
-        mockGatewayFetch.mockResolvedValueOnce(
-          mockResponse({ error: 'Insufficient credits' }, 402)
-        );
+        mockGatewayFetch.mockResolvedValueOnce(mockResponse({ error: 'Insufficient credits' }, 402));
         const res = await request(app)
           .post('/api/app/books/generate')
           .set('x-user-id', 'user-123')
           .send({ title: 'My Book' });
         expect(res.status).toBe(402);
-        expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/books/generation'), expect.anything());
+        expect(mockGatewayFetch).toHaveBeenCalledWith(
+          expect.stringContaining('/api/books/generation'),
+          expect.anything()
+        );
       });
     });
 
@@ -160,22 +163,22 @@ describe('Books Routes', () => {
         mockGatewayFetch.mockResolvedValueOnce(
           mockResponse({ success: true, data: { requestId: 'gen-123', status: 'completed' } })
         );
-        const res = await request(app)
-          .get('/api/app/books/generate/gen-123')
-          .set('x-user-id', 'user-123');
+        const res = await request(app).get('/api/app/books/generate/gen-123').set('x-user-id', 'user-123');
         expect(res.status).toBe(200);
-        expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/books/generation/'), expect.anything());
+        expect(mockGatewayFetch).toHaveBeenCalledWith(
+          expect.stringContaining('/api/books/generation/'),
+          expect.anything()
+        );
       });
 
       it('should forward 404 for non-existent request', async () => {
-        mockGatewayFetch.mockResolvedValueOnce(
-          mockResponse({ error: 'Not found' }, 404)
-        );
-        const res = await request(app)
-          .get('/api/app/books/generate/nonexistent')
-          .set('x-user-id', 'user-123');
+        mockGatewayFetch.mockResolvedValueOnce(mockResponse({ error: 'Not found' }, 404));
+        const res = await request(app).get('/api/app/books/generate/nonexistent').set('x-user-id', 'user-123');
         expect(res.status).toBe(404);
-        expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/books/generation/'), expect.anything());
+        expect(mockGatewayFetch).toHaveBeenCalledWith(
+          expect.stringContaining('/api/books/generation/'),
+          expect.anything()
+        );
       });
     });
   });
@@ -188,12 +191,8 @@ describe('Books Routes', () => {
       });
 
       it('should return user library', async () => {
-        mockGatewayFetch.mockResolvedValueOnce(
-          mockResponse({ success: true, data: { books: [] } })
-        );
-        const res = await request(app)
-          .get('/api/app/library/user')
-          .set('x-user-id', 'user-123');
+        mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, data: { books: [] } }));
+        const res = await request(app).get('/api/app/library/user').set('x-user-id', 'user-123');
         expect(res.status).toBe(200);
         expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/library/saved'), expect.anything());
       });
@@ -203,53 +202,55 @@ describe('Books Routes', () => {
   describe('Content Library', () => {
     describe('GET /api/app/library/book-types', () => {
       it('should return book types', async () => {
-        mockGatewayFetch.mockResolvedValueOnce(
-          mockResponse({ success: true, data: [{ id: 't1', name: 'Journal' }] })
-        );
-        const res = await request(app)
-          .get('/api/app/library/book-types')
-          .set('x-user-id', 'user-123');
+        mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, data: [{ id: 't1', name: 'Journal' }] }));
+        const res = await request(app).get('/api/app/library/book-types').set('x-user-id', 'user-123');
         expect(res.status).toBe(200);
-        expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/library/book-types'), expect.anything());
+        expect(mockGatewayFetch).toHaveBeenCalledWith(
+          expect.stringContaining('/api/library/book-types'),
+          expect.anything()
+        );
       });
     });
 
     describe('POST /api/app/library/chapters', () => {
       it('should create chapter', async () => {
-        mockGatewayFetch.mockResolvedValueOnce(
-          mockResponse({ success: true, data: { id: 'ch1' } })
-        );
+        mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, data: { id: 'ch1' } }));
         const res = await request(app)
           .post('/api/app/library/chapters')
           .set('x-user-id', 'user-123')
           .send({ title: 'Chapter 1', bookId: 'book-1' });
         expect(res.status).toBe(200);
-        expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/library/chapters'), expect.anything());
+        expect(mockGatewayFetch).toHaveBeenCalledWith(
+          expect.stringContaining('/api/library/chapters'),
+          expect.anything()
+        );
       });
     });
 
     describe('POST /api/app/library/entries', () => {
       it('should create library entry', async () => {
-        mockGatewayFetch.mockResolvedValueOnce(
-          mockResponse({ success: true, data: { id: 'e1' } })
-        );
+        mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, data: { id: 'e1' } }));
         const res = await request(app)
           .post('/api/app/library/entries')
           .set('x-user-id', 'user-123')
           .send({ content: 'Hello', chapterId: 'ch1' });
         expect(res.status).toBe(200);
-        expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/library/entries'), expect.anything());
+        expect(mockGatewayFetch).toHaveBeenCalledWith(
+          expect.stringContaining('/api/library/entries'),
+          expect.anything()
+        );
       });
     });
 
     describe('Network errors', () => {
       it('should handle downstream errors', async () => {
         mockGatewayFetch.mockRejectedValueOnce(new Error('ECONNREFUSED'));
-        const res = await request(app)
-          .get('/api/app/library/book-types')
-          .set('x-user-id', 'user-123');
+        const res = await request(app).get('/api/app/library/book-types').set('x-user-id', 'user-123');
         expect(res.status).toBeGreaterThanOrEqual(500);
-        expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/library/book-types'), expect.anything());
+        expect(mockGatewayFetch).toHaveBeenCalledWith(
+          expect.stringContaining('/api/library/book-types'),
+          expect.anything()
+        );
       });
     });
   });

@@ -216,8 +216,6 @@
       "subtitle": "Subtitle",
       "author": "Original Author",
       "category": "Category",
-      "era": "Era",
-      "tradition": "Tradition",
       "visibility": "Visibility",
       "createFailed": "Failed to create book",
       "updateFailed": "Failed to update book",

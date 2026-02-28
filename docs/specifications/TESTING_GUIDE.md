@@ -5,11 +5,13 @@
 **Production URL:** https://aiponge-mvp-12-aiponge.replit.app
 
 **Backend Health Check:**
+
 - ✅ Status: healthy
 - ✅ Uptime: Running
 - ✅ Version: 1.0.0
 
 **Services Running:**
+
 - ✅ API Gateway (port 8080)
 - ✅ User Service (authentication)
 - ✅ System Service (service discovery)
@@ -21,11 +23,13 @@
 Since we updated the API URL, you need to restart the Expo app:
 
 1. **Stop the current Expo server** (if running):
+
    ```bash
    # Press Ctrl+C in the terminal running Expo
    ```
 
 2. **Start Expo again**:
+
    ```bash
    npm run dev:member-minimal
    # OR if using the full dev script:
@@ -47,6 +51,7 @@ Since we updated the API URL, you need to restart the Expo app:
 5. Tap **"Create Account"**
 
 **Expected Result:**
+
 - ✅ Registration succeeds
 - ✅ You're redirected to the home screen
 - ✅ Token is saved in secure storage
@@ -60,6 +65,7 @@ Since we updated the API URL, you need to restart the Expo app:
 3. Tap **"Login"**
 
 **Expected Result:**
+
 - ✅ Login succeeds
 - ✅ You're redirected to the home screen
 - ✅ Your session persists (if you close and reopen the app)
@@ -71,6 +77,7 @@ Since we updated the API URL, you need to restart the Expo app:
 3. You should be automatically logged in (no need to enter credentials again)
 
 **Expected Result:**
+
 - ✅ App remembers your session
 - ✅ You land directly on the home screen
 - ✅ No login screen shown
@@ -82,6 +89,7 @@ Since we updated the API URL, you need to restart the Expo app:
 3. Tap **"Logout"**
 
 **Expected Result:**
+
 - ✅ You're logged out
 - ✅ Redirected to Welcome screen
 - ✅ Token is cleared from secure storage
@@ -91,10 +99,12 @@ Since we updated the API URL, you need to restart the Expo app:
 ### Problem: "Network request failed"
 
 **Causes:**
+
 - Mobile device can't reach the backend URL
 - Backend is down
 
 **Solutions:**
+
 1. Test backend from browser on your phone:
    - Open Safari/Chrome on your phone
    - Visit: https://aiponge-mvp-12-aiponge.replit.app/health
@@ -107,18 +117,22 @@ Since we updated the API URL, you need to restart the Expo app:
 ### Problem: "Invalid credentials" on login
 
 **Cause:**
+
 - User doesn't exist in production database
 
 **Solution:**
+
 - Register a new user first
 - Production database is separate from local development database
 
 ### Problem: App shows development URL error
 
 **Cause:**
+
 - Old .env cached by Expo
 
 **Solution:**
+
 1. Stop Expo server
 2. Clear Metro cache: `npx expo start -c`
 3. Reload app on phone
@@ -126,9 +140,11 @@ Since we updated the API URL, you need to restart the Expo app:
 ### Problem: Cold start delay (first request slow)
 
 **Cause:**
+
 - Autoscale deployment may "sleep" when idle
 
 **Solution:**
+
 - Normal behavior for Autoscale
 - First request takes 3-5 seconds
 - Subsequent requests are fast
@@ -149,6 +165,7 @@ Use this checklist to verify everything works:
 ## 🎯 Success Criteria
 
 Your mobile authentication is working when:
+
 1. ✅ You can register a new user from your phone
 2. ✅ You can log in with those credentials
 3. ✅ The session persists (auto-login on app restart)
@@ -157,6 +174,7 @@ Your mobile authentication is working when:
 ## 🚀 Next Steps After Testing
 
 Once authentication works:
+
 1. Test on multiple devices (iOS, Android)
 2. Test with different email formats
 3. Test error cases (wrong password, duplicate email)
@@ -165,6 +183,7 @@ Once authentication works:
 ## 📝 API Endpoints Available
 
 Your production backend exposes:
+
 - `GET /` - Root health check
 - `GET /health` - Detailed health status
 - `POST /api/auth/register` - User registration
@@ -179,6 +198,7 @@ All authenticated endpoints require the `Authorization: Bearer <token>` header.
 ## 🐛 Report Issues
 
 If you encounter issues:
+
 1. Check the Expo Metro logs in your terminal
 2. Check the browser network tab (if testing in Expo web)
 3. Test the backend directly: `curl https://aiponge-mvp-12-aiponge.replit.app/health`

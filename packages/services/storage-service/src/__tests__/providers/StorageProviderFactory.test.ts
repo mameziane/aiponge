@@ -38,16 +38,13 @@ vi.mock('@aiponge/platform-core', () => ({
   waitForService: vi.fn(),
   listServices: () => [],
   createServiceUrlsConfig: vi.fn(() => ({})),
-  errorMessage: vi.fn((err: unknown) => err instanceof Error ? err.message : String(err)),
-  errorStack: vi.fn((err: unknown) => err instanceof Error ? err.stack : ''),
+  errorMessage: vi.fn((err: unknown) => (err instanceof Error ? err.message : String(err))),
+  errorStack: vi.fn((err: unknown) => (err instanceof Error ? err.stack : '')),
   withResilience: vi.fn((fn: (...args: unknown[]) => unknown) => fn),
   createIntervalScheduler: vi.fn(() => ({ start: vi.fn(), stop: vi.fn() })),
 }));
 
-import {
-  StorageProviderFactory,
-  StorageConfiguration,
-} from '../../infrastructure/providers/StorageProviderFactory';
+import { StorageProviderFactory, StorageConfiguration } from '../../infrastructure/providers/StorageProviderFactory';
 
 describe('StorageProviderFactory', () => {
   let factory: StorageProviderFactory;
@@ -86,33 +83,23 @@ describe('StorageProviderFactory', () => {
     });
 
     it('should throw for s3 provider without config', async () => {
-      await expect(
-        factory.createProvider({ provider: 's3' })
-      ).rejects.toThrow();
+      await expect(factory.createProvider({ provider: 's3' })).rejects.toThrow();
     });
 
     it('should throw for cloudinary provider without config', async () => {
-      await expect(
-        factory.createProvider({ provider: 'cloudinary' })
-      ).rejects.toThrow();
+      await expect(factory.createProvider({ provider: 'cloudinary' })).rejects.toThrow();
     });
 
     it('should throw for gcs provider without config', async () => {
-      await expect(
-        factory.createProvider({ provider: 'gcs' })
-      ).rejects.toThrow();
+      await expect(factory.createProvider({ provider: 'gcs' })).rejects.toThrow();
     });
 
     it('should throw for cdn provider (not yet implemented)', async () => {
-      await expect(
-        factory.createProvider({ provider: 'cdn' })
-      ).rejects.toThrow();
+      await expect(factory.createProvider({ provider: 'cdn' })).rejects.toThrow();
     });
 
     it('should throw for unknown provider type', async () => {
-      await expect(
-        factory.createProvider({ provider: 'unknown' as unknown as string })
-      ).rejects.toThrow();
+      await expect(factory.createProvider({ provider: 'unknown' as unknown as string })).rejects.toThrow();
     });
   });
 
@@ -199,9 +186,7 @@ describe('StorageProviderFactory', () => {
     });
 
     it('should reject unknown provider', () => {
-      expect(
-        factory.validateConfiguration({ provider: 'unknown' as unknown as string })
-      ).toBe(false);
+      expect(factory.validateConfiguration({ provider: 'unknown' as unknown as string })).toBe(false);
     });
   });
 

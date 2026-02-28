@@ -3,11 +3,7 @@ export function truncateAtSentence(text: string, maxChars: number): string {
 
   const truncated = text.slice(0, maxChars);
 
-  const sentenceEnd = Math.max(
-    truncated.lastIndexOf('.'),
-    truncated.lastIndexOf('!'),
-    truncated.lastIndexOf('?')
-  );
+  const sentenceEnd = Math.max(truncated.lastIndexOf('.'), truncated.lastIndexOf('!'), truncated.lastIndexOf('?'));
 
   if (sentenceEnd > maxChars * 0.2) {
     return truncated.slice(0, sentenceEnd + 1);

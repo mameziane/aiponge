@@ -1,7 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const mockLogger = vi.hoisted(() => ({
-  info: vi.fn(), debug: vi.fn(), warn: vi.fn(), error: vi.fn(), child: vi.fn(),
+  info: vi.fn(),
+  debug: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  child: vi.fn(),
 }));
 vi.mock('@aiponge/platform-core', () => ({
   createLogger: () => mockLogger,
@@ -66,14 +70,16 @@ describe('CreateAlbumUseCase', () => {
       expect(result.albumId).toBe('test-uuid-1234');
       expect(result.status).toBe('draft');
       expect(result.message).toContain('successfully');
-      expect(mockAlbumRepo.create).toHaveBeenCalledWith(expect.objectContaining({
-        id: 'test-uuid-1234',
-        title: 'My Album',
-        userId: 'user-1',
-        displayName: 'Test Artist',
-        genre: ['pop', 'electronic'],
-        status: 'draft',
-      }));
+      expect(mockAlbumRepo.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: 'test-uuid-1234',
+          title: 'My Album',
+          userId: 'user-1',
+          displayName: 'Test Artist',
+          genre: ['pop', 'electronic'],
+          status: 'draft',
+        })
+      );
     });
 
     it('should create album with all optional fields', async () => {

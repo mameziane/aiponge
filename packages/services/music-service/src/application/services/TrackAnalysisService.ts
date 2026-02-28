@@ -4,10 +4,7 @@ import { getLogger } from '../../config/service-urls';
 import { getServiceRegistry } from '../../infrastructure/ServiceFactory';
 import { serializeError } from '@aiponge/platform-core';
 import { MusicError, LibraryError } from '../errors';
-import {
-  CONTENT_VISIBILITY,
-  isContentPersonal,
-} from '@aiponge/shared-contracts';
+import { CONTENT_VISIBILITY, isContentPersonal } from '@aiponge/shared-contracts';
 import { getMusicVisibilityService } from '../services/MusicVisibilityService';
 import { getMusicAccessRepository } from '../../infrastructure/database/MusicAccessRepository';
 
@@ -119,7 +116,14 @@ export class TrackAnalysisService {
       LIMIT 1
     `);
     const lyricsRow = lyricsResult.rows[0] as
-      | { id: string; content: string; syncedLines?: unknown[]; clipId?: string | null; visibility?: string; userId?: string }
+      | {
+          id: string;
+          content: string;
+          syncedLines?: unknown[];
+          clipId?: string | null;
+          visibility?: string;
+          userId?: string;
+        }
       | undefined;
 
     let lyricsData: { id: string; content: string; syncedLines?: unknown[]; clipId?: string | null } | undefined;

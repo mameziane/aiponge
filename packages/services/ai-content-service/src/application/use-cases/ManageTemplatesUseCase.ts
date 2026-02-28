@@ -159,7 +159,9 @@ export class ManageTemplatesUseCase {
       };
 
       // Create template through service
-      const template = await this.templateService.createTemplate(templateData as unknown as Omit<ContentTemplate, 'id' | 'metadata' | 'isActive'>);
+      const template = await this.templateService.createTemplate(
+        templateData as unknown as Omit<ContentTemplate, 'id' | 'metadata' | 'isActive'>
+      );
 
       // Store in repository if available
       if (this.templateRepository) {

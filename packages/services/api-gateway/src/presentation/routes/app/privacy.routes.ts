@@ -55,7 +55,7 @@ router.get(
       });
 
       if (!response.ok) {
-        const errorData = await parseErrorBody(response, '[PRIVACY EXPORT]') as Record<string, unknown>;
+        const errorData = (await parseErrorBody(response, '[PRIVACY EXPORT]')) as Record<string, unknown>;
         logger.error('[PRIVACY EXPORT] Failed', {
           userId,
           status: response.status,
@@ -111,7 +111,7 @@ router.delete(
       });
 
       if (!response.ok) {
-        const errorData = await parseErrorBody(response, '[PRIVACY DELETE]') as Record<string, unknown>;
+        const errorData = (await parseErrorBody(response, '[PRIVACY DELETE]')) as Record<string, unknown>;
         logger.error('[PRIVACY DELETE] Failed', {
           userId,
           status: response.status,

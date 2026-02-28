@@ -1,4 +1,3 @@
-
 const logger = {
   info: (...args) => console.log('[eslint-rules]', ...args),
   warn: (...args) => console.warn('[eslint-rules]', ...args),
@@ -15,5 +14,5 @@ import apiArchitectureRules from './api-architecture.js';
 export default {
   rules: {
     ...apiArchitectureRules.rules,
-  }
+  },
 };

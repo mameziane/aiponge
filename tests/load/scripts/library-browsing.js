@@ -33,7 +33,7 @@ export default function () {
   listDuration.add(Date.now() - startList);
 
   check(listRes, {
-    'library list status': (r) => r.status === 200 || r.status === 304,
+    'library list status': r => r.status === 200 || r.status === 304,
   });
 
   sleep(0.5);
@@ -49,7 +49,7 @@ export default function () {
         detailDuration.add(Date.now() - startDetail);
 
         check(detailRes, {
-          'book detail status': (r) => r.status === 200,
+          'book detail status': r => r.status === 200,
         });
       }
     } catch (e) {

@@ -1,15 +1,7 @@
-import {
-  CONTENT_VISIBILITY,
-  BOOK_LIFECYCLE,
-  BOOK_CATEGORIES,
-  BOOK_ERAS,
-  BOOK_TRADITIONS,
-} from '@aiponge/shared-contracts';
+import { CONTENT_VISIBILITY, BOOK_LIFECYCLE, BOOK_CATEGORIES } from '@aiponge/shared-contracts';
 import type { BookCardData } from '../../../components/book/BookCard';
 
 export const CATEGORIES = [...BOOK_CATEGORIES];
-export const ERAS = [...BOOK_ERAS];
-export const TRADITIONS = [...BOOK_TRADITIONS];
 export const VISIBILITY_OPTIONS = [
   CONTENT_VISIBILITY.PERSONAL,
   CONTENT_VISIBILITY.SHARED,
@@ -22,8 +14,6 @@ export interface BookFormData {
   subtitle: string;
   description: string;
   author: string;
-  era: string;
-  tradition: string;
   category: string;
   visibility: string;
   status: string;
@@ -34,8 +24,6 @@ export const initialFormData: BookFormData = {
   subtitle: '',
   description: '',
   author: '',
-  era: '',
-  tradition: '',
   category: 'growth',
   visibility: CONTENT_VISIBILITY.SHARED,
   status: BOOK_LIFECYCLE.ACTIVE,

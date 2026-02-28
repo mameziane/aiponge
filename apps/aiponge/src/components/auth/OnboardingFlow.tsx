@@ -1,5 +1,14 @@
 import { useState, useCallback, useMemo, type ComponentProps } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, ScrollView, Dimensions, Platform } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+  ScrollView,
+  Dimensions,
+  Platform,
+} from 'react-native';
 
 // Reanimated 4.1.x entering/exiting worklets crash on iPhone OS 26 (same UIKit internals
 // as the RNTP RunLoop bug). Disable them entirely on iOS 26 — plain mounts/unmounts only.

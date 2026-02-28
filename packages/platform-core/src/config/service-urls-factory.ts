@@ -65,7 +65,10 @@ export interface ServiceUrlsConfig {
   getServicePort: (serviceName: string) => number;
   getOwnPort: () => number;
   createServiceHttpClient: (type: HttpClientType) => HttpClient;
-  createServiceClient: (targetService: string, options?: { type?: HttpClientType; timeout?: number }) => ServiceClientResult;
+  createServiceClient: (
+    targetService: string,
+    options?: { type?: HttpClientType; timeout?: number }
+  ) => ServiceClientResult;
   getHttpConfig: (type: HttpClientType) => HttpClientConfigType;
   SERVICE_URLS: Record<string, string>;
   SERVICE_PORTS: Record<string, number>;

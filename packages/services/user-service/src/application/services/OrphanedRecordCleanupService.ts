@@ -170,7 +170,7 @@ export class OrphanedRecordCleanupService {
       `)
       );
 
-      const orphanCount = parseInt((countResult[0] as Record<string, unknown>)?.orphan_count as string || '0', 10);
+      const orphanCount = parseInt(((countResult[0] as Record<string, unknown>)?.orphan_count as string) || '0', 10);
 
       let cleanedCount = 0;
       const errors: string[] = [];
@@ -285,7 +285,9 @@ export class OrphanedRecordCleanupService {
 
     try {
       const musicServiceUrl = getServiceUrl('music-service');
-      const response = await httpClient.postWithResponse<{ invalidReferences?: Array<{ referenceType: string; referenceId: string; error: string }> }>(
+      const response = await httpClient.postWithResponse<{
+        invalidReferences?: Array<{ referenceType: string; referenceId: string; error: string }>;
+      }>(
         `${musicServiceUrl}/api/admin/cross-reference-check`,
         {},
         { headers: { ...signUserIdHeader('system') }, timeout: 30000 }
@@ -294,10 +296,12 @@ export class OrphanedRecordCleanupService {
       if (response.ok) {
         if (response.data.invalidReferences) {
           invalidReferences.push(
-            ...response.data.invalidReferences.map((ref: { referenceType: string; referenceId: string; error: string }) => ({
-              service: 'music-service',
-              ...ref,
-            }))
+            ...response.data.invalidReferences.map(
+              (ref: { referenceType: string; referenceId: string; error: string }) => ({
+                service: 'music-service',
+                ...ref,
+              })
+            )
           );
         }
       }
@@ -346,7 +350,7 @@ export class OrphanedRecordCleanupService {
           WHERE ${tableName === 'usr_accounts' ? sql`id` : sql`user_id`} = ${userId}
         `;
         const result = await db.execute(query);
-        const count = parseInt((result[0] as Record<string, unknown>)?.cnt as string || '0', 10);
+        const count = parseInt(((result[0] as Record<string, unknown>)?.cnt as string) || '0', 10);
         if (count > 0) {
           localTablesWithData.push(tableName);
         }
@@ -367,7 +371,7 @@ export class OrphanedRecordCleanupService {
           WHERE user_id = ${userId}
         `;
         const result = await db.execute(query);
-        const count = parseInt((result[0] as Record<string, unknown>)?.cnt as string || '0', 10);
+        const count = parseInt(((result[0] as Record<string, unknown>)?.cnt as string) || '0', 10);
         if (count > 0) {
           localTablesWithData.push(tableName);
         }

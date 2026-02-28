@@ -36,11 +36,7 @@ import {
   generateReportOutput,
 } from './insight-report-generators';
 
-import {
-  processMetricsData,
-  generateReportTitle,
-  generateDashboardTitle,
-} from './insight-report-utils';
+import { processMetricsData, generateReportTitle, generateDashboardTitle } from './insight-report-utils';
 
 // Re-export all types for backward compatibility
 export type {
@@ -92,10 +88,18 @@ export class GenerateInsightReportsUseCase {
       const sections = generateReportSections(reportData, request, template);
 
       const [visualizations, recommendations, insights, comparison] = await Promise.all([
-        request.includeVisualizations ? Promise.resolve(generateVisualizations(reportData, request)) : Promise.resolve(undefined),
-        request.includeRecommendations ? Promise.resolve(generateRecommendations(reportData, request)) : Promise.resolve(undefined),
-        request.includePredictiveInsights ? Promise.resolve(generatePredictiveInsights(reportData, request)) : Promise.resolve(undefined),
-        request.compareWithPrevious ? Promise.resolve(generateComparisonData(reportData, request)) : Promise.resolve(undefined),
+        request.includeVisualizations
+          ? Promise.resolve(generateVisualizations(reportData, request))
+          : Promise.resolve(undefined),
+        request.includeRecommendations
+          ? Promise.resolve(generateRecommendations(reportData, request))
+          : Promise.resolve(undefined),
+        request.includePredictiveInsights
+          ? Promise.resolve(generatePredictiveInsights(reportData, request))
+          : Promise.resolve(undefined),
+        request.compareWithPrevious
+          ? Promise.resolve(generateComparisonData(reportData, request))
+          : Promise.resolve(undefined),
       ]);
 
       const { confidence, completeness, accuracy } = calculateQualityMetrics(reportData, request);
@@ -166,7 +170,7 @@ export class GenerateInsightReportsUseCase {
 
       const widgets = await this.generateDashboardWidgets(
         request.widgets || this.getDefaultWidgets(request.dashboardType),
-        dashboardData,
+        dashboardData
       );
 
       const processingTime = Date.now() - startTime;
@@ -206,8 +210,12 @@ export class GenerateInsightReportsUseCase {
       }));
 
       const vizTypeMap: Record<string, Visualization['type']> = {
-        line: 'line_chart', bar: 'bar_chart', pie: 'pie_chart',
-        table: 'table', heatmap: 'heatmap', gauge: 'gauge',
+        line: 'line_chart',
+        bar: 'bar_chart',
+        pie: 'pie_chart',
+        table: 'table',
+        heatmap: 'heatmap',
+        gauge: 'gauge',
       };
 
       const visualizations: Visualization[] = request.visualizations.map(viz => ({
@@ -366,7 +374,7 @@ export class GenerateInsightReportsUseCase {
 
   private async generateDashboardWidgets(
     widgets: DashboardWidget[],
-    dashboardData: Record<string, unknown>,
+    dashboardData: Record<string, unknown>
   ): Promise<ProcessedWidget[]> {
     const processedWidgets: ProcessedWidget[] = [];
 

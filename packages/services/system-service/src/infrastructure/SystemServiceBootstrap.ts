@@ -306,7 +306,9 @@ export class SystemServiceBootstrap {
   /**
    * Start the server
    */
-  async startServer(hooks?: { afterStart?: () => Promise<void> }): Promise<{ app: express.Application; server: unknown; healthManager: unknown; errorHandler: unknown }> {
+  async startServer(hooks?: {
+    afterStart?: () => Promise<void>;
+  }): Promise<{ app: express.Application; server: unknown; healthManager: unknown; errorHandler: unknown }> {
     try {
       this.server = this.app.listen(this.config.service.port, this.config.service.host || '0.0.0.0', () => {
         this.logger.info('📡 Service running', {

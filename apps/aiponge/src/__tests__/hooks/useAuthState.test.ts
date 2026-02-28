@@ -6,10 +6,12 @@ const { mockSelectUser, mockSelectAuthStatus } = vi.hoisted(() => ({
 }));
 
 vi.mock('../../auth/store', () => ({
-  useAuthStore: vi.fn((selector: Function) => selector({
-    user: mockSelectUser(),
-    status: mockSelectAuthStatus(),
-  })),
+  useAuthStore: vi.fn((selector: Function) =>
+    selector({
+      user: mockSelectUser(),
+      status: mockSelectAuthStatus(),
+    })
+  ),
   selectUser: (state: any) => state.user,
   selectAuthStatus: (state: any) => state.status,
 }));

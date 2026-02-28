@@ -5,12 +5,7 @@
     "description": "Personal journal with customizable chapters and reflection prompts. User writes their own entries based on prompts.",
     "default_settings": {
       "coverThemes": "knowledge and insight",
-      "promptTypes": [
-        "reflection",
-        "gratitude",
-        "intention",
-        "action"
-      ],
+      "promptTypes": ["reflection", "gratitude", "intention", "action"],
       "defaultChapters": 3,
       "coverDescriptionPrefix": "A book exploring"
     },
@@ -27,18 +22,9 @@
     "name": "Wisdom Book",
     "description": "Curated collection of pre-written wisdom insights from philosophy, psychology, and spiritual traditions. Read-only content for contemplation.",
     "default_settings": {
-      "traditions": [
-        "stoicism",
-        "buddhism",
-        "psychology",
-        "mysticism"
-      ],
+      "traditions": ["stoicism", "buddhism", "psychology", "mysticism"],
       "coverThemes": "wisdom and knowledge",
-      "depthLevels": [
-        "brief",
-        "standard",
-        "deep"
-      ],
+      "depthLevels": ["brief", "standard", "deep"],
       "defaultChapters": 4,
       "coverDescriptionPrefix": "A book of wisdom exploring"
     },
@@ -56,11 +42,7 @@
     "description": "Curated collection of inspiring quotes and sayings from notable figures, organized by theme.",
     "default_settings": {
       "coverThemes": "inspiration and reflection",
-      "depthLevels": [
-        "brief",
-        "standard",
-        "deep"
-      ],
+      "depthLevels": ["brief", "standard", "deep"],
       "defaultChapters": 4,
       "coverDescriptionPrefix": "A collection of quotes about"
     },
@@ -78,11 +60,7 @@
     "description": "Evidence-based insights from psychology, neuroscience, and behavioral science research.",
     "default_settings": {
       "coverThemes": "science and discovery",
-      "depthLevels": [
-        "brief",
-        "standard",
-        "deep"
-      ],
+      "depthLevels": ["brief", "standard", "deep"],
       "defaultChapters": 4,
       "coverDescriptionPrefix": "A scientific exploration of"
     },
@@ -100,11 +78,7 @@
     "description": "Guided memoir writing with structured prompts for capturing life stories and meaningful memories.",
     "default_settings": {
       "coverThemes": "memory and personal journey",
-      "promptTypes": [
-        "reflection",
-        "memory",
-        "narrative"
-      ],
+      "promptTypes": ["reflection", "memory", "narrative"],
       "defaultChapters": 3,
       "coverDescriptionPrefix": "A personal memoir about"
     },
@@ -122,11 +96,7 @@
     "description": "AI-generated short fiction stories exploring themes of growth, resilience, and human experience.",
     "default_settings": {
       "coverThemes": "imagination and storytelling",
-      "depthLevels": [
-        "brief",
-        "standard",
-        "deep"
-      ],
+      "depthLevels": ["brief", "standard", "deep"],
       "defaultChapters": 4,
       "coverDescriptionPrefix": "A fiction book about"
     },
@@ -144,11 +114,7 @@
     "description": "AI-generated poetry exploring emotions, nature, and the human condition through verse.",
     "default_settings": {
       "coverThemes": "emotion and expression",
-      "depthLevels": [
-        "brief",
-        "standard",
-        "deep"
-      ],
+      "depthLevels": ["brief", "standard", "deep"],
       "defaultChapters": 4,
       "coverDescriptionPrefix": "A poetry collection exploring"
     },
@@ -166,11 +132,7 @@
     "description": "Personalized positive affirmations for building confidence, self-love, and mental resilience.",
     "default_settings": {
       "coverThemes": "positivity and self-empowerment",
-      "depthLevels": [
-        "brief",
-        "standard",
-        "deep"
-      ],
+      "depthLevels": ["brief", "standard", "deep"],
       "defaultChapters": 4,
       "coverDescriptionPrefix": "A book of affirmations about"
     },
@@ -188,11 +150,7 @@
     "description": "Guided meditation scripts and mindfulness practices for inner peace and self-awareness.",
     "default_settings": {
       "coverThemes": "mindfulness and inner peace",
-      "depthLevels": [
-        "brief",
-        "standard",
-        "deep"
-      ],
+      "depthLevels": ["brief", "standard", "deep"],
       "defaultChapters": 4,
       "coverDescriptionPrefix": "A meditation guide exploring"
     },
@@ -210,11 +168,7 @@
     "description": "Actionable personal development content with exercises, frameworks, and growth strategies.",
     "default_settings": {
       "coverThemes": "personal growth and transformation",
-      "depthLevels": [
-        "brief",
-        "standard",
-        "deep"
-      ],
+      "depthLevels": ["brief", "standard", "deep"],
       "defaultChapters": 4,
       "coverDescriptionPrefix": "A personal growth book about"
     },
@@ -232,11 +186,7 @@
     "description": "Wholesome, imaginative stories for children that teach values and spark curiosity.",
     "default_settings": {
       "coverThemes": "wonder and imagination",
-      "depthLevels": [
-        "brief",
-        "standard",
-        "deep"
-      ],
+      "depthLevels": ["brief", "standard", "deep"],
       "defaultChapters": 4,
       "coverDescriptionPrefix": "A children's book about"
     },
@@ -254,11 +204,7 @@
     "description": "Light-hearted content including jokes, funny stories, and humorous observations about life.",
     "default_settings": {
       "coverThemes": "laughter and joy",
-      "depthLevels": [
-        "brief",
-        "standard",
-        "deep"
-      ],
+      "depthLevels": ["brief", "standard", "deep"],
       "defaultChapters": 4,
       "coverDescriptionPrefix": "A humor book about"
     },
@@ -276,11 +222,7 @@
     "description": "Deep philosophical explorations of life's big questions, drawing from diverse traditions of thought.",
     "default_settings": {
       "coverThemes": "philosophy and deep thought",
-      "depthLevels": [
-        "brief",
-        "standard",
-        "deep"
-      ],
+      "depthLevels": ["brief", "standard", "deep"],
       "defaultChapters": 4,
       "coverDescriptionPrefix": "A philosophical exploration of"
     },
@@ -298,11 +240,7 @@
     "description": "AI-assisted dream interpretation and analysis, exploring symbolism and subconscious patterns.",
     "default_settings": {
       "coverThemes": "dreams and subconscious",
-      "depthLevels": [
-        "brief",
-        "standard",
-        "deep"
-      ],
+      "depthLevels": ["brief", "standard", "deep"],
       "defaultChapters": 4,
       "coverDescriptionPrefix": "A dream journal exploring"
     },

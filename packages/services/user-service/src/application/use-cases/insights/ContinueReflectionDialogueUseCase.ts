@@ -89,9 +89,8 @@ export class ContinueReflectionDialogueUseCase {
         insightTitle.indexOf('!'),
         insightTitle.indexOf('?')
       );
-      const title = firstSentenceEnd > 0
-        ? insightTitle.slice(0, firstSentenceEnd + 1)
-        : truncateAtSentence(userResponse, 60);
+      const title =
+        firstSentenceEnd > 0 ? insightTitle.slice(0, firstSentenceEnd + 1) : truncateAtSentence(userResponse, 60);
 
       const insight = await this.intelligenceRepo.createInsight({
         userId,
@@ -163,13 +162,24 @@ export class ContinueReflectionDialogueUseCase {
   private generateMicroInsight(response: string, question: string): string {
     const wordCount = response.split(/\s+/).length;
     if (wordCount > 50) return 'You explored this topic in depth - that level of reflection shows real self-awareness.';
-    if (response.includes('feel') || response.includes('emotion')) return 'You connected with your emotions here - that takes courage.';
-    if (response.includes('realize') || response.includes('understand')) return 'A moment of clarity - these realizations are the building blocks of growth.';
+    if (response.includes('feel') || response.includes('emotion'))
+      return 'You connected with your emotions here - that takes courage.';
+    if (response.includes('realize') || response.includes('understand'))
+      return 'A moment of clarity - these realizations are the building blocks of growth.';
     return 'Each reflection brings you closer to understanding yourself better.';
   }
 
   private detectBreakthrough(latestResponse: string, allTurns: ReflectionTurn[]): boolean {
-    const breakthroughIndicators = ['realize', 'understand now', 'never thought', 'makes sense', 'see the pattern', 'connection', 'aha', 'finally'];
+    const breakthroughIndicators = [
+      'realize',
+      'understand now',
+      'never thought',
+      'makes sense',
+      'see the pattern',
+      'connection',
+      'aha',
+      'finally',
+    ];
     const lower = latestResponse.toLowerCase();
     const hasIndicator = breakthroughIndicators.some(indicator => lower.includes(indicator));
     const hasDepth = latestResponse.split(/\s+/).length > 30;

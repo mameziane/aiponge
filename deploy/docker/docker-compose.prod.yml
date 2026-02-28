@@ -37,7 +37,7 @@ services:
       DATABASE_POOL_MAX: ${DATABASE_POOL_MAX:-20}
       SENTRY_DSN: ${SENTRY_DSN:-}
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3001/health/ready"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:3001/health/ready']
     <<: *prod-resources-small
 
   storage-service:
@@ -56,7 +56,7 @@ services:
     volumes:
       - storage-data:/app/storage
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3002/health/ready"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:3002/health/ready']
     <<: *prod-resources-small
 
   user-service:
@@ -71,7 +71,7 @@ services:
       ENTRY_ENCRYPTION_KEY: ${ENTRY_ENCRYPTION_KEY}
       INTERNAL_SERVICE_SECRET: ${INTERNAL_SERVICE_SECRET}
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3003/health/ready"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:3003/health/ready']
     <<: *prod-resources-medium
 
   ai-config-service:
@@ -82,7 +82,7 @@ services:
       DATABASE_POOL_MAX: ${DATABASE_POOL_MAX:-20}
       SENTRY_DSN: ${SENTRY_DSN:-}
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3004/health/ready"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:3004/health/ready']
     <<: *prod-resources-small
 
   ai-content-service:
@@ -94,7 +94,7 @@ services:
       SENTRY_DSN: ${SENTRY_DSN:-}
       REDIS_CLUSTER_NODES: ${REDIS_CLUSTER_NODES:-}
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3005/health/ready"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:3005/health/ready']
     <<: *prod-resources-medium
 
   ai-analytics-service:
@@ -106,7 +106,7 @@ services:
       SENTRY_DSN: ${SENTRY_DSN:-}
       AI_ANALYTICS_DATABASE_REPLICA_URL: ${AI_ANALYTICS_DATABASE_REPLICA_URL:-}
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3006/health/ready"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:3006/health/ready']
     <<: *prod-resources-small
 
   music-service:
@@ -118,7 +118,7 @@ services:
       SENTRY_DSN: ${SENTRY_DSN:-}
       MUSIC_DATABASE_REPLICA_URL: ${MUSIC_DATABASE_REPLICA_URL:-}
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3007/health/ready"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:3007/health/ready']
     <<: *prod-resources-medium
 
   api-gateway:
@@ -132,7 +132,7 @@ services:
       SSE_MAX_CLIENTS: ${SSE_MAX_CLIENTS:-10000}
       CLUSTER_WORKERS: ${CLUSTER_WORKERS:-auto}
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health/ready"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:8080/health/ready']
     <<: *prod-resources-medium
 
   postgres:

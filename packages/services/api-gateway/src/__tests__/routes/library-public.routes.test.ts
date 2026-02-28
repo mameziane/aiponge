@@ -20,7 +20,10 @@ vi.mock('@aiponge/platform-core', () => ({
     getServicePort: vi.fn(() => 3020),
   },
   serializeError: vi.fn((e: unknown) => String(e)),
-  getValidation: () => ({ validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(), validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next() }),
+  getValidation: () => ({
+    validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+    validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+  }),
 }));
 
 vi.mock('@services/gatewayFetch', () => ({
@@ -120,16 +123,16 @@ describe('Library Public Routes', () => {
 
   describe('GET /public-albums', () => {
     it('should return 200 with public albums (no auth required)', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true, data: { albums: [] } })
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, data: { albums: [] } }));
 
-      const res = await request(app)
-        .get('/api/app/library-public/public-albums');
+      const res = await request(app).get('/api/app/library-public/public-albums');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/catalog/public-albums'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/catalog/public-albums'),
+        expect.anything()
+      );
     });
 
     it('should return 200 with public albums for authenticated user', async () => {
@@ -137,13 +140,14 @@ describe('Library Public Routes', () => {
         mockResponse({ success: true, data: { albums: [{ id: 'album-1', title: 'Test Album' }] } })
       );
 
-      const res = await request(app)
-        .get('/api/app/library-public/public-albums')
-        .set('x-user-id', 'user-123');
+      const res = await request(app).get('/api/app/library-public/public-albums').set('x-user-id', 'user-123');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/catalog/public-albums'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/catalog/public-albums'),
+        expect.anything()
+      );
     });
   });
 
@@ -153,12 +157,14 @@ describe('Library Public Routes', () => {
         mockResponse({ success: true, data: { id: 'album-1', title: 'Test Album', tracks: [] } })
       );
 
-      const res = await request(app)
-        .get('/api/app/library-public/public-albums/album-1');
+      const res = await request(app).get('/api/app/library-public/public-albums/album-1');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/catalog/public-albums/'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/catalog/public-albums/'),
+        expect.anything()
+      );
     });
   });
 });

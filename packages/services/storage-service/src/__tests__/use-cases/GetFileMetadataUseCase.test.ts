@@ -1,7 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const mockLogger = vi.hoisted(() => ({
-  info: vi.fn(), debug: vi.fn(), warn: vi.fn(), error: vi.fn(), child: vi.fn(),
+  info: vi.fn(),
+  debug: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  child: vi.fn(),
 }));
 
 vi.mock('@aiponge/platform-core', () => ({
@@ -17,7 +21,10 @@ vi.mock('@aiponge/platform-core', () => ({
     }
   },
   createHttpClient: vi.fn(() => ({
-    get: vi.fn(), post: vi.fn(), put: vi.fn(), delete: vi.fn(),
+    get: vi.fn(),
+    post: vi.fn(),
+    put: vi.fn(),
+    delete: vi.fn(),
   })),
   ServiceRegistry: {},
   hasService: () => false,
@@ -25,8 +32,8 @@ vi.mock('@aiponge/platform-core', () => ({
   waitForService: vi.fn(),
   listServices: () => [],
   createServiceUrlsConfig: vi.fn(() => ({})),
-  errorMessage: vi.fn((err: unknown) => err instanceof Error ? err.message : String(err)),
-  errorStack: vi.fn((err: unknown) => err instanceof Error ? err.stack : ''),
+  errorMessage: vi.fn((err: unknown) => (err instanceof Error ? err.message : String(err))),
+  errorStack: vi.fn((err: unknown) => (err instanceof Error ? err.stack : '')),
   withResilience: vi.fn((fn: (...args: unknown[]) => unknown) => fn),
   createIntervalScheduler: vi.fn(() => ({ start: vi.fn(), stop: vi.fn() })),
 }));
@@ -36,7 +43,9 @@ import { StorageError } from '../../application/errors';
 import { FileEntity } from '../../domains/entities/FileEntity';
 import type { IStorageRepository } from '../../application/interfaces/IStorageRepository';
 
-function createMockFileEntity(overrides: Partial<{ uploadedBy: string; isPublic: boolean; tags: string[]; userId: string }> = {}): FileEntity {
+function createMockFileEntity(
+  overrides: Partial<{ uploadedBy: string; isPublic: boolean; tags: string[]; userId: string }> = {}
+): FileEntity {
   const now = new Date();
   return new FileEntity(
     'file-123',
@@ -117,8 +126,7 @@ describe('GetFileMetadataUseCase', () => {
     it('should throw FILE_NOT_FOUND when file does not exist', async () => {
       (mockRepository.findById as ReturnType<typeof vi.fn>).mockResolvedValue(null);
 
-      await expect(useCase.execute({ fileId: 'non-existent', userId: 'user-1' }))
-        .rejects.toThrow('File not found');
+      await expect(useCase.execute({ fileId: 'non-existent', userId: 'user-1' })).rejects.toThrow('File not found');
     });
   });
 
@@ -128,8 +136,9 @@ describe('GetFileMetadataUseCase', () => {
         createMockFileEntity({ uploadedBy: 'owner', isPublic: false })
       );
 
-      await expect(useCase.execute({ fileId: 'file-123', userId: 'unauthorized' }))
-        .rejects.toThrow('You do not have permission');
+      await expect(useCase.execute({ fileId: 'file-123', userId: 'unauthorized' })).rejects.toThrow(
+        'You do not have permission'
+      );
     });
 
     it('should allow access to public files', async () => {

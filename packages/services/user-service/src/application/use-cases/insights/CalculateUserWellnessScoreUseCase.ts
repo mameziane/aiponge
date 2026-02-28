@@ -82,19 +82,13 @@ export class CalculateUserWellnessScoreUseCase {
       const overallScore = calculateOverallWellnessScore(metrics);
       const wellnessGrade = determineWellnessGrade(overallScore);
 
-      const trends = request.includeTrends
-        ? generateWellnessTrends(timeframe, metrics, overallScore)
-        : [];
+      const trends = request.includeTrends ? generateWellnessTrends(timeframe, metrics, overallScore) : [];
 
-      const insights = request.includeInsights
-        ? generateWellnessInsights(metrics, wellnessData, trends)
-        : [];
+      const insights = request.includeInsights ? generateWellnessInsights(metrics, wellnessData, trends) : [];
 
       const summary = createWellnessSummary(metrics, insights, overallScore);
 
-      const comparison = request.compareWithPrevious
-        ? generateWellnessComparison(overallScore, metrics)
-        : undefined;
+      const comparison = request.compareWithPrevious ? generateWellnessComparison(overallScore, metrics) : undefined;
 
       const alerts = request.generateAlerts ? generateWellnessAlerts(metrics, insights, overallScore) : [];
 
@@ -240,7 +234,12 @@ export class CalculateUserWellnessScoreUseCase {
     depth: string = 'comprehensive'
   ): WellnessMetrics {
     const requestedDimensions = dimensions || [
-      'emotional', 'cognitive', 'behavioral', 'social', 'physical', 'spiritual',
+      'emotional',
+      'cognitive',
+      'behavioral',
+      'social',
+      'physical',
+      'spiritual',
     ];
 
     const calculators: Record<string, (data: WellnessData, depth: string) => WellnessDimension> = {

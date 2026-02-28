@@ -47,26 +47,31 @@ The comprehensive quality check runs 8 validation gates:
 ### Usage
 
 #### Run Full Quality Check
+
 ```bash
 tsx scripts/full-quality-check.ts
 ```
 
 #### Fast Mode (Skip Tests)
+
 ```bash
 tsx scripts/full-quality-check.ts --fast
 ```
 
 #### CI Mode (Strict - Warnings as Errors)
+
 ```bash
 tsx scripts/full-quality-check.ts --ci
 ```
 
 #### Verbose Mode (Show Command Output)
+
 ```bash
 tsx scripts/full-quality-check.ts --verbose
 ```
 
 #### Combined Flags
+
 ```bash
 tsx scripts/full-quality-check.ts --fast --verbose
 tsx scripts/full-quality-check.ts --ci --verbose
@@ -89,6 +94,7 @@ You can manually add these scripts to your `package.json` for convenience:
 ```
 
 Then run:
+
 ```bash
 npm run quality:check
 npm run quality:check:fast
@@ -149,33 +155,41 @@ npm run quality:fix  # Auto-fix linting and formatting issues
 ## Individual Validation Scripts
 
 ### Config Freshness Validation
+
 ```bash
 tsx scripts/validate-config-freshness.ts
 ```
+
 - Checks that `apps/shared/config/generated/service-config.ts` exists
 - Verifies config was generated within 24 hours
 - Validates port configuration is current
 
 ### Port Hardcode Detection
+
 ```bash
 tsx scripts/validate-no-hardcoded-ports.ts
 ```
+
 - Scans all TypeScript files in `packages/`
 - Detects hardcoded port references (localhost:3xxx)
 - Ensures single source of truth for port configuration
 
 ### Service Verification
+
 ```bash
 NODE_OPTIONS="--conditions=development" tsx tests/consolidated-services-verification.ts
 ```
+
 - Verifies all 9 services exist and are configured
 - Checks entry points and package.json files
 - Reports consolidation status
 
 ### Comprehensive Test Suite
+
 ```bash
 NODE_OPTIONS="--conditions=development" tsx tests/run-all-tests.ts
 ```
+
 - Runs service verification
 - Reports unit test status
 - Provides test coverage summary
@@ -183,6 +197,7 @@ NODE_OPTIONS="--conditions=development" tsx tests/run-all-tests.ts
 ## Pre-Commit Hook
 
 The project includes a pre-commit hook (`.husky/pre-commit`) that runs:
+
 1. Type checking
 2. Linting
 3. Tests
@@ -200,6 +215,7 @@ tsx scripts/full-quality-check.ts --fast
 ## CI/CD Integration
 
 ### GitHub Actions Example
+
 ```yaml
 - name: Run Quality Checks
   run: |
@@ -209,6 +225,7 @@ tsx scripts/full-quality-check.ts --fast
 ```
 
 ### GitLab CI Example
+
 ```yaml
 quality_check:
   script:
@@ -221,50 +238,63 @@ quality_check:
 ## Troubleshooting
 
 ### "Config is stale" Error
+
 ```bash
 npm run generate:config
 ```
 
 ### "Hardcoded ports detected" Error
+
 Replace hardcoded ports with `ServiceLocator.getServiceUrl()` calls.
 
 ### Type Check Failures
+
 ```bash
 npm run typecheck
 ```
+
 Fix type errors in the reported files.
 
 ### Linting Failures
+
 ```bash
 npm run lint -- --fix
 ```
+
 Auto-fix linting issues where possible.
 
 ### Formatting Issues
+
 ```bash
 npx prettier --write "**/*.{ts,tsx,js,jsx,json,md}" --ignore-path .gitignore
 ```
+
 Auto-format all files.
 
 ### Test Failures
+
 ```bash
 NODE_OPTIONS="--conditions=development" tsx tests/run-all-tests.ts
 ```
+
 Debug individual test failures.
 
 ## Best Practices
 
 1. **Run Before Committing**: Always run quality checks before committing
+
    ```bash
    tsx scripts/full-quality-check.ts --fast
    ```
 
 2. **Run Full Check Before PR**: Run complete checks before creating pull requests
+
    ```bash
    tsx scripts/full-quality-check.ts
    ```
 
 3. **CI Mode for Production**: Use CI mode for production deployments
+
    ```bash
    tsx scripts/full-quality-check.ts --ci
    ```

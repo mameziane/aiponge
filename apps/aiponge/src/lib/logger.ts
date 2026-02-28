@@ -109,7 +109,11 @@ class Logger {
     // the logger itself become the crash site.
     let safeStack: string[] | undefined;
     if (error instanceof Error) {
-      try { safeStack = error.stack?.split('\n').slice(0, 5); } catch { safeStack = ['[error.stack threw]']; }
+      try {
+        safeStack = error.stack?.split('\n').slice(0, 5);
+      } catch {
+        safeStack = ['[error.stack threw]'];
+      }
     }
     const errorContext = {
       ...context,

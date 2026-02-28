@@ -97,9 +97,13 @@ describe('ContentAIService', () => {
 
   describe('constructor', () => {
     it('should throw if templateClient is not provided', () => {
-      expect(() => new ContentAIService(mockProviders as unknown as ConstructorParameters<typeof ContentAIService>[0], mockAnalytics as unknown as ConstructorParameters<typeof ContentAIService>[1])).toThrow(
-        'ContentAIService requires a templateClient instance'
-      );
+      expect(
+        () =>
+          new ContentAIService(
+            mockProviders as unknown as ConstructorParameters<typeof ContentAIService>[0],
+            mockAnalytics as unknown as ConstructorParameters<typeof ContentAIService>[1]
+          )
+      ).toThrow('ContentAIService requires a templateClient instance');
     });
 
     it('should create successfully with all dependencies', () => {
@@ -128,15 +132,11 @@ describe('ContentAIService', () => {
     });
 
     it('should throw for empty prompt', async () => {
-      await expect(
-        service.generateContent({ prompt: '', contentType: 'article' })
-      ).rejects.toThrow();
+      await expect(service.generateContent({ prompt: '', contentType: 'article' })).rejects.toThrow();
     });
 
     it('should throw for whitespace-only prompt', async () => {
-      await expect(
-        service.generateContent({ prompt: '   ', contentType: 'article' })
-      ).rejects.toThrow();
+      await expect(service.generateContent({ prompt: '   ', contentType: 'article' })).rejects.toThrow();
     });
 
     it('should throw for prompt exceeding max length', async () => {
@@ -208,9 +208,7 @@ describe('ContentAIService', () => {
         error: 'Template not found',
       });
 
-      await expect(
-        service.generateContent({ prompt: 'Test', contentType: 'article' })
-      ).rejects.toThrow();
+      await expect(service.generateContent({ prompt: 'Test', contentType: 'article' })).rejects.toThrow();
     });
 
     it('should throw when providers client is not set', async () => {
@@ -220,9 +218,7 @@ describe('ContentAIService', () => {
         mockTemplateClient as unknown as ConstructorParameters<typeof ContentAIService>[2]
       );
 
-      await expect(
-        serviceNoProvider.generateContent({ prompt: 'Test', contentType: 'article' })
-      ).rejects.toThrow();
+      await expect(serviceNoProvider.generateContent({ prompt: 'Test', contentType: 'article' })).rejects.toThrow();
     });
 
     it('should record analytics events', async () => {
@@ -283,10 +279,7 @@ describe('ContentAIService', () => {
     });
 
     it('should count sentences correctly', async () => {
-      const result = await service.analyzeContent(
-        'First sentence. Second sentence! Third sentence?',
-        'article'
-      );
+      const result = await service.analyzeContent('First sentence. Second sentence! Third sentence?', 'article');
       expect(result.sentenceCount).toBe(3);
     });
   });

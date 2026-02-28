@@ -6,7 +6,12 @@
  * Enriches cover generation with actual book content (themes, mood, sentiment) from entries
  */
 
-import { IllustrationRepository, BookRepository, BookTypeRepository, EntryRepository } from '@infrastructure/repositories';
+import {
+  IllustrationRepository,
+  BookRepository,
+  BookTypeRepository,
+  EntryRepository,
+} from '@infrastructure/repositories';
 import { Illustration } from '@infrastructure/database/schemas/library-schema';
 import { BookEntity } from '@domains/library/entities';
 import type { ContentAccessContext } from '@aiponge/shared-contracts';
@@ -107,9 +112,7 @@ function deriveSentimentTone(sentiments: string[], intensities: number[]): strin
       maxScore = score;
     }
   }
-  const avgIntensity = intensities.length > 0
-    ? intensities.reduce((a, b) => a + b, 0) / intensities.length
-    : 5;
+  const avgIntensity = intensities.length > 0 ? intensities.reduce((a, b) => a + b, 0) / intensities.length : 5;
   const intensityLabel = avgIntensity >= 7 ? 'deeply' : avgIntensity >= 4 ? 'gently' : 'subtly';
   return dominant ? `${intensityLabel} ${dominant}` : '';
 }
@@ -203,9 +206,7 @@ export class GenerateBookCoverUseCase {
         contentSummary = contentSummary.substring(0, MAX_CONTENT_SUMMARY_LENGTH - 3) + '...';
       }
 
-      const visualSymbols = topTags
-        .filter(tag => !topThemes.includes(tag))
-        .slice(0, 4);
+      const visualSymbols = topTags.filter(tag => !topThemes.includes(tag)).slice(0, 4);
       const keySymbols = visualSymbols.length > 0 ? visualSymbols.join(', ') : undefined;
 
       logger.info('Content enrichment extracted', {
@@ -253,7 +254,10 @@ export class GenerateBookCoverUseCase {
 
       const existingCover = await this.illustrationRepo.getBookCover(input.bookId);
       if (existingCover) {
-        logger.info('Removing existing cover before regeneration', { bookId: input.bookId, existingId: existingCover.id });
+        logger.info('Removing existing cover before regeneration', {
+          bookId: input.bookId,
+          existingId: existingCover.id,
+        });
         await this.illustrationRepo.delete(existingCover.id);
       }
 
@@ -295,8 +299,6 @@ export class GenerateBookCoverUseCase {
         description: input.description || `${coverDefaults.descriptionPrefix} ${themes}`,
         themes,
         bookType: input.bookType,
-        tradition: 'universal',
-        era: 'timeless',
         style,
         contentSummary: enrichment.contentSummary,
         dominantMood: enrichment.dominantMood,

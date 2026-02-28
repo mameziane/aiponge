@@ -20,7 +20,10 @@ vi.mock('@aiponge/platform-core', () => ({
     getServicePort: vi.fn(() => 3020),
   },
   serializeError: vi.fn((e: unknown) => String(e)),
-  getValidation: () => ({ validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(), validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next() }),
+  getValidation: () => ({
+    validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+    validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+  }),
 }));
 
 vi.mock('@services/gatewayFetch', () => ({
@@ -132,10 +135,7 @@ describe('Init Routes', () => {
         .mockResolvedValueOnce(guestConversionResp)
         .mockResolvedValueOnce(recentEntriesResp);
 
-      const res = await request(app)
-        .get('/api/app/init')
-        .set('x-user-id', 'user-123')
-        .set('x-request-id', 'req-123');
+      const res = await request(app).get('/api/app/init').set('x-user-id', 'user-123').set('x-request-id', 'req-123');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -166,9 +166,7 @@ describe('Init Routes', () => {
         .mockResolvedValueOnce(failResp)
         .mockResolvedValueOnce(failResp);
 
-      const res = await request(app)
-        .get('/api/app/init')
-        .set('x-user-id', 'user-123');
+      const res = await request(app).get('/api/app/init').set('x-user-id', 'user-123');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);

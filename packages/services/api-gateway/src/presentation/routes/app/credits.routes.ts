@@ -41,7 +41,7 @@ router.get(
     const response = await gatewayFetch(`${userServiceUrl}/api/credits/policy`);
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[CREDITS POLICY]') as Record<string, unknown>;
+      const errorData = (await parseErrorBody(response, '[CREDITS POLICY]')) as Record<string, unknown>;
       res.status(response.status).json({
         success: false,
         message: errorData.message || 'Failed to fetch credit policy',
@@ -78,7 +78,7 @@ router.get(
     });
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[CREDITS BALANCE]') as Record<string, unknown>;
+      const errorData = (await parseErrorBody(response, '[CREDITS BALANCE]')) as Record<string, unknown>;
       res.status(response.status).json({
         success: false,
         message: errorData.message || 'Failed to fetch credit balance',
@@ -117,7 +117,7 @@ router.get(
     });
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[CREDITS TRANSACTIONS]') as Record<string, unknown>;
+      const errorData = (await parseErrorBody(response, '[CREDITS TRANSACTIONS]')) as Record<string, unknown>;
       res.status(response.status).json({
         success: false,
         message: errorData.message || 'Failed to fetch credit transactions',
@@ -159,7 +159,7 @@ router.post(
     });
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[CREDITS VALIDATE]') as Record<string, unknown>;
+      const errorData = (await parseErrorBody(response, '[CREDITS VALIDATE]')) as Record<string, unknown>;
       res.status(response.status).json({
         success: false,
         message: errorData.message || 'Failed to validate credits',
@@ -206,7 +206,7 @@ router.post(
     });
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[CREDITS GRANT REVENUECAT]') as Record<string, unknown>;
+      const errorData = (await parseErrorBody(response, '[CREDITS GRANT REVENUECAT]')) as Record<string, unknown>;
       logger.error('[CREDITS] RevenueCat grant failed', { userId, productId, transactionId, error: errorData });
       res.status(response.status).json({
         success: false,
@@ -243,7 +243,7 @@ router.get(
     });
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[CREDITS GIFTS SENT]') as Record<string, unknown>;
+      const errorData = (await parseErrorBody(response, '[CREDITS GIFTS SENT]')) as Record<string, unknown>;
       res.status(response.status).json({
         success: false,
         message: errorData.message || 'Failed to fetch sent gifts',
@@ -278,7 +278,7 @@ router.get(
     });
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[CREDITS GIFTS RECEIVED]') as Record<string, unknown>;
+      const errorData = (await parseErrorBody(response, '[CREDITS GIFTS RECEIVED]')) as Record<string, unknown>;
       res.status(response.status).json({
         success: false,
         message: errorData.message || 'Failed to fetch received gifts',
@@ -316,7 +316,7 @@ router.post(
     });
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[CREDITS GIFTS SEND]') as Record<string, unknown>;
+      const errorData = (await parseErrorBody(response, '[CREDITS GIFTS SEND]')) as Record<string, unknown>;
       res.status(response.status).json({
         success: false,
         message: errorData.message || 'Failed to send gift',
@@ -354,7 +354,7 @@ router.post(
     });
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[CREDITS GIFTS CLAIM]') as Record<string, unknown>;
+      const errorData = (await parseErrorBody(response, '[CREDITS GIFTS CLAIM]')) as Record<string, unknown>;
       res.status(response.status).json({
         success: false,
         message: errorData.message || 'Failed to claim gift',

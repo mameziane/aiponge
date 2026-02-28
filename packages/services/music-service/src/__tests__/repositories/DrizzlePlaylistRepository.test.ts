@@ -30,7 +30,7 @@ vi.mock('@aiponge/platform-core', () => ({
   waitForService: vi.fn(),
   listServices: vi.fn(),
   createServiceUrlsConfig: vi.fn(() => ({ getServiceUrl: vi.fn() })),
-  errorMessage: vi.fn((err: unknown) => err instanceof Error ? err.message : String(err)),
+  errorMessage: vi.fn((err: unknown) => (err instanceof Error ? err.message : String(err))),
   serializeError: vi.fn((err: unknown) => err),
 }));
 
@@ -148,9 +148,7 @@ describe('DrizzlePlaylistRepository', () => {
         description: 'Test playlist',
       } as unknown as Record<string, unknown>);
 
-      expect(mockDb.values).toHaveBeenCalledWith(
-        expect.objectContaining({ name: 'My Playlist', userId: 'user-1' })
-      );
+      expect(mockDb.values).toHaveBeenCalledWith(expect.objectContaining({ name: 'My Playlist', userId: 'user-1' }));
       expect(result).toEqual(mockPlaylist);
     });
 
@@ -278,9 +276,7 @@ describe('DrizzlePlaylistRepository', () => {
     it('should update positions for each track', async () => {
       await repository.reorderPlaylistTracks('playlist-1', ['track-3', 'track-1', 'track-2']);
 
-      expect(mockDb.set).toHaveBeenCalledWith(
-        expect.objectContaining({ position: expect.any(Number) })
-      );
+      expect(mockDb.set).toHaveBeenCalledWith(expect.objectContaining({ position: expect.any(Number) }));
     });
   });
 
@@ -309,9 +305,7 @@ describe('DrizzlePlaylistRepository', () => {
       await repository.unfollowPlaylist('playlist-1', 'user-2');
 
       expect(mockDb.where).toHaveBeenCalledWith(expect.anything());
-      expect(mockDb.set).toHaveBeenCalledWith(
-        expect.objectContaining({ followerCount: expect.anything() })
-      );
+      expect(mockDb.set).toHaveBeenCalledWith(expect.objectContaining({ followerCount: expect.anything() }));
     });
 
     it('should not update count if not following', async () => {

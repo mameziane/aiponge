@@ -2,10 +2,7 @@ import { Request, Response } from 'express';
 import { sendSuccess, sendCreated, ServiceErrors } from '../../utils/response-helpers';
 import { extractAuthContext } from '@aiponge/platform-core';
 import type { LibraryControllerDeps } from './library-helpers';
-import {
-  logger,
-  handleRequest,
-} from './library-helpers';
+import { logger, handleRequest } from './library-helpers';
 
 export class UserLibraryController {
   constructor(private readonly deps: LibraryControllerDeps) {}

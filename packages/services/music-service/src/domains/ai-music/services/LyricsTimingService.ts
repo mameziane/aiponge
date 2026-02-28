@@ -322,7 +322,11 @@ export class LyricsTimingService {
     );
 
     // Whisper returns word-level timestamps when using verbose_json + word granularity
-    const verboseResponse = response as unknown as { words?: Array<{ word: string; start: number; end: number }>; duration?: number; language?: string };
+    const verboseResponse = response as unknown as {
+      words?: Array<{ word: string; start: number; end: number }>;
+      duration?: number;
+      language?: string;
+    };
     const words = verboseResponse.words || [];
     const duration = verboseResponse.duration || 0;
     const language = verboseResponse.language || 'unknown';

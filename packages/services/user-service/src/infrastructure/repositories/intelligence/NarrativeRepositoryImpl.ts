@@ -40,11 +40,7 @@ export class NarrativeRepositoryPart {
 
   async updateNarrative(id: string, data: Partial<PersonalNarrative>): Promise<PersonalNarrative> {
     const narrativesTable = usrPersonalNarratives;
-    const [narrative] = await this.db
-      .update(narrativesTable)
-      .set(data)
-      .where(eq(narrativesTable.id, id))
-      .returning();
+    const [narrative] = await this.db.update(narrativesTable).set(data).where(eq(narrativesTable.id, id)).returning();
     if (!narrative) throw ProfileError.notFound('PersonalNarrative', id);
     return narrative;
   }

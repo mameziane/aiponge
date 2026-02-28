@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /**
  * Locale Parity Check Script
- * 
+ *
  * This script ensures all locale files have the same translation keys.
  * Run as: node apps/aiponge/src/i18n/scripts/check-locale-parity.js
- * 
+ *
  * Exit codes:
  *   0 - All locales have matching keys
  *   1 - Missing or extra keys detected
@@ -49,8 +49,7 @@ function findDifferences(referenceKeys, compareKeys) {
 function main() {
   console.log('🔍 Checking locale file parity...\n');
 
-  const localeFiles = fs.readdirSync(LOCALES_DIR)
-    .filter(file => file.endsWith('.json'));
+  const localeFiles = fs.readdirSync(LOCALES_DIR).filter(file => file.endsWith('.json'));
 
   if (localeFiles.length === 0) {
     console.error('No locale files found in', LOCALES_DIR);
@@ -89,7 +88,7 @@ function main() {
       totalKeys: localeKeys.length,
       missing,
       extra,
-      isValid: missing.length === 0 && extra.length === 0
+      isValid: missing.length === 0 && extra.length === 0,
     };
 
     results.push(status);

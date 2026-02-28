@@ -2,7 +2,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Request, Response } from 'express';
 
 const mockLogger = vi.hoisted(() => ({
-  info: vi.fn(), debug: vi.fn(), warn: vi.fn(), error: vi.fn(), child: vi.fn(),
+  info: vi.fn(),
+  debug: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  child: vi.fn(),
 }));
 vi.mock('@aiponge/platform-core', () => ({
   createLogger: () => mockLogger,
@@ -20,7 +24,10 @@ vi.mock('../../config/environment', () => ({
   },
 }));
 
-import { csrfProtectionMiddleware, createCsrfProtectionMiddleware } from '../../presentation/middleware/CsrfProtectionMiddleware';
+import {
+  csrfProtectionMiddleware,
+  createCsrfProtectionMiddleware,
+} from '../../presentation/middleware/CsrfProtectionMiddleware';
 
 function createMockReq(overrides = {}) {
   const headers: Record<string, string> = {};
@@ -44,12 +51,29 @@ function createMockRes() {
     _statusCode: 200,
     _data: undefined as unknown,
     _headers: {} as Record<string, string>,
-    status: vi.fn(function (this: Record<string, unknown>, c: number) { this._statusCode = c; return this; }),
-    json: vi.fn(function (this: Record<string, unknown>, d: unknown) { this._data = d; return this; }),
-    send: vi.fn(function (this: Record<string, unknown>, d: unknown) { this._data = d; return this; }),
-    set: vi.fn(function (this: Record<string, unknown>, k: string, v: string) { (this._headers as Record<string, string>)[k] = v; return this; }),
-    setHeader: vi.fn(function (this: Record<string, unknown>, k: string, v: string) { (this._headers as Record<string, string>)[k] = v; return this; }),
-    getHeader: vi.fn(function (this: Record<string, unknown>, k: string) { return (this._headers as Record<string, string>)[k]; }),
+    status: vi.fn(function (this: Record<string, unknown>, c: number) {
+      this._statusCode = c;
+      return this;
+    }),
+    json: vi.fn(function (this: Record<string, unknown>, d: unknown) {
+      this._data = d;
+      return this;
+    }),
+    send: vi.fn(function (this: Record<string, unknown>, d: unknown) {
+      this._data = d;
+      return this;
+    }),
+    set: vi.fn(function (this: Record<string, unknown>, k: string, v: string) {
+      (this._headers as Record<string, string>)[k] = v;
+      return this;
+    }),
+    setHeader: vi.fn(function (this: Record<string, unknown>, k: string, v: string) {
+      (this._headers as Record<string, string>)[k] = v;
+      return this;
+    }),
+    getHeader: vi.fn(function (this: Record<string, unknown>, k: string) {
+      return (this._headers as Record<string, string>)[k];
+    }),
     end: vi.fn().mockReturnThis(),
     on: vi.fn(),
   } as unknown as Response & { _statusCode: number; _data: unknown; _headers: Record<string, string> };

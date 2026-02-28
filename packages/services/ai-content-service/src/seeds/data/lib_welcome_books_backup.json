@@ -33,9 +33,7 @@
             "entry_type": "note",
             "sort_order": 0,
             "processing_status": "completed",
-            "tags": [
-              "introduction"
-            ]
+            "tags": ["introduction"]
           },
           {
             "id": "b06c17f7-9563-404f-bfba-d4a1f4543cf2",
@@ -46,9 +44,7 @@
             "entry_type": "note",
             "sort_order": 1,
             "processing_status": "completed",
-            "tags": [
-              "how-it-works"
-            ]
+            "tags": ["how-it-works"]
           }
         ]
       },
@@ -69,9 +65,7 @@
             "entry_type": "note",
             "sort_order": 0,
             "processing_status": "completed",
-            "tags": [
-              "manifesto"
-            ]
+            "tags": ["manifesto"]
           },
           {
             "id": "cdda0997-6080-4e6a-a777-535d02a64b6c",
@@ -82,9 +76,7 @@
             "entry_type": "note",
             "sort_order": 1,
             "processing_status": "completed",
-            "tags": [
-              "manifesto"
-            ]
+            "tags": ["manifesto"]
           },
           {
             "id": "b65f4991-86cc-49ed-84a4-0b262a3e88dd",
@@ -95,9 +87,7 @@
             "entry_type": "note",
             "sort_order": 2,
             "processing_status": "completed",
-            "tags": [
-              "manifesto"
-            ]
+            "tags": ["manifesto"]
           },
           {
             "id": "7f04fda3-8e7c-4806-83e9-9900dc2d4152",
@@ -108,9 +98,7 @@
             "entry_type": "note",
             "sort_order": 3,
             "processing_status": "completed",
-            "tags": [
-              "manifesto"
-            ]
+            "tags": ["manifesto"]
           },
           {
             "id": "1e83f70c-a503-429e-b359-04fdd9126336",
@@ -121,10 +109,7 @@
             "entry_type": "quote",
             "sort_order": 4,
             "processing_status": "completed",
-            "tags": [
-              "manifesto",
-              "delphic"
-            ]
+            "tags": ["manifesto", "delphic"]
           }
         ]
       },
@@ -145,10 +130,7 @@
             "entry_type": "note",
             "sort_order": 0,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "personal"
-            ]
+            "tags": ["book-type", "personal"]
           },
           {
             "id": "51cfc861-d51c-4131-8780-902e29ba54d9",
@@ -159,10 +141,7 @@
             "entry_type": "note",
             "sort_order": 1,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "wisdom"
-            ]
+            "tags": ["book-type", "wisdom"]
           },
           {
             "id": "e8c5b800-bcc1-475b-beed-1456d5b58ff1",
@@ -173,10 +152,7 @@
             "entry_type": "note",
             "sort_order": 2,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "memoir"
-            ]
+            "tags": ["book-type", "memoir"]
           },
           {
             "id": "a141dde2-250d-4b4f-8a2b-c33a23fdbfa7",
@@ -187,10 +163,7 @@
             "entry_type": "note",
             "sort_order": 3,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "fiction"
-            ]
+            "tags": ["book-type", "fiction"]
           },
           {
             "id": "b18cbcd2-b9f1-44ae-b16d-b1627e9bca13",
@@ -201,10 +174,7 @@
             "entry_type": "note",
             "sort_order": 4,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "poetry"
-            ]
+            "tags": ["book-type", "poetry"]
           },
           {
             "id": "e63660f3-6e6d-47c0-9c49-0684c209d263",
@@ -215,10 +185,7 @@
             "entry_type": "note",
             "sort_order": 5,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "affirmations"
-            ]
+            "tags": ["book-type", "affirmations"]
           },
           {
             "id": "ce84cf72-e92b-4633-9ff3-c32f28d711ba",
@@ -229,10 +196,7 @@
             "entry_type": "note",
             "sort_order": 6,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "meditation"
-            ]
+            "tags": ["book-type", "meditation"]
           },
           {
             "id": "ee4d6e75-1296-43c0-b73d-452297f2e824",
@@ -243,10 +207,7 @@
             "entry_type": "note",
             "sort_order": 7,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "growth"
-            ]
+            "tags": ["book-type", "growth"]
           },
           {
             "id": "d639f202-f4a3-42ad-802f-31d0e4893a5c",
@@ -257,10 +218,7 @@
             "entry_type": "note",
             "sort_order": 8,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "children"
-            ]
+            "tags": ["book-type", "children"]
           },
           {
             "id": "bbfa1929-05c4-475f-8681-964ab2e072ec",
@@ -271,10 +229,7 @@
             "entry_type": "note",
             "sort_order": 9,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "educational"
-            ]
+            "tags": ["book-type", "educational"]
           },
           {
             "id": "bca6c293-658a-4da5-a560-4c48c36330e5",
@@ -285,10 +240,7 @@
             "entry_type": "note",
             "sort_order": 10,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "philosophy"
-            ]
+            "tags": ["book-type", "philosophy"]
           },
           {
             "id": "c4a3fd86-edc9-4e91-ba6b-ad2d2c42b563",
@@ -299,10 +251,7 @@
             "entry_type": "note",
             "sort_order": 11,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "dreams"
-            ]
+            "tags": ["book-type", "dreams"]
           },
           {
             "id": "ffb19897-6cee-43e6-99b1-4d4baa3de16b",
@@ -313,10 +262,7 @@
             "entry_type": "note",
             "sort_order": 12,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "quotes"
-            ]
+            "tags": ["book-type", "quotes"]
           },
           {
             "id": "b0495e54-b86b-4d1e-a57f-8f19f9c35513",
@@ -327,10 +273,7 @@
             "entry_type": "note",
             "sort_order": 13,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "scientific"
-            ]
+            "tags": ["book-type", "scientific"]
           }
         ]
       },
@@ -351,9 +294,7 @@
             "entry_type": "note",
             "sort_order": 0,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "cd4e40f5-9540-467d-9898-c4e283303c0f",
@@ -364,9 +305,7 @@
             "entry_type": "note",
             "sort_order": 1,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "a6ee56d3-bde4-45b8-b79d-9a4df3517a04",
@@ -377,9 +316,7 @@
             "entry_type": "note",
             "sort_order": 2,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "40794b47-27b2-46c7-bb68-878d0393010d",
@@ -390,9 +327,7 @@
             "entry_type": "note",
             "sort_order": 3,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "dc9b0532-be98-4652-954c-9dc604fe0630",
@@ -403,9 +338,7 @@
             "entry_type": "note",
             "sort_order": 4,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "0548a3d3-d10b-4167-bb09-6182bace64e7",
@@ -416,9 +349,7 @@
             "entry_type": "note",
             "sort_order": 5,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "e9ee6a33-b6d7-447b-9f7b-30e7c53ec494",
@@ -429,9 +360,7 @@
             "entry_type": "note",
             "sort_order": 6,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "07ab93d1-1a85-4d64-88df-01256354a274",
@@ -442,9 +371,7 @@
             "entry_type": "note",
             "sort_order": 7,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "379d70d2-9a30-45e2-b04c-1c61c3cf0390",
@@ -455,10 +382,7 @@
             "entry_type": "note",
             "sort_order": 8,
             "processing_status": "completed",
-            "tags": [
-              "ethics",
-              "commitment"
-            ]
+            "tags": ["ethics", "commitment"]
           }
         ]
       }
@@ -498,9 +422,7 @@
             "entry_type": "note",
             "sort_order": 0,
             "processing_status": "completed",
-            "tags": [
-              "introduction"
-            ]
+            "tags": ["introduction"]
           },
           {
             "id": "2c818d93-ddbe-4aeb-96ef-6d289a8a91a3",
@@ -511,9 +433,7 @@
             "entry_type": "note",
             "sort_order": 1,
             "processing_status": "completed",
-            "tags": [
-              "how-it-works"
-            ]
+            "tags": ["how-it-works"]
           }
         ]
       },
@@ -534,9 +454,7 @@
             "entry_type": "note",
             "sort_order": 0,
             "processing_status": "completed",
-            "tags": [
-              "manifesto"
-            ]
+            "tags": ["manifesto"]
           },
           {
             "id": "5cdc2612-c003-420b-8184-1edc94f1af43",
@@ -547,9 +465,7 @@
             "entry_type": "note",
             "sort_order": 1,
             "processing_status": "completed",
-            "tags": [
-              "manifesto"
-            ]
+            "tags": ["manifesto"]
           },
           {
             "id": "7358a8a6-c2f6-4f78-ae63-124a397c08c5",
@@ -560,9 +476,7 @@
             "entry_type": "note",
             "sort_order": 2,
             "processing_status": "completed",
-            "tags": [
-              "manifesto"
-            ]
+            "tags": ["manifesto"]
           },
           {
             "id": "93214408-95f4-4da1-9a65-14171629fd21",
@@ -573,9 +487,7 @@
             "entry_type": "note",
             "sort_order": 3,
             "processing_status": "completed",
-            "tags": [
-              "manifesto"
-            ]
+            "tags": ["manifesto"]
           },
           {
             "id": "3e8e60d7-34ed-4bc1-a8de-1c173a5ab5e1",
@@ -586,10 +498,7 @@
             "entry_type": "quote",
             "sort_order": 4,
             "processing_status": "completed",
-            "tags": [
-              "manifesto",
-              "delphic"
-            ]
+            "tags": ["manifesto", "delphic"]
           }
         ]
       },
@@ -610,10 +519,7 @@
             "entry_type": "note",
             "sort_order": 0,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "personal"
-            ]
+            "tags": ["book-type", "personal"]
           },
           {
             "id": "32106bc3-8db1-4270-bdf2-9bbceec5d9ae",
@@ -624,10 +530,7 @@
             "entry_type": "note",
             "sort_order": 1,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "wisdom"
-            ]
+            "tags": ["book-type", "wisdom"]
           },
           {
             "id": "cd824812-9064-48ba-b872-176c844268cc",
@@ -638,10 +541,7 @@
             "entry_type": "note",
             "sort_order": 2,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "memoir"
-            ]
+            "tags": ["book-type", "memoir"]
           },
           {
             "id": "c471b282-7170-404b-b920-450f4071b3f8",
@@ -652,10 +552,7 @@
             "entry_type": "note",
             "sort_order": 3,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "fiction"
-            ]
+            "tags": ["book-type", "fiction"]
           },
           {
             "id": "3b0a482d-367d-4e79-8c78-427e365da4ee",
@@ -666,10 +563,7 @@
             "entry_type": "note",
             "sort_order": 4,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "poetry"
-            ]
+            "tags": ["book-type", "poetry"]
           },
           {
             "id": "8c707566-effa-4a42-a42f-bf4ab0211fd0",
@@ -680,10 +574,7 @@
             "entry_type": "note",
             "sort_order": 5,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "affirmations"
-            ]
+            "tags": ["book-type", "affirmations"]
           },
           {
             "id": "ba7e2f87-0911-4a34-b418-a3c22660660b",
@@ -694,10 +585,7 @@
             "entry_type": "note",
             "sort_order": 6,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "meditation"
-            ]
+            "tags": ["book-type", "meditation"]
           },
           {
             "id": "48e79c22-c013-4e29-950a-ef29ddea63d8",
@@ -708,10 +596,7 @@
             "entry_type": "note",
             "sort_order": 7,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "growth"
-            ]
+            "tags": ["book-type", "growth"]
           },
           {
             "id": "91f19796-3a9a-465f-a64c-03b1290d5d9f",
@@ -722,10 +607,7 @@
             "entry_type": "note",
             "sort_order": 8,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "children"
-            ]
+            "tags": ["book-type", "children"]
           },
           {
             "id": "db824cc5-0cf7-4da3-840c-66bb77aa53b7",
@@ -736,10 +618,7 @@
             "entry_type": "note",
             "sort_order": 9,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "educational"
-            ]
+            "tags": ["book-type", "educational"]
           },
           {
             "id": "3e2148c5-f1ca-4d25-9578-7a8c72a53573",
@@ -750,10 +629,7 @@
             "entry_type": "note",
             "sort_order": 10,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "philosophy"
-            ]
+            "tags": ["book-type", "philosophy"]
           },
           {
             "id": "b674dce9-6a68-4482-b7b6-b60777a0b066",
@@ -764,10 +640,7 @@
             "entry_type": "note",
             "sort_order": 11,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "dreams"
-            ]
+            "tags": ["book-type", "dreams"]
           },
           {
             "id": "34cb42fd-e357-4c6d-9def-c4a2379cd5f3",
@@ -778,10 +651,7 @@
             "entry_type": "note",
             "sort_order": 12,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "quotes"
-            ]
+            "tags": ["book-type", "quotes"]
           },
           {
             "id": "3a0bbc99-8c45-4884-a466-de89046f31d3",
@@ -792,10 +662,7 @@
             "entry_type": "note",
             "sort_order": 13,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "scientific"
-            ]
+            "tags": ["book-type", "scientific"]
           }
         ]
       },
@@ -816,9 +683,7 @@
             "entry_type": "note",
             "sort_order": 0,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "3b01f53b-a4f5-437a-b420-a8e3c8e313c8",
@@ -829,9 +694,7 @@
             "entry_type": "note",
             "sort_order": 1,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "4fde8da9-94cd-4e47-96a2-c761de14838a",
@@ -842,9 +705,7 @@
             "entry_type": "note",
             "sort_order": 2,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "af04a081-df8f-4d30-957f-f3f75b8f3928",
@@ -855,9 +716,7 @@
             "entry_type": "note",
             "sort_order": 3,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "9cff61e8-fbce-4147-ba6e-d05912881fdf",
@@ -868,9 +727,7 @@
             "entry_type": "note",
             "sort_order": 4,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "f7c0b53f-5817-4a0e-b6a5-02300cc3e179",
@@ -881,9 +738,7 @@
             "entry_type": "note",
             "sort_order": 5,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "2c3fcfa8-c11c-4799-8142-34fcccb84482",
@@ -894,9 +749,7 @@
             "entry_type": "note",
             "sort_order": 6,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "ce46ac6a-9990-4309-a27d-f2e3eaf58dac",
@@ -907,9 +760,7 @@
             "entry_type": "note",
             "sort_order": 7,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "17b86aff-9ff0-4660-a8d2-536624a1f59c",
@@ -920,10 +771,7 @@
             "entry_type": "note",
             "sort_order": 8,
             "processing_status": "completed",
-            "tags": [
-              "ethics",
-              "commitment"
-            ]
+            "tags": ["ethics", "commitment"]
           }
         ]
       }
@@ -963,9 +811,7 @@
             "entry_type": "note",
             "sort_order": 0,
             "processing_status": "completed",
-            "tags": [
-              "introduction"
-            ]
+            "tags": ["introduction"]
           },
           {
             "id": "e057f72a-df6f-4a28-8d3d-a3fcea7d6dc8",
@@ -976,9 +822,7 @@
             "entry_type": "note",
             "sort_order": 1,
             "processing_status": "completed",
-            "tags": [
-              "how-it-works"
-            ]
+            "tags": ["how-it-works"]
           }
         ]
       },
@@ -999,9 +843,7 @@
             "entry_type": "note",
             "sort_order": 0,
             "processing_status": "completed",
-            "tags": [
-              "manifesto"
-            ]
+            "tags": ["manifesto"]
           },
           {
             "id": "5f1924c5-c13d-47b9-ac3b-29664e4b8648",
@@ -1012,9 +854,7 @@
             "entry_type": "note",
             "sort_order": 1,
             "processing_status": "completed",
-            "tags": [
-              "manifesto"
-            ]
+            "tags": ["manifesto"]
           },
           {
             "id": "f62ff2b9-561e-4632-b47a-e5ceedd88f4a",
@@ -1025,9 +865,7 @@
             "entry_type": "note",
             "sort_order": 2,
             "processing_status": "completed",
-            "tags": [
-              "manifesto"
-            ]
+            "tags": ["manifesto"]
           },
           {
             "id": "038b734f-2de4-42b0-bdd8-92d3694e6200",
@@ -1038,9 +876,7 @@
             "entry_type": "note",
             "sort_order": 3,
             "processing_status": "completed",
-            "tags": [
-              "manifesto"
-            ]
+            "tags": ["manifesto"]
           },
           {
             "id": "870a0dae-1f53-4b5d-aae3-8aeb70018945",
@@ -1051,10 +887,7 @@
             "entry_type": "quote",
             "sort_order": 4,
             "processing_status": "completed",
-            "tags": [
-              "manifesto",
-              "delphic"
-            ]
+            "tags": ["manifesto", "delphic"]
           }
         ]
       },
@@ -1075,10 +908,7 @@
             "entry_type": "note",
             "sort_order": 0,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "personal"
-            ]
+            "tags": ["book-type", "personal"]
           },
           {
             "id": "e4caa6fc-e9c9-41ec-997b-c846ddc9a1ed",
@@ -1089,10 +919,7 @@
             "entry_type": "note",
             "sort_order": 1,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "wisdom"
-            ]
+            "tags": ["book-type", "wisdom"]
           },
           {
             "id": "62926b5d-bb87-4da5-94f2-666caed78a56",
@@ -1103,10 +930,7 @@
             "entry_type": "note",
             "sort_order": 2,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "memoir"
-            ]
+            "tags": ["book-type", "memoir"]
           },
           {
             "id": "0fe5ccd5-1b02-4fc3-95d3-57b69e2fec8b",
@@ -1117,10 +941,7 @@
             "entry_type": "note",
             "sort_order": 3,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "fiction"
-            ]
+            "tags": ["book-type", "fiction"]
           },
           {
             "id": "9602116e-6cc1-4335-90d3-586e289d8a3e",
@@ -1131,10 +952,7 @@
             "entry_type": "note",
             "sort_order": 4,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "poetry"
-            ]
+            "tags": ["book-type", "poetry"]
           },
           {
             "id": "d5d727c0-a0be-4356-b3b4-17ff033d4c4f",
@@ -1145,10 +963,7 @@
             "entry_type": "note",
             "sort_order": 5,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "affirmations"
-            ]
+            "tags": ["book-type", "affirmations"]
           },
           {
             "id": "4f5ec0f0-97da-4b90-afb2-b3b549819b5a",
@@ -1159,10 +974,7 @@
             "entry_type": "note",
             "sort_order": 6,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "meditation"
-            ]
+            "tags": ["book-type", "meditation"]
           },
           {
             "id": "19716144-6fa0-44da-be3b-d6d7cc2719b2",
@@ -1173,10 +985,7 @@
             "entry_type": "note",
             "sort_order": 7,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "growth"
-            ]
+            "tags": ["book-type", "growth"]
           },
           {
             "id": "ba10eda4-ac9b-4a7d-bd77-313302319b79",
@@ -1187,10 +996,7 @@
             "entry_type": "note",
             "sort_order": 8,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "children"
-            ]
+            "tags": ["book-type", "children"]
           },
           {
             "id": "2109030b-bb84-43e6-903b-1dacc3bb1c30",
@@ -1201,10 +1007,7 @@
             "entry_type": "note",
             "sort_order": 9,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "educational"
-            ]
+            "tags": ["book-type", "educational"]
           },
           {
             "id": "aaf894d4-2324-4b2e-b7bc-107a5ac5f115",
@@ -1215,10 +1018,7 @@
             "entry_type": "note",
             "sort_order": 10,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "philosophy"
-            ]
+            "tags": ["book-type", "philosophy"]
           },
           {
             "id": "47cd626b-661b-43e8-9c3d-e76ca104e3d9",
@@ -1229,10 +1029,7 @@
             "entry_type": "note",
             "sort_order": 11,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "dreams"
-            ]
+            "tags": ["book-type", "dreams"]
           },
           {
             "id": "25196794-d73d-4b58-b13d-7840d684ca1c",
@@ -1243,10 +1040,7 @@
             "entry_type": "note",
             "sort_order": 12,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "quotes"
-            ]
+            "tags": ["book-type", "quotes"]
           },
           {
             "id": "47e28fbe-f1c3-4415-9b26-d6245e4aa721",
@@ -1257,10 +1051,7 @@
             "entry_type": "note",
             "sort_order": 13,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "scientific"
-            ]
+            "tags": ["book-type", "scientific"]
           }
         ]
       },
@@ -1281,9 +1072,7 @@
             "entry_type": "note",
             "sort_order": 0,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "76007e18-5331-48f5-aa97-24876be85211",
@@ -1294,9 +1083,7 @@
             "entry_type": "note",
             "sort_order": 1,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "6ec3f196-4295-4bef-93e6-24c46d661264",
@@ -1307,9 +1094,7 @@
             "entry_type": "note",
             "sort_order": 2,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "5dd9d809-dfab-49b0-bf78-db8f1f9fd585",
@@ -1320,9 +1105,7 @@
             "entry_type": "note",
             "sort_order": 3,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "55f30ead-ffb2-4b07-b214-e8547e88f7b0",
@@ -1333,9 +1116,7 @@
             "entry_type": "note",
             "sort_order": 4,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "214a6871-2b2a-48c6-bf6f-eff7228341b5",
@@ -1346,9 +1127,7 @@
             "entry_type": "note",
             "sort_order": 5,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "ccb8789f-12fb-43cc-83a9-b54793f59420",
@@ -1359,9 +1138,7 @@
             "entry_type": "note",
             "sort_order": 6,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "b66a9f83-b99a-4c10-bdfd-4f6a5d70f6cc",
@@ -1372,9 +1149,7 @@
             "entry_type": "note",
             "sort_order": 7,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "c29f9c62-7a7a-4f58-b93d-9b113fc875bb",
@@ -1385,10 +1160,7 @@
             "entry_type": "note",
             "sort_order": 8,
             "processing_status": "completed",
-            "tags": [
-              "ethics",
-              "commitment"
-            ]
+            "tags": ["ethics", "commitment"]
           }
         ]
       }
@@ -1428,9 +1200,7 @@
             "entry_type": "note",
             "sort_order": 0,
             "processing_status": "completed",
-            "tags": [
-              "introduction"
-            ]
+            "tags": ["introduction"]
           },
           {
             "id": "201f30f4-ce4c-41c3-9de5-4948c946a8ab",
@@ -1441,9 +1211,7 @@
             "entry_type": "note",
             "sort_order": 1,
             "processing_status": "completed",
-            "tags": [
-              "how-it-works"
-            ]
+            "tags": ["how-it-works"]
           }
         ]
       },
@@ -1464,9 +1232,7 @@
             "entry_type": "note",
             "sort_order": 0,
             "processing_status": "completed",
-            "tags": [
-              "manifesto"
-            ]
+            "tags": ["manifesto"]
           },
           {
             "id": "797ecd21-2efd-44b3-81e3-a36fa31e6ff6",
@@ -1477,9 +1243,7 @@
             "entry_type": "note",
             "sort_order": 1,
             "processing_status": "completed",
-            "tags": [
-              "manifesto"
-            ]
+            "tags": ["manifesto"]
           },
           {
             "id": "87d6282e-c7f7-4ab3-b31c-82043d479e58",
@@ -1490,9 +1254,7 @@
             "entry_type": "note",
             "sort_order": 2,
             "processing_status": "completed",
-            "tags": [
-              "manifesto"
-            ]
+            "tags": ["manifesto"]
           },
           {
             "id": "1e61a1d6-8cf6-458c-a70c-90b31ce7c93f",
@@ -1503,9 +1265,7 @@
             "entry_type": "note",
             "sort_order": 3,
             "processing_status": "completed",
-            "tags": [
-              "manifesto"
-            ]
+            "tags": ["manifesto"]
           },
           {
             "id": "a43e286f-af42-41ba-9b1b-d773dc3a57f5",
@@ -1516,10 +1276,7 @@
             "entry_type": "quote",
             "sort_order": 4,
             "processing_status": "completed",
-            "tags": [
-              "manifesto",
-              "delphic"
-            ]
+            "tags": ["manifesto", "delphic"]
           }
         ]
       },
@@ -1540,10 +1297,7 @@
             "entry_type": "note",
             "sort_order": 0,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "personal"
-            ]
+            "tags": ["book-type", "personal"]
           },
           {
             "id": "4062cb8a-c6c2-42c3-ad04-60a62b723134",
@@ -1554,10 +1308,7 @@
             "entry_type": "note",
             "sort_order": 1,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "wisdom"
-            ]
+            "tags": ["book-type", "wisdom"]
           },
           {
             "id": "032e19e0-1e5f-4548-b435-9da9363b3565",
@@ -1568,10 +1319,7 @@
             "entry_type": "note",
             "sort_order": 2,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "memoir"
-            ]
+            "tags": ["book-type", "memoir"]
           },
           {
             "id": "737c1366-7f85-4250-bf37-56321567e06c",
@@ -1582,10 +1330,7 @@
             "entry_type": "note",
             "sort_order": 3,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "fiction"
-            ]
+            "tags": ["book-type", "fiction"]
           },
           {
             "id": "2b42dae0-2d79-4cfa-8070-9179c1a8e246",
@@ -1596,10 +1341,7 @@
             "entry_type": "note",
             "sort_order": 4,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "poetry"
-            ]
+            "tags": ["book-type", "poetry"]
           },
           {
             "id": "2c0753c1-ad62-4738-80e1-180316fdd0f5",
@@ -1610,10 +1352,7 @@
             "entry_type": "note",
             "sort_order": 5,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "affirmations"
-            ]
+            "tags": ["book-type", "affirmations"]
           },
           {
             "id": "508f6fe7-25c2-42bc-b7a7-302bf125f6fa",
@@ -1624,10 +1363,7 @@
             "entry_type": "note",
             "sort_order": 6,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "meditation"
-            ]
+            "tags": ["book-type", "meditation"]
           },
           {
             "id": "b2ba2064-b16d-427b-bb43-53b2fff46def",
@@ -1638,10 +1374,7 @@
             "entry_type": "note",
             "sort_order": 7,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "growth"
-            ]
+            "tags": ["book-type", "growth"]
           },
           {
             "id": "44df500d-59f2-484b-a8a9-474f0d0c6272",
@@ -1652,10 +1385,7 @@
             "entry_type": "note",
             "sort_order": 8,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "children"
-            ]
+            "tags": ["book-type", "children"]
           },
           {
             "id": "20833ec9-547c-417c-b2af-21f7d2bfc896",
@@ -1666,10 +1396,7 @@
             "entry_type": "note",
             "sort_order": 9,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "educational"
-            ]
+            "tags": ["book-type", "educational"]
           },
           {
             "id": "6eae7cb1-852c-4e60-8658-5b32f3dd0470",
@@ -1680,10 +1407,7 @@
             "entry_type": "note",
             "sort_order": 10,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "philosophy"
-            ]
+            "tags": ["book-type", "philosophy"]
           },
           {
             "id": "3c52b931-57e8-49c7-b1a2-2165585c652a",
@@ -1694,10 +1418,7 @@
             "entry_type": "note",
             "sort_order": 11,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "dreams"
-            ]
+            "tags": ["book-type", "dreams"]
           },
           {
             "id": "9659d229-18a1-49e7-9cd9-9f00169754fa",
@@ -1708,10 +1429,7 @@
             "entry_type": "note",
             "sort_order": 12,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "quotes"
-            ]
+            "tags": ["book-type", "quotes"]
           },
           {
             "id": "4ccabb18-1491-45d2-ae80-ee410b0916f1",
@@ -1722,10 +1440,7 @@
             "entry_type": "note",
             "sort_order": 13,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "scientific"
-            ]
+            "tags": ["book-type", "scientific"]
           }
         ]
       },
@@ -1746,9 +1461,7 @@
             "entry_type": "note",
             "sort_order": 0,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "c7613513-df4b-4315-94a0-3e035cdab9b3",
@@ -1759,9 +1472,7 @@
             "entry_type": "note",
             "sort_order": 1,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "2da55d52-cfa7-4d8e-be29-0473bc47f451",
@@ -1772,9 +1483,7 @@
             "entry_type": "note",
             "sort_order": 2,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "3d8ebc3f-b9ac-47c5-b8cf-fc50ed17813a",
@@ -1785,9 +1494,7 @@
             "entry_type": "note",
             "sort_order": 3,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "e2381feb-5f54-4988-946c-407f1c07e1f0",
@@ -1798,9 +1505,7 @@
             "entry_type": "note",
             "sort_order": 4,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "d802776d-1d53-4132-9dd9-ede90d79cbdd",
@@ -1811,9 +1516,7 @@
             "entry_type": "note",
             "sort_order": 5,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "4af08751-a46e-444b-be49-54fc52b9b393",
@@ -1824,9 +1527,7 @@
             "entry_type": "note",
             "sort_order": 6,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "57c8dbef-fd9b-4ca3-8058-a850cc02247e",
@@ -1837,9 +1538,7 @@
             "entry_type": "note",
             "sort_order": 7,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "e73650dc-34f7-401f-830e-82b255fb31d9",
@@ -1850,10 +1549,7 @@
             "entry_type": "note",
             "sort_order": 8,
             "processing_status": "completed",
-            "tags": [
-              "ethics",
-              "commitment"
-            ]
+            "tags": ["ethics", "commitment"]
           }
         ]
       }
@@ -1893,9 +1589,7 @@
             "entry_type": "note",
             "sort_order": 0,
             "processing_status": "completed",
-            "tags": [
-              "introduction"
-            ]
+            "tags": ["introduction"]
           },
           {
             "id": "07b8ca6a-42ac-49df-a62c-7229147f720f",
@@ -1906,9 +1600,7 @@
             "entry_type": "note",
             "sort_order": 1,
             "processing_status": "completed",
-            "tags": [
-              "how-it-works"
-            ]
+            "tags": ["how-it-works"]
           }
         ]
       },
@@ -1929,9 +1621,7 @@
             "entry_type": "note",
             "sort_order": 0,
             "processing_status": "completed",
-            "tags": [
-              "manifesto"
-            ]
+            "tags": ["manifesto"]
           },
           {
             "id": "beab26db-6705-4413-b244-ca0fc61725e4",
@@ -1942,9 +1632,7 @@
             "entry_type": "note",
             "sort_order": 1,
             "processing_status": "completed",
-            "tags": [
-              "manifesto"
-            ]
+            "tags": ["manifesto"]
           },
           {
             "id": "2bdc2ee9-03c5-4906-b348-646fad11c096",
@@ -1955,9 +1643,7 @@
             "entry_type": "note",
             "sort_order": 2,
             "processing_status": "completed",
-            "tags": [
-              "manifesto"
-            ]
+            "tags": ["manifesto"]
           },
           {
             "id": "c08849fe-73c5-44e6-8dc3-21b21461179d",
@@ -1968,9 +1654,7 @@
             "entry_type": "note",
             "sort_order": 3,
             "processing_status": "completed",
-            "tags": [
-              "manifesto"
-            ]
+            "tags": ["manifesto"]
           },
           {
             "id": "7278a14c-2eae-4237-ab06-48ef3c99a021",
@@ -1981,10 +1665,7 @@
             "entry_type": "quote",
             "sort_order": 4,
             "processing_status": "completed",
-            "tags": [
-              "manifesto",
-              "delphic"
-            ]
+            "tags": ["manifesto", "delphic"]
           }
         ]
       },
@@ -2005,10 +1686,7 @@
             "entry_type": "note",
             "sort_order": 0,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "personal"
-            ]
+            "tags": ["book-type", "personal"]
           },
           {
             "id": "eadb1b2d-75ae-4596-89d5-19c9856affe9",
@@ -2019,10 +1697,7 @@
             "entry_type": "note",
             "sort_order": 1,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "wisdom"
-            ]
+            "tags": ["book-type", "wisdom"]
           },
           {
             "id": "82f6bd88-e1d5-473f-b725-77a5b489f344",
@@ -2033,10 +1708,7 @@
             "entry_type": "note",
             "sort_order": 2,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "memoir"
-            ]
+            "tags": ["book-type", "memoir"]
           },
           {
             "id": "2b9f3505-ab1f-40e1-b1c2-7d5f48a1ce09",
@@ -2047,10 +1719,7 @@
             "entry_type": "note",
             "sort_order": 3,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "fiction"
-            ]
+            "tags": ["book-type", "fiction"]
           },
           {
             "id": "8c012e3a-0902-4338-98a3-db3421fb7f51",
@@ -2061,10 +1730,7 @@
             "entry_type": "note",
             "sort_order": 4,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "poetry"
-            ]
+            "tags": ["book-type", "poetry"]
           },
           {
             "id": "6d8adb01-9e66-4b10-a5f6-a13da570d02a",
@@ -2075,10 +1741,7 @@
             "entry_type": "note",
             "sort_order": 5,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "affirmations"
-            ]
+            "tags": ["book-type", "affirmations"]
           },
           {
             "id": "6024d59e-f981-4d43-997c-5d125c0ca3a4",
@@ -2089,10 +1752,7 @@
             "entry_type": "note",
             "sort_order": 6,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "meditation"
-            ]
+            "tags": ["book-type", "meditation"]
           },
           {
             "id": "db42022d-fd75-4e7f-b705-6274a9d85a49",
@@ -2103,10 +1763,7 @@
             "entry_type": "note",
             "sort_order": 7,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "growth"
-            ]
+            "tags": ["book-type", "growth"]
           },
           {
             "id": "334e0aa4-59fd-4d54-b4df-5e546fa3e170",
@@ -2117,10 +1774,7 @@
             "entry_type": "note",
             "sort_order": 8,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "children"
-            ]
+            "tags": ["book-type", "children"]
           },
           {
             "id": "4113e1cb-4884-4898-95c3-825401eb5847",
@@ -2131,10 +1785,7 @@
             "entry_type": "note",
             "sort_order": 9,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "educational"
-            ]
+            "tags": ["book-type", "educational"]
           },
           {
             "id": "f2287a5d-9444-4107-bd7d-64bd967c89d0",
@@ -2145,10 +1796,7 @@
             "entry_type": "note",
             "sort_order": 10,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "philosophy"
-            ]
+            "tags": ["book-type", "philosophy"]
           },
           {
             "id": "be4b8f84-82a9-4410-a9a0-08668e43edd7",
@@ -2159,10 +1807,7 @@
             "entry_type": "note",
             "sort_order": 11,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "dreams"
-            ]
+            "tags": ["book-type", "dreams"]
           },
           {
             "id": "cb991859-dd28-4502-bdb9-576dae5d28ac",
@@ -2173,10 +1818,7 @@
             "entry_type": "note",
             "sort_order": 12,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "quotes"
-            ]
+            "tags": ["book-type", "quotes"]
           },
           {
             "id": "fcfa3596-56d2-4f43-8e99-fac55255529f",
@@ -2187,10 +1829,7 @@
             "entry_type": "note",
             "sort_order": 13,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "scientific"
-            ]
+            "tags": ["book-type", "scientific"]
           }
         ]
       },
@@ -2211,9 +1850,7 @@
             "entry_type": "note",
             "sort_order": 0,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "8206d270-7bf4-46bc-8e44-a517df2b8711",
@@ -2224,9 +1861,7 @@
             "entry_type": "note",
             "sort_order": 1,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "4adb9b65-fbc0-4e45-a630-6c30e799dc22",
@@ -2237,9 +1872,7 @@
             "entry_type": "note",
             "sort_order": 2,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "222b3178-78c5-47da-ad15-c2bd69b0ab90",
@@ -2250,9 +1883,7 @@
             "entry_type": "note",
             "sort_order": 3,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "fbd9b6a0-f65e-4dca-8ca0-2f29076f8798",
@@ -2263,9 +1894,7 @@
             "entry_type": "note",
             "sort_order": 4,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "b48afd0e-09f6-4119-836d-b71762cdc340",
@@ -2276,9 +1905,7 @@
             "entry_type": "note",
             "sort_order": 5,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "ef42865f-05b8-4e2c-b9f0-16f196607bf6",
@@ -2289,9 +1916,7 @@
             "entry_type": "note",
             "sort_order": 6,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "cf502975-261e-498d-8f3b-4be27a3621c4",
@@ -2302,9 +1927,7 @@
             "entry_type": "note",
             "sort_order": 7,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "a81c9abd-2dd6-4131-99de-5937e3db51fd",
@@ -2315,10 +1938,7 @@
             "entry_type": "note",
             "sort_order": 8,
             "processing_status": "completed",
-            "tags": [
-              "ethics",
-              "commitment"
-            ]
+            "tags": ["ethics", "commitment"]
           }
         ]
       }
@@ -2358,9 +1978,7 @@
             "entry_type": "note",
             "sort_order": 0,
             "processing_status": "completed",
-            "tags": [
-              "introduction"
-            ]
+            "tags": ["introduction"]
           },
           {
             "id": "92e49791-d14e-4373-a7b0-a6ec51a23086",
@@ -2371,9 +1989,7 @@
             "entry_type": "note",
             "sort_order": 1,
             "processing_status": "completed",
-            "tags": [
-              "how-it-works"
-            ]
+            "tags": ["how-it-works"]
           }
         ]
       },
@@ -2394,9 +2010,7 @@
             "entry_type": "note",
             "sort_order": 0,
             "processing_status": "completed",
-            "tags": [
-              "manifesto"
-            ]
+            "tags": ["manifesto"]
           },
           {
             "id": "2c0955bb-9612-4448-8313-eb4e2938ea86",
@@ -2407,9 +2021,7 @@
             "entry_type": "note",
             "sort_order": 1,
             "processing_status": "completed",
-            "tags": [
-              "manifesto"
-            ]
+            "tags": ["manifesto"]
           },
           {
             "id": "d8bc6795-3a98-4fef-ac07-0f8cf944d606",
@@ -2420,9 +2032,7 @@
             "entry_type": "note",
             "sort_order": 2,
             "processing_status": "completed",
-            "tags": [
-              "manifesto"
-            ]
+            "tags": ["manifesto"]
           },
           {
             "id": "6015b720-4ed2-43f5-8fbf-70fad6dafd41",
@@ -2433,9 +2043,7 @@
             "entry_type": "note",
             "sort_order": 3,
             "processing_status": "completed",
-            "tags": [
-              "manifesto"
-            ]
+            "tags": ["manifesto"]
           },
           {
             "id": "e5341ab4-b3a9-4382-bb9a-c7afd4aa7757",
@@ -2446,10 +2054,7 @@
             "entry_type": "quote",
             "sort_order": 4,
             "processing_status": "completed",
-            "tags": [
-              "manifesto",
-              "delphic"
-            ]
+            "tags": ["manifesto", "delphic"]
           }
         ]
       },
@@ -2470,10 +2075,7 @@
             "entry_type": "note",
             "sort_order": 0,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "personal"
-            ]
+            "tags": ["book-type", "personal"]
           },
           {
             "id": "e9bad1db-0e93-45a7-8365-5bf06e9b2f26",
@@ -2484,10 +2086,7 @@
             "entry_type": "note",
             "sort_order": 1,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "wisdom"
-            ]
+            "tags": ["book-type", "wisdom"]
           },
           {
             "id": "ea8be6b7-0c75-4a67-a4ff-d0b48d5ef97d",
@@ -2498,10 +2097,7 @@
             "entry_type": "note",
             "sort_order": 2,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "memoir"
-            ]
+            "tags": ["book-type", "memoir"]
           },
           {
             "id": "8ff40fcb-d790-4db8-b1de-a15c6111f2cd",
@@ -2512,10 +2108,7 @@
             "entry_type": "note",
             "sort_order": 3,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "fiction"
-            ]
+            "tags": ["book-type", "fiction"]
           },
           {
             "id": "48a798aa-3669-4390-a99f-7dfc0b0efa0f",
@@ -2526,10 +2119,7 @@
             "entry_type": "note",
             "sort_order": 4,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "poetry"
-            ]
+            "tags": ["book-type", "poetry"]
           },
           {
             "id": "35c82058-2cb8-40bb-8045-637aad8b80be",
@@ -2540,10 +2130,7 @@
             "entry_type": "note",
             "sort_order": 5,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "affirmations"
-            ]
+            "tags": ["book-type", "affirmations"]
           },
           {
             "id": "10ca26a9-6682-45ca-a4db-f7f3ed091be4",
@@ -2554,10 +2141,7 @@
             "entry_type": "note",
             "sort_order": 6,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "meditation"
-            ]
+            "tags": ["book-type", "meditation"]
           },
           {
             "id": "682323ee-143e-46b9-b795-bf141c51805e",
@@ -2568,10 +2152,7 @@
             "entry_type": "note",
             "sort_order": 7,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "growth"
-            ]
+            "tags": ["book-type", "growth"]
           },
           {
             "id": "a6b90f5f-d183-41cd-9f4d-8fd184511615",
@@ -2582,10 +2163,7 @@
             "entry_type": "note",
             "sort_order": 8,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "children"
-            ]
+            "tags": ["book-type", "children"]
           },
           {
             "id": "2c1ea2aa-7f8a-460e-a153-3a8d3fe202e9",
@@ -2596,10 +2174,7 @@
             "entry_type": "note",
             "sort_order": 9,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "educational"
-            ]
+            "tags": ["book-type", "educational"]
           },
           {
             "id": "70513a48-5b02-4ca4-b92a-04f2a219e767",
@@ -2610,10 +2185,7 @@
             "entry_type": "note",
             "sort_order": 10,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "philosophy"
-            ]
+            "tags": ["book-type", "philosophy"]
           },
           {
             "id": "562e28d5-d92d-4d70-8f77-9829c668f2e7",
@@ -2624,10 +2196,7 @@
             "entry_type": "note",
             "sort_order": 11,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "dreams"
-            ]
+            "tags": ["book-type", "dreams"]
           },
           {
             "id": "1f0e0a72-8ad8-4363-8b72-0534e89ed8fa",
@@ -2638,10 +2207,7 @@
             "entry_type": "note",
             "sort_order": 12,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "quotes"
-            ]
+            "tags": ["book-type", "quotes"]
           },
           {
             "id": "55058c07-cde4-422a-aabf-c26a9479638d",
@@ -2652,10 +2218,7 @@
             "entry_type": "note",
             "sort_order": 13,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "scientific"
-            ]
+            "tags": ["book-type", "scientific"]
           }
         ]
       },
@@ -2676,9 +2239,7 @@
             "entry_type": "note",
             "sort_order": 0,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "f819ffce-f6dc-4617-a1c4-7ed150eaa61b",
@@ -2689,9 +2250,7 @@
             "entry_type": "note",
             "sort_order": 1,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "1f9e956b-fd73-482d-9822-e03419d68d60",
@@ -2702,9 +2261,7 @@
             "entry_type": "note",
             "sort_order": 2,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "0669f5c4-9ea1-4e93-bb06-e27f1991e9d2",
@@ -2715,9 +2272,7 @@
             "entry_type": "note",
             "sort_order": 3,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "5d0db8f4-acf6-453d-adb7-046c7edff74a",
@@ -2728,9 +2283,7 @@
             "entry_type": "note",
             "sort_order": 4,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "ffa2038c-75e3-4f54-a1ac-f7d61a4d4f1b",
@@ -2741,9 +2294,7 @@
             "entry_type": "note",
             "sort_order": 5,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "884cb533-070e-465b-be65-c7fe902f9d8d",
@@ -2754,9 +2305,7 @@
             "entry_type": "note",
             "sort_order": 6,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "9b8b2db0-3b71-4a26-ac23-e7318dec1f1c",
@@ -2767,9 +2316,7 @@
             "entry_type": "note",
             "sort_order": 7,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "a6a20ced-9a7d-43f0-bdc3-ac4473cb31b4",
@@ -2780,10 +2327,7 @@
             "entry_type": "note",
             "sort_order": 8,
             "processing_status": "completed",
-            "tags": [
-              "ethics",
-              "commitment"
-            ]
+            "tags": ["ethics", "commitment"]
           }
         ]
       }
@@ -2823,9 +2367,7 @@
             "entry_type": "note",
             "sort_order": 0,
             "processing_status": "completed",
-            "tags": [
-              "introduction"
-            ]
+            "tags": ["introduction"]
           },
           {
             "id": "3818de29-a08a-47a8-989b-d5484ec4e4f1",
@@ -2836,9 +2378,7 @@
             "entry_type": "note",
             "sort_order": 1,
             "processing_status": "completed",
-            "tags": [
-              "how-it-works"
-            ]
+            "tags": ["how-it-works"]
           }
         ]
       },
@@ -2859,9 +2399,7 @@
             "entry_type": "note",
             "sort_order": 0,
             "processing_status": "completed",
-            "tags": [
-              "manifesto"
-            ]
+            "tags": ["manifesto"]
           },
           {
             "id": "30d93727-4879-4d6d-9cba-f9974a08e070",
@@ -2872,9 +2410,7 @@
             "entry_type": "note",
             "sort_order": 1,
             "processing_status": "completed",
-            "tags": [
-              "manifesto"
-            ]
+            "tags": ["manifesto"]
           },
           {
             "id": "caf90853-b620-4a0f-aa48-5a0833fe87f8",
@@ -2885,9 +2421,7 @@
             "entry_type": "note",
             "sort_order": 2,
             "processing_status": "completed",
-            "tags": [
-              "manifesto"
-            ]
+            "tags": ["manifesto"]
           },
           {
             "id": "06388128-3769-47fd-826f-79b2541b08ac",
@@ -2898,9 +2432,7 @@
             "entry_type": "note",
             "sort_order": 3,
             "processing_status": "completed",
-            "tags": [
-              "manifesto"
-            ]
+            "tags": ["manifesto"]
           },
           {
             "id": "a2c87117-0c3d-43cd-af63-26a568bdd89e",
@@ -2911,10 +2443,7 @@
             "entry_type": "quote",
             "sort_order": 4,
             "processing_status": "completed",
-            "tags": [
-              "manifesto",
-              "delphic"
-            ]
+            "tags": ["manifesto", "delphic"]
           }
         ]
       },
@@ -2935,10 +2464,7 @@
             "entry_type": "note",
             "sort_order": 0,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "personal"
-            ]
+            "tags": ["book-type", "personal"]
           },
           {
             "id": "ddeaeb0b-e74e-44f3-aea6-cf42f7d6742d",
@@ -2949,10 +2475,7 @@
             "entry_type": "note",
             "sort_order": 1,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "wisdom"
-            ]
+            "tags": ["book-type", "wisdom"]
           },
           {
             "id": "63cf1dd0-8a7d-470c-9ba2-347181c77b88",
@@ -2963,10 +2486,7 @@
             "entry_type": "note",
             "sort_order": 2,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "memoir"
-            ]
+            "tags": ["book-type", "memoir"]
           },
           {
             "id": "ec0e7ced-c75d-41a3-b154-d28b5082adb4",
@@ -2977,10 +2497,7 @@
             "entry_type": "note",
             "sort_order": 3,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "fiction"
-            ]
+            "tags": ["book-type", "fiction"]
           },
           {
             "id": "8f8d60d6-9b11-476f-9a77-00afe93feb7b",
@@ -2991,10 +2508,7 @@
             "entry_type": "note",
             "sort_order": 4,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "poetry"
-            ]
+            "tags": ["book-type", "poetry"]
           },
           {
             "id": "6a4d8187-6756-48c3-a3b8-54e24d8d9e2b",
@@ -3005,10 +2519,7 @@
             "entry_type": "note",
             "sort_order": 5,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "affirmations"
-            ]
+            "tags": ["book-type", "affirmations"]
           },
           {
             "id": "2885cbb5-e72a-48d9-9cec-5877e38270f2",
@@ -3019,10 +2530,7 @@
             "entry_type": "note",
             "sort_order": 6,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "meditation"
-            ]
+            "tags": ["book-type", "meditation"]
           },
           {
             "id": "7d77b316-e14b-4817-9e61-e6d73cbfcbf9",
@@ -3033,10 +2541,7 @@
             "entry_type": "note",
             "sort_order": 7,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "growth"
-            ]
+            "tags": ["book-type", "growth"]
           },
           {
             "id": "7c015df3-72be-41da-95fd-10a39c45ce65",
@@ -3047,10 +2552,7 @@
             "entry_type": "note",
             "sort_order": 8,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "children"
-            ]
+            "tags": ["book-type", "children"]
           },
           {
             "id": "3b7fa9c6-2bd8-4e91-a67f-e43db0c896a7",
@@ -3061,10 +2563,7 @@
             "entry_type": "note",
             "sort_order": 9,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "educational"
-            ]
+            "tags": ["book-type", "educational"]
           },
           {
             "id": "12b85241-613e-47e5-bfee-a6ab89cdc817",
@@ -3075,10 +2574,7 @@
             "entry_type": "note",
             "sort_order": 10,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "philosophy"
-            ]
+            "tags": ["book-type", "philosophy"]
           },
           {
             "id": "f8fe7418-6f6e-44f1-be70-75a9bf5220f5",
@@ -3089,10 +2585,7 @@
             "entry_type": "note",
             "sort_order": 11,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "dreams"
-            ]
+            "tags": ["book-type", "dreams"]
           },
           {
             "id": "b0ba81ad-5902-4f76-ba9c-1c4d2d7ef803",
@@ -3103,10 +2596,7 @@
             "entry_type": "note",
             "sort_order": 12,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "quotes"
-            ]
+            "tags": ["book-type", "quotes"]
           },
           {
             "id": "af546436-055f-4a85-9443-cd210fb8ea91",
@@ -3117,10 +2607,7 @@
             "entry_type": "note",
             "sort_order": 13,
             "processing_status": "completed",
-            "tags": [
-              "book-type",
-              "scientific"
-            ]
+            "tags": ["book-type", "scientific"]
           }
         ]
       },
@@ -3141,9 +2628,7 @@
             "entry_type": "note",
             "sort_order": 0,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "1dd567db-293b-4ff9-9f47-bc153a8c6895",
@@ -3154,9 +2639,7 @@
             "entry_type": "note",
             "sort_order": 1,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "45aed43c-a122-4722-9b71-3c5126510133",
@@ -3167,9 +2650,7 @@
             "entry_type": "note",
             "sort_order": 2,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "bf2c0fea-ffb3-465a-8829-92bf08845e94",
@@ -3180,9 +2661,7 @@
             "entry_type": "note",
             "sort_order": 3,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "4589f174-2379-472b-a31e-7906b00c8911",
@@ -3193,9 +2672,7 @@
             "entry_type": "note",
             "sort_order": 4,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "8f66dc4b-8256-4176-a823-1a06b6ca8469",
@@ -3206,9 +2683,7 @@
             "entry_type": "note",
             "sort_order": 5,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "facc40b3-d469-438f-b9b9-ae5678731e5d",
@@ -3219,9 +2694,7 @@
             "entry_type": "note",
             "sort_order": 6,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "f8a3adbb-803a-406f-9001-fa08944426ca",
@@ -3232,9 +2705,7 @@
             "entry_type": "note",
             "sort_order": 7,
             "processing_status": "completed",
-            "tags": [
-              "ethics"
-            ]
+            "tags": ["ethics"]
           },
           {
             "id": "93c40301-dad9-42a9-a1a9-5b4f0831d72b",
@@ -3245,10 +2716,7 @@
             "entry_type": "note",
             "sort_order": 8,
             "processing_status": "completed",
-            "tags": [
-              "ethics",
-              "commitment"
-            ]
+            "tags": ["ethics", "commitment"]
           }
         ]
       }

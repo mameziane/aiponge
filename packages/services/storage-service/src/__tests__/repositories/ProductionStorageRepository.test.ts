@@ -32,8 +32,8 @@ vi.mock('@aiponge/platform-core', () => ({
   waitForService: vi.fn(),
   listServices: () => [],
   createServiceUrlsConfig: vi.fn(() => ({})),
-  errorMessage: vi.fn((err: unknown) => err instanceof Error ? err.message : String(err)),
-  errorStack: vi.fn((err: unknown) => err instanceof Error ? err.stack : ''),
+  errorMessage: vi.fn((err: unknown) => (err instanceof Error ? err.message : String(err))),
+  errorStack: vi.fn((err: unknown) => (err instanceof Error ? err.stack : '')),
   withResilience: vi.fn((fn: (...args: unknown[]) => unknown) => fn),
   createIntervalScheduler: vi.fn(() => ({ start: vi.fn(), stop: vi.fn() })),
 }));
@@ -273,9 +273,7 @@ describe('ProductionStorageRepository', () => {
       await repository.save(
         createMockFileEntity({ id: 'st1', contentType: 'image/png', isPublic: true, path: '/st/1' })
       );
-      await repository.save(
-        createMockFileEntity({ id: 'st2', contentType: 'text/plain', path: '/st/2' })
-      );
+      await repository.save(createMockFileEntity({ id: 'st2', contentType: 'text/plain', path: '/st/2' }));
 
       const stats = await repository.getStorageStats();
       expect(stats.total).toBe(2);

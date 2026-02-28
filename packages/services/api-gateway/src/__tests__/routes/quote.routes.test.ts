@@ -20,7 +20,10 @@ vi.mock('@aiponge/platform-core', () => ({
     getServicePort: vi.fn(() => 3020),
   },
   serializeError: vi.fn((e: unknown) => String(e)),
-  getValidation: () => ({ validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(), validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next() }),
+  getValidation: () => ({
+    validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+    validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+  }),
 }));
 
 vi.mock('@services/gatewayFetch', () => ({
@@ -114,9 +117,7 @@ describe('Quote Routes', () => {
 
   describe('POST /generate', () => {
     it('should return 401 when no user ID', async () => {
-      const res = await request(app)
-        .post('/api/app/quote/generate')
-        .send({ theme: 'motivation' });
+      const res = await request(app).post('/api/app/quote/generate').send({ theme: 'motivation' });
       expect(res.status).toBe(401);
     });
 
@@ -133,13 +134,14 @@ describe('Quote Routes', () => {
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/ai/quote/generate'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/ai/quote/generate'),
+        expect.anything()
+      );
     });
 
     it('should handle upstream error', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ message: 'AI service error' }, 500)
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ message: 'AI service error' }, 500));
 
       const res = await request(app)
         .post('/api/app/quote/generate')
@@ -148,7 +150,10 @@ describe('Quote Routes', () => {
 
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/ai/quote/generate'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/ai/quote/generate'),
+        expect.anything()
+      );
     });
   });
 
@@ -162,9 +167,7 @@ describe('Quote Routes', () => {
       const entriesResp = mockResponse({ success: true, data: { entries: [{ content: 'feeling good' }] } });
       const quoteResp = mockResponse({ success: true, data: { quote: 'Keep going', author: 'AI' } });
 
-      mockGatewayFetch
-        .mockResolvedValueOnce(entriesResp)
-        .mockResolvedValueOnce(quoteResp);
+      mockGatewayFetch.mockResolvedValueOnce(entriesResp).mockResolvedValueOnce(quoteResp);
 
       const res = await request(app)
         .get('/api/app/quote/generate')
@@ -173,7 +176,10 @@ describe('Quote Routes', () => {
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/ai/quote/generate'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/ai/quote/generate'),
+        expect.anything()
+      );
     });
   });
 });

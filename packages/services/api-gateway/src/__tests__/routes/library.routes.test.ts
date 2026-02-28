@@ -101,25 +101,23 @@ describe('Library Routes', () => {
     });
 
     it('should return explore feed', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true, data: { sections: [] } })
-      );
-      const res = await request(app)
-        .get('/api/app/library/explore')
-        .set('x-user-id', 'user-123');
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, data: { sections: [] } }));
+      const res = await request(app).get('/api/app/library/explore').set('x-user-id', 'user-123');
       expect(res.status).toBe(200);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/music/library/explore'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/music/library/explore'),
+        expect.anything()
+      );
     });
 
     it('should forward service errors', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ message: 'Service unavailable' }, 503)
-      );
-      const res = await request(app)
-        .get('/api/app/library/explore')
-        .set('x-user-id', 'user-123');
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ message: 'Service unavailable' }, 503));
+      const res = await request(app).get('/api/app/library/explore').set('x-user-id', 'user-123');
       expect(res.status).toBe(503);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/music/library/explore'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/music/library/explore'),
+        expect.anything()
+      );
     });
   });
 
@@ -130,12 +128,8 @@ describe('Library Routes', () => {
     });
 
     it('should return shared library', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true, data: { tracks: [] } })
-      );
-      const res = await request(app)
-        .get('/api/app/library/shared')
-        .set('x-user-id', 'user-123');
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, data: { tracks: [] } }));
+      const res = await request(app).get('/api/app/library/shared').set('x-user-id', 'user-123');
       expect(res.status).toBe(200);
       expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/music/library'), expect.anything());
     });
@@ -143,12 +137,8 @@ describe('Library Routes', () => {
 
   describe('GET /private', () => {
     it('should return private library', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true, data: { tracks: [] } })
-      );
-      const res = await request(app)
-        .get('/api/app/library/private')
-        .set('x-user-id', 'user-123');
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, data: { tracks: [] } }));
+      const res = await request(app).get('/api/app/library/private').set('x-user-id', 'user-123');
       expect(res.status).toBe(200);
       expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/music/library'), expect.anything());
     });
@@ -156,21 +146,23 @@ describe('Library Routes', () => {
 
   describe('GET /track/:trackId', () => {
     it('should return track details', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true, data: { id: 'track-1', title: 'Test' } })
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, data: { id: 'track-1', title: 'Test' } }));
       const res = await request(app).get('/api/app/library/track/track-1');
       expect(res.status).toBe(200);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/music/library/track/'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/music/library/track/'),
+        expect.anything()
+      );
     });
 
     it('should forward 404 for non-existent track', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ message: 'Track not found' }, 404)
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ message: 'Track not found' }, 404));
       const res = await request(app).get('/api/app/library/track/nonexistent');
       expect(res.status).toBe(404);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/music/library/track/'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/music/library/track/'),
+        expect.anything()
+      );
     });
   });
 
@@ -182,53 +174,53 @@ describe('Library Routes', () => {
         .set('x-user-id', 'user-123')
         .send({ trackId: 'track-1' });
       expect(res.status).toBe(200);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/music/library/track-play'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/music/library/track-play'),
+        expect.anything()
+      );
     });
   });
 
   describe('POST /track/:trackId/like', () => {
     it('should like a track', async () => {
       mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true }));
-      const res = await request(app)
-        .post('/api/app/library/track/track-1/like')
-        .set('x-user-id', 'user-123');
+      const res = await request(app).post('/api/app/library/track/track-1/like').set('x-user-id', 'user-123');
       expect(res.status).toBe(200);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/music/library/track/'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/music/library/track/'),
+        expect.anything()
+      );
     });
   });
 
   describe('DELETE /track/:trackId/like', () => {
     it('should unlike a track', async () => {
       mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true }));
-      const res = await request(app)
-        .delete('/api/app/library/track/track-1/like')
-        .set('x-user-id', 'user-123');
+      const res = await request(app).delete('/api/app/library/track/track-1/like').set('x-user-id', 'user-123');
       expect(res.status).toBe(200);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/music/library/track/'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/music/library/track/'),
+        expect.anything()
+      );
     });
   });
 
   describe('GET /liked-tracks', () => {
     it('should return liked tracks', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true, data: { trackIds: [] } })
-      );
-      const res = await request(app)
-        .get('/api/app/library/liked-tracks')
-        .set('x-user-id', 'user-123');
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, data: { trackIds: [] } }));
+      const res = await request(app).get('/api/app/library/liked-tracks').set('x-user-id', 'user-123');
       expect(res.status).toBe(200);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/music/library/liked-tracks'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/music/library/liked-tracks'),
+        expect.anything()
+      );
     });
   });
 
   describe('GET /albums', () => {
     it('should return user albums', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true, data: { albums: [] } })
-      );
-      const res = await request(app)
-        .get('/api/app/library/albums')
-        .set('x-user-id', 'user-123');
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, data: { albums: [] } }));
+      const res = await request(app).get('/api/app/library/albums').set('x-user-id', 'user-123');
       expect(res.status).toBe(200);
       expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/library/albums'), expect.anything());
     });
@@ -236,23 +228,15 @@ describe('Library Routes', () => {
 
   describe('GET /albums/:albumId', () => {
     it('should return album details', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true, data: { id: 'album-1', tracks: [] } })
-      );
-      const res = await request(app)
-        .get('/api/app/library/albums/album-1')
-        .set('x-user-id', 'user-123');
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, data: { id: 'album-1', tracks: [] } }));
+      const res = await request(app).get('/api/app/library/albums/album-1').set('x-user-id', 'user-123');
       expect(res.status).toBe(200);
       expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/library/albums/'), expect.anything());
     });
 
     it('should forward 404 for non-existent album', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ message: 'Album not found' }, 404)
-      );
-      const res = await request(app)
-        .get('/api/app/library/albums/nonexistent')
-        .set('x-user-id', 'user-123');
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ message: 'Album not found' }, 404));
+      const res = await request(app).get('/api/app/library/albums/nonexistent').set('x-user-id', 'user-123');
       expect(res.status).toBe(404);
       expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/library/albums/'), expect.anything());
     });
@@ -261,11 +245,12 @@ describe('Library Routes', () => {
   describe('Network errors', () => {
     it('should handle downstream service failure', async () => {
       mockGatewayFetch.mockRejectedValueOnce(new Error('ECONNREFUSED'));
-      const res = await request(app)
-        .get('/api/app/library/explore')
-        .set('x-user-id', 'user-123');
+      const res = await request(app).get('/api/app/library/explore').set('x-user-id', 'user-123');
       expect(res.status).toBeGreaterThanOrEqual(500);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/music/library/explore'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/music/library/explore'),
+        expect.anything()
+      );
     });
   });
 });

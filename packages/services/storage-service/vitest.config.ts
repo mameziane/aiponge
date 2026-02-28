@@ -16,16 +16,8 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     testTimeout: 10000,
-    include: [
-      'src/**/*.test.ts',
-      'src/**/*.spec.ts',
-      'src/**/__tests__/**/*.test.ts',
-      'src/**/__tests__/**/*.spec.ts',
-    ],
-    exclude: [
-      '**/node_modules/**',
-      '**/dist/**',
-    ],
+    include: ['src/**/*.test.ts', 'src/**/*.spec.ts', 'src/**/__tests__/**/*.test.ts', 'src/**/__tests__/**/*.spec.ts'],
+    exclude: ['**/node_modules/**', '**/dist/**'],
   },
   resolve: {
     alias: {

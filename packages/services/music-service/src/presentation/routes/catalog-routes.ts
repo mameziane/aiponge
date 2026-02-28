@@ -89,7 +89,11 @@ router.get('/public-albums', async (req, res) => {
     const visibilityService = getMusicVisibilityService();
     const { accessibleCreatorIds } = await visibilityService.resolveAccessibleCreatorIds(userId || null);
 
-    logger.info('Public albums access resolved', { userId: userId || 'anonymous', accessibleCreatorIds, count: accessibleCreatorIds.length });
+    logger.info('Public albums access resolved', {
+      userId: userId || 'anonymous',
+      accessibleCreatorIds,
+      count: accessibleCreatorIds.length,
+    });
 
     if (accessibleCreatorIds.length === 0) {
       logger.info('No accessible creators found, returning empty public albums');
@@ -103,7 +107,7 @@ router.get('/public-albums', async (req, res) => {
       offset: offsetNum,
     });
 
-    const albums = rawAlbums.map((row) => ({
+    const albums = rawAlbums.map(row => ({
       id: row.id,
       title: row.title,
       coverArtworkUrl: row.cover_artwork_url,
@@ -166,7 +170,7 @@ router.get('/public-albums/:albumId', async (req, res) => {
       updatedAt: albumRow.updated_at,
     };
 
-    const tracks = result.tracks.map((row) => ({
+    const tracks = result.tracks.map(row => ({
       id: row.id,
       title: row.title,
       audioUrl: row.file_url,

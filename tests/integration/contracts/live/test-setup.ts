@@ -1,6 +1,6 @@
 /**
  * Live Contract Tests Setup
- * 
+ *
  * Self-contained setup for contract validation tests.
  */
 
@@ -73,7 +73,7 @@ export async function makeRequestWithStatus(
 
     let data: any;
     const contentType = response.headers.get('content-type') || '';
-    
+
     if (contentType.includes('application/json')) {
       try {
         data = await response.json();

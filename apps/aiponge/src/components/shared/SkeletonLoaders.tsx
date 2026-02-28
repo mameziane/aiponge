@@ -15,9 +15,7 @@ import { View, StyleSheet, ViewStyle, DimensionValue, Platform, Animated } from 
 import { useThemeColors } from '../../theme';
 import { ANIMATION, BORDER_RADIUS } from '../../theme/constants';
 
-const iosVersionMajor = Platform.OS === 'ios'
-  ? parseInt(String(Platform.Version).split('.')[0], 10)
-  : 0;
+const iosVersionMajor = Platform.OS === 'ios' ? parseInt(String(Platform.Version).split('.')[0], 10) : 0;
 const isIOS26OrLater = iosVersionMajor >= 26;
 
 // ---------------------------------------------------------------------------
@@ -29,12 +27,7 @@ const StaticSkeletonBox: React.FC<{
   style?: ViewStyle;
   backgroundColor: string;
 }> = ({ width, height, style, backgroundColor }) => (
-  <View
-    style={[
-      { width, height, backgroundColor, borderRadius: BORDER_RADIUS.sm, opacity: 0.4 },
-      style,
-    ]}
-  />
+  <View style={[{ width, height, backgroundColor, borderRadius: BORDER_RADIUS.sm, opacity: 0.4 }, style]} />
 );
 
 // ---------------------------------------------------------------------------
@@ -59,14 +52,7 @@ const AnimatedSkeletonBox: React.FC<{
     return () => anim.stop();
   }, [opacity]);
 
-  return (
-    <Animated.View
-      style={[
-        { width, height, backgroundColor, borderRadius: BORDER_RADIUS.sm, opacity },
-        style,
-      ]}
-    />
-  );
+  return <Animated.View style={[{ width, height, backgroundColor, borderRadius: BORDER_RADIUS.sm, opacity }, style]} />;
 };
 
 // ---------------------------------------------------------------------------

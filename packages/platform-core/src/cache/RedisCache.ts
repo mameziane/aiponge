@@ -241,14 +241,12 @@ export class RedisCache implements ICache {
     try {
       const result = await this.client.setex(prefixedKey, effectiveTtl, value);
       if (result === 'OK' && this.invalidationEnabled) {
-        this.client
-          .publish(this.invalidationChannel, prefixedKey)
-          .catch(err =>
-            this.logger.warn('Cache invalidation publish failed on set', {
-              key: prefixedKey,
-              error: serializeError(err),
-            })
-          );
+        this.client.publish(this.invalidationChannel, prefixedKey).catch(err =>
+          this.logger.warn('Cache invalidation publish failed on set', {
+            key: prefixedKey,
+            error: serializeError(err),
+          })
+        );
       }
       return result === 'OK';
     } catch (error) {
@@ -271,14 +269,12 @@ export class RedisCache implements ICache {
     try {
       const result = await this.client.del(prefixedKey);
       if (result === 1 && this.invalidationEnabled) {
-        this.client
-          .publish(this.invalidationChannel, prefixedKey)
-          .catch(err =>
-            this.logger.warn('Cache invalidation publish failed on delete', {
-              key: prefixedKey,
-              error: serializeError(err),
-            })
-          );
+        this.client.publish(this.invalidationChannel, prefixedKey).catch(err =>
+          this.logger.warn('Cache invalidation publish failed on delete', {
+            key: prefixedKey,
+            error: serializeError(err),
+          })
+        );
       }
       return result === 1;
     } catch (error) {

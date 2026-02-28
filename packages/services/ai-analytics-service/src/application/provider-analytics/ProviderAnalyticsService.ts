@@ -154,7 +154,12 @@ export class ProviderAnalyticsService extends EventEmitter {
       if (listLength && listLength > MAX_REDIS_BUFFER_SIZE) {
         const overflow = listLength - MAX_REDIS_BUFFER_SIZE;
         logger.warn(`Buffer ${key} exceeds max size (${listLength}), dropping ${overflow} oldest events`);
-        await (this.cache as unknown as { eval: (...args: unknown[]) => Promise<unknown> }).eval('return redis.call("ltrim", KEYS[1], ARGV[1], -1)', 1, key, overflow);
+        await (this.cache as unknown as { eval: (...args: unknown[]) => Promise<unknown> }).eval(
+          'return redis.call("ltrim", KEYS[1], ARGV[1], -1)',
+          1,
+          key,
+          overflow
+        );
       }
     } catch (error) {
       logger.warn(`Failed to push to Redis buffer ${key}, using in-memory fallback`, {

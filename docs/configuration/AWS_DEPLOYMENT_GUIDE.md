@@ -324,11 +324,7 @@ aws s3api create-bucket \
   {
     "AllowedHeaders": ["*"],
     "AllowedMethods": ["GET", "PUT", "POST", "DELETE", "HEAD"],
-    "AllowedOrigins": [
-      "https://your-app.replit.app",
-      "https://aiponge.com",
-      "exp://*"
-    ],
+    "AllowedOrigins": ["https://your-app.replit.app", "https://aiponge.com", "exp://*"],
     "ExposeHeaders": ["ETag"],
     "MaxAgeSeconds": 3000
   }
@@ -385,9 +381,9 @@ if (providerType === 's3') {
     endpoint: process.env.S3_ENDPOINT, // Optional: for S3-compatible services
     cdnDomain: process.env.CDN_DOMAIN, // Optional: CloudFront domain
   });
-  
+
   await storageProvider.initialize();
-  
+
   logger.info('S3 Storage Provider initialized', {
     bucket: process.env.S3_BUCKET_NAME,
     region: process.env.AWS_REGION,
@@ -397,7 +393,7 @@ if (providerType === 's3') {
   // Local Storage Provider (default)
   const { LocalStorageProvider } = await import('./infrastructure/providers/LocalStorageProvider');
   storageProvider = new LocalStorageProvider(`${WORKSPACE_ROOT}/uploads`);
-  
+
   logger.info('Local Storage Provider initialized', {
     basePath: `${WORKSPACE_ROOT}/uploads`,
   });
@@ -409,6 +405,7 @@ if (providerType === 's3') {
 When migrating from local storage to S3:
 
 1. **Install AWS SDK Dependencies**
+
    ```bash
    cd packages/services/storage-service
    npm install @aws-sdk/client-s3 @aws-sdk/s3-request-presigner
@@ -417,6 +414,7 @@ When migrating from local storage to S3:
 2. **Set Environment Variables** (see above)
 
 3. **Migrate Existing Files**
+
    ```bash
    aws s3 sync ./uploads s3://aiponge-production-storage/
    ```
@@ -433,22 +431,26 @@ When migrating from local storage to S3:
 #### S3 Troubleshooting
 
 **"Access Denied" Error:**
+
 - Verify IAM user permissions match policy above
 - Check bucket policy allows required operations
 - Confirm credentials in environment match IAM user
 - Test with AWS CLI: `aws s3 ls s3://your-bucket/`
 
 **"Bucket Not Found":**
+
 - Bucket names are case-sensitive
 - Verify `AWS_REGION` matches bucket region
 - Confirm bucket exists in AWS Console
 
 **CORS Errors in Browser:**
+
 - Add app domains to CORS policy
 - Include `exp://*` for Expo development
 - Clear browser cache after changes
 
 **Slow Upload/Download:**
+
 - Use CloudFront CDN for global distribution
 - Enable S3 Transfer Acceleration
 - Choose region closest to users
@@ -568,6 +570,7 @@ Used for pulling images from ECR, writing logs, and accessing secrets.
 See: `deploy/aws/iam-ecs-execution-role-policy.json`
 
 Key permissions:
+
 - ECR image pull
 - CloudWatch Logs write
 - Secrets Manager read
@@ -581,6 +584,7 @@ Used by the running application for S3 access, metrics, and service discovery.
 See: `deploy/aws/iam-ecs-task-role-policy.json`
 
 Key permissions:
+
 - S3 bucket access (read/write)
 - CloudWatch metrics publish
 - X-Ray tracing
@@ -650,6 +654,7 @@ aws secretsmanager create-secret \
 ```
 
 **Important Notes:**
+
 - In development mode (`NODE_ENV=development`), a fallback key is used automatically
 - In production, the service **will not start** without this key
 - Key rotation requires re-encrypting existing data - plan for a maintenance window
@@ -687,42 +692,45 @@ For detailed security configuration, see: [docs/SECURITY_AWS_SETUP.md](./SECURIT
 
 ### All Services
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `NODE_ENV` | `production` or `staging` | Yes |
-| `PORT` | Service port | Yes |
-| `DATABASE_URL` | PostgreSQL connection string | Yes |
-| `REDIS_URL` | Redis connection string | Yes |
-| `JWT_SECRET` | JWT signing secret | Yes |
-| `INTERNAL_SERVICE_SECRET` | Inter-service auth secret | Yes |
-| `ENTRY_ENCRYPTION_KEY` | AES-256-GCM encryption key | Yes |
-| `LOG_LEVEL` | `info`, `debug`, `warn`, `error` | No |
-| `CLUSTER_WORKERS` | `auto` for all CPU cores | No |
-| `DATABASE_POOL_MAX` | Max DB connections (default: 50) | No |
+| Variable                  | Description                      | Required |
+| ------------------------- | -------------------------------- | -------- |
+| `NODE_ENV`                | `production` or `staging`        | Yes      |
+| `PORT`                    | Service port                     | Yes      |
+| `DATABASE_URL`            | PostgreSQL connection string     | Yes      |
+| `REDIS_URL`               | Redis connection string          | Yes      |
+| `JWT_SECRET`              | JWT signing secret               | Yes      |
+| `INTERNAL_SERVICE_SECRET` | Inter-service auth secret        | Yes      |
+| `ENTRY_ENCRYPTION_KEY`    | AES-256-GCM encryption key       | Yes      |
+| `LOG_LEVEL`               | `info`, `debug`, `warn`, `error` | No       |
+| `CLUSTER_WORKERS`         | `auto` for all CPU cores         | No       |
+| `DATABASE_POOL_MAX`       | Max DB connections (default: 50) | No       |
 
 ### Database URLs (Per Service)
 
-| Service | Variable | Fallback |
-|---------|----------|----------|
-| system-service | `SYSTEM_DATABASE_URL` | `DATABASE_URL` |
-| storage-service | `STORAGE_DATABASE_URL` | `DATABASE_URL` |
-| user-service | `USER_DATABASE_URL` | `DATABASE_URL` |
-| ai-config-service | `AI_CONFIG_DATABASE_URL` | `DATABASE_URL` |
-| ai-content-service | `AI_CONTENT_DATABASE_URL` | `DATABASE_URL` |
+| Service              | Variable                    | Fallback       |
+| -------------------- | --------------------------- | -------------- |
+| system-service       | `SYSTEM_DATABASE_URL`       | `DATABASE_URL` |
+| storage-service      | `STORAGE_DATABASE_URL`      | `DATABASE_URL` |
+| user-service         | `USER_DATABASE_URL`         | `DATABASE_URL` |
+| ai-config-service    | `AI_CONFIG_DATABASE_URL`    | `DATABASE_URL` |
+| ai-content-service   | `AI_CONTENT_DATABASE_URL`   | `DATABASE_URL` |
 | ai-analytics-service | `AI_ANALYTICS_DATABASE_URL` | `DATABASE_URL` |
-| music-service | `MUSIC_DATABASE_URL` | `DATABASE_URL` |
+| music-service        | `MUSIC_DATABASE_URL`        | `DATABASE_URL` |
 
 ### Service-Specific Variables
 
 **ai-config-service:**
+
 - `OPENAI_API_KEY`
 - `ANTHROPIC_API_KEY`
 
 **music-service:**
+
 - `MUSICAPI_API_KEY`
 - `ELEVENLABS_API_KEY`
 
 **storage-service:**
+
 - `STORAGE_PROVIDER` (s3 or local)
 - `S3_BUCKET_NAME`
 - `CDN_DOMAIN`
@@ -735,11 +743,11 @@ For detailed security configuration, see: [docs/SECURITY_AWS_SETUP.md](./SECURIT
 
 Add these secrets to GitHub (Settings → Secrets → Actions):
 
-| Secret | Description |
-|--------|-------------|
-| `AWS_ACCOUNT_ID` | Your 12-digit AWS account ID |
-| `AWS_ACCESS_KEY_ID` | IAM access key for CI/CD |
-| `AWS_SECRET_ACCESS_KEY` | IAM secret key |
+| Secret                  | Description                  |
+| ----------------------- | ---------------------------- |
+| `AWS_ACCOUNT_ID`        | Your 12-digit AWS account ID |
+| `AWS_ACCESS_KEY_ID`     | IAM access key for CI/CD     |
+| `AWS_SECRET_ACCESS_KEY` | IAM secret key               |
 
 ### Deployment Flow
 
@@ -778,7 +786,7 @@ for SERVICE in api-gateway system-service storage-service user-service ai-config
     --build-arg SERVICE_PATH=packages/services/$SERVICE \
     -t $ECR_REGISTRY/aiponge-$SERVICE:$VERSION \
     -f deploy/docker/Dockerfile.service .
-  
+
   docker push $ECR_REGISTRY/aiponge-$SERVICE:$VERSION
 done
 ```
@@ -817,15 +825,15 @@ curl https://your-alb-domain/ready
 
 ### Current Resilience Features
 
-| Feature | Status | Location |
-|---------|--------|----------|
-| Circuit Breakers (Internal) | Active | `api-gateway/CircuitBreakerManager.ts` |
+| Feature                     | Status | Location                                                |
+| --------------------------- | ------ | ------------------------------------------------------- |
+| Circuit Breakers (Internal) | Active | `api-gateway/CircuitBreakerManager.ts`                  |
 | Circuit Breakers (External) | Active | `platform-core/resilience/ExternalApiCircuitBreaker.ts` |
-| Service Discovery | Cached | `platform-core/service-locator/service-locator.ts` |
-| Redis Fallbacks | Active | `ai-analytics-service/cache/RedisCache.ts` |
-| HTTP Retry Logic | Active | `platform-core/http/HttpClient.ts` |
-| Rate Limiting | Active | `api-gateway/middleware/RateLimitMiddleware.ts` |
-| Health Checks | Active | All services expose `/health` endpoint |
+| Service Discovery           | Cached | `platform-core/service-locator/service-locator.ts`      |
+| Redis Fallbacks             | Active | `ai-analytics-service/cache/RedisCache.ts`              |
+| HTTP Retry Logic            | Active | `platform-core/http/HttpClient.ts`                      |
+| Rate Limiting               | Active | `api-gateway/middleware/RateLimitMiddleware.ts`         |
+| Health Checks               | Active | All services expose `/health` endpoint                  |
 
 ### Pre-Deployment Tasks
 
@@ -862,7 +870,7 @@ TargetTrackingScaling:
     TargetValue: 70
     ScaleOutCooldown: 60
     ScaleInCooldown: 300
-  
+
   - MetricType: Memory
     TargetValue: 80
     ScaleOutCooldown: 60
@@ -908,13 +916,13 @@ fields @timestamp, @message
 
 ### CloudWatch Alarms
 
-| Alarm | Metric | Threshold | Action |
-|-------|--------|-----------|--------|
-| High CPU | ECS CPU Utilization | >80% for 5 min | Scale out + notify |
-| High Memory | ECS Memory Utilization | >85% for 5 min | Scale out + notify |
-| Error Rate | HTTP 5xx count | >10/min | Notify on-call |
-| Latency | ALB target response time | >1s p95 | Notify |
-| DB Connections | RDS connections | >80% max | Notify |
+| Alarm          | Metric                   | Threshold      | Action             |
+| -------------- | ------------------------ | -------------- | ------------------ |
+| High CPU       | ECS CPU Utilization      | >80% for 5 min | Scale out + notify |
+| High Memory    | ECS Memory Utilization   | >85% for 5 min | Scale out + notify |
+| Error Rate     | HTTP 5xx count           | >10/min        | Notify on-call     |
+| Latency        | ALB target response time | >1s p95        | Notify             |
+| DB Connections | RDS connections          | >80% max       | Notify             |
 
 ```bash
 aws cloudwatch put-metric-alarm \
@@ -930,12 +938,12 @@ aws cloudwatch put-metric-alarm \
 
 ### Health Check Endpoints
 
-| Endpoint | Purpose | Expected Response |
-|----------|---------|-------------------|
-| `/health` | Load balancer | 200 OK |
-| `/ready` | Readiness probe | 200 if dependencies OK |
-| `/live` | Liveness probe | 200 if process alive |
-| `/metrics` | Prometheus scraping | Metrics text |
+| Endpoint   | Purpose             | Expected Response      |
+| ---------- | ------------------- | ---------------------- |
+| `/health`  | Load balancer       | 200 OK                 |
+| `/ready`   | Readiness probe     | 200 if dependencies OK |
+| `/live`    | Liveness probe      | 200 if process alive   |
+| `/metrics` | Prometheus scraping | Metrics text           |
 
 ---
 
@@ -943,27 +951,27 @@ aws cloudwatch put-metric-alarm \
 
 ### Development Environment
 
-| Resource | Recommended | Monthly Cost |
-|----------|-------------|--------------|
-| ECS Fargate | 0.25 vCPU, 0.5GB | ~$10 |
-| RDS | db.t3.micro | ~$15 |
-| ElastiCache | cache.t3.micro | ~$12 |
-| S3 | <10GB | ~$1 |
-| CloudFront | <50GB transfer | ~$5 |
-| **Total** | | **~$43/month** |
+| Resource    | Recommended      | Monthly Cost   |
+| ----------- | ---------------- | -------------- |
+| ECS Fargate | 0.25 vCPU, 0.5GB | ~$10           |
+| RDS         | db.t3.micro      | ~$15           |
+| ElastiCache | cache.t3.micro   | ~$12           |
+| S3          | <10GB            | ~$1            |
+| CloudFront  | <50GB transfer   | ~$5            |
+| **Total**   |                  | **~$43/month** |
 
 ### Production Environment (10K users)
 
-| Resource | Recommended | Monthly Cost |
-|----------|-------------|--------------|
-| ECS Fargate (8 services) | 0.5 vCPU, 1GB each | ~$120 |
-| RDS PostgreSQL | db.t3.medium, Multi-AZ | ~$100 |
-| ElastiCache Redis | cache.t3.medium | ~$50 |
-| Application Load Balancer | Standard | ~$25 |
-| ECR Storage | ~5GB images | ~$5 |
-| CloudWatch Logs | ~10GB/month | ~$5 |
-| Data Transfer | ~50GB/month | ~$15 |
-| **Total** | | **~$320/month** |
+| Resource                  | Recommended            | Monthly Cost    |
+| ------------------------- | ---------------------- | --------------- |
+| ECS Fargate (8 services)  | 0.5 vCPU, 1GB each     | ~$120           |
+| RDS PostgreSQL            | db.t3.medium, Multi-AZ | ~$100           |
+| ElastiCache Redis         | cache.t3.medium        | ~$50            |
+| Application Load Balancer | Standard               | ~$25            |
+| ECR Storage               | ~5GB images            | ~$5             |
+| CloudWatch Logs           | ~10GB/month            | ~$5             |
+| Data Transfer             | ~50GB/month            | ~$15            |
+| **Total**                 |                        | **~$320/month** |
 
 ### Cost Optimization Tips
 
@@ -1025,15 +1033,18 @@ nc -zv DATABASE_HOST 5432
 ### S3 Access Issues
 
 **"Access Denied" Error:**
+
 - Verify IAM permissions
 - Check bucket policy
 - Confirm credentials match IAM user
 
 **"Bucket Not Found":**
+
 - Verify bucket name (case-sensitive)
 - Check `AWS_REGION` matches bucket region
 
 **CORS Errors:**
+
 - Add app domains to CORS policy
 - Include `exp://*` for Expo dev mode
 - Clear browser cache
@@ -1080,11 +1091,11 @@ for SERVICE in "${SERVICES[@]}"; do
     --services aiponge-$SERVICE \
     --query 'services[0].taskDefinition' \
     --output text | grep -oE '[0-9]+$')
-  
+
   PREVIOUS=$((CURRENT - 1))
-  
+
   echo "Rolling back $SERVICE from :$CURRENT to :$PREVIOUS"
-  
+
   aws ecs update-service \
     --cluster aiponge-cluster \
     --service aiponge-$SERVICE \
@@ -1127,15 +1138,15 @@ aws rds restore-db-instance-from-db-snapshot \
 
 ## File References
 
-| File | Description |
-|------|-------------|
-| `deploy/aws/setup-ecr.sh` | ECR repository creation script |
-| `deploy/aws/ecs-task-definition.json` | ECS task definition template |
-| `deploy/aws/cloudfront-distribution.json` | CloudFront CDN configuration |
-| `deploy/aws/iam-ecs-execution-role-policy.json` | IAM policy for task execution |
-| `deploy/aws/iam-ecs-task-role-policy.json` | IAM policy for running tasks |
-| `deploy/aws/task-definitions/` | Service-specific task definitions |
-| `deploy/docker/Dockerfile.service` | Universal service Dockerfile |
+| File                                            | Description                       |
+| ----------------------------------------------- | --------------------------------- |
+| `deploy/aws/setup-ecr.sh`                       | ECR repository creation script    |
+| `deploy/aws/ecs-task-definition.json`           | ECS task definition template      |
+| `deploy/aws/cloudfront-distribution.json`       | CloudFront CDN configuration      |
+| `deploy/aws/iam-ecs-execution-role-policy.json` | IAM policy for task execution     |
+| `deploy/aws/iam-ecs-task-role-policy.json`      | IAM policy for running tasks      |
+| `deploy/aws/task-definitions/`                  | Service-specific task definitions |
+| `deploy/docker/Dockerfile.service`              | Universal service Dockerfile      |
 
 ---
 
@@ -1149,4 +1160,4 @@ aws rds restore-db-instance-from-db-snapshot \
 
 ---
 
-*Last Updated: December 2025*
+_Last Updated: December 2025_

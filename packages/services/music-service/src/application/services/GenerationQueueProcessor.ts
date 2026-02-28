@@ -73,7 +73,9 @@ function pruneStatusStore(): void {
   }
 }
 
-let albumRequestRepo: InstanceType<typeof import('../../infrastructure/database/DrizzleAlbumRequestRepository').DrizzleAlbumRequestRepository> | null = null;
+let albumRequestRepo: InstanceType<
+  typeof import('../../infrastructure/database/DrizzleAlbumRequestRepository').DrizzleAlbumRequestRepository
+> | null = null;
 async function getAlbumRequestRepository() {
   if (!albumRequestRepo) {
     try {
@@ -159,11 +161,14 @@ async function getTrackGenerationService() {
         albumRepository: new UnifiedAlbumRepository(db),
         userTrackRepository: new DrizzleUserTrackRepository(db),
         catalogRepository: new DrizzleMusicCatalogRepository(db),
-        storageClient: registry.storageClient as import('../../infrastructure/clients/StorageServiceClient').StorageServiceClient,
+        storageClient:
+          registry.storageClient as import('../../infrastructure/clients/StorageServiceClient').StorageServiceClient,
         artworkUseCase: new GenerateArtworkUseCase(),
         lyricsPreparationService,
         db,
-        musicProviderOrchestrator: createMusicOrchestrator(registry.providersClient as unknown as import('../../domains/ai-music/interfaces/IProviderClient').IProviderClient),
+        musicProviderOrchestrator: createMusicOrchestrator(
+          registry.providersClient as unknown as import('../../domains/ai-music/interfaces/IProviderClient').IProviderClient
+        ),
       });
     } catch (error) {
       logger.error('Failed to initialize TrackGenerationService for queue processor', { error });
@@ -188,13 +193,16 @@ async function createAlbumGenerationService() {
     const db = getDatabase();
     const registry = getServiceRegistry();
     return new AlbumGenerationService({
-      storageClient: registry.storageClient as import('../../infrastructure/clients/StorageServiceClient').StorageServiceClient,
+      storageClient:
+        registry.storageClient as import('../../infrastructure/clients/StorageServiceClient').StorageServiceClient,
       artworkUseCase: new GenerateArtworkUseCase(),
       lyricsPreparationService: await getLyricsPreparationService(),
       catalogRepository: new DrizzleMusicCatalogRepository(db),
       userTrackRepository: new DrizzleUserTrackRepository(db),
       lyricsRepository: new UnifiedLyricsRepository(db),
-      musicProviderOrchestrator: createMusicOrchestrator(registry.providersClient as unknown as import('../../domains/ai-music/interfaces/IProviderClient').IProviderClient),
+      musicProviderOrchestrator: createMusicOrchestrator(
+        registry.providersClient as unknown as import('../../domains/ai-music/interfaces/IProviderClient').IProviderClient
+      ),
     });
   } catch (error) {
     logger.error('Failed to create AlbumGenerationService for queue processor', { error });
@@ -229,7 +237,16 @@ const generationProcessor: JobProcessor<GenerationJobPayload> = async (job: Job<
       updatedAt: new Date(),
     });
 
-    let result: { success: boolean; error?: string; trackId?: string; fileUrl?: string; albumId?: string; albumRequestId?: string; successfulTracks?: number; failedTracks?: number };
+    let result: {
+      success: boolean;
+      error?: string;
+      trackId?: string;
+      fileUrl?: string;
+      albumId?: string;
+      albumRequestId?: string;
+      successfulTracks?: number;
+      failedTracks?: number;
+    };
 
     if (job.data.musicType === 'album') {
       const albumService = await createAlbumGenerationService();
@@ -251,8 +268,13 @@ const generationProcessor: JobProcessor<GenerationJobPayload> = async (job: Job<
               currentTrack: progress.currentTrack,
               percentComplete: progress.percentComplete,
               successfulTracks:
-                progress.successfulTracks ?? progress.trackResults?.filter((t: { success: boolean }) => t.success).length ?? 0,
-              failedTracks: progress.failedTracks ?? progress.trackResults?.filter((t: { success: boolean }) => !t.success).length ?? 0,
+                progress.successfulTracks ??
+                progress.trackResults?.filter((t: { success: boolean }) => t.success).length ??
+                0,
+              failedTracks:
+                progress.failedTracks ??
+                progress.trackResults?.filter((t: { success: boolean }) => !t.success).length ??
+                0,
               trackResults: progress.trackResults || [],
               albumArtworkUrl: progress.albumArtworkUrl,
               albumTitle: progress.albumTitle || undefined,
@@ -269,7 +291,8 @@ const generationProcessor: JobProcessor<GenerationJobPayload> = async (job: Job<
 
       result = await albumService.generate({
         userId: job.data.userId,
-        targetVisibility: ((job.data as GenerationJobPayload & { targetVisibility?: string }).targetVisibility || 'PERSONAL') as ContentVisibility,
+        targetVisibility: ((job.data as GenerationJobPayload & { targetVisibility?: string }).targetVisibility ||
+          'PERSONAL') as ContentVisibility,
         chapterId: params.chapterId as string,
         chapterTitle: (params.chapterTitle as string) || job.data.prompt,
         bookId: params.bookId as string,

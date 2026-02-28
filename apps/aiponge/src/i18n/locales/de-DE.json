@@ -217,8 +217,6 @@
       "subtitle": "Untertitel",
       "author": "Originalautor",
       "category": "Kategorie",
-      "era": "Epoche",
-      "tradition": "Tradition",
       "visibility": "Sichtbarkeit",
       "createFailed": "Buch konnte nicht erstellt werden",
       "updateFailed": "Buch konnte nicht aktualisiert werden",

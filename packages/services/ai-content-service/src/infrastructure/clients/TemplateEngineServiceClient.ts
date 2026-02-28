@@ -662,8 +662,6 @@ export class TemplateEngineServiceClient {
     description: string;
     themes?: string;
     bookType?: string;
-    tradition?: string;
-    era?: string;
     style?: string;
   }): Promise<{
     success: boolean;
@@ -678,8 +676,6 @@ export class TemplateEngineServiceClient {
         description: request.description,
         themes: request.themes || 'inspiration and growth',
         bookType: request.bookType,
-        tradition: request.tradition || 'universal',
-        era: request.era || 'timeless',
         style: request.style || 'elegant, sophisticated',
       },
     });

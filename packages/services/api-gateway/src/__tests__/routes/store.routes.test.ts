@@ -20,7 +20,10 @@ vi.mock('@aiponge/platform-core', () => ({
     getServicePort: vi.fn(() => 3020),
   },
   serializeError: vi.fn((e: unknown) => String(e)),
-  getValidation: () => ({ validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(), validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next() }),
+  getValidation: () => ({
+    validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+    validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+  }),
 }));
 
 vi.mock('@services/gatewayFetch', () => ({
@@ -111,9 +114,7 @@ describe('Store Routes', () => {
 
   describe('GET /catalog', () => {
     it('should return 200 (public endpoint)', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true, data: { products: [] } })
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, data: { products: [] } }));
 
       const res = await request(app).get('/api/app/store/catalog');
       expect(res.status).toBe(200);
@@ -137,13 +138,9 @@ describe('Store Routes', () => {
     });
 
     it('should return 200 with user-id', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true, data: { orders: [] } })
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, data: { orders: [] } }));
 
-      const res = await request(app)
-        .get('/api/app/store/orders')
-        .set('x-user-id', 'user-123');
+      const res = await request(app).get('/api/app/store/orders').set('x-user-id', 'user-123');
       expect(res.status).toBe(200);
       expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/credits/'), expect.anything());
     });
@@ -151,31 +148,27 @@ describe('Store Routes', () => {
 
   describe('POST /gift/claim', () => {
     it('should return 401 without user-id', async () => {
-      const res = await request(app)
-        .post('/api/app/store/gift/claim')
-        .send({ claimToken: 'token-123' });
+      const res = await request(app).post('/api/app/store/gift/claim').send({ claimToken: 'token-123' });
       expect(res.status).toBe(401);
     });
 
     it('should return 400 without claimToken', async () => {
-      const res = await request(app)
-        .post('/api/app/store/gift/claim')
-        .set('x-user-id', 'user-123')
-        .send({});
+      const res = await request(app).post('/api/app/store/gift/claim').set('x-user-id', 'user-123').send({});
       expect(res.status).toBe(400);
     });
 
     it('should return 200 with valid claim', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true, data: { credits: 100 } })
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, data: { credits: 100 } }));
 
       const res = await request(app)
         .post('/api/app/store/gift/claim')
         .set('x-user-id', 'user-123')
         .send({ claimToken: 'token-123' });
       expect(res.status).toBe(200);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/credits/gift/claim'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/credits/gift/claim'),
+        expect.anything()
+      );
     });
   });
 });

@@ -70,11 +70,11 @@ export class TestUtils {
    * Wait for a service to be healthy
    */
   static async waitForServiceHealth(
-    serviceUrl: string, 
+    serviceUrl: string,
     maxWaitMs: number = TIMEOUTS.SERVICE_STARTUP
   ): Promise<boolean> {
     const startTime = Date.now();
-    
+
     while (Date.now() - startTime < maxWaitMs) {
       try {
         const response = await fetchWithTimeout(`${serviceUrl}/health`, {}, TIMEOUTS.HEALTH_CHECK);
@@ -87,10 +87,10 @@ export class TestUtils {
       } catch (error) {
         // Service not ready yet
       }
-      
+
       await setTimeout(1000); // Wait 1 second before retrying
     }
-    
+
     return false;
   }
 
@@ -102,41 +102,41 @@ export class TestUtils {
     unhealthy: string[];
   }> {
     logger.info('⏳ Waiting for all services to be healthy...');
-    
+
     const healthChecks = Object.entries(SERVICE_URLS).map(async ([name, url]) => {
       const isHealthy = await this.waitForServiceHealth(url);
       return { name, url, healthy: isHealthy };
     });
-    
+
     const results = await Promise.all(healthChecks);
-    
+
     const healthy = results.filter(r => r.healthy).map(r => r.name);
     const unhealthy = results.filter(r => !r.healthy).map(r => r.name);
-    
+
     logger.info(`✅ Healthy services: ${healthy.join(', ')}`);
     if (unhealthy.length > 0) {
       logger.warn(`❌ Unhealthy services: ${unhealthy.join(', ')}`);
     }
-    
+
     return { healthy, unhealthy };
   }
 
   /**
    * Create a test HTTP request with timeout
    */
-  static async makeRequest(
-    url: string, 
-    options: RequestInit = {}, 
-    timeoutMs: number = TIMEOUTS.REQUEST
-  ): Promise<any> {
-    const response = await fetchWithTimeout(url, {
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...(options.headers as Record<string, string> || {}),
-      }
-    }, timeoutMs);
-    
+  static async makeRequest(url: string, options: RequestInit = {}, timeoutMs: number = TIMEOUTS.REQUEST): Promise<any> {
+    const response = await fetchWithTimeout(
+      url,
+      {
+        ...options,
+        headers: {
+          'Content-Type': 'application/json',
+          ...((options.headers as Record<string, string>) || {}),
+        },
+      },
+      timeoutMs
+    );
+
     const data = await response.json();
     return { success: response.ok, data, status: response.status, error: response.ok ? undefined : data?.error };
   }
@@ -147,7 +147,7 @@ export class TestUtils {
   static validateApiResponse(response: any): void {
     expect(response).toHaveProperty('success');
     expect(typeof response.success).toBe('boolean');
-    
+
     if (response.success === false) {
       expect(response).toHaveProperty('error');
       expect(typeof response.error).toBe('string');
@@ -159,12 +159,13 @@ export class TestUtils {
    */
   static generateTestData = {
     textAnalysisRequest: () => ({
-      content: 'This is a test piece of text for analysis. It contains various emotions and themes to test our AI analysis capabilities.',
+      content:
+        'This is a test piece of text for analysis. It contains various emotions and themes to test our AI analysis capabilities.',
       analysisType: 'comprehensive' as const,
       context: {
         userId: 'test-user-123',
-        domainContext: 'integration-test'
-      }
+        domainContext: 'integration-test',
+      },
     }),
 
     contentGenerationRequest: () => ({
@@ -174,11 +175,11 @@ export class TestUtils {
         maxLength: 500,
         temperature: 0.7,
         tone: 'encouraging',
-        style: 'conversational'
+        style: 'conversational',
       },
       context: {
-        userId: 'test-user-123'
-      }
+        userId: 'test-user-123',
+      },
     }),
 
     reflectionGenerationRequest: () => ({
@@ -186,7 +187,7 @@ export class TestUtils {
       userResponse: 'I am grateful for my family and the opportunity to learn new things.',
       reflectionType: 'follow-up-questions' as const,
       depth: 'comprehensive' as const,
-      context: {}
+      context: {},
     }),
 
     musicGenerationRequest: () => ({
@@ -199,8 +200,8 @@ export class TestUtils {
         duration: 120, // 2 minutes
         quality: 'standard',
         priority: 'normal',
-        wellbeingPurpose: 'meditation'
-      }
+        wellbeingPurpose: 'meditation',
+      },
     }),
 
     musicAnalysisRequest: () => ({
@@ -211,19 +212,19 @@ export class TestUtils {
         includeMood: true,
         includeTempo: true,
         includeKey: true,
-        includeInstruments: true
-      }
-    })
+        includeInstruments: true,
+      },
+    }),
   };
 }
 
 // Global test setup
 beforeAll(async () => {
   logger.info('🚀 Starting microservices integration test suite...');
-  
+
   // Wait for critical services to be healthy
   const { healthy, unhealthy } = await TestUtils.waitForAllServices();
-  
+
   // Log service health status but don't fail if some services are unhealthy
   // Individual tests will handle service availability gracefully
   if (unhealthy.length > 0) {
@@ -315,7 +316,7 @@ export class TestUserHelper {
    */
   static getAuthHeaders(user: TestUser): Record<string, string> {
     return {
-      'Authorization': `Bearer ${user.accessToken}`,
+      Authorization: `Bearer ${user.accessToken}`,
       'x-user-id': user.id,
       'Content-Type': 'application/json',
     };

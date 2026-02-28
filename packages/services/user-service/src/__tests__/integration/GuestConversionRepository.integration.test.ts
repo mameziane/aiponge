@@ -34,7 +34,9 @@ describeIntegration('GuestConversionRepository Integration', () => {
     for (const userId of testUserIds) {
       try {
         await db.delete(usrGuestConversionState).where(eq(usrGuestConversionState.userId, userId));
-      } catch { /* cleanup - row may not exist */ }
+      } catch {
+        /* cleanup - row may not exist */
+      }
       await cleanupTestUser(db, userId);
     }
     await closeTestDatabase();
@@ -74,7 +76,7 @@ describeIntegration('GuestConversionRepository Integration', () => {
     });
 
     it('should return Result.ok with state after creation', async () => {
-      const user = await createTestUser(db, { 
+      const user = await createTestUser(db, {
         id: generateTestId('guest'),
         isGuest: true,
       });
@@ -96,7 +98,7 @@ describeIntegration('GuestConversionRepository Integration', () => {
 
   describe('createGuestState', () => {
     it('should create guest state with zero counters', async () => {
-      const user = await createTestUser(db, { 
+      const user = await createTestUser(db, {
         id: generateTestId('guest'),
         isGuest: true,
       });
@@ -115,7 +117,7 @@ describeIntegration('GuestConversionRepository Integration', () => {
 
   describe('trackEvent', () => {
     it('should track song_created event and increment counter', async () => {
-      const user = await createTestUser(db, { 
+      const user = await createTestUser(db, {
         id: generateTestId('guest'),
         isGuest: true,
       });
@@ -129,7 +131,7 @@ describeIntegration('GuestConversionRepository Integration', () => {
     });
 
     it('should track track_played event and increment counter', async () => {
-      const user = await createTestUser(db, { 
+      const user = await createTestUser(db, {
         id: generateTestId('guest'),
         isGuest: true,
       });
@@ -143,7 +145,7 @@ describeIntegration('GuestConversionRepository Integration', () => {
     });
 
     it('should track entry_created event and increment counter', async () => {
-      const user = await createTestUser(db, { 
+      const user = await createTestUser(db, {
         id: generateTestId('guest'),
         isGuest: true,
       });
@@ -155,7 +157,7 @@ describeIntegration('GuestConversionRepository Integration', () => {
     });
 
     it('should create state automatically if not exists', async () => {
-      const user = await createTestUser(db, { 
+      const user = await createTestUser(db, {
         id: generateTestId('guest'),
         isGuest: true,
       });
@@ -177,7 +179,7 @@ describeIntegration('GuestConversionRepository Integration', () => {
     });
 
     it('should trigger prompt at first song threshold', async () => {
-      const user = await createTestUser(db, { 
+      const user = await createTestUser(db, {
         id: generateTestId('guest'),
         isGuest: true,
       });
@@ -193,7 +195,7 @@ describeIntegration('GuestConversionRepository Integration', () => {
 
   describe('markConverted', () => {
     it('should mark user as converted', async () => {
-      const user = await createTestUser(db, { 
+      const user = await createTestUser(db, {
         id: generateTestId('guest'),
         isGuest: true,
       });

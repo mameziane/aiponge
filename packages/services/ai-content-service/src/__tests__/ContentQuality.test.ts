@@ -2,10 +2,16 @@ import { describe, it, expect, vi } from 'vitest';
 
 vi.mock('@aiponge/platform-core', () => ({
   createLogger: () => ({
-    info: vi.fn(), debug: vi.fn(), warn: vi.fn(), error: vi.fn(),
+    info: vi.fn(),
+    debug: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
   }),
   getLogger: () => ({
-    info: vi.fn(), debug: vi.fn(), warn: vi.fn(), error: vi.fn(),
+    info: vi.fn(),
+    debug: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
   }),
   DomainError: class DomainError extends Error {
     public readonly statusCode: number;
@@ -48,17 +54,23 @@ describe('ContentQuality', () => {
     });
 
     it('should throw for metric value > 1', () => {
-      expect(() => new ContentQuality({
-        ...validMetrics,
-        overall: 1.5,
-      })).toThrow('Invalid content quality');
+      expect(
+        () =>
+          new ContentQuality({
+            ...validMetrics,
+            overall: 1.5,
+          })
+      ).toThrow('Invalid content quality');
     });
 
     it('should throw for metric value < 0', () => {
-      expect(() => new ContentQuality({
-        ...validMetrics,
-        coherence: -0.1,
-      })).toThrow('Invalid content quality');
+      expect(
+        () =>
+          new ContentQuality({
+            ...validMetrics,
+            coherence: -0.1,
+          })
+      ).toThrow('Invalid content quality');
     });
 
     it('should allow boundary values 0 and 1', () => {

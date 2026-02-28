@@ -35,9 +35,7 @@ import { configureAudioSession } from '../hooks/music/audioSession';
 import { logger } from '../lib/logger';
 
 // iOS 26 detection — must match the check in MediaSessionService.ts and audioSession.ts
-const iosVersionMajor = Platform.OS === 'ios'
-  ? parseInt(String(Platform.Version).split('.')[0], 10)
-  : 0;
+const iosVersionMajor = Platform.OS === 'ios' ? parseInt(String(Platform.Version).split('.')[0], 10) : 0;
 const isIOS26OrLater = iosVersionMajor >= 26;
 
 type TrackEndCallback = () => void;
@@ -75,13 +73,15 @@ function AudioPlayerProviderIOS26({ children }: { children: ReactNode }) {
 
   const registerTrackEndListener = useCallback((callback: TrackEndCallback): (() => void) => {
     trackEndListeners.current.add(callback);
-    return () => { trackEndListeners.current.delete(callback); };
+    return () => {
+      trackEndListeners.current.delete(callback);
+    };
   }, []);
 
   useEffect(() => {
     logger.warn(
       '[AudioPlayer] iPhone OS 26+ detected — expo-audio AVAudioEngine is incompatible ' +
-      '(background-thread crash). Using stub. Audio playback disabled until expo-audio is updated.',
+        '(background-thread crash). Using stub. Audio playback disabled until expo-audio is updated.',
       { iosVersionMajor }
     );
   }, []);
@@ -102,7 +102,9 @@ function AudioPlayerProviderReal({ children }: { children: ReactNode }) {
 
   const registerTrackEndListener = useCallback((callback: TrackEndCallback): (() => void) => {
     trackEndListeners.current.add(callback);
-    return () => { trackEndListeners.current.delete(callback); };
+    return () => {
+      trackEndListeners.current.delete(callback);
+    };
   }, []);
 
   // Configure the OS audio session eagerly on mount so it's done before the first tap.
@@ -136,9 +138,7 @@ function AudioPlayerProviderReal({ children }: { children: ReactNode }) {
   }, [player]);
 
   return (
-    <AudioPlayerContext.Provider value={{ player, registerTrackEndListener }}>
-      {children}
-    </AudioPlayerContext.Provider>
+    <AudioPlayerContext.Provider value={{ player, registerTrackEndListener }}>{children}</AudioPlayerContext.Provider>
   );
 }
 

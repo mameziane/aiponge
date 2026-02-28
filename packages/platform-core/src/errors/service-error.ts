@@ -18,10 +18,7 @@ export class ServiceError extends Error {
   }
 }
 
-export function createServiceError(
-  name: string,
-  defaultStatusCode: number = 500
-) {
+export function createServiceError(name: string, defaultStatusCode: number = 500) {
   return class extends ServiceError {
     constructor(message: string, details?: Record<string, unknown>) {
       super(name, message, { statusCode: defaultStatusCode, details });

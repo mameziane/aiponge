@@ -194,7 +194,8 @@ export function createRedisRateLimitMiddleware(config: RateLimitConfig) {
           ...commonOpts,
           max: maxFn,
           store: new RedisStore({
-            sendCommand: (...args: string[]) => (redisClient as Redis).call(...(args as [string, ...string[]])) as Promise<string>,
+            sendCommand: (...args: string[]) =>
+              (redisClient as Redis).call(...(args as [string, ...string[]])) as Promise<string>,
             prefix,
           }),
         });

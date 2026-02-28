@@ -301,8 +301,12 @@
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .generated-song-player {
@@ -631,26 +635,26 @@
   .dashboard-stats {
     grid-template-columns: 1fr;
   }
-  
+
   .hero-generate-button {
     width: 100%;
     justify-content: center;
   }
-  
+
   .prompt-input-container {
     gap: var(--spacing-3);
   }
-  
+
   .generate-button {
     width: 100%;
     justify-content: center;
   }
-  
+
   .player-bottom-controls {
     flex-direction: column;
     gap: var(--spacing-3);
   }
-  
+
   .volume-control {
     width: 100%;
   }

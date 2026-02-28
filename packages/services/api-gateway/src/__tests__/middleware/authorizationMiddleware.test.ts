@@ -2,7 +2,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Request, Response, NextFunction } from 'express';
 
 const mockLogger = vi.hoisted(() => ({
-  info: vi.fn(), debug: vi.fn(), warn: vi.fn(), error: vi.fn(), child: vi.fn(),
+  info: vi.fn(),
+  debug: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  child: vi.fn(),
 }));
 vi.mock('../../config/service-urls', () => ({
   getLogger: () => mockLogger,
@@ -15,10 +19,41 @@ import {
 } from '../../presentation/middleware/authorizationMiddleware';
 
 function createMockReq(overrides = {}) {
-  return { headers: {}, params: {}, query: {}, body: {}, user: undefined, cookies: {}, ip: '127.0.0.1', method: 'GET', path: '/', get: vi.fn((h: string) => ({} as Record<string, string>)[h]), ...overrides } as unknown as Request;
+  return {
+    headers: {},
+    params: {},
+    query: {},
+    body: {},
+    user: undefined,
+    cookies: {},
+    ip: '127.0.0.1',
+    method: 'GET',
+    path: '/',
+    get: vi.fn((h: string) => (({}) as Record<string, string>)[h]),
+    ...overrides,
+  } as unknown as Request;
 }
 function createMockRes() {
-  const res = { _statusCode: 200, _data: undefined, locals: {}, status: vi.fn(function(this: Record<string, unknown>, c: number) { this._statusCode = c; return this; }), json: vi.fn(function(this: Record<string, unknown>, d: unknown) { this._data = d; return this; }), send: vi.fn(function(this: Record<string, unknown>, d: unknown) { this._data = d; return this; }), set: vi.fn().mockReturnThis(), setHeader: vi.fn().mockReturnThis(), end: vi.fn().mockReturnThis() } as unknown as Response;
+  const res = {
+    _statusCode: 200,
+    _data: undefined,
+    locals: {},
+    status: vi.fn(function (this: Record<string, unknown>, c: number) {
+      this._statusCode = c;
+      return this;
+    }),
+    json: vi.fn(function (this: Record<string, unknown>, d: unknown) {
+      this._data = d;
+      return this;
+    }),
+    send: vi.fn(function (this: Record<string, unknown>, d: unknown) {
+      this._data = d;
+      return this;
+    }),
+    set: vi.fn().mockReturnThis(),
+    setHeader: vi.fn().mockReturnThis(),
+    end: vi.fn().mockReturnThis(),
+  } as unknown as Response;
   return res;
 }
 
@@ -86,12 +121,14 @@ describe('verifyUserOwnership', () => {
     verifyUserOwnership(req, res, next);
 
     expect(res.status).toHaveBeenCalledWith(401);
-    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-      success: false,
-      error: expect.objectContaining({
-        message: 'Authentication required',
-      }),
-    }));
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        success: false,
+        error: expect.objectContaining({
+          message: 'Authentication required',
+        }),
+      })
+    );
     expect(next).not.toHaveBeenCalled();
   });
 
@@ -106,12 +143,14 @@ describe('verifyUserOwnership', () => {
     verifyUserOwnership(req, res, next);
 
     expect(res.status).toHaveBeenCalledWith(403);
-    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-      success: false,
-      error: expect.objectContaining({
-        message: expect.stringContaining('Unauthorized'),
-      }),
-    }));
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        success: false,
+        error: expect.objectContaining({
+          message: expect.stringContaining('Unauthorized'),
+        }),
+      })
+    );
     expect(next).not.toHaveBeenCalled();
   });
 
@@ -199,12 +238,14 @@ describe('injectAuthenticatedUserId', () => {
     injectAuthenticatedUserId(req, res, next);
 
     expect(res.status).toHaveBeenCalledWith(401);
-    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-      success: false,
-      error: expect.objectContaining({
-        message: 'Authentication required',
-      }),
-    }));
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        success: false,
+        error: expect.objectContaining({
+          message: 'Authentication required',
+        }),
+      })
+    );
     expect(next).not.toHaveBeenCalled();
   });
 
@@ -256,7 +297,7 @@ describe('injectAuthenticatedUserId', () => {
 
     expect(mockLogger.debug).toHaveBeenCalledWith(
       'Auth context for library route',
-      expect.objectContaining({ path: '/api/library/books' }),
+      expect.objectContaining({ path: '/api/library/books' })
     );
     expect(next).toHaveBeenCalled();
   });

@@ -246,9 +246,7 @@ describe('Albums API Contracts', () => {
         const response = {
           success: true,
           data: {
-            albums: [
-              { id: 'album-1', title: 'A1', userId: 'user-1', type: 'album', status: 'published' },
-            ],
+            albums: [{ id: 'album-1', title: 'A1', userId: 'user-1', type: 'album', status: 'published' }],
             total: 1,
           },
         };

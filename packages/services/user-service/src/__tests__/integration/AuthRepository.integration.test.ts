@@ -36,17 +36,19 @@ describeIntegration('AuthRepository Integration', () => {
     testUserIds = [];
   });
 
-  function createNewUserData(overrides: Partial<{
-    id: string;
-    email: string;
-    passwordHash: string;
-    role: string;
-    status: string;
-    profile: object;
-    phoneE164: string;
-    failedLoginAttempts: number;
-    lockedUntil: Date | null;
-  }> = {}) {
+  function createNewUserData(
+    overrides: Partial<{
+      id: string;
+      email: string;
+      passwordHash: string;
+      role: string;
+      status: string;
+      profile: object;
+      phoneE164: string;
+      failedLoginAttempts: number;
+      lockedUntil: Date | null;
+    }> = {}
+  ) {
     return {
       id: overrides.id || crypto.randomUUID(),
       email: overrides.email || `test-${Date.now()}-${Math.random().toString(36).slice(2)}@example.com`,
@@ -170,9 +172,7 @@ describeIntegration('AuthRepository Integration', () => {
     it('should throw error for non-existent user', async () => {
       const nonExistentId = crypto.randomUUID();
 
-      await expect(
-        repo.updateUser(nonExistentId, { passwordHash: 'new_hash' })
-      ).rejects.toThrow('User not found');
+      await expect(repo.updateUser(nonExistentId, { passwordHash: 'new_hash' })).rejects.toThrow('User not found');
     });
   });
 

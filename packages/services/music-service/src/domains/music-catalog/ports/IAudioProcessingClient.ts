@@ -23,9 +23,7 @@ export interface IAudioProcessingClient extends AudioStreamingContract {
 
   getOptimizedStreamUrl(trackId: string, quality: string): Promise<OptimizedStreamUrl>;
 
-  getBatchOptimizedUrls(
-    requests: Array<{ trackId: string; quality: string }>
-  ): Promise<OptimizedStreamUrl[]>;
+  getBatchOptimizedUrls(requests: Array<{ trackId: string; quality: string }>): Promise<OptimizedStreamUrl[]>;
 
   recordTrackAccess(trackId: string, userId: string, quality: string): Promise<void>;
 }

@@ -1,13 +1,4 @@
-import {
-  pgTable,
-  varchar,
-  integer,
-  timestamp,
-  text,
-  uuid,
-  jsonb,
-  index,
-} from 'drizzle-orm/pg-core';
+import { pgTable, varchar, integer, timestamp, text, uuid, jsonb, index } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 import { createInsertSchema } from 'drizzle-zod';
 import { z } from 'zod';
@@ -102,7 +93,9 @@ export const usrPersonalNarratives = pgTable(
     periodEnd: timestamp('period_end').notNull(),
     narrative: text('narrative').notNull(),
     dataPointsUsed: integer('data_points_used').notNull().default(0),
-    breakthroughsReferenced: uuid('breakthroughs_referenced').array().default(sql`'{}'::uuid[]`),
+    breakthroughsReferenced: uuid('breakthroughs_referenced')
+      .array()
+      .default(sql`'{}'::uuid[]`),
     forwardPrompt: text('forward_prompt'),
     userReflection: text('user_reflection'),
     metadata: jsonb('metadata').default('{}'),

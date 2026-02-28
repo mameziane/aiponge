@@ -3,10 +3,7 @@ import { z } from 'zod';
 import { sql } from 'drizzle-orm';
 import { sendSuccess, sendCreated, ServiceErrors } from '../../utils/response-helpers';
 import { serializeError, extractAuthContext } from '@aiponge/platform-core';
-import {
-  BOOK_TYPE_IDS,
-  ENTRY_TYPES,
-} from '@infrastructure/database/schemas/library-schema';
+import { BOOK_TYPE_IDS, ENTRY_TYPES } from '@infrastructure/database/schemas/library-schema';
 import {
   contextIsPrivileged,
   isContentPubliclyAccessible,
@@ -18,13 +15,7 @@ import type { ContentAccessContext } from '@aiponge/shared-contracts';
 import { GENERATION_STATUS } from '@aiponge/shared-contracts';
 import { CreatorMemberRepository } from '@infrastructure/repositories/CreatorMemberRepository';
 import type { LibraryControllerDeps } from './library-helpers';
-import {
-  logger,
-  formatZodErrors,
-  buildContext,
-  handleUseCaseResult,
-  buildEnrichedContext,
-} from './library-helpers';
+import { logger, formatZodErrors, buildContext, handleUseCaseResult, buildEnrichedContext } from './library-helpers';
 
 export class BookController {
   constructor(private readonly deps: LibraryControllerDeps) {}

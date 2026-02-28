@@ -131,7 +131,10 @@ async function handleUserDeleted(_event: StandardEvent, data: UserDeletedData): 
     try {
       const t = table as typeof tracks;
       if ('deletedAt' in (table as Record<string, unknown>)) {
-        await db.update(t).set({ deletedAt: now } as never).where(eq(t.userId, userId));
+        await db
+          .update(t)
+          .set({ deletedAt: now } as never)
+          .where(eq(t.userId, userId));
       } else {
         await db.delete(t).where(eq(t.userId, userId));
       }

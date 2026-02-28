@@ -5,7 +5,7 @@ This directory contains comprehensive integration tests for validating microserv
 ## Test Structure
 
 - `service-discovery/` - Service discovery functionality tests
-- `ai-content-service/` - ContentServiceClient integration tests  
+- `ai-content-service/` - ContentServiceClient integration tests
 - `music-profile-service/` - MusicProfileServiceClient integration tests
 - `api-gateway/` - API Gateway routing validation tests
 - `health-endpoints/` - Health check and availability tests
@@ -16,11 +16,13 @@ This directory contains comprehensive integration tests for validating microserv
 ## Running Tests
 
 Run all integration tests:
+
 ```bash
 npm run test:integration
 ```
 
 Run specific test suites:
+
 ```bash
 npm run test:integration -- --testPathPattern=service-discovery
 npm run test:integration -- --testPathPattern=ai-content-service
@@ -29,6 +31,7 @@ npm run test:integration -- --testPathPattern=ai-content-service
 ## Test Environment
 
 These tests require:
+
 - All AI microservices running locally
 - System service for service discovery
 - API Gateway for routing tests

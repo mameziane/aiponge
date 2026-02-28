@@ -69,7 +69,10 @@ export class TierConfigController {
       handler: async () => {
         const tier = String(req.params.tier);
         const feature = String(req.params.feature);
-        const hasFeature = await tierConfigService.hasFeature(tier, feature as Parameters<typeof tierConfigService.hasFeature>[1]);
+        const hasFeature = await tierConfigService.hasFeature(
+          tier,
+          feature as Parameters<typeof tierConfigService.hasFeature>[1]
+        );
         return { hasFeature };
       },
     });
@@ -85,8 +88,15 @@ export class TierConfigController {
         const action = String(req.params.action);
         const { currentUsage } = req.query;
         const usage = parseInt(currentUsage as string, 10) || 0;
-        const hasReachedLimit = await tierConfigService.hasReachedLimit(tier, action as Parameters<typeof tierConfigService.hasReachedLimit>[1], usage);
-        const limit = await tierConfigService.getLimit(tier, `${action}PerMonth` as Parameters<typeof tierConfigService.getLimit>[1]);
+        const hasReachedLimit = await tierConfigService.hasReachedLimit(
+          tier,
+          action as Parameters<typeof tierConfigService.hasReachedLimit>[1],
+          usage
+        );
+        const limit = await tierConfigService.getLimit(
+          tier,
+          `${action}PerMonth` as Parameters<typeof tierConfigService.getLimit>[1]
+        );
         return { hasReachedLimit, limit, currentUsage: usage };
       },
     });
@@ -101,7 +111,10 @@ export class TierConfigController {
         const tier = String(req.params.tier);
         const { depth } = req.query;
         const requestedDepth = (depth as string) || 'standard';
-        const canGenerate = await tierConfigService.canGenerateBookAtDepth(tier, requestedDepth as Parameters<typeof tierConfigService.canGenerateBookAtDepth>[1]);
+        const canGenerate = await tierConfigService.canGenerateBookAtDepth(
+          tier,
+          requestedDepth as Parameters<typeof tierConfigService.canGenerateBookAtDepth>[1]
+        );
         const maxDepth = await tierConfigService.getMaxBookDepth(tier);
         return { canGenerate, maxDepth, requestedDepth };
       },

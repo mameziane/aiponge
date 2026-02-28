@@ -32,8 +32,8 @@ vi.mock('@aiponge/platform-core', () => ({
   waitForService: vi.fn(),
   listServices: () => [],
   createServiceUrlsConfig: vi.fn(() => ({})),
-  errorMessage: vi.fn((err: unknown) => err instanceof Error ? err.message : String(err)),
-  errorStack: vi.fn((err: unknown) => err instanceof Error ? err.stack : ''),
+  errorMessage: vi.fn((err: unknown) => (err instanceof Error ? err.message : String(err))),
+  errorStack: vi.fn((err: unknown) => (err instanceof Error ? err.stack : '')),
   withResilience: vi.fn((fn: (...args: unknown[]) => unknown) => fn),
   createIntervalScheduler: vi.fn(() => ({ start: vi.fn(), stop: vi.fn() })),
 }));
@@ -69,7 +69,9 @@ import { OrphanedFileCleanupService } from '../../application/services/OrphanedF
 
 function createMockDb() {
   const mockReturning = vi.fn().mockResolvedValue([]);
-  const mockUpdateWhereResult = Promise.resolve(undefined) as Promise<undefined> & { returning: ReturnType<typeof vi.fn> };
+  const mockUpdateWhereResult = Promise.resolve(undefined) as Promise<undefined> & {
+    returning: ReturnType<typeof vi.fn>;
+  };
   mockUpdateWhereResult.returning = mockReturning;
   const mockUpdateWhere = vi.fn().mockReturnValue(mockUpdateWhereResult);
   const mockSet = vi.fn().mockReturnValue({ where: mockUpdateWhere });
@@ -112,7 +114,10 @@ describe('OrphanedFileCleanupService', () => {
     vi.clearAllMocks();
     mockDb = createMockDb();
     mockStorageProvider = createMockStorageProvider();
-    service = new OrphanedFileCleanupService(mockDb as unknown as Parameters<typeof OrphanedFileCleanupService.prototype.constructor>[0], mockStorageProvider as unknown as Parameters<typeof OrphanedFileCleanupService.prototype.constructor>[1]);
+    service = new OrphanedFileCleanupService(
+      mockDb as unknown as Parameters<typeof OrphanedFileCleanupService.prototype.constructor>[0],
+      mockStorageProvider as unknown as Parameters<typeof OrphanedFileCleanupService.prototype.constructor>[1]
+    );
   });
 
   describe('markFileAsOrphaned', () => {
@@ -160,8 +165,20 @@ describe('OrphanedFileCleanupService', () => {
   describe('cleanupOrphanedFiles', () => {
     it('should cleanup orphaned files past grace period', async () => {
       const orphanedFiles = [
-        { id: 'f1', storagePath: '/path/1.jpg', publicUrl: null, orphanedAt: new Date('2020-01-01'), category: 'avatar' },
-        { id: 'f2', storagePath: '/path/2.jpg', publicUrl: null, orphanedAt: new Date('2020-01-01'), category: 'track' },
+        {
+          id: 'f1',
+          storagePath: '/path/1.jpg',
+          publicUrl: null,
+          orphanedAt: new Date('2020-01-01'),
+          category: 'avatar',
+        },
+        {
+          id: 'f2',
+          storagePath: '/path/2.jpg',
+          publicUrl: null,
+          orphanedAt: new Date('2020-01-01'),
+          category: 'track',
+        },
       ];
 
       mockDb._mocks.mockLimit.mockResolvedValueOnce(orphanedFiles);
@@ -177,7 +194,13 @@ describe('OrphanedFileCleanupService', () => {
 
     it('should handle deletion failures', async () => {
       const orphanedFiles = [
-        { id: 'f1', storagePath: '/path/fail.jpg', publicUrl: null, orphanedAt: new Date('2020-01-01'), category: 'avatar' },
+        {
+          id: 'f1',
+          storagePath: '/path/fail.jpg',
+          publicUrl: null,
+          orphanedAt: new Date('2020-01-01'),
+          category: 'avatar',
+        },
       ];
 
       mockDb._mocks.mockLimit.mockResolvedValueOnce(orphanedFiles);
@@ -193,7 +216,13 @@ describe('OrphanedFileCleanupService', () => {
 
     it('should handle exceptions during deletion', async () => {
       const orphanedFiles = [
-        { id: 'f1', storagePath: '/path/throw.jpg', publicUrl: null, orphanedAt: new Date('2020-01-01'), category: 'avatar' },
+        {
+          id: 'f1',
+          storagePath: '/path/throw.jpg',
+          publicUrl: null,
+          orphanedAt: new Date('2020-01-01'),
+          category: 'avatar',
+        },
       ];
 
       mockDb._mocks.mockLimit.mockResolvedValueOnce(orphanedFiles);
@@ -207,7 +236,13 @@ describe('OrphanedFileCleanupService', () => {
 
     it('should skip files in dry run mode', async () => {
       const orphanedFiles = [
-        { id: 'f1', storagePath: '/path/dry.jpg', publicUrl: null, orphanedAt: new Date('2020-01-01'), category: 'avatar' },
+        {
+          id: 'f1',
+          storagePath: '/path/dry.jpg',
+          publicUrl: null,
+          orphanedAt: new Date('2020-01-01'),
+          category: 'avatar',
+        },
       ];
 
       mockDb._mocks.mockLimit.mockResolvedValueOnce(orphanedFiles);
@@ -247,18 +282,14 @@ describe('OrphanedFileCleanupService', () => {
     it('should throw when database query fails', async () => {
       mockDb._mocks.mockLimit.mockRejectedValueOnce(new Error('DB error'));
 
-      await expect(
-        service.cleanupOrphanedFiles({ gracePeriodHours: 24, batchSize: 100 })
-      ).rejects.toThrow('DB error');
+      await expect(service.cleanupOrphanedFiles({ gracePeriodHours: 24, batchSize: 100 })).rejects.toThrow('DB error');
     });
   });
 
   describe('getOrphanedFilesStats', () => {
     it('should return orphaned file statistics', async () => {
       mockDb.select.mockReturnValueOnce({
-        from: vi.fn().mockResolvedValue([
-          { total: 10, readyForDeletion: 5, withinGracePeriod: 5 },
-        ]),
+        from: vi.fn().mockResolvedValue([{ total: 10, readyForDeletion: 5, withinGracePeriod: 5 }]),
       });
 
       const stats = await service.getOrphanedFilesStats();

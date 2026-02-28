@@ -40,7 +40,10 @@ vi.mock('@aiponge/platform-core', () => {
         }),
       },
     })),
-    getValidation: () => ({ validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(), validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next() }),
+    getValidation: () => ({
+      validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+      validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+    }),
   };
 });
 
@@ -149,21 +152,15 @@ describe('Entries Routes', () => {
           },
         })
       );
-      const res = await request(app)
-        .get('/api/app/entries')
-        .set('x-user-id', 'user-123');
+      const res = await request(app).get('/api/app/entries').set('x-user-id', 'user-123');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/entries/'), expect.anything());
     });
 
     it('should forward service errors', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ message: 'Database error' }, 500)
-      );
-      const res = await request(app)
-        .get('/api/app/entries')
-        .set('x-user-id', 'user-123');
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ message: 'Database error' }, 500));
+      const res = await request(app).get('/api/app/entries').set('x-user-id', 'user-123');
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
       expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/entries/'), expect.anything());
@@ -178,20 +175,14 @@ describe('Entries Routes', () => {
           data: { entry: { id: 'e1', content: 'Test', userId: 'user-123' } },
         })
       );
-      const res = await request(app)
-        .get('/api/app/entries/e1')
-        .set('x-user-id', 'user-123');
+      const res = await request(app).get('/api/app/entries/e1').set('x-user-id', 'user-123');
       expect(res.status).toBe(200);
       expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/entries/id/'), expect.anything());
     });
 
     it('should return 404 for non-existent entry', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ message: 'Entry not found' }, 404)
-      );
-      const res = await request(app)
-        .get('/api/app/entries/nonexistent')
-        .set('x-user-id', 'user-123');
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ message: 'Entry not found' }, 404));
+      const res = await request(app).get('/api/app/entries/nonexistent').set('x-user-id', 'user-123');
       expect(res.status).toBe(404);
       expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/entries/id/'), expect.anything());
     });
@@ -199,18 +190,19 @@ describe('Entries Routes', () => {
 
   describe('POST /', () => {
     it('should return 401 when not authenticated', async () => {
-      const res = await request(app)
-        .post('/api/app/entries')
-        .send({ content: 'Test' });
+      const res = await request(app).post('/api/app/entries').send({ content: 'Test' });
       expect(res.status).toBe(401);
     });
 
     it('should create an entry', async () => {
       mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({
-          success: true,
-          data: { entry: { id: 'new', content: 'New', userId: 'user-123' } },
-        }, 201)
+        mockResponse(
+          {
+            success: true,
+            data: { entry: { id: 'new', content: 'New', userId: 'user-123' } },
+          },
+          201
+        )
       );
       const res = await request(app)
         .post('/api/app/entries')
@@ -222,15 +214,15 @@ describe('Entries Routes', () => {
 
     it('should forward 400 for validation errors', async () => {
       mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({
-          success: false,
-          error: { message: 'Content is required', code: 'VALIDATION_ERROR' },
-        }, 400)
+        mockResponse(
+          {
+            success: false,
+            error: { message: 'Content is required', code: 'VALIDATION_ERROR' },
+          },
+          400
+        )
       );
-      const res = await request(app)
-        .post('/api/app/entries')
-        .set('x-user-id', 'user-123')
-        .send({});
+      const res = await request(app).post('/api/app/entries').set('x-user-id', 'user-123').send({});
       expect(res.status).toBe(400);
       expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/entries'), expect.anything());
     });
@@ -260,9 +252,7 @@ describe('Entries Routes', () => {
     });
 
     it('should return 404 when entry not found', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ message: 'Not found' }, 404)
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ message: 'Not found' }, 404));
       const res = await request(app)
         .patch('/api/app/entries/nonexistent')
         .set('x-user-id', 'user-123')
@@ -296,23 +286,15 @@ describe('Entries Routes', () => {
             data: { entry: { id: 'e1', content: 'Content', userId: 'user-123' } },
           })
         )
-        .mockResolvedValueOnce(
-          mockResponse({ success: true })
-        );
-      const res = await request(app)
-        .delete('/api/app/entries/e1')
-        .set('x-user-id', 'user-123');
+        .mockResolvedValueOnce(mockResponse({ success: true }));
+      const res = await request(app).delete('/api/app/entries/e1').set('x-user-id', 'user-123');
       expect(res.status).toBe(200);
       expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/entries/'), expect.anything());
     });
 
     it('should return 404 when entry not found for delete', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ message: 'Not found' }, 404)
-      );
-      const res = await request(app)
-        .delete('/api/app/entries/nonexistent')
-        .set('x-user-id', 'user-123');
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ message: 'Not found' }, 404));
+      const res = await request(app).delete('/api/app/entries/nonexistent').set('x-user-id', 'user-123');
       expect(res.status).toBe(404);
       expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/entries/'), expect.anything());
     });
@@ -324,9 +306,7 @@ describe('Entries Routes', () => {
           data: { entry: { id: 'e1', content: 'Content', userId: 'other-user' } },
         })
       );
-      const res = await request(app)
-        .delete('/api/app/entries/e1')
-        .set('x-user-id', 'user-123');
+      const res = await request(app).delete('/api/app/entries/e1').set('x-user-id', 'user-123');
       expect(res.status).toBe(403);
       expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/entries/'), expect.anything());
     });
@@ -340,28 +320,35 @@ describe('Entries Routes', () => {
           data: { images: [{ id: 'img1', url: 'https://example.com/img.jpg' }] },
         })
       );
-      const res = await request(app)
-        .get('/api/app/entries/e1/images')
-        .set('x-user-id', 'user-123');
+      const res = await request(app).get('/api/app/entries/e1/images').set('x-user-id', 'user-123');
       expect(res.status).toBe(200);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/entries/e1/illustrations'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/entries/e1/illustrations'),
+        expect.anything()
+      );
     });
   });
 
   describe('POST /:entryId/images', () => {
     it('should add image to entry', async () => {
       mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({
-          success: true,
-          data: { image: { id: 'img1', url: 'https://example.com/new.jpg' } },
-        }, 201)
+        mockResponse(
+          {
+            success: true,
+            data: { image: { id: 'img1', url: 'https://example.com/new.jpg' } },
+          },
+          201
+        )
       );
       const res = await request(app)
         .post('/api/app/entries/e1/images')
         .set('x-user-id', 'user-123')
         .send({ url: 'https://example.com/new.jpg' });
       expect(res.status).toBe(201);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/entries/e1/illustrations'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/entries/e1/illustrations'),
+        expect.anything()
+      );
     });
   });
 });

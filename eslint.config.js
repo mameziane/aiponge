@@ -26,15 +26,15 @@ export default [
         URL: 'readonly',
         require: 'readonly',
         module: 'readonly',
-        exports: 'readonly'
-      }
+        exports: 'readonly',
+      },
     },
     rules: {
       'no-console': 'off',
-      'no-unused-vars': ['error', { 'argsIgnorePattern': '^_', 'varsIgnorePattern': '^_' }],
-      'max-len': ['warn', { 'code': 120, 'tabWidth': 2 }],
-      'no-undef': 'error'
-    }
+      'no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      'max-len': ['warn', { code: 120, tabWidth: 2 }],
+      'no-undef': 'error',
+    },
   },
   {
     files: ['**/*.ts', '**/*.tsx'],
@@ -79,14 +79,14 @@ export default [
         NextFunction: 'readonly',
         require: 'readonly',
         __DEV__: 'readonly',
-        window: 'readonly'
-      }
+        window: 'readonly',
+      },
     },
     plugins: {
       '@typescript-eslint': tseslint.plugin,
-      'prettier': prettier,
+      prettier: prettier,
       'local-rules': localRules,
-      'sonarjs': sonarjs
+      sonarjs: sonarjs,
     },
     rules: {
       'local-rules/no-direct-fetch': 'warn',
@@ -94,8 +94,8 @@ export default [
       'local-rules/no-ui-in-services': 'warn',
       'local-rules/enforce-typed-responses': 'warn',
       'local-rules/hook-naming-convention': 'warn',
-      
-      '@typescript-eslint/no-unused-vars': ['warn', { 'argsIgnorePattern': '^_', 'varsIgnorePattern': '^_' }],
+
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
       'no-unused-vars': 'off',
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-unsafe-assignment': 'off',
@@ -108,9 +108,9 @@ export default [
       '@typescript-eslint/await-thenable': 'off',
       '@typescript-eslint/require-await': 'off',
       '@typescript-eslint/no-misused-promises': 'off',
-      
+
       'sonarjs/cognitive-complexity': ['warn', 15],
-      
+
       'no-debugger': 'error',
       'no-undef': 'error',
       'no-redeclare': 'error',
@@ -118,7 +118,7 @@ export default [
       'no-dupe-class-members': 'error',
       'no-duplicate-imports': 'error',
       'no-var': 'error',
-      
+
       'no-console': 'off',
       'no-unused-expressions': 'warn',
       'no-case-declarations': 'warn',
@@ -126,23 +126,23 @@ export default [
       'no-constant-condition': 'warn',
       'no-useless-catch': 'warn',
       'prefer-const': 'warn',
-      
-      'max-len': ['warn', { 'code': 120, 'tabWidth': 2 }],
-      'complexity': ['warn', 15],
-      'max-lines-per-function': ['warn', { 'max': 100, 'skipComments': true }],
+
+      'max-len': ['warn', { code: 120, tabWidth: 2 }],
+      complexity: ['warn', 15],
+      'max-lines-per-function': ['warn', { max: 100, skipComments: true }],
       'max-params': ['warn', 6],
-      
+
       'prettier/prettier': [
         'warn',
         {
-          'semi': true,
-          'trailingComma': 'es5',
-          'singleQuote': true,
-          'printWidth': 120,
-          'tabWidth': 2,
-          'useTabs': false
-        }
-      ]
+          semi: true,
+          trailingComma: 'es5',
+          singleQuote: true,
+          printWidth: 120,
+          tabWidth: 2,
+          useTabs: false,
+        },
+      ],
     },
   },
   {
@@ -151,7 +151,7 @@ export default [
       parser: tseslint.parser,
       parserOptions: {
         ecmaVersion: 2022,
-        sourceType: 'module'
+        sourceType: 'module',
       },
       globals: {
         window: 'readonly',
@@ -165,23 +165,23 @@ export default [
         fetch: 'readonly',
         URL: 'readonly',
         React: 'readonly',
-        JSX: 'readonly'
-      }
+        JSX: 'readonly',
+      },
     },
     plugins: {
       '@typescript-eslint': tseslint.plugin,
-      'prettier': prettier,
-      'local-rules': localRules
+      prettier: prettier,
+      'local-rules': localRules,
     },
     rules: {
       'local-rules/no-direct-fetch': 'warn',
       'local-rules/enforce-service-layer': 'warn',
       'local-rules/hook-naming-convention': 'warn',
-      
-      '@typescript-eslint/no-unused-vars': ['warn', { 'argsIgnorePattern': '^_', 'varsIgnorePattern': '^_' }],
+
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
       'no-unused-vars': 'off',
       '@typescript-eslint/no-explicit-any': 'error',
-      
+
       '@typescript-eslint/no-floating-promises': 'off',
       '@typescript-eslint/await-thenable': 'off',
       '@typescript-eslint/require-await': 'off',
@@ -190,34 +190,34 @@ export default [
       '@typescript-eslint/no-unsafe-call': 'off',
       '@typescript-eslint/no-unsafe-member-access': 'off',
       '@typescript-eslint/no-unsafe-return': 'off',
-      
+
       'no-debugger': 'error',
       'no-undef': 'error',
       'no-duplicate-imports': 'error',
       'no-var': 'error',
-      
+
       'no-console': 'off',
       'no-unused-expressions': 'warn',
       'no-case-declarations': 'warn',
       'prefer-const': 'warn',
-      
-      'max-len': ['warn', { 'code': 120, 'tabWidth': 2 }],
-      'complexity': ['warn', 15],
-      'max-lines-per-function': ['warn', { 'max': 100, 'skipComments': true }],
+
+      'max-len': ['warn', { code: 120, tabWidth: 2 }],
+      complexity: ['warn', 15],
+      'max-lines-per-function': ['warn', { max: 100, skipComments: true }],
       'max-params': ['warn', 6],
-      
+
       'prettier/prettier': [
         'warn',
         {
-          'semi': true,
-          'trailingComma': 'es5',
-          'singleQuote': true,
-          'printWidth': 120,
-          'tabWidth': 2,
-          'useTabs': false
-        }
-      ]
-    }
+          semi: true,
+          trailingComma: 'es5',
+          singleQuote: true,
+          printWidth: 120,
+          tabWidth: 2,
+          useTabs: false,
+        },
+      ],
+    },
   },
   {
     files: ['packages/services/**/*.{ts,tsx,js,jsx}'],
@@ -228,10 +228,10 @@ export default [
         sourceType: 'module',
         projectService: true,
         tsconfigRootDir: import.meta.dirname,
-      }
+      },
     },
     plugins: {
-      '@typescript-eslint': tseslint.plugin
+      '@typescript-eslint': tseslint.plugin,
     },
     rules: {
       'no-console': ['warn', { allow: ['warn', 'error'] }],
@@ -241,21 +241,24 @@ export default [
           patterns: [
             {
               group: ['../../../services/*', '../../*/src/**', '../*/src/**'],
-              message: 'Cross-service imports are not allowed. Use @aiponge/shared-* packages instead.'
+              message: 'Cross-service imports are not allowed. Use @aiponge/shared-* packages instead.',
             },
             {
-              group: ['**/system-service/src/**', 
-                      '**/user-service/src/**', 
-                      '**/storage-service/src/**', 
-                      '**/api-gateway/src/**', 
-                      '**/ai-analysis-service/src/**', 
-                      '**/ai-content-service/src/**', 
-                      '**/ai-config-service/src/**',
-                      '**/music-service/src/**'],
-              message: 'Direct imports from other service internals are not allowed. Use @aiponge/shared-* packages for cross-service dependencies.'
-            }
-          ]
-        }
+              group: [
+                '**/system-service/src/**',
+                '**/user-service/src/**',
+                '**/storage-service/src/**',
+                '**/api-gateway/src/**',
+                '**/ai-analysis-service/src/**',
+                '**/ai-content-service/src/**',
+                '**/ai-config-service/src/**',
+                '**/music-service/src/**',
+              ],
+              message:
+                'Direct imports from other service internals are not allowed. Use @aiponge/shared-* packages for cross-service dependencies.',
+            },
+          ],
+        },
       ],
     },
   },
@@ -288,7 +291,7 @@ export default [
       '**/ProductionFileRepository.ts',
       'packages/services/**/__tests__/',
       'packages/services/**/__mocks__/',
-      'packages/platform-core/src/__tests__/'
-    ]
-  }
+      'packages/platform-core/src/__tests__/',
+    ],
+  },
 ];

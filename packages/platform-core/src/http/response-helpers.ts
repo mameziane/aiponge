@@ -36,7 +36,12 @@ export interface ServiceErrorHelpers {
 
   unauthorized: (res: Response, message?: MessageInput, req?: RequestWithHeaders) => void;
 
-  forbidden: (res: Response, message?: MessageInput, req?: RequestWithHeaders, details?: Record<string, unknown>) => void;
+  forbidden: (
+    res: Response,
+    message?: MessageInput,
+    req?: RequestWithHeaders,
+    details?: Record<string, unknown>
+  ) => void;
 
   paymentRequired: (
     res: Response,
@@ -111,7 +116,12 @@ function createServiceErrors(serviceName: string): ServiceErrorHelpers {
       });
     },
 
-    forbidden: (res: Response, message: MessageInput = 'Forbidden', req?: RequestWithHeaders, details?: Record<string, unknown>) => {
+    forbidden: (
+      res: Response,
+      message: MessageInput = 'Forbidden',
+      req?: RequestWithHeaders,
+      details?: Record<string, unknown>
+    ) => {
       StructuredErrors.forbidden(res, normalizeMessage(message, 'Forbidden'), {
         service: serviceName,
         correlationId: req ? getCorrelationId(req) : undefined,
@@ -295,7 +305,9 @@ export function initResponseHelpers(serviceName: string): ResponseHelpers {
 
 function resolve(): ResponseHelpers {
   if (!_serviceHelpers) {
-    throw new Error('Response helpers not initialized. Call initResponseHelpers(serviceName) during service bootstrap.');
+    throw new Error(
+      'Response helpers not initialized. Call initResponseHelpers(serviceName) during service bootstrap.'
+    );
   }
   return _serviceHelpers;
 }

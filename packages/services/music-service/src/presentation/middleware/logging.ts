@@ -189,7 +189,9 @@ function sanitizeHeaders(headers: Record<string, unknown>, sensitiveHeaders: str
 function sanitizeObject(obj: unknown, sensitiveFields: string[]): unknown {
   if (!obj || typeof obj !== 'object') return obj;
 
-  const sanitized: Record<string, unknown> = Array.isArray(obj) ? [...obj] as unknown as Record<string, unknown> : { ...(obj as Record<string, unknown>) };
+  const sanitized: Record<string, unknown> = Array.isArray(obj)
+    ? ([...obj] as unknown as Record<string, unknown>)
+    : { ...(obj as Record<string, unknown>) };
 
   sensitiveFields.forEach(field => {
     if (sanitized[field]) {

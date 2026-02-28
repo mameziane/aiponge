@@ -6,7 +6,13 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { BOOK_TYPE_IDS, CONTENT_VISIBILITY } from '@aiponge/shared-contracts';
 import { BookRepository } from '../../infrastructure/repositories/LibraryRepository';
-import { getTestDatabase, closeTestDatabase, createTestUser, shouldRunIntegrationTests, TestDatabaseConnection } from './test-helpers';
+import {
+  getTestDatabase,
+  closeTestDatabase,
+  createTestUser,
+  shouldRunIntegrationTests,
+  TestDatabaseConnection,
+} from './test-helpers';
 import { libBooks } from '../../infrastructure/database/schemas/library-schema';
 import { users } from '../../infrastructure/database/schemas/user-schema';
 import { eq } from 'drizzle-orm';
@@ -47,23 +53,29 @@ describeIntegration('BookRepository Integration', () => {
     testBookIds = [];
   });
 
-  async function createTestBook(userId: string, overrides: Partial<{
-    title: string;
-    typeId: string;
-    visibility: string;
-    status: string;
-    category: string;
-  }> = {}): Promise<{ id: string }> {
+  async function createTestBook(
+    userId: string,
+    overrides: Partial<{
+      title: string;
+      typeId: string;
+      visibility: string;
+      status: string;
+      category: string;
+    }> = {}
+  ): Promise<{ id: string }> {
     const bookId = crypto.randomUUID();
-    const [book] = await db.insert(libBooks).values({
-      id: bookId,
-      userId,
-      typeId: overrides.typeId || BOOK_TYPE_IDS.PERSONAL,
-      title: overrides.title || `Test Book ${Date.now()}`,
-      visibility: overrides.visibility || CONTENT_VISIBILITY.PERSONAL,
-      status: overrides.status || 'active',
-      category: overrides.category,
-    }).returning();
+    const [book] = await db
+      .insert(libBooks)
+      .values({
+        id: bookId,
+        userId,
+        typeId: overrides.typeId || BOOK_TYPE_IDS.PERSONAL,
+        title: overrides.title || `Test Book ${Date.now()}`,
+        visibility: overrides.visibility || CONTENT_VISIBILITY.PERSONAL,
+        status: overrides.status || 'active',
+        category: overrides.category,
+      })
+      .returning();
     testBookIds.push(book.id);
     return book;
   }
@@ -303,8 +315,16 @@ describeIntegration('BookRepository Integration', () => {
       const user = await createTestUser(db, {});
       testUserIds.push(user.id);
 
-      await createTestBook(user.id, { title: 'Spirituality Book', visibility: CONTENT_VISIBILITY.SHARED, category: 'spirituality' });
-      await createTestBook(user.id, { title: 'Wisdom Book', visibility: CONTENT_VISIBILITY.SHARED, category: 'philosophy' });
+      await createTestBook(user.id, {
+        title: 'Spirituality Book',
+        visibility: CONTENT_VISIBILITY.SHARED,
+        category: 'spirituality',
+      });
+      await createTestBook(user.id, {
+        title: 'Wisdom Book',
+        visibility: CONTENT_VISIBILITY.SHARED,
+        category: 'philosophy',
+      });
 
       const result = await repo.getBooksByFilters({ category: 'spirituality' });
 

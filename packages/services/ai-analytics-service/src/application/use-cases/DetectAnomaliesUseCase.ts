@@ -968,7 +968,14 @@ export class DetectAnomaliesUseCase {
     metric: MetricEntry,
     serviceName: string,
     metricName: string,
-    details: { detectionAlgorithm: string; zScore?: number; actualValue: number; expectedValue: number; threshold?: { upper?: number; lower?: number; type: 'static' | 'dynamic' | 'seasonal' }; deviation: { absolute: number; percentage: number; zScore?: number } }
+    details: {
+      detectionAlgorithm: string;
+      zScore?: number;
+      actualValue: number;
+      expectedValue: number;
+      threshold?: { upper?: number; lower?: number; type: 'static' | 'dynamic' | 'seasonal' };
+      deviation: { absolute: number; percentage: number; zScore?: number };
+    }
   ): AnomalyDetection {
     const id = uuidv4();
 
@@ -1279,8 +1286,7 @@ export class DetectAnomaliesUseCase {
     logger.info('Storing detection configuration {} for {}', { data0: configId, data1: request.metricName });
   }
 
-  private async configureAlerting(_configId: string, _alerting: unknown): Promise<void> {
-  }
+  private async configureAlerting(_configId: string, _alerting: unknown): Promise<void> {}
 
   // Pattern analysis placeholder methods
   private async performPatternAnalysis(

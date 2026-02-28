@@ -10,4 +10,3 @@ export type {
   AudioAnalysis,
   FrequencyBand,
 } from './AudioProcessingService';
-

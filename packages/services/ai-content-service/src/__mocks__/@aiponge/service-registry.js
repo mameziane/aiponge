@@ -1,7 +1,7 @@
 /* global jest */
 
 module.exports = {
-  ServiceRegistry: { 
+  ServiceRegistry: {
     getInstance: jest.fn(() => ({
       register: jest.fn(),
       unregister: jest.fn(),

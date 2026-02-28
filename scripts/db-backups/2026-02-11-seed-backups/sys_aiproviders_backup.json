@@ -9,9 +9,16 @@
     "priority": 100,
     "endpoint": "https://api.musicapi.ai/api/v1/sonic/create",
     "method": "POST",
-    "headers": {"Content-Type": "application/json"},
-    "request_template": {"mv": "sonic-v5", "tags": "{{style}}", "title": "{{title}}", "prompt": "{{prompt}}", "custom_mode": true, "make_instrumental": false},
-    "response_mapping": {"message": "message", "task_id": "task_id"},
+    "headers": { "Content-Type": "application/json" },
+    "request_template": {
+      "mv": "sonic-v5",
+      "tags": "{{style}}",
+      "title": "{{title}}",
+      "prompt": "{{prompt}}",
+      "custom_mode": true,
+      "make_instrumental": false
+    },
+    "response_mapping": { "message": "message", "task_id": "task_id" },
     "cost": 0.000001,
     "timeout": 120000,
     "created_at": "2025-09-30T23:58:24.419042",
@@ -27,9 +34,19 @@
     "priority": 100,
     "endpoint": "https://api.openai.com/v1/chat/completions",
     "method": "POST",
-    "headers": {"Content-Type": "application/json"},
-    "request_template": {"model": "gpt-4", "messages": [{"role": "system", "content": "You are a helpful assistant. Detect the language from user input and respond in the same language. {{system_prompt}}"}, {"role": "user", "content": "{{prompt}}"}], "temperature": 0.7},
-    "response_mapping": {"content": "choices[0].message.content"},
+    "headers": { "Content-Type": "application/json" },
+    "request_template": {
+      "model": "gpt-4",
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a helpful assistant. Detect the language from user input and respond in the same language. {{system_prompt}}"
+        },
+        { "role": "user", "content": "{{prompt}}" }
+      ],
+      "temperature": 0.7
+    },
+    "response_mapping": { "content": "choices[0].message.content" },
     "cost": 0.000003,
     "timeout": 60000,
     "created_at": "2025-10-27T11:11:30.636907",

@@ -126,8 +126,6 @@ export function BookSwitcher({
       description: blueprint.description,
       language: blueprint.language,
       category: blueprint.category,
-      era: blueprint.era,
-      tradition: blueprint.tradition,
       chapters: blueprint.chapters.map(ch => ({
         title: ch.title,
         description: ch.description,

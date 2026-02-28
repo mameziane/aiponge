@@ -107,9 +107,7 @@ describe('DynamicRouter', () => {
     });
 
     it('should log initialization message', () => {
-      expect(mockLogger.info).toHaveBeenCalledWith(
-        'DynamicRouter initialized with shared service discovery',
-      );
+      expect(mockLogger.info).toHaveBeenCalledWith('DynamicRouter initialized with shared service discovery');
     });
 
     it('should have routes for known service paths', () => {
@@ -313,9 +311,9 @@ describe('DynamicRouter', () => {
 
     it('should return 503 when service discovery returns null', async () => {
       mockDiscoveryClient.discover.mockResolvedValue(null);
-      vi.mocked(
-        (await import('@aiponge/platform-core')).ServiceLocator.getServicePort,
-      ).mockReturnValue(undefined as unknown as number);
+      vi.mocked((await import('@aiponge/platform-core')).ServiceLocator.getServicePort).mockReturnValue(
+        undefined as unknown as number
+      );
 
       const req = createMockReq('GET', '/api/music/tracks');
       const res = createMockRes();
@@ -328,7 +326,7 @@ describe('DynamicRouter', () => {
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
           error: 'Service Unavailable',
-        }),
+        })
       );
     });
 
@@ -698,9 +696,9 @@ describe('DynamicRouter', () => {
 
     it('should track failed requests', async () => {
       mockDiscoveryClient.discover.mockResolvedValue(null);
-      vi.mocked(
-        (await import('@aiponge/platform-core')).ServiceLocator.getServicePort,
-      ).mockReturnValue(undefined as unknown as number);
+      vi.mocked((await import('@aiponge/platform-core')).ServiceLocator.getServicePort).mockReturnValue(
+        undefined as unknown as number
+      );
 
       const req = createMockReq('GET', '/api/music/tracks');
       const res = createMockRes();
@@ -740,12 +738,12 @@ describe('DynamicRouter', () => {
       await middleware(
         createMockReq('GET', '/api/music/tracks') as unknown as Request,
         createMockRes() as unknown as Response,
-        vi.fn(),
+        vi.fn()
       );
       await middleware(
         createMockReq('GET', '/api/music/albums') as unknown as Request,
         createMockRes() as unknown as Response,
-        vi.fn(),
+        vi.fn()
       );
 
       const metrics = router.getMetrics();
@@ -831,9 +829,7 @@ describe('DynamicRouter', () => {
 
     it('should log cleanup message', () => {
       router.destroy();
-      expect(mockLogger.info).toHaveBeenCalledWith(
-        expect.stringContaining('DynamicRouter resources cleaned up'),
-      );
+      expect(mockLogger.info).toHaveBeenCalledWith(expect.stringContaining('DynamicRouter resources cleaned up'));
     });
   });
 

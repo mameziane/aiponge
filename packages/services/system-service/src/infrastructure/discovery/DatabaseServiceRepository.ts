@@ -158,7 +158,9 @@ export class DatabaseServiceRepository {
         .groupBy(serviceRegistry.id)
         .orderBy(desc(serviceRegistry.lastHeartbeat));
 
-      return results.map((row: { service: ServiceRegistry; dependencies: NewServiceDependency[] }) => this.mapToServiceInfo(row.service, row.dependencies));
+      return results.map((row: { service: ServiceRegistry; dependencies: NewServiceDependency[] }) =>
+        this.mapToServiceInfo(row.service, row.dependencies)
+      );
     } catch (error) {
       this.logger.error('❌ Failed to get all services', {
         module: 'database_repository',
@@ -196,7 +198,9 @@ export class DatabaseServiceRepository {
         .groupBy(serviceRegistry.id)
         .orderBy(desc(serviceRegistry.lastHeartbeat));
 
-      return results.map((row: { service: ServiceRegistry; dependencies: NewServiceDependency[] }) => this.mapToServiceInfo(row.service, row.dependencies));
+      return results.map((row: { service: ServiceRegistry; dependencies: NewServiceDependency[] }) =>
+        this.mapToServiceInfo(row.service, row.dependencies)
+      );
     } catch (error) {
       this.logger.error('❌ Failed to get healthy services', {
         module: 'database_repository',

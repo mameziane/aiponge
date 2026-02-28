@@ -110,13 +110,7 @@ describe('Content Entity', () => {
 
   describe('Content Update', () => {
     it('should update content and increment version', () => {
-      const content = new Content(
-        'content-123',
-        'request-456',
-        'Original content',
-        'article',
-        createValidMetadata()
-      );
+      const content = new Content('content-123', 'request-456', 'Original content', 'article', createValidMetadata());
 
       content.updateContent('Updated content');
 
@@ -126,25 +120,13 @@ describe('Content Entity', () => {
     });
 
     it('should throw error for empty updated content', () => {
-      const content = new Content(
-        'content-123',
-        'request-456',
-        'Original content',
-        'article',
-        createValidMetadata()
-      );
+      const content = new Content('content-123', 'request-456', 'Original content', 'article', createValidMetadata());
 
       expect(() => content.updateContent('')).toThrow('Updated content cannot be empty');
     });
 
     it('should reset approval status on update', () => {
-      const content = new Content(
-        'content-123',
-        'request-456',
-        'Original content',
-        'article',
-        createValidMetadata()
-      );
+      const content = new Content('content-123', 'request-456', 'Original content', 'article', createValidMetadata());
 
       content.approve('approver-1');
       expect(content.isApproved).toBe(true);
@@ -155,13 +137,7 @@ describe('Content Entity', () => {
     });
 
     it('should update metadata word count', () => {
-      const content = new Content(
-        'content-123',
-        'request-456',
-        'Two words',
-        'article',
-        createValidMetadata()
-      );
+      const content = new Content('content-123', 'request-456', 'Two words', 'article', createValidMetadata());
 
       content.updateContent('Now there are five words');
       expect(content.metadata.wordCount).toBe(5);
@@ -170,13 +146,7 @@ describe('Content Entity', () => {
 
   describe('Approval Workflow', () => {
     it('should approve content', () => {
-      const content = new Content(
-        'content-123',
-        'request-456',
-        'Content to approve',
-        'article',
-        createValidMetadata()
-      );
+      const content = new Content('content-123', 'request-456', 'Content to approve', 'article', createValidMetadata());
 
       content.approve('reviewer-1');
 
@@ -187,13 +157,7 @@ describe('Content Entity', () => {
     });
 
     it('should throw error for empty approver ID', () => {
-      const content = new Content(
-        'content-123',
-        'request-456',
-        'Content',
-        'article',
-        createValidMetadata()
-      );
+      const content = new Content('content-123', 'request-456', 'Content', 'article', createValidMetadata());
 
       expect(() => content.approve('')).toThrow('Approver ID is required');
     });
@@ -201,13 +165,7 @@ describe('Content Entity', () => {
 
   describe('Publishing Workflow', () => {
     it('should publish approved content', () => {
-      const content = new Content(
-        'content-123',
-        'request-456',
-        'Content to publish',
-        'article',
-        createValidMetadata()
-      );
+      const content = new Content('content-123', 'request-456', 'Content to publish', 'article', createValidMetadata());
 
       content.approve('reviewer-1');
       content.publish('https://example.com/article');
@@ -219,13 +177,7 @@ describe('Content Entity', () => {
     });
 
     it('should throw error when publishing unapproved content', () => {
-      const content = new Content(
-        'content-123',
-        'request-456',
-        'Content',
-        'article',
-        createValidMetadata()
-      );
+      const content = new Content('content-123', 'request-456', 'Content', 'article', createValidMetadata());
 
       expect(() => content.publish()).toThrow("Cannot transition from 'draft' to 'published'");
     });
@@ -233,13 +185,7 @@ describe('Content Entity', () => {
 
   describe('Archive', () => {
     it('should archive content', () => {
-      const content = new Content(
-        'content-123',
-        'request-456',
-        'Content to archive',
-        'article',
-        createValidMetadata()
-      );
+      const content = new Content('content-123', 'request-456', 'Content to archive', 'article', createValidMetadata());
 
       content.archive();
 
@@ -249,13 +195,7 @@ describe('Content Entity', () => {
 
   describe('Version Creation', () => {
     it('should create a new version', () => {
-      const original = new Content(
-        'content-123',
-        'request-456',
-        'Original content',
-        'article',
-        createValidMetadata()
-      );
+      const original = new Content('content-123', 'request-456', 'Original content', 'article', createValidMetadata());
 
       const newVersion = original.createVersion('Modified content');
 
@@ -269,13 +209,7 @@ describe('Content Entity', () => {
 
   describe('Summary', () => {
     it('should return content summary', () => {
-      const content = new Content(
-        'content-123',
-        'request-456',
-        'Content for summary',
-        'blog',
-        createValidMetadata()
-      );
+      const content = new Content('content-123', 'request-456', 'Content for summary', 'blog', createValidMetadata());
 
       const summary = content.getSummary();
 
@@ -289,13 +223,7 @@ describe('Content Entity', () => {
 
   describe('Publication Readiness', () => {
     it('should indicate when content is ready for publication', () => {
-      const content = new Content(
-        'content-123',
-        'request-456',
-        'Ready content',
-        'article',
-        createValidMetadata()
-      );
+      const content = new Content('content-123', 'request-456', 'Ready content', 'article', createValidMetadata());
 
       expect(content.isReadyForPublication()).toBe(false);
 
@@ -348,13 +276,7 @@ describe('Content Entity', () => {
 
   describe('JSON Serialization', () => {
     it('should serialize to JSON correctly', () => {
-      const content = new Content(
-        'content-123',
-        'request-456',
-        'Serializable content',
-        'email',
-        createValidMetadata()
-      );
+      const content = new Content('content-123', 'request-456', 'Serializable content', 'email', createValidMetadata());
 
       const json = content.toJSON();
 
@@ -367,16 +289,19 @@ describe('Content Entity', () => {
   });
 
   describe('Content Types', () => {
-    const contentTypes: ContentType[] = ['article', 'blog', 'creative', 'technical', 'email', 'social', 'summary', 'educational'];
+    const contentTypes: ContentType[] = [
+      'article',
+      'blog',
+      'creative',
+      'technical',
+      'email',
+      'social',
+      'summary',
+      'educational',
+    ];
 
-    it.each(contentTypes)('should accept %s content type', (type) => {
-      const content = new Content(
-        `content-${type}`,
-        'request-456',
-        'Content',
-        type,
-        createValidMetadata()
-      );
+    it.each(contentTypes)('should accept %s content type', type => {
+      const content = new Content(`content-${type}`, 'request-456', 'Content', type, createValidMetadata());
 
       expect(content.contentType).toBe(type);
     });

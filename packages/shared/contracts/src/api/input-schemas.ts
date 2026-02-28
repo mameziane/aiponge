@@ -225,8 +225,6 @@ const ChapterEntrySchema = z.object({
       z.object({
         author: z.string(),
         work: z.string().optional(),
-        era: z.string().optional(),
-        tradition: z.string().optional(),
       })
     )
     .optional(),
@@ -538,8 +536,6 @@ export type BatchedHeartbeatInput = z.infer<typeof BatchedHeartbeatSchema>;
 export const LibSourceSchema = z.object({
   author: z.string(),
   work: z.string().optional(),
-  era: z.string().optional(),
-  tradition: z.string().optional(),
 });
 export type LibSourceInput = z.infer<typeof LibSourceSchema>;
 
@@ -570,8 +566,6 @@ export const LibBookCreateSchema = z.object({
   isReadOnly: z.boolean().optional(),
   category: z.string().max(100).optional(),
   language: z.string().max(10).optional(),
-  era: z.string().max(100).optional(),
-  tradition: z.string().max(100).optional(),
   visibility: ContentVisibilitySchema.optional(),
   chapters: z.array(LibTemplateChapterSchema).optional(),
 });

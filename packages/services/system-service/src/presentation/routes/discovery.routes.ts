@@ -61,9 +61,19 @@ const getServiceRepository = () => {
 };
 
 const serviceRegistry = new Map<string, ServiceInstance>();
-const dependencyOrchestrator = new ServiceDependencyOrchestrator(serviceRegistry as unknown as Map<string, import('../../domains/discovery/services/ServiceDependencyOrchestrator').ServiceRegistryEntry>);
+const dependencyOrchestrator = new ServiceDependencyOrchestrator(
+  serviceRegistry as unknown as Map<
+    string,
+    import('../../domains/discovery/services/ServiceDependencyOrchestrator').ServiceRegistryEntry
+  >
+);
 
-const startupManager = new OptimizedStartupManager(serviceRegistry as unknown as Map<string, import('../../domains/discovery/services/ServiceDependencyOrchestrator').ServiceRegistryEntry>);
+const startupManager = new OptimizedStartupManager(
+  serviceRegistry as unknown as Map<
+    string,
+    import('../../domains/discovery/services/ServiceDependencyOrchestrator').ServiceRegistryEntry
+  >
+);
 
 // Export function to initialize database and run cleanup after service is ready
 export async function runBackgroundCleanup(): Promise<void> {

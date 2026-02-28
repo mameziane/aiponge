@@ -72,11 +72,15 @@ export class TemplateServiceClient {
   async executeTemplate(request: TemplateExecutionRequest): Promise<TemplateExecutionResponse> {
     try {
       const url = `${getOwnServiceUrl()}/api/templates/execute`;
-      const response: { data: TemplateServiceResponse<TemplateExecutionResponse> } = await this.httpClient.post(url, request, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      const response: { data: TemplateServiceResponse<TemplateExecutionResponse> } = await this.httpClient.post(
+        url,
+        request,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
       const serviceResponse = response.data;
 
       if (!serviceResponse.success) {

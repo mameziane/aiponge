@@ -31,14 +31,16 @@ The aiponge API Gateway implements a Clean Architecture pattern with microservic
 ## Core Components
 
 ### 1. Gateway Core (`GatewayCore`)
+
 - **Purpose**: Central orchestration and request processing
-- **Components**: 
+- **Components**:
   - Service Discovery
   - Load Balancer
   - Reverse Proxy
   - API Versioning
 
 ### 2. Middleware Layer
+
 - **Rate Limiting**: Protects services from abuse
 - **CORS**: Cross-origin request handling
 - **Authentication**: JWT validation
@@ -47,12 +49,14 @@ The aiponge API Gateway implements a Clean Architecture pattern with microservic
 - **Metrics**: Performance monitoring
 
 ### 3. Route Management (`GatewayRoutes`)
+
 - **Health Routes**: Service health monitoring
 - **Proxy Routes**: Dynamic service routing
 - **Auth Routes**: Authentication endpoints
 - **GraphQL Routes**: GraphQL proxy support
 
 ### 4. Service Layer
+
 - **Service Discovery**: Auto-discovery of microservices
 - **Circuit Breaker**: Fault tolerance
 - **Load Balancer**: Request distribution
@@ -83,12 +87,14 @@ The aiponge API Gateway implements a Clean Architecture pattern with microservic
 ## Configuration Management
 
 ### Environment-Based Configuration
+
 - **Service URLs**: Dynamic based on environment variables
 - **CORS Origins**: Configurable per environment
 - **Rate Limits**: Adjustable per deployment
 - **Circuit Breaker**: Configurable thresholds
 
 ### Dynamic Service Registry
+
 - **Auto-Discovery**: Services register via environment
 - **Health Monitoring**: Continuous health checks
 - **Failover**: Automatic unhealthy service exclusion
@@ -96,11 +102,13 @@ The aiponge API Gateway implements a Clean Architecture pattern with microservic
 ## Error Handling Strategy
 
 ### Circuit Breaker Pattern
+
 - **Closed**: Normal operation
 - **Open**: Service failure detected, requests fail fast
 - **Half-Open**: Testing service recovery
 
 ### Retry Logic
+
 - **Exponential Backoff**: Increasing delays between retries
 - **Max Attempts**: Configurable retry limits
 - **Timeout Handling**: Request timeout management
@@ -108,12 +116,14 @@ The aiponge API Gateway implements a Clean Architecture pattern with microservic
 ## Security Architecture
 
 ### Authentication Flow
+
 1. Client sends JWT token in Authorization header
 2. Gateway validates token signature and expiry
 3. User information extracted and forwarded to services
 4. Service-specific authorization handled by target service
 
 ### Rate Limiting Strategy
+
 - **IP-based**: Per-IP request limits
 - **User-based**: Per-user limits for authenticated requests
 - **Endpoint-specific**: Different limits per API endpoint
@@ -121,17 +131,20 @@ The aiponge API Gateway implements a Clean Architecture pattern with microservic
 ## Monitoring & Observability
 
 ### Health Monitoring
+
 - **Gateway Health**: Internal health checks
 - **Service Health**: Downstream service monitoring
 - **Aggregate Status**: Overall system health
 
 ### Metrics Collection
+
 - **Request Count**: Total requests processed
 - **Response Time**: Request processing latency
 - **Error Rate**: Failed request percentage
 - **Service Availability**: Uptime monitoring
 
 ### Logging Strategy
+
 - **Structured Logs**: JSON format for parsing
 - **Request Tracing**: Unique request IDs
 - **Error Logging**: Detailed error information
@@ -140,12 +153,14 @@ The aiponge API Gateway implements a Clean Architecture pattern with microservic
 ## Deployment Architecture
 
 ### Container Strategy
+
 - **Docker**: Containerized deployment
 - **Multi-stage Build**: Optimized image size
 - **Health Checks**: Container health monitoring
 - **Graceful Shutdown**: Proper connection cleanup
 
 ### Scalability
+
 - **Horizontal Scaling**: Multiple gateway instances
 - **Load Balancing**: External load balancer
 - **Service Mesh**: Future Istio integration

@@ -29,8 +29,6 @@ function createMockBook(overrides: Record<string, unknown> = {}) {
     isReadOnly: false,
     category: null,
     language: 'en',
-    era: null,
-    tradition: null,
     visibility: CONTENT_VISIBILITY.PERSONAL,
     status: 'active',
     systemType: null,

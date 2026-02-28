@@ -3,11 +3,7 @@
  * Client for interacting with centralized AI Content Service image generation
  */
 
-import {
-  type HttpClient,
-  serializeError,
-  withServiceResilience,
-} from '@aiponge/platform-core';
+import { type HttpClient, serializeError, withServiceResilience } from '@aiponge/platform-core';
 import { createServiceClient, getLogger } from '@config/service-urls';
 import { v4 as uuidv4 } from 'uuid';
 import { CONTENT_VISIBILITY, type ImageType, type ContentVisibility } from '@aiponge/shared-contracts';
@@ -49,8 +45,6 @@ export interface GenerateBookCoverRequest {
   description: string;
   themes?: string;
   bookType?: string;
-  tradition?: string;
-  era?: string;
   style?: string;
   contentSummary?: string;
   dominantMood?: string;
@@ -103,8 +97,6 @@ export class AiContentServiceClient {
               description: request.description,
               themes: request.themes,
               bookType: request.bookType,
-              tradition: request.tradition,
-              era: request.era,
               style: request.style,
               contentSummary: request.contentSummary,
               dominantMood: request.dominantMood,

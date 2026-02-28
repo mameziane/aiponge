@@ -108,13 +108,17 @@ export class DrizzleContentRepository implements ContentRepository {
         userId: request.userId,
         contentType: request.contentType,
         prompt: request.prompt,
-        parameters: request.parameters ? (request.parameters as unknown as typeof contentRequests.$inferInsert.parameters) : null,
+        parameters: request.parameters
+          ? (request.parameters as unknown as typeof contentRequests.$inferInsert.parameters)
+          : null,
         options: request.options ? (request.options as unknown as typeof contentRequests.$inferInsert.options) : null,
         status: request.status,
         workflowId: request.workflowId,
         providerId: request.providerId,
         model: request.model,
-        metadata: request.metadata ? (request.metadata as unknown as typeof contentRequests.$inferInsert.metadata) : null,
+        metadata: request.metadata
+          ? (request.metadata as unknown as typeof contentRequests.$inferInsert.metadata)
+          : null,
         createdAt: request.createdAt,
         startedAt: request.startedAt,
         completedAt: request.completedAt,
@@ -224,8 +228,12 @@ export class DrizzleContentRepository implements ContentRepository {
         requestId: content.requestId,
         content: content.content,
         formattedContent: content.formattedContent,
-        metadata: content.metadata ? (content.metadata as unknown as typeof contentResults.$inferInsert.metadata) : null,
-        analysis: content.analysis ? (content.analysis as unknown as typeof contentResults.$inferInsert.analysis) : null,
+        metadata: content.metadata
+          ? (content.metadata as unknown as typeof contentResults.$inferInsert.metadata)
+          : null,
+        analysis: content.analysis
+          ? (content.analysis as unknown as typeof contentResults.$inferInsert.analysis)
+          : null,
         version: content.version,
         parentId: content.parentId,
         isApproved: content.isApproved,
@@ -495,7 +503,9 @@ export class DrizzleContentRepository implements ContentRepository {
   }
 
   private computeAverageQualityScore(content: SelectContentResult[]): number {
-    const qualityScores = content.map(c => (c.metadata as Record<string, unknown>)?.qualityScore).filter((score): score is number => typeof score === 'number');
+    const qualityScores = content
+      .map(c => (c.metadata as Record<string, unknown>)?.qualityScore)
+      .filter((score): score is number => typeof score === 'number');
     if (qualityScores.length === 0) return 0;
     return qualityScores.reduce((sum, score) => sum + score, 0) / qualityScores.length;
   }
@@ -515,7 +525,9 @@ export class DrizzleContentRepository implements ContentRepository {
     );
   }
 
-  private computeAverageProcessingTime(requests: Array<{ status: string; startedAt?: Date | null; completedAt?: Date | null }>): number {
+  private computeAverageProcessingTime(
+    requests: Array<{ status: string; startedAt?: Date | null; completedAt?: Date | null }>
+  ): number {
     const completedWithTiming = requests.filter(r => r.status === 'completed' && r.startedAt && r.completedAt);
     if (completedWithTiming.length === 0) return 0;
     const totalTime = completedWithTiming.reduce((sum, r) => {

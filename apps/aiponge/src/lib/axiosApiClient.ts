@@ -48,8 +48,10 @@ class AxiosApiClient {
 
     const authRefreshDeps: AuthRefreshDeps = {
       getRefreshTokens: () => this.refreshTokenRetriever?.() ?? { refreshToken: null, sessionId: null },
-      updateTokens: (tokens) => this.tokenUpdater?.(tokens),
-      logout: async () => { if (this.logoutHandler) await this.logoutHandler(); },
+      updateTokens: tokens => this.tokenUpdater?.(tokens),
+      logout: async () => {
+        if (this.logoutHandler) await this.logoutHandler();
+      },
       isLoggingOut: () => this.isLoggingOut,
     };
 
@@ -62,7 +64,7 @@ class AxiosApiClient {
       response => response,
       createErrorLoggingInterceptor({
         isLoggingOut: () => this.isLoggingOut,
-        reportError: (error) => this.backendErrorReporter?.(error),
+        reportError: error => this.backendErrorReporter?.(error),
       })
     );
   }

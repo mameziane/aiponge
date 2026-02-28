@@ -269,7 +269,7 @@ describeIntegration('CreatorMemberRepository Integration', () => {
       const token = generateTestId('token');
 
       await repo.createInvitation(creator.id, token, { maxUses: 1 });
-      
+
       const result1 = await repo.acceptInvitationAtomically(token, member1.id);
       expect(result1.success).toBe(true);
 
@@ -296,7 +296,7 @@ describeIntegration('CreatorMemberRepository Integration', () => {
 
   describe('autoFollowAllLibrarians', () => {
     it('should auto-follow all librarians for a new member', async () => {
-      const librarian = await createTestUser(db, { 
+      const librarian = await createTestUser(db, {
         id: generateTestId('librarian'),
         role: USER_ROLES.LIBRARIAN,
       });
@@ -304,9 +304,9 @@ describeIntegration('CreatorMemberRepository Integration', () => {
       testUserIds.push(librarian.id, member.id);
 
       const count = await repo.autoFollowAllLibrarians(member.id);
-      
+
       expect(count).toBeGreaterThanOrEqual(1);
-      
+
       const relationship = await repo.findRelationship(librarian.id, member.id);
       expect(relationship).not.toBeNull();
     });

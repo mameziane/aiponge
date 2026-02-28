@@ -1,8 +1,5 @@
 import { DatabaseConnection } from '../../database/DatabaseConnectionFactory';
-import {
-  libIllustrations,
-  type Illustration,
-} from '../../database/schemas/library-schema';
+import { libIllustrations, type Illustration } from '../../database/schemas/library-schema';
 import { eq, and, asc, inArray, isNull } from 'drizzle-orm';
 import { getLogger } from '../../../config/service-urls';
 

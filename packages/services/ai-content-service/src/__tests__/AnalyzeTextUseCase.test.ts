@@ -11,7 +11,7 @@ const mockTemplateClient = vi.hoisted(() => ({
   executeContentTemplate: vi.fn(),
 }));
 
-vi.mock('@aiponge/platform-core', async (importOriginal) => {
+vi.mock('@aiponge/platform-core', async importOriginal => {
   const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
   return {
     ...actual,
@@ -198,7 +198,8 @@ describe('AnalyzeTextUseCase', () => {
     });
 
     it('should identify complex text', async () => {
-      const longSentence = 'The implementation of sophisticated algorithmic paradigms necessitates a comprehensive understanding of computational complexity theory and its multifaceted implications for software engineering practices in contemporary technological infrastructures.';
+      const longSentence =
+        'The implementation of sophisticated algorithmic paradigms necessitates a comprehensive understanding of computational complexity theory and its multifaceted implications for software engineering practices in contemporary technological infrastructures.';
       const request: AnalyzeTextUseCaseRequest = {
         content: longSentence,
         analysisType: 'basic',

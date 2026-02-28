@@ -1,5 +1,11 @@
 export interface IConfigEventPublisher {
-  templateCreated(templateId: string, templateKey: string, category: string, correlationId?: string, version?: string): void;
+  templateCreated(
+    templateId: string,
+    templateKey: string,
+    category: string,
+    correlationId?: string,
+    version?: string
+  ): void;
   templateUpdated(
     templateId: string,
     templateKey: string,

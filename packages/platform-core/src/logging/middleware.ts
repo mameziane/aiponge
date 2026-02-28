@@ -16,7 +16,8 @@ export function requestLogger(serviceName: string) {
   const logger = getLogger(serviceName);
 
   return (req: Request, res: Response, next: NextFunction) => {
-    const rawCorrelationId = req.headers['x-correlation-id'] || req.headers['correlation-id'] || generateCorrelationId();
+    const rawCorrelationId =
+      req.headers['x-correlation-id'] || req.headers['correlation-id'] || generateCorrelationId();
     const correlationId = Array.isArray(rawCorrelationId) ? rawCorrelationId[0] : rawCorrelationId;
 
     const context: LogContext = {

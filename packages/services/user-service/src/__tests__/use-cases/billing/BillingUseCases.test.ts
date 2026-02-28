@@ -140,7 +140,12 @@ describe('CheckQuotaUseCase', () => {
 
   it('should allow paid tier user with sufficient credits', async () => {
     mockSubRepo.getSubscriptionTier.mockResolvedValue('personal');
-    mockCreditRepo.getBalance.mockResolvedValue({ currentBalance: 100, totalSpent: 50, remaining: 100, userId: 'user1' });
+    mockCreditRepo.getBalance.mockResolvedValue({
+      currentBalance: 100,
+      totalSpent: 50,
+      remaining: 100,
+      userId: 'user1',
+    });
 
     const result = await useCase.execute({ userId: 'user1', action: 'songs' });
 
@@ -222,7 +227,9 @@ describe('CheckUsageEligibilityUseCase', () => {
   });
 
   it('should throw for invalid featureType', async () => {
-    await expect(useCase.execute({ userId: 'user1', featureType: 'invalid' as any })).rejects.toThrow('Invalid feature type');
+    await expect(useCase.execute({ userId: 'user1', featureType: 'invalid' as any })).rejects.toThrow(
+      'Invalid feature type'
+    );
   });
 
   it('should allow paid tier users with unlimited access', async () => {
@@ -280,21 +287,17 @@ describe('DeductCreditsUseCase', () => {
   });
 
   it('should throw when userId is empty', async () => {
-    await expect(
-      useCase.execute({ userId: '', amount: 10, description: 'test' })
-    ).rejects.toThrow('User ID is required');
+    await expect(useCase.execute({ userId: '', amount: 10, description: 'test' })).rejects.toThrow(
+      'User ID is required'
+    );
   });
 
   it('should throw when amount is zero', async () => {
-    await expect(
-      useCase.execute({ userId: 'user1', amount: 0, description: 'test' })
-    ).rejects.toThrow();
+    await expect(useCase.execute({ userId: 'user1', amount: 0, description: 'test' })).rejects.toThrow();
   });
 
   it('should throw when amount is negative', async () => {
-    await expect(
-      useCase.execute({ userId: 'user1', amount: -5, description: 'test' })
-    ).rejects.toThrow();
+    await expect(useCase.execute({ userId: 'user1', amount: -5, description: 'test' })).rejects.toThrow();
   });
 
   it('should successfully deduct credits with reserve-commit pattern', async () => {
@@ -346,9 +349,9 @@ describe('DeductCreditsUseCase', () => {
     mockCreditRepo.commitReservation.mockRejectedValue(new Error('Commit failed'));
     mockCreditRepo.cancelReservation.mockResolvedValue({ success: true });
 
-    await expect(
-      useCase.execute({ userId: 'user1', amount: 10, description: 'test' })
-    ).rejects.toThrow('Commit failed');
+    await expect(useCase.execute({ userId: 'user1', amount: 10, description: 'test' })).rejects.toThrow(
+      'Commit failed'
+    );
 
     expect(mockCreditRepo.cancelReservation).toHaveBeenCalledWith('tx-456', 'Commit failed - automatic rollback');
   });
@@ -362,9 +365,9 @@ describe('DeductCreditsUseCase', () => {
     mockCreditRepo.commitReservation.mockRejectedValue(new Error('Commit failed'));
     mockCreditRepo.cancelReservation.mockRejectedValue(new Error('Cancel also failed'));
 
-    await expect(
-      useCase.execute({ userId: 'user1', amount: 10, description: 'test' })
-    ).rejects.toThrow('Commit failed');
+    await expect(useCase.execute({ userId: 'user1', amount: 10, description: 'test' })).rejects.toThrow(
+      'Commit failed'
+    );
 
     expect(mockCreditRepo.cancelReservation).toHaveBeenCalled();
   });
@@ -464,7 +467,16 @@ describe('GetTransactionHistoryUseCase', () => {
 
   it('should return transaction history with pagination', async () => {
     const transactions = [
-      { id: 'tx-1', userId: 'user1', amount: 10, type: 'deduction', status: 'completed', description: 'test', metadata: {}, createdAt: new Date() },
+      {
+        id: 'tx-1',
+        userId: 'user1',
+        amount: 10,
+        type: 'deduction',
+        status: 'completed',
+        description: 'test',
+        metadata: {},
+        createdAt: new Date(),
+      },
     ];
     mockCreditRepo.getTransactionHistory.mockResolvedValue({ transactions, total: 1 });
 
@@ -514,21 +526,17 @@ describe('RefundCreditsUseCase', () => {
   });
 
   it('should throw when userId is empty', async () => {
-    await expect(
-      useCase.execute({ userId: '', amount: 10, description: 'refund' })
-    ).rejects.toThrow('User ID is required');
+    await expect(useCase.execute({ userId: '', amount: 10, description: 'refund' })).rejects.toThrow(
+      'User ID is required'
+    );
   });
 
   it('should throw when amount is zero', async () => {
-    await expect(
-      useCase.execute({ userId: 'user1', amount: 0, description: 'refund' })
-    ).rejects.toThrow();
+    await expect(useCase.execute({ userId: 'user1', amount: 0, description: 'refund' })).rejects.toThrow();
   });
 
   it('should throw when amount is negative', async () => {
-    await expect(
-      useCase.execute({ userId: 'user1', amount: -10, description: 'refund' })
-    ).rejects.toThrow();
+    await expect(useCase.execute({ userId: 'user1', amount: -10, description: 'refund' })).rejects.toThrow();
   });
 
   it('should successfully refund credits', async () => {
@@ -581,9 +589,9 @@ describe('RefundCreditsUseCase', () => {
   it('should propagate repository errors', async () => {
     mockCreditRepo.refundCredits.mockRejectedValue(new Error('Refund failed'));
 
-    await expect(
-      useCase.execute({ userId: 'user1', amount: 10, description: 'test' })
-    ).rejects.toThrow('Refund failed');
+    await expect(useCase.execute({ userId: 'user1', amount: 10, description: 'test' })).rejects.toThrow(
+      'Refund failed'
+    );
   });
 });
 
@@ -610,7 +618,12 @@ describe('ValidateCreditsUseCase', () => {
   });
 
   it('should return hasCredits=true when balance is sufficient', async () => {
-    mockCreditRepo.getBalance.mockResolvedValue({ userId: 'user1', currentBalance: 100, totalSpent: 0, remaining: 100 });
+    mockCreditRepo.getBalance.mockResolvedValue({
+      userId: 'user1',
+      currentBalance: 100,
+      totalSpent: 0,
+      remaining: 100,
+    });
 
     const result = await useCase.execute({ userId: 'user1', amount: 50 });
 

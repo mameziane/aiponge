@@ -209,13 +209,23 @@ export class TrackController {
         resolvedDisplayName = profileResult.success && profileResult.displayName ? profileResult.displayName : '';
       }
       const trackId = uuidv4();
-      const genresArray = Array.isArray(genres) ? genres.filter((g: unknown): g is string => typeof g === 'string') : [];
+      const genresArray = Array.isArray(genres)
+        ? genres.filter((g: unknown): g is string => typeof g === 'string')
+        : [];
       const tagsArray = Array.isArray(tags) ? tags.filter((t: unknown): t is string => typeof t === 'string') : [];
 
       await this.db
         .insert(tracks)
         .values(
-          this.buildTrackInsertValues(req.body, userId, trackId, resolvedDisplayName, genresArray, tagsArray, visibility) as typeof tracks.$inferInsert
+          this.buildTrackInsertValues(
+            req.body,
+            userId,
+            trackId,
+            resolvedDisplayName,
+            genresArray,
+            tagsArray,
+            visibility
+          ) as typeof tracks.$inferInsert
         );
 
       await this.db.execute(sql`
@@ -567,7 +577,11 @@ export class TrackController {
             }
           );
 
-          const analysisData = (await analysisResponse.json()) as { success: boolean; data?: Record<string, unknown>; error?: string };
+          const analysisData = (await analysisResponse.json()) as {
+            success: boolean;
+            data?: Record<string, unknown>;
+            error?: string;
+          };
 
           if (analysisData.success) {
             successful++;

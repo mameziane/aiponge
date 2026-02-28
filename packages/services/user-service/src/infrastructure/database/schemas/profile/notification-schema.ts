@@ -1,14 +1,4 @@
-import {
-  pgTable,
-  varchar,
-  integer,
-  timestamp,
-  text,
-  uuid,
-  boolean,
-  index,
-  uniqueIndex,
-} from 'drizzle-orm/pg-core';
+import { pgTable, varchar, integer, timestamp, text, uuid, boolean, index, uniqueIndex } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 import { createInsertSchema } from 'drizzle-zod';
 import { z } from 'zod';
@@ -124,7 +114,4 @@ export type ExpoPushToken = typeof usrExpoPushTokens.$inferSelect;
 export type NewExpoPushToken = typeof usrExpoPushTokens.$inferInsert;
 export type InsertExpoPushToken = z.infer<typeof insertExpoPushTokenSchema>;
 
-export {
-  usrReminders as reminders,
-  usrExpoPushTokens as expoPushTokens,
-};
+export { usrReminders as reminders, usrExpoPushTokens as expoPushTokens };

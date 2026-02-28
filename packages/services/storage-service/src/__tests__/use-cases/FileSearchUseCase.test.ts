@@ -1,7 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const mockLogger = vi.hoisted(() => ({
-  info: vi.fn(), debug: vi.fn(), warn: vi.fn(), error: vi.fn(), child: vi.fn(),
+  info: vi.fn(),
+  debug: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  child: vi.fn(),
 }));
 
 vi.mock('@aiponge/platform-core', () => ({
@@ -17,7 +21,10 @@ vi.mock('@aiponge/platform-core', () => ({
     }
   },
   createHttpClient: vi.fn(() => ({
-    get: vi.fn(), post: vi.fn(), put: vi.fn(), delete: vi.fn(),
+    get: vi.fn(),
+    post: vi.fn(),
+    put: vi.fn(),
+    delete: vi.fn(),
   })),
   ServiceRegistry: {},
   hasService: () => false,
@@ -25,8 +32,8 @@ vi.mock('@aiponge/platform-core', () => ({
   waitForService: vi.fn(),
   listServices: () => [],
   createServiceUrlsConfig: vi.fn(() => ({})),
-  errorMessage: vi.fn((err: unknown) => err instanceof Error ? err.message : String(err)),
-  errorStack: vi.fn((err: unknown) => err instanceof Error ? err.stack : ''),
+  errorMessage: vi.fn((err: unknown) => (err instanceof Error ? err.message : String(err))),
+  errorStack: vi.fn((err: unknown) => (err instanceof Error ? err.stack : '')),
   withResilience: vi.fn((fn: (...args: unknown[]) => unknown) => fn),
   createIntervalScheduler: vi.fn(() => ({ start: vi.fn(), stop: vi.fn() })),
 }));
@@ -50,15 +57,17 @@ import { FileEntity } from '../../domains/entities/FileEntity';
 import type { IStorageProvider } from '../../application/interfaces/IStorageProvider';
 import type { IStorageRepository } from '../../application/interfaces/IStorageRepository';
 
-function createMockFileEntity(overrides: {
-  id?: string;
-  filename?: string;
-  size?: number;
-  mimeType?: string;
-  isPublic?: boolean;
-  tags?: string[];
-  uploadedAt?: Date;
-} = {}): FileEntity {
+function createMockFileEntity(
+  overrides: {
+    id?: string;
+    filename?: string;
+    size?: number;
+    mimeType?: string;
+    isPublic?: boolean;
+    tags?: string[];
+    uploadedAt?: Date;
+  } = {}
+): FileEntity {
   return new FileEntity(
     overrides.id || 'file-1',
     overrides.filename || 'test.txt',
@@ -86,22 +95,53 @@ describe('FileSearchUseCase', () => {
   let mockRepository: IStorageRepository;
 
   const mockFiles = [
-    createMockFileEntity({ id: '1', filename: 'song.mp3', size: 5000000, mimeType: 'audio/mpeg', tags: ['music', 'jazz'] }),
-    createMockFileEntity({ id: '2', filename: 'photo.png', size: 200000, mimeType: 'image/png', tags: ['photo'], isPublic: true }),
-    createMockFileEntity({ id: '3', filename: 'document.pdf', size: 50000, mimeType: 'application/pdf', tags: ['work'] }),
+    createMockFileEntity({
+      id: '1',
+      filename: 'song.mp3',
+      size: 5000000,
+      mimeType: 'audio/mpeg',
+      tags: ['music', 'jazz'],
+    }),
+    createMockFileEntity({
+      id: '2',
+      filename: 'photo.png',
+      size: 200000,
+      mimeType: 'image/png',
+      tags: ['photo'],
+      isPublic: true,
+    }),
+    createMockFileEntity({
+      id: '3',
+      filename: 'document.pdf',
+      size: 50000,
+      mimeType: 'application/pdf',
+      tags: ['work'],
+    }),
     createMockFileEntity({ id: '4', filename: 'video.mp4', size: 10000000, mimeType: 'video/mp4', tags: ['video'] }),
-    createMockFileEntity({ id: '5', filename: 'jazz-track.mp3', size: 4000000, mimeType: 'audio/mpeg', tags: ['music', 'jazz'] }),
+    createMockFileEntity({
+      id: '5',
+      filename: 'jazz-track.mp3',
+      size: 4000000,
+      mimeType: 'audio/mpeg',
+      tags: ['music', 'jazz'],
+    }),
   ];
 
   beforeEach(() => {
     vi.clearAllMocks();
 
     mockProvider = {
-      upload: vi.fn(), download: vi.fn(), delete: vi.fn(), exists: vi.fn(),
-      generateSignedUrl: vi.fn(), getMetadata: vi.fn().mockResolvedValue(null),
-      listFiles: vi.fn(), getPublicUrl: vi.fn(),
+      upload: vi.fn(),
+      download: vi.fn(),
+      delete: vi.fn(),
+      exists: vi.fn(),
+      generateSignedUrl: vi.fn(),
+      getMetadata: vi.fn().mockResolvedValue(null),
+      listFiles: vi.fn(),
+      getPublicUrl: vi.fn(),
       getProviderInfo: vi.fn().mockReturnValue({ name: 'local' }),
-      initialize: vi.fn(), cleanup: vi.fn(),
+      initialize: vi.fn(),
+      cleanup: vi.fn(),
     } as unknown as IStorageProvider;
 
     mockRepository = {

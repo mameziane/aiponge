@@ -10,10 +10,7 @@ import {
 import type { ProfileHighlight } from './GenerateProfileHighlightsUseCase';
 
 export class HighlightScoringService {
-  scoreHighlightCandidates(
-    candidates: Partial<ProfileHighlight>[],
-    userData: UserHighlightData
-  ): ProfileHighlight[] {
+  scoreHighlightCandidates(candidates: Partial<ProfileHighlight>[], userData: UserHighlightData): ProfileHighlight[] {
     return candidates.map(candidate => {
       const impactScore = this.calculateImpactScore(candidate, userData);
       const rarityScore = this.calculateRarityScore(candidate, candidates);
@@ -71,10 +68,7 @@ export class HighlightScoringService {
     return Math.min(100, Math.max(0, score));
   }
 
-  calculateRarityScore(
-    candidate: Partial<ProfileHighlight>,
-    allCandidates: Partial<ProfileHighlight>[]
-  ): number {
+  calculateRarityScore(candidate: Partial<ProfileHighlight>, allCandidates: Partial<ProfileHighlight>[]): number {
     const typeCount = allCandidates.filter(c => c.type === candidate.type).length;
     const categoryCount = allCandidates.filter(c => c.category === candidate.category).length;
 

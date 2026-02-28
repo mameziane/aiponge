@@ -20,7 +20,8 @@
   },
   "include": ["src/**/*"],
   "exclude": [
-    "node_modules", "dist",
+    "node_modules",
+    "dist",
     "**/ProductionStorageRepository.ts",
     "**/ProductionFileRepository.ts",
     "**/tests/**",

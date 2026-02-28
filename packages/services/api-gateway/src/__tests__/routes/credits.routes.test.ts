@@ -121,9 +121,7 @@ describe('Credits Routes', () => {
 
   describe('GET /policy', () => {
     it('should return credit policy without authentication', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true, data: { songCost: 1, minimumBalance: 0 } })
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, data: { songCost: 1, minimumBalance: 0 } }));
       const res = await request(app).get('/api/app/credits/policy');
       expect(res.status).toBe(200);
       expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/credits/policy'));
@@ -145,21 +143,15 @@ describe('Credits Routes', () => {
     });
 
     it('should return balance for authenticated user', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true, data: { balance: 50 } })
-      );
-      const res = await request(app)
-        .get('/api/app/credits/balance')
-        .set('x-user-id', 'user-123');
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, data: { balance: 50 } }));
+      const res = await request(app).get('/api/app/credits/balance').set('x-user-id', 'user-123');
       expect(res.status).toBe(200);
       expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/credits/'), expect.anything());
     });
 
     it('should forward 404 from service', async () => {
       mockGatewayFetch.mockResolvedValueOnce(mockResponse({ message: 'User not found' }, 404));
-      const res = await request(app)
-        .get('/api/app/credits/balance')
-        .set('x-user-id', 'nonexistent');
+      const res = await request(app).get('/api/app/credits/balance').set('x-user-id', 'nonexistent');
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
       expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/credits/'), expect.anything());
@@ -173,12 +165,8 @@ describe('Credits Routes', () => {
     });
 
     it('should return transactions', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true, data: { transactions: [] } })
-      );
-      const res = await request(app)
-        .get('/api/app/credits/transactions')
-        .set('x-user-id', 'user-123');
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, data: { transactions: [] } }));
+      const res = await request(app).get('/api/app/credits/transactions').set('x-user-id', 'user-123');
       expect(res.status).toBe(200);
       expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/credits/'), expect.anything());
     });
@@ -191,21 +179,14 @@ describe('Credits Routes', () => {
     });
 
     it('should validate sufficient credits', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true, data: { valid: true } })
-      );
-      const res = await request(app)
-        .post('/api/app/credits/validate')
-        .set('x-user-id', 'user-123')
-        .send({ amount: 5 });
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, data: { valid: true } }));
+      const res = await request(app).post('/api/app/credits/validate').set('x-user-id', 'user-123').send({ amount: 5 });
       expect(res.status).toBe(200);
       expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/credits/'), expect.anything());
     });
 
     it('should forward 402 for insufficient credits', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ message: 'Insufficient credits' }, 402)
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ message: 'Insufficient credits' }, 402));
       const res = await request(app)
         .post('/api/app/credits/validate')
         .set('x-user-id', 'user-123')
@@ -233,27 +214,29 @@ describe('Credits Routes', () => {
     });
 
     it('should grant credits successfully', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true, data: { creditsGranted: 50 } })
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, data: { creditsGranted: 50 } }));
       const res = await request(app)
         .post('/api/app/credits/grant-revenuecat')
         .set('x-user-id', 'user-123')
         .send({ productId: 'p1', transactionId: 't1' });
       expect(res.status).toBe(200);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/credits/grant-revenuecat'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/credits/grant-revenuecat'),
+        expect.anything()
+      );
     });
 
     it('should forward 409 for duplicate transaction', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ message: 'Already processed' }, 409)
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ message: 'Already processed' }, 409));
       const res = await request(app)
         .post('/api/app/credits/grant-revenuecat')
         .set('x-user-id', 'user-123')
         .send({ productId: 'p1', transactionId: 'dup' });
       expect(res.status).toBe(409);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/credits/grant-revenuecat'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/credits/grant-revenuecat'),
+        expect.anything()
+      );
     });
   });
 });

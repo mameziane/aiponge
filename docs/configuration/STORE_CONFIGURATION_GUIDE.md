@@ -20,32 +20,32 @@ This guide covers the **manual configuration tasks** required in App Store Conne
 
 ### Subscription Tiers
 
-| Tier | Price | Songs/Month | Features |
-|------|-------|-------------|----------|
-| Guest (Free) | $0 | 1 | No account required, limited access, conversion prompts |
-| Explorer (Free) | $0 | 2 | Registered account, basic app access |
-| Personal | $9.99/month | 15 | Full app access |
-| Practice | $49/month | 50 | Priority generation, all features |
-| Studio | $149/month | 150 | Maximum generation capacity, all features |
+| Tier            | Price       | Songs/Month | Features                                                |
+| --------------- | ----------- | ----------- | ------------------------------------------------------- |
+| Guest (Free)    | $0          | 1           | No account required, limited access, conversion prompts |
+| Explorer (Free) | $0          | 2           | Registered account, basic app access                    |
+| Personal        | $9.99/month | 15          | Full app access                                         |
+| Practice        | $49/month   | 50          | Priority generation, all features                       |
+| Studio          | $149/month  | 150         | Maximum generation capacity, all features               |
 
 ### Product IDs to Configure
 
 #### Subscriptions
 
-| Product ID | Type | Price | Description |
-|------------|------|-------|-------------|
-| `com.aiponge.subscription.personal.monthly` | Auto-Renewable | $9.99/month | Personal Monthly |
-| `com.aiponge.subscription.personal.yearly` | Auto-Renewable | $79.99/year | Personal Yearly |
-| `com.aiponge.subscription.practice.monthly` | Auto-Renewable | $49/month | Practice Monthly |
-| `com.aiponge.subscription.practice.yearly` | Auto-Renewable | $399.99/year | Practice Yearly |
-| `com.aiponge.subscription.studio.monthly` | Auto-Renewable | $149/month | Studio Monthly |
-| `com.aiponge.subscription.studio.yearly` | Auto-Renewable | $1199.99/year | Studio Yearly |
+| Product ID                                  | Type           | Price         | Description      |
+| ------------------------------------------- | -------------- | ------------- | ---------------- |
+| `com.aiponge.subscription.personal.monthly` | Auto-Renewable | $9.99/month   | Personal Monthly |
+| `com.aiponge.subscription.personal.yearly`  | Auto-Renewable | $79.99/year   | Personal Yearly  |
+| `com.aiponge.subscription.practice.monthly` | Auto-Renewable | $49/month     | Practice Monthly |
+| `com.aiponge.subscription.practice.yearly`  | Auto-Renewable | $399.99/year  | Practice Yearly  |
+| `com.aiponge.subscription.studio.monthly`   | Auto-Renewable | $149/month    | Studio Monthly   |
+| `com.aiponge.subscription.studio.yearly`    | Auto-Renewable | $1199.99/year | Studio Yearly    |
 
 #### Song Credit Packs (Consumables)
 
-| Product ID | Type | Credits | Price |
-|------------|------|---------|-------|
-| `com.aiponge.credits.5` | Consumable | 5 songs | $4.99 |
+| Product ID               | Type       | Credits  | Price  |
+| ------------------------ | ---------- | -------- | ------ |
+| `com.aiponge.credits.5`  | Consumable | 5 songs  | $4.99  |
 | `com.aiponge.credits.15` | Consumable | 15 songs | $12.99 |
 | `com.aiponge.credits.30` | Consumable | 30 songs | $22.99 |
 
@@ -60,11 +60,9 @@ Before creating products, complete these steps:
 - [ ] **Sign Paid Applications Agreement**
   - Go to: App Store Connect → Business → Agreements, Tax, and Banking
   - Sign the "Paid Applications" agreement
-  
 - [ ] **Complete Banking Information**
   - Add bank account for payouts
   - Status must show "Clear" (may take 1-2 business days)
-  
 - [ ] **Complete Tax Information**
   - Complete US Tax forms (W-8BEN or W-9)
   - Status must show "Clear"
@@ -78,6 +76,7 @@ Before creating products, complete these steps:
 5. Note the **Key ID** shown
 
 **Store these values:**
+
 - `.p8` file (for RevenueCat upload)
 - Issuer ID: `______________________________`
 - Key ID: `______________________________`
@@ -118,6 +117,7 @@ For each subscription product:
 #### Personal Yearly ($79.99)
 
 Repeat above with:
+
 - **Reference Name:** `Personal Yearly`
 - **Product ID:** `com.aiponge.subscription.personal.yearly`
 - **Duration:** 1 year
@@ -142,6 +142,7 @@ Repeat above with:
 #### Practice Yearly ($399.99)
 
 Repeat above with:
+
 - **Reference Name:** `Practice Yearly`
 - **Product ID:** `com.aiponge.subscription.practice.yearly`
 - **Duration:** 1 year
@@ -166,6 +167,7 @@ Repeat above with:
 #### Studio Yearly ($1199.99)
 
 Repeat above with:
+
 - **Reference Name:** `Studio Yearly`
 - **Product ID:** `com.aiponge.subscription.studio.yearly`
 - **Duration:** 1 year
@@ -250,6 +252,7 @@ Repeat above with:
 8. Download the JSON file - save securely
 
 **Back in Google Play Console:**
+
 1. Refresh the API access page
 2. Click **"Grant access"** next to your service account
 3. Under "App permissions", select **Aiponge**
@@ -257,6 +260,7 @@ Repeat above with:
 5. Click **Invite user**
 
 **Store this value:**
+
 - Service Account JSON file (for RevenueCat upload)
 
 ### Step 2: Create Subscriptions
@@ -278,6 +282,7 @@ Repeat above with:
 **Add Base Plans:**
 
 **Monthly Base Plan:**
+
 1. Click **"Add base plan"**
 2. **Base Plan ID:** `personal-monthly`
 3. **Billing Period:** 1 month
@@ -286,6 +291,7 @@ Repeat above with:
 6. Click **Activate**
 
 **Yearly Base Plan:**
+
 1. Click **"Add base plan"**
 2. **Base Plan ID:** `personal-yearly`
 3. **Billing Period:** 1 year
@@ -308,12 +314,14 @@ Repeat above with:
 **Add Base Plans:**
 
 **Monthly Base Plan:**
+
 - **Base Plan ID:** `practice-monthly`
 - **Billing Period:** 1 month
 - **Price:** $49
 - Click **Activate**
 
 **Yearly Base Plan:**
+
 - **Base Plan ID:** `practice-yearly`
 - **Billing Period:** 1 year
 - **Price:** $399.99
@@ -334,12 +342,14 @@ Repeat above with:
 **Add Base Plans:**
 
 **Monthly Base Plan:**
+
 - **Base Plan ID:** `studio-monthly`
 - **Billing Period:** 1 month
 - **Price:** $149
 - Click **Activate**
 
 **Yearly Base Plan:**
+
 - **Base Plan ID:** `studio-yearly`
 - **Billing Period:** 1 year
 - **Price:** $1199.99
@@ -515,26 +525,32 @@ Offerings group products for display in the app.
 2. Click **"+ Add Package"**
 
 **Personal Monthly Package:**
+
 - **Identifier:** `$rc_monthly` (standard RevenueCat identifier)
 - **Product:** Select personal monthly products (iOS & Android)
 
 **Personal Yearly Package:**
+
 - **Identifier:** `$rc_annual`
 - **Product:** Select personal yearly products
 
 **Practice Monthly Package:**
+
 - **Identifier:** `practice_monthly` (custom identifier)
 - **Product:** Select practice monthly products
 
 **Practice Yearly Package:**
+
 - **Identifier:** `practice_annual`
 - **Product:** Select practice yearly products
 
 **Studio Monthly Package:**
+
 - **Identifier:** `studio_monthly` (custom identifier)
 - **Product:** Select studio monthly products
 
 **Studio Yearly Package:**
+
 - **Identifier:** `studio_annual`
 - **Product:** Select studio yearly products
 
@@ -547,6 +563,7 @@ Offerings group products for display in the app.
 3. **Description:** `Song credit purchases`
 
 **Add Packages:**
+
 - **Package:** `credits_5` → attach 5 credit products
 - **Package:** `credits_15` → attach 15 credit products
 - **Package:** `credits_30` → attach 30 credit products
@@ -640,26 +657,26 @@ For tracking song credits:
 
 ## Quick Reference: Product ID Summary
 
-| Platform | Product Type | Product ID |
-|----------|--------------|------------|
-| iOS | Personal Monthly | `com.aiponge.subscription.personal.monthly` |
-| iOS | Personal Yearly | `com.aiponge.subscription.personal.yearly` |
-| iOS | Practice Monthly | `com.aiponge.subscription.practice.monthly` |
-| iOS | Practice Yearly | `com.aiponge.subscription.practice.yearly` |
-| iOS | Studio Monthly | `com.aiponge.subscription.studio.monthly` |
-| iOS | Studio Yearly | `com.aiponge.subscription.studio.yearly` |
-| iOS | 5 Credits | `com.aiponge.credits.5` |
-| iOS | 15 Credits | `com.aiponge.credits.15` |
-| iOS | 30 Credits | `com.aiponge.credits.30` |
-| Android | Personal Monthly | `personal:personal-monthly` |
-| Android | Personal Yearly | `personal:personal-yearly` |
-| Android | Practice Monthly | `practice:practice-monthly` |
-| Android | Practice Yearly | `practice:practice-yearly` |
-| Android | Studio Monthly | `studio:studio-monthly` |
-| Android | Studio Yearly | `studio:studio-yearly` |
-| Android | 5 Credits | `credits_5` |
-| Android | 15 Credits | `credits_15` |
-| Android | 30 Credits | `credits_30` |
+| Platform | Product Type     | Product ID                                  |
+| -------- | ---------------- | ------------------------------------------- |
+| iOS      | Personal Monthly | `com.aiponge.subscription.personal.monthly` |
+| iOS      | Personal Yearly  | `com.aiponge.subscription.personal.yearly`  |
+| iOS      | Practice Monthly | `com.aiponge.subscription.practice.monthly` |
+| iOS      | Practice Yearly  | `com.aiponge.subscription.practice.yearly`  |
+| iOS      | Studio Monthly   | `com.aiponge.subscription.studio.monthly`   |
+| iOS      | Studio Yearly    | `com.aiponge.subscription.studio.yearly`    |
+| iOS      | 5 Credits        | `com.aiponge.credits.5`                     |
+| iOS      | 15 Credits       | `com.aiponge.credits.15`                    |
+| iOS      | 30 Credits       | `com.aiponge.credits.30`                    |
+| Android  | Personal Monthly | `personal:personal-monthly`                 |
+| Android  | Personal Yearly  | `personal:personal-yearly`                  |
+| Android  | Practice Monthly | `practice:practice-monthly`                 |
+| Android  | Practice Yearly  | `practice:practice-yearly`                  |
+| Android  | Studio Monthly   | `studio:studio-monthly`                     |
+| Android  | Studio Yearly    | `studio:studio-yearly`                      |
+| Android  | 5 Credits        | `credits_5`                                 |
+| Android  | 15 Credits       | `credits_15`                                |
+| Android  | 30 Credits       | `credits_30`                                |
 
 ---
 

@@ -41,7 +41,7 @@ router.post(
     });
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[LYRICS CREATE]') as Record<string, unknown>;
+      const errorData = (await parseErrorBody(response, '[LYRICS CREATE]')) as Record<string, unknown>;
       logger.error('[LYRICS CREATE] Failed', {
         userId,
         status: response.status,
@@ -91,7 +91,7 @@ router.get(
     });
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[LYRICS GET BY ID]') as Record<string, unknown>;
+      const errorData = (await parseErrorBody(response, '[LYRICS GET BY ID]')) as Record<string, unknown>;
       logger.error('[LYRICS GET BY ID] Failed', {
         lyricsId,
         status: response.status,
@@ -134,7 +134,7 @@ router.get(
     });
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[LYRICS GET BY ENTRY]') as Record<string, unknown>;
+      const errorData = (await parseErrorBody(response, '[LYRICS GET BY ENTRY]')) as Record<string, unknown>;
       logger.error('[LYRICS GET BY ENTRY] Failed', {
         entryId,
         status: response.status,
@@ -178,7 +178,7 @@ router.delete(
     });
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[LYRICS DELETE]') as Record<string, unknown>;
+      const errorData = (await parseErrorBody(response, '[LYRICS DELETE]')) as Record<string, unknown>;
       logger.error('[LYRICS DELETE] Failed', {
         lyricsId,
         status: response.status,

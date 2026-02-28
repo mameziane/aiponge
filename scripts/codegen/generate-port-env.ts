@@ -1,10 +1,10 @@
 #!/usr/bin/env npx tsx
 /**
  * Port Environment Generator
- * 
+ *
  * Generates .env.ports from services.config.ts to ensure single source of truth.
  * This file is sourced by start-dev.sh before starting services.
- * 
+ *
  * Usage: npx tsx scripts/generate-port-env.ts
  */
 
@@ -20,7 +20,7 @@ import { SERVICES, getBackendServices } from '../../packages/platform-core/src/c
 
 function generatePortEnv(): void {
   const backendServices = getBackendServices();
-  
+
   const lines: string[] = [
     '# AUTO-GENERATED - DO NOT EDIT',
     '# Generated from packages/platform-core/src/config/services-definition.ts',
@@ -48,7 +48,7 @@ function generatePortEnv(): void {
 
   const outputPath = resolve(rootDir, '.env.ports');
   writeFileSync(outputPath, lines.join('\n'));
-  
+
   console.log(`✅ Generated ${outputPath}`);
   console.log(`   Configured ${backendServices.length} services:`);
   for (const service of backendServices) {

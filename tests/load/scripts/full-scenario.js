@@ -46,7 +46,7 @@ export const options = {
 export default function () {
   group('health', () => {
     const res = http.get(`${BASE_URL}/health`);
-    check(res, { 'health ok': (r) => r.status === 200 });
+    check(res, { 'health ok': r => r.status === 200 });
     sleep(0.2);
   });
 
@@ -58,19 +58,19 @@ export default function () {
 
     group('browse_library', () => {
       const listRes = http.get(`${BASE_URL}/api/app/library/books`, opts);
-      check(listRes, { 'library list ok': (r) => r.status === 200 || r.status === 304 });
+      check(listRes, { 'library list ok': r => r.status === 200 || r.status === 304 });
       sleep(0.5);
     });
 
     group('token_refresh', () => {
       const refreshResult = refreshToken(BASE_URL, auth.refreshToken, auth.sessionId);
-      check(refreshResult, { 'refresh successful': (r) => r !== null });
+      check(refreshResult, { 'refresh successful': r => r !== null });
       sleep(0.3);
     });
 
     group('profile', () => {
       const profileRes = http.get(`${BASE_URL}/api/app/users/me/profile`, opts);
-      check(profileRes, { 'profile ok': (r) => r.status === 200 || r.status === 401 });
+      check(profileRes, { 'profile ok': r => r.status === 200 || r.status === 401 });
       sleep(0.3);
     });
   });

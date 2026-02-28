@@ -53,14 +53,8 @@ export function BookReferences({ sources }: BookReferencesProps) {
             <View key={index} style={styles.sourceItem}>
               <View style={styles.sourceHeader}>
                 <Text style={styles.authorText}>{source.author}</Text>
-                {source.era && <Text style={styles.eraText}>{source.era}</Text>}
               </View>
               {source.work && <Text style={styles.workText}>{source.work}</Text>}
-              {source.tradition && (
-                <View style={styles.traditionBadge}>
-                  <Text style={styles.traditionText}>{source.tradition}</Text>
-                </View>
-              )}
             </View>
           ))}
         </View>
@@ -131,27 +125,10 @@ const createStyles = (colors: ColorScheme) =>
       color: colors.text.primary,
       flex: 1,
     },
-    eraText: {
-      fontSize: 12,
-      color: colors.text.tertiary,
-      fontStyle: 'italic',
-    },
     workText: {
       fontSize: 13,
       color: colors.text.secondary,
       fontStyle: 'italic',
       marginBottom: 6,
-    },
-    traditionBadge: {
-      alignSelf: 'flex-start',
-      backgroundColor: colors.social.gold + '20',
-      paddingHorizontal: 8,
-      paddingVertical: 3,
-      borderRadius: 6,
-    },
-    traditionText: {
-      fontSize: 11,
-      color: colors.social.gold,
-      fontWeight: '500',
     },
   });

@@ -420,7 +420,9 @@ export class GetSystemHealthAnalyticsUseCase {
         liveMetrics = await this.getLiveMetrics();
       }
 
-      let historicalTrends: Array<{ timestamp: Date; healthScore: number; responseTime: number; errorRate: number }> | undefined;
+      let historicalTrends:
+        | Array<{ timestamp: Date; healthScore: number; responseTime: number; errorRate: number }>
+        | undefined;
       if (request.includeHistoricalTrends) {
         const timeWindow = request.timeWindow || 24;
         historicalTrends = await this.getHistoricalHealthTrends(timeWindow);
@@ -851,7 +853,17 @@ export class GetSystemHealthAnalyticsUseCase {
       activeConnections: 0,
     };
 
-    const byService: Record<string, { cpuUsage: number; memoryUsage: number; diskUsage: number; networkIn: number; networkOut: number; instances: number }> = {};
+    const byService: Record<
+      string,
+      {
+        cpuUsage: number;
+        memoryUsage: number;
+        diskUsage: number;
+        networkIn: number;
+        networkOut: number;
+        instances: number;
+      }
+    > = {};
     const services = request.serviceNames || [...DEFAULT_MONITORED_SERVICES];
 
     services.forEach(service => {
@@ -1155,7 +1167,9 @@ export class GetSystemHealthAnalyticsUseCase {
     };
   }
 
-  private async getHistoricalHealthTrends(timeWindowHours: number): Promise<Array<{ timestamp: Date; healthScore: number; responseTime: number; errorRate: number }>> {
+  private async getHistoricalHealthTrends(
+    timeWindowHours: number
+  ): Promise<Array<{ timestamp: Date; healthScore: number; responseTime: number; errorRate: number }>> {
     const now = new Date();
     const start = new Date(now.getTime() - timeWindowHours * 60 * 60 * 1000);
 

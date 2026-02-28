@@ -14,7 +14,11 @@ vi.mock('../../auth/store', () => ({
   },
 }));
 
-import { createGenerationStore, type BaseGenerationProgress, type GenerationStoreConfig } from '../../stores/createGenerationStore';
+import {
+  createGenerationStore,
+  type BaseGenerationProgress,
+  type GenerationStoreConfig,
+} from '../../stores/createGenerationStore';
 import { apiRequest } from '../../lib/axiosApiClient';
 import { useAuthStore } from '../../auth/store';
 
@@ -22,7 +26,9 @@ interface TestProgress extends BaseGenerationProgress {
   customField?: string;
 }
 
-function createTestConfig(overrides?: Partial<GenerationStoreConfig<TestProgress>>): GenerationStoreConfig<TestProgress> {
+function createTestConfig(
+  overrides?: Partial<GenerationStoreConfig<TestProgress>>
+): GenerationStoreConfig<TestProgress> {
   return {
     name: 'test-gen',
     pollInterval: 1000,
@@ -76,7 +82,10 @@ describe('createGenerationStore', () => {
     it('adds generation to activeGenerations with initial progress from createInitialProgress', () => {
       const config = createTestConfig();
       const { store } = createGenerationStore(config);
-      mockApiRequest.mockResolvedValueOnce({ success: true, data: { id: 'req-1', userId: 'user-123', status: 'queued', phase: 'initializing', percentComplete: 0 } });
+      mockApiRequest.mockResolvedValueOnce({
+        success: true,
+        data: { id: 'req-1', userId: 'user-123', status: 'queued', phase: 'initializing', percentComplete: 0 },
+      });
 
       store.getState().startGeneration('req-1');
 
@@ -94,7 +103,10 @@ describe('createGenerationStore', () => {
     it('sets isPolling=true and isPendingGeneration=false', () => {
       const config = createTestConfig();
       const { store } = createGenerationStore(config);
-      mockApiRequest.mockResolvedValueOnce({ success: true, data: { id: 'req-1', userId: 'user-123', status: 'queued', phase: 'initializing', percentComplete: 0 } });
+      mockApiRequest.mockResolvedValueOnce({
+        success: true,
+        data: { id: 'req-1', userId: 'user-123', status: 'queued', phase: 'initializing', percentComplete: 0 },
+      });
 
       store.getState().setPendingGeneration(true);
       expect(store.getState().isPendingGeneration).toBe(true);
@@ -108,7 +120,10 @@ describe('createGenerationStore', () => {
     it('passes options to createInitialProgress', () => {
       const config = createTestConfig();
       const { store } = createGenerationStore(config);
-      mockApiRequest.mockResolvedValueOnce({ success: true, data: { id: 'req-1', userId: 'user-123', status: 'queued', phase: 'initializing', percentComplete: 0 } });
+      mockApiRequest.mockResolvedValueOnce({
+        success: true,
+        data: { id: 'req-1', userId: 'user-123', status: 'queued', phase: 'initializing', percentComplete: 0 },
+      });
 
       store.getState().startGeneration('req-1', { customField: 'my-value' });
 
@@ -118,7 +133,10 @@ describe('createGenerationStore', () => {
     it('triggers immediate pollProgress call', () => {
       const config = createTestConfig();
       const { store } = createGenerationStore(config);
-      mockApiRequest.mockResolvedValueOnce({ success: true, data: { id: 'req-1', userId: 'user-123', status: 'queued', phase: 'initializing', percentComplete: 0 } });
+      mockApiRequest.mockResolvedValueOnce({
+        success: true,
+        data: { id: 'req-1', userId: 'user-123', status: 'queued', phase: 'initializing', percentComplete: 0 },
+      });
 
       store.getState().startGeneration('req-1');
 
@@ -149,7 +167,10 @@ describe('createGenerationStore', () => {
     it('sets isPolling=false', () => {
       const config = createTestConfig();
       const { store } = createGenerationStore(config);
-      mockApiRequest.mockResolvedValue({ success: true, data: { id: 'req-1', userId: 'user-123', status: 'queued', phase: 'initializing', percentComplete: 0 } });
+      mockApiRequest.mockResolvedValue({
+        success: true,
+        data: { id: 'req-1', userId: 'user-123', status: 'queued', phase: 'initializing', percentComplete: 0 },
+      });
 
       store.getState().startGeneration('req-1');
       expect(store.getState().isPolling).toBe(true);
@@ -161,7 +182,10 @@ describe('createGenerationStore', () => {
     it('clears interval timer so no further polls happen', () => {
       const config = createTestConfig();
       const { store } = createGenerationStore(config);
-      mockApiRequest.mockResolvedValue({ success: true, data: { id: 'req-1', userId: 'user-123', status: 'queued', phase: 'init', percentComplete: 0 } });
+      mockApiRequest.mockResolvedValue({
+        success: true,
+        data: { id: 'req-1', userId: 'user-123', status: 'queued', phase: 'init', percentComplete: 0 },
+      });
 
       store.getState().startGeneration('req-1');
       mockApiRequest.mockClear();
@@ -178,7 +202,10 @@ describe('createGenerationStore', () => {
       const config = createTestConfig();
       const { store } = createGenerationStore(config);
 
-      mockApiRequest.mockResolvedValueOnce({ success: true, data: { id: 'req-1', userId: 'user-123', status: 'completed', phase: 'done', percentComplete: 100 } });
+      mockApiRequest.mockResolvedValueOnce({
+        success: true,
+        data: { id: 'req-1', userId: 'user-123', status: 'completed', phase: 'done', percentComplete: 100 },
+      });
       store.getState().startGeneration('req-1');
       await vi.advanceTimersByTimeAsync(0);
 
@@ -190,16 +217,19 @@ describe('createGenerationStore', () => {
       const config = createTestConfig({ mergeProgress });
       const { store } = createGenerationStore(config);
 
-      const responseData = { id: 'req-1', userId: 'user-123', status: 'completed' as const, phase: 'done', percentComplete: 100 };
+      const responseData = {
+        id: 'req-1',
+        userId: 'user-123',
+        status: 'completed' as const,
+        phase: 'done',
+        percentComplete: 100,
+      };
       mockApiRequest.mockResolvedValueOnce({ success: true, data: responseData });
 
       store.getState().startGeneration('req-1');
       await vi.advanceTimersByTimeAsync(0);
 
-      expect(mergeProgress).toHaveBeenCalledWith(
-        expect.objectContaining({ id: 'req-1' }),
-        responseData
-      );
+      expect(mergeProgress).toHaveBeenCalledWith(expect.objectContaining({ id: 'req-1' }), responseData);
     });
 
     it('calls onCompleted when status is completed', async () => {
@@ -294,7 +324,9 @@ describe('createGenerationStore', () => {
 
     it('handles other errors by setting lastError', async () => {
       const config = createTestConfig({
-        mergeProgress: () => { throw new Error('Merge failed'); },
+        mergeProgress: () => {
+          throw new Error('Merge failed');
+        },
       });
       const { store } = createGenerationStore(config);
 
@@ -322,7 +354,10 @@ describe('createGenerationStore', () => {
       const config = createTestConfig();
       const { store } = createGenerationStore(config);
 
-      mockApiRequest.mockResolvedValueOnce({ success: true, data: { id: 'req-1', userId: 'user-123', status: 'queued', phase: 'init', percentComplete: 0 } });
+      mockApiRequest.mockResolvedValueOnce({
+        success: true,
+        data: { id: 'req-1', userId: 'user-123', status: 'queued', phase: 'init', percentComplete: 0 },
+      });
       store.getState().startGeneration('req-1');
 
       store.getState().stopPolling();
@@ -337,7 +372,10 @@ describe('createGenerationStore', () => {
     it('removes specific generation from activeGenerations when id is provided', () => {
       const config = createTestConfig();
       const { store } = createGenerationStore(config);
-      mockApiRequest.mockResolvedValue({ success: true, data: { id: 'req-1', userId: 'user-123', status: 'queued', phase: 'init', percentComplete: 0 } });
+      mockApiRequest.mockResolvedValue({
+        success: true,
+        data: { id: 'req-1', userId: 'user-123', status: 'queued', phase: 'init', percentComplete: 0 },
+      });
 
       store.getState().startGeneration('req-1');
       store.getState().clearGeneration('req-1');
@@ -348,7 +386,10 @@ describe('createGenerationStore', () => {
     it('clears all generations, stops polling, clears lastError when no id', () => {
       const config = createTestConfig();
       const { store } = createGenerationStore(config);
-      mockApiRequest.mockResolvedValue({ success: true, data: { id: 'req-1', userId: 'user-123', status: 'queued', phase: 'init', percentComplete: 0 } });
+      mockApiRequest.mockResolvedValue({
+        success: true,
+        data: { id: 'req-1', userId: 'user-123', status: 'queued', phase: 'init', percentComplete: 0 },
+      });
 
       store.getState().startGeneration('req-1');
       store.getState().clearGeneration();
@@ -362,7 +403,10 @@ describe('createGenerationStore', () => {
     it('calls config.onClearGeneration with id', () => {
       const config = createTestConfig();
       const { store } = createGenerationStore(config);
-      mockApiRequest.mockResolvedValue({ success: true, data: { id: 'req-1', userId: 'user-123', status: 'queued', phase: 'init', percentComplete: 0 } });
+      mockApiRequest.mockResolvedValue({
+        success: true,
+        data: { id: 'req-1', userId: 'user-123', status: 'queued', phase: 'init', percentComplete: 0 },
+      });
 
       store.getState().startGeneration('req-1');
       store.getState().clearGeneration('req-1');
@@ -384,7 +428,10 @@ describe('createGenerationStore', () => {
     it('returns only active generations filtered by config.isActive', () => {
       const config = createTestConfig();
       const { store } = createGenerationStore(config);
-      mockApiRequest.mockResolvedValue({ success: true, data: { id: 'req-1', userId: 'user-123', status: 'queued', phase: 'init', percentComplete: 0 } });
+      mockApiRequest.mockResolvedValue({
+        success: true,
+        data: { id: 'req-1', userId: 'user-123', status: 'queued', phase: 'init', percentComplete: 0 },
+      });
 
       store.getState().startGeneration('req-1');
 
@@ -447,9 +494,7 @@ describe('createGenerationStore', () => {
 
       mockApiRequest.mockResolvedValueOnce({
         success: true,
-        data: [
-          { id: 'req-1', userId: 'user-123', status: 'processing', phase: 'working', percentComplete: 50 },
-        ],
+        data: [{ id: 'req-1', userId: 'user-123', status: 'processing', phase: 'working', percentComplete: 50 }],
       });
 
       await store.getState().checkActiveGenerations();
@@ -465,9 +510,7 @@ describe('createGenerationStore', () => {
 
       mockApiRequest.mockResolvedValueOnce({
         success: true,
-        data: [
-          { id: 'req-1', userId: 'user-123', status: 'processing', phase: 'working', percentComplete: 50 },
-        ],
+        data: [{ id: 'req-1', userId: 'user-123', status: 'processing', phase: 'working', percentComplete: 50 }],
       });
 
       await store.getState().checkActiveGenerations();
@@ -480,7 +523,9 @@ describe('createGenerationStore', () => {
       const { store } = createGenerationStore(config);
 
       let resolveApi: (value: unknown) => void;
-      const apiPromise = new Promise(resolve => { resolveApi = resolve; });
+      const apiPromise = new Promise(resolve => {
+        resolveApi = resolve;
+      });
       mockApiRequest.mockReturnValue(apiPromise as any);
 
       const check1 = store.getState().checkActiveGenerations();
@@ -500,9 +545,7 @@ describe('createGenerationStore', () => {
 
       mockApiRequest.mockResolvedValueOnce({
         success: true,
-        data: [
-          { id: 'req-1', userId: 'user-123', status: 'completed', phase: 'done', percentComplete: 100 },
-        ],
+        data: [{ id: 'req-1', userId: 'user-123', status: 'completed', phase: 'done', percentComplete: 100 }],
       });
 
       await store.getState().checkActiveGenerations();

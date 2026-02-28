@@ -10,9 +10,7 @@ import { ProfileError } from '@application/errors';
 import { type ContentVisibility } from '@aiponge/shared-contracts';
 import { getLogger } from '@config/service-urls';
 import { serializeError } from '@aiponge/platform-core';
-import {
-  UserHighlightData,
-} from './highlight-types';
+import { UserHighlightData } from './highlight-types';
 import { HighlightIdentificationService } from './HighlightIdentificationService';
 import { HighlightScoringService } from './HighlightScoringService';
 import { HighlightNarrativeService } from './HighlightNarrativeService';

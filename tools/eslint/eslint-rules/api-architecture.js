@@ -1,4 +1,3 @@
-
 const logger = {
   info: (...args) => console.log('[eslint-api-architecture]', ...args),
   warn: (...args) => console.warn('[eslint-api-architecture]', ...args),
@@ -15,13 +14,13 @@ export default {
     // Prevent direct fetch usage in app code
     'no-direct-fetch': {
       meta: {
-        hasSuggestions: true
+        hasSuggestions: true,
       },
       create(context) {
         return {
           CallExpression(node) {
             const filename = context.getFilename();
-            
+
             // Skip utility files that are allowed to use fetch directly
             const isUtilFile = /[\\/\\]utils[\\/\\]/.test(filename);
             const isLibFile = /[\\/\\]lib[\\/\\]/.test(filename);
@@ -34,12 +33,14 @@ export default {
               context.report({
                 node,
                 message: 'Direct fetch() calls are not allowed. Use ApiClient or service layer methods instead.',
-                suggest: [{
-                  desc: 'Use ApiClient for API calls',
-                  fix(fixer) {
-                    return fixer.replaceText(node, '// TODO: Replace with ApiClient call');
-                  }
-                }]
+                suggest: [
+                  {
+                    desc: 'Use ApiClient for API calls',
+                    fix(fixer) {
+                      return fixer.replaceText(node, '// TODO: Replace with ApiClient call');
+                    },
+                  },
+                ],
               });
             }
 
@@ -52,9 +53,14 @@ export default {
             }
 
             // Ban axios.create() calls
-            if (node.callee && node.callee.type === 'MemberExpression' &&
-                node.callee.object && node.callee.object.name === 'axios' &&
-                node.callee.property && node.callee.property.name === 'create') {
+            if (
+              node.callee &&
+              node.callee.type === 'MemberExpression' &&
+              node.callee.object &&
+              node.callee.object.name === 'axios' &&
+              node.callee.property &&
+              node.callee.property.name === 'create'
+            ) {
               context.report({
                 node,
                 message: 'axios.create() calls are not allowed. Use ApiClient instead.',
@@ -64,7 +70,7 @@ export default {
 
           MemberExpression(node) {
             const filename = context.getFilename();
-            
+
             // Skip utility files that are allowed to use fetch directly
             const isUtilFile = /[\\/\\]utils[\\/\\]/.test(filename);
             const isLibFile = /[\\/\\]lib[\\/\\]/.test(filename);
@@ -73,8 +79,11 @@ export default {
             }
 
             // Ban axios.get, axios.post, etc.
-            if (node.object && node.object.name === 'axios' && 
-                ['get', 'post', 'put', 'patch', 'delete'].includes(node.property.name)) {
+            if (
+              node.object &&
+              node.object.name === 'axios' &&
+              ['get', 'post', 'put', 'patch', 'delete'].includes(node.property.name)
+            ) {
               context.report({
                 node,
                 message: `Direct axios.${node.property.name}() calls are not allowed. Use ApiClient or service layer methods instead.`,
@@ -82,28 +91,31 @@ export default {
             }
 
             // Ban window.fetch and globalThis.fetch
-            if ((node.object && node.object.name === 'window' && node.property && node.property.name === 'fetch') ||
-                (node.object && node.object.name === 'globalThis' && node.property && node.property.name === 'fetch')) {
+            if (
+              (node.object && node.object.name === 'window' && node.property && node.property.name === 'fetch') ||
+              (node.object && node.object.name === 'globalThis' && node.property && node.property.name === 'fetch')
+            ) {
               context.report({
                 node,
-                message: 'Direct fetch() calls (including window.fetch) are not allowed. Use ApiClient or service layer methods instead.',
+                message:
+                  'Direct fetch() calls (including window.fetch) are not allowed. Use ApiClient or service layer methods instead.',
               });
             }
-          }
+          },
         };
-      }
+      },
     },
 
     // Enforce service layer usage in components
     'enforce-service-layer': {
       meta: {
-        hasSuggestions: true
+        hasSuggestions: true,
       },
       create(context) {
         return {
           ImportDeclaration(node) {
             const filename = context.getFilename();
-            
+
             // Skip if this is a service file itself (cross-platform path check)
             const isServiceFile = /[\\/\\]services[\\/\\]/.test(filename) || /[\\/\\]lib[\\/\\]/.test(filename);
             if (isServiceFile) {
@@ -111,8 +123,7 @@ export default {
             }
 
             // Check for forbidden direct imports in components
-            if (node.source.value === '../lib/queryClient' || 
-                node.source.value.includes('queryClient')) {
+            if (node.source.value === '../lib/queryClient' || node.source.value.includes('queryClient')) {
               // Allow useQuery, useMutation imports but not apiRequest directly
               const importedNames = node.specifiers
                 .filter(spec => spec.type === 'ImportSpecifier')
@@ -146,20 +157,21 @@ export default {
             if (node.source.value === 'axios') {
               context.report({
                 node,
-                message: 'axios imports in components are not allowed. Use ApiClient through service layer hooks instead.',
+                message:
+                  'axios imports in components are not allowed. Use ApiClient through service layer hooks instead.',
               });
             }
           },
 
           CallExpression(node) {
             const filename = context.getFilename();
-            
+
             // Skip service files, hooks, and utils (cross-platform path check)
             const isServiceFile = /[\\/\\]services[\\/\\]/.test(filename);
             const isHookFile = /[\\/\\]hooks[\\/\\]/.test(filename);
             const isLibFile = /[\\/\\]lib[\\/\\]/.test(filename);
             const isUtilFile = /[\\/\\]utils[\\/\\]/.test(filename);
-            
+
             if (isServiceFile || isHookFile || isLibFile || isUtilFile) {
               return;
             }
@@ -169,26 +181,32 @@ export default {
               context.report({
                 node,
                 message: 'Direct apiRequest calls in components are not allowed. Use service layer hooks instead.',
-                suggest: [{
-                  desc: 'Use a service layer hook',
-                  fix(fixer) {
-                    return fixer.replaceText(node, '// TODO: Replace with service hook call');
-                  }
-                }]
+                suggest: [
+                  {
+                    desc: 'Use a service layer hook',
+                    fix(fixer) {
+                      return fixer.replaceText(node, '// TODO: Replace with service hook call');
+                    },
+                  },
+                ],
               });
             }
 
             // Ban direct ApiClient calls in components
-            if (node.callee && node.callee.type === 'MemberExpression' &&
-                node.callee.object && node.callee.object.name === 'ApiClient') {
+            if (
+              node.callee &&
+              node.callee.type === 'MemberExpression' &&
+              node.callee.object &&
+              node.callee.object.name === 'ApiClient'
+            ) {
               context.report({
                 node,
                 message: 'Direct ApiClient calls in components are not allowed. Use service layer hooks instead.',
               });
             }
-          }
+          },
         };
-      }
+      },
     },
 
     // Prevent UI imports in shared services
@@ -197,7 +215,7 @@ export default {
         return {
           ImportDeclaration(node) {
             const filename = context.getFilename();
-            
+
             // Only apply to service files (cross-platform path check)
             const isServiceFile = /[\\/\\]services[\\/\\]/.test(filename);
             if (!isServiceFile) {
@@ -205,7 +223,7 @@ export default {
             }
 
             const importPath = node.source.value;
-            
+
             // Ban UI component imports in services
             const forbiddenImports = [
               '@/components/',
@@ -213,7 +231,7 @@ export default {
               'react-icons',
               'lucide-react',
               '@radix-ui/',
-              '@/hooks/use-toast'
+              '@/hooks/use-toast',
             ];
 
             for (const forbidden of forbiddenImports) {
@@ -224,9 +242,9 @@ export default {
                 });
               }
             }
-          }
+          },
         };
-      }
+      },
     },
 
     // Enforce typed API responses
@@ -235,7 +253,7 @@ export default {
         return {
           CallExpression(node) {
             const filename = context.getFilename();
-            
+
             // Only apply to service files (cross-platform path check)
             const isServiceFile = /[\\/\\]services[\\/\\]/.test(filename);
             if (!isServiceFile) {
@@ -243,22 +261,24 @@ export default {
             }
 
             // Check for untyped ApiClient calls
-            if (node.callee && 
-                node.callee.type === 'MemberExpression' &&
-                node.callee.object && 
-                node.callee.object.name === 'ApiClient') {
-              
+            if (
+              node.callee &&
+              node.callee.type === 'MemberExpression' &&
+              node.callee.object &&
+              node.callee.object.name === 'ApiClient'
+            ) {
               // Check if generic type is provided
               if (!node.typeParameters) {
                 context.report({
                   node,
-                  message: 'ApiClient calls should include type parameters for type safety. Example: ApiClient.admin.getProviders<ProviderConfig[]>()',
+                  message:
+                    'ApiClient calls should include type parameters for type safety. Example: ApiClient.admin.getProviders<ProviderConfig[]>()',
                 });
               }
             }
-          }
+          },
         };
-      }
+      },
     },
 
     // Enforce hook naming conventions
@@ -267,7 +287,7 @@ export default {
         return {
           VariableDeclarator(node) {
             const filename = context.getFilename();
-            
+
             // Only apply to hook files (cross-platform path check)
             const isHookFile = /[\\/\\]hooks[\\/\\]/.test(filename);
             if (!isHookFile) {
@@ -275,8 +295,13 @@ export default {
             }
 
             // Check function name starts with 'use' (including arrow functions)
-            if (node.id && node.id.name && !node.id.name.startsWith('use') && 
-                node.init && (node.init.type === 'FunctionExpression' || node.init.type === 'ArrowFunctionExpression')) {
+            if (
+              node.id &&
+              node.id.name &&
+              !node.id.name.startsWith('use') &&
+              node.init &&
+              (node.init.type === 'FunctionExpression' || node.init.type === 'ArrowFunctionExpression')
+            ) {
               context.report({
                 node,
                 message: 'Hook functions must start with "use" prefix.',
@@ -286,7 +311,7 @@ export default {
 
           FunctionDeclaration(node) {
             const filename = context.getFilename();
-            
+
             // Only apply to hook files (cross-platform path check)
             const isHookFile = /[\\/\\]hooks[\\/\\]/.test(filename);
             if (!isHookFile) {
@@ -300,9 +325,9 @@ export default {
                 message: 'Hook functions must start with "use" prefix.',
               });
             }
-          }
+          },
         };
-      }
-    }
-  }
+      },
+    },
+  },
 };

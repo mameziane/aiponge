@@ -163,7 +163,7 @@ router.all(
       const response = await gatewayFetch(targetUrl, options);
 
       if (!response.ok) {
-        const errorData = await parseErrorBody(response, '[PLAYLISTS PROXY]') as Record<string, unknown>;
+        const errorData = (await parseErrorBody(response, '[PLAYLISTS PROXY]')) as Record<string, unknown>;
         logger.error('Playlist proxy request failed', {
           targetUrl,
           status: response.status,

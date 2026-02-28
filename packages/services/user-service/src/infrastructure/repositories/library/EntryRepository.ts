@@ -1,17 +1,8 @@
 import { DatabaseConnection } from '../../database/DatabaseConnectionFactory';
-import {
-  libBooks,
-  libEntries,
-  type Entry,
-} from '../../database/schemas/library-schema';
+import { libBooks, libEntries, type Entry } from '../../database/schemas/library-schema';
 import { eq, and, asc, desc, sql, inArray, isNull, type SQL } from 'drizzle-orm';
 import { getLogger } from '../../../config/service-urls';
-import {
-  GENERATION_STATUS,
-  encodeCursor,
-  decodeCursor,
-  type CursorPaginatedResponse,
-} from '@aiponge/shared-contracts';
+import { GENERATION_STATUS, encodeCursor, decodeCursor, type CursorPaginatedResponse } from '@aiponge/shared-contracts';
 
 const logger = getLogger('library-repository');
 

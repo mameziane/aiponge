@@ -3,16 +3,18 @@ import { View, Text, ScrollView, TouchableOpacity, Alert, ActivityIndicator, Sty
 import { Ionicons } from '@expo/vector-icons';
 import { router, type Href } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { useThemeColors, useThemeMode, type ColorScheme, type ThemeMode, commonStyles, BORDER_RADIUS } from '../../src/theme';
+import {
+  useThemeColors,
+  useThemeMode,
+  type ColorScheme,
+  type ThemeMode,
+  commonStyles,
+  BORDER_RADIUS,
+} from '../../src/theme';
 import { spacing } from '../../src/theme/spacing';
 import { useAuthStore, selectUserId } from '../../src/auth/store';
 import { UnifiedSongPreferences } from '../../src/components/shared/UnifiedSongPreferences';
-import {
-  AVAILABLE_LANGUAGES,
-  changeLanguage,
-  reloadAppForRTL,
-  type SupportedLanguage,
-} from '../../src/i18n';
+import { AVAILABLE_LANGUAGES, changeLanguage, reloadAppForRTL, type SupportedLanguage } from '../../src/i18n';
 import type { IconName } from '../../src/types/ui.types';
 
 const THEME_OPTIONS: { mode: ThemeMode; icon: keyof typeof Ionicons.glyphMap; label: string }[] = [
@@ -42,11 +44,7 @@ function CollapsibleSection({
 }) {
   return (
     <View style={styles.sectionWrapper}>
-      <TouchableOpacity
-        style={[styles.card, expanded && styles.cardExpanded]}
-        onPress={onToggle}
-        activeOpacity={0.7}
-      >
+      <TouchableOpacity style={[styles.card, expanded && styles.cardExpanded]} onPress={onToggle} activeOpacity={0.7}>
         <Ionicons name={icon} size={18} color={colors.brand.primary} />
         <Text style={styles.cardLabel} numberOfLines={1}>
           {!expanded && subtitle ? `${title} — ${subtitle}` : title}
@@ -73,23 +71,26 @@ export default function PreferencesScreen() {
     setExpandedSections(prev => ({ ...prev, [key]: !prev[key] }));
   }, []);
 
-  const handleLanguageChange = useCallback(async (language: SupportedLanguage) => {
-    if (language === currentLanguage || isChangingLang) return;
-    setIsChangingLang(true);
-    try {
-      const result = await changeLanguage(language);
-      if (result.requiresReload) {
-        Alert.alert(t('settings.restartRequired'), t('settings.restartMessage'), [
-          { text: t('common.later'), style: 'cancel' },
-          { text: t('common.restartNow'), onPress: () => reloadAppForRTL() },
-        ]);
+  const handleLanguageChange = useCallback(
+    async (language: SupportedLanguage) => {
+      if (language === currentLanguage || isChangingLang) return;
+      setIsChangingLang(true);
+      try {
+        const result = await changeLanguage(language);
+        if (result.requiresReload) {
+          Alert.alert(t('settings.restartRequired'), t('settings.restartMessage'), [
+            { text: t('common.later'), style: 'cancel' },
+            { text: t('common.restartNow'), onPress: () => reloadAppForRTL() },
+          ]);
+        }
+      } catch (error) {
+        console.error('[PreferencesScreen] Failed to change language:', error);
+      } finally {
+        setIsChangingLang(false);
       }
-    } catch (error) {
-      console.error('[PreferencesScreen] Failed to change language:', error);
-    } finally {
-      setIsChangingLang(false);
-    }
-  }, [currentLanguage, isChangingLang, t]);
+    },
+    [currentLanguage, isChangingLang, t]
+  );
 
   const currentThemeLabel = THEME_OPTIONS.find(o => o.mode === mode);
   const themeSubtitle = currentThemeLabel ? t(currentThemeLabel.label) : '';
@@ -151,9 +152,7 @@ export default function PreferencesScreen() {
           colors={colors}
           styles={styles}
         >
-          {isChangingLang && (
-            <ActivityIndicator size="small" color={colors.text.tertiary} style={styles.langLoading} />
-          )}
+          {isChangingLang && <ActivityIndicator size="small" color={colors.text.tertiary} style={styles.langLoading} />}
           <View style={styles.languageGrid}>
             {AVAILABLE_LANGUAGES.map(language => {
               const isSelected = currentLanguage === language.code;
@@ -175,9 +174,7 @@ export default function PreferencesScreen() {
               );
             })}
           </View>
-          {currentLangOption && (
-            <Text style={styles.languageNote}>{currentLangOption.label}</Text>
-          )}
+          {currentLangOption && <Text style={styles.languageNote}>{currentLangOption.label}</Text>}
         </CollapsibleSection>
 
         <CollapsibleSection
@@ -188,12 +185,7 @@ export default function PreferencesScreen() {
           colors={colors}
           styles={styles}
         >
-          <UnifiedSongPreferences
-            userId={userId}
-            mode="expanded"
-            initialExpanded={true}
-            showStyleSuggestions={true}
-          />
+          <UnifiedSongPreferences userId={userId} mode="expanded" initialExpanded={true} showStyleSuggestions={true} />
         </CollapsibleSection>
 
         {otherSettingsItems.map((item, index) => (
@@ -224,8 +216,7 @@ const createStyles = (colors: ColorScheme) =>
       paddingBottom: 100,
       gap: 10,
     },
-    sectionWrapper: {
-    },
+    sectionWrapper: {},
     card: {
       flexDirection: 'row',
       alignItems: 'center',

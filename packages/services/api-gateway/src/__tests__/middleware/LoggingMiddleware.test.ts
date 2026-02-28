@@ -2,7 +2,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Request, Response } from 'express';
 
 const mockLogger = vi.hoisted(() => ({
-  info: vi.fn(), debug: vi.fn(), warn: vi.fn(), error: vi.fn(), child: vi.fn(),
+  info: vi.fn(),
+  debug: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  child: vi.fn(),
 }));
 vi.mock('@aiponge/platform-core', () => ({
   createLogger: () => mockLogger,
@@ -32,8 +36,14 @@ function createMockRes() {
   const res = {
     statusCode: 200,
     _data: undefined as unknown,
-    send: vi.fn(function (this: Record<string, unknown>, d: unknown) { this._data = d; return this; }),
-    json: vi.fn(function (this: Record<string, unknown>, d: unknown) { this._data = d; return this; }),
+    send: vi.fn(function (this: Record<string, unknown>, d: unknown) {
+      this._data = d;
+      return this;
+    }),
+    json: vi.fn(function (this: Record<string, unknown>, d: unknown) {
+      this._data = d;
+      return this;
+    }),
     set: vi.fn().mockReturnThis(),
     on: vi.fn(),
   } as unknown as Response;

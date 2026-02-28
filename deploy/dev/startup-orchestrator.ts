@@ -268,11 +268,7 @@ class StartupOrchestrator {
 
     // TIER 2: Gateway + Critical Services (Parallel)
     console.log('🔧 Tier 2: Starting gateway + critical services in parallel...');
-    const tier2Results = await this.startServicesParallel([
-      'api-gateway',
-      'music-service',
-      'user-service',
-    ]);
+    const tier2Results = await this.startServicesParallel(['api-gateway', 'music-service', 'user-service']);
 
     if (tier2Results.some(result => !result)) {
       console.error('❌ Critical Tier 2 services failed to start. Exiting.');

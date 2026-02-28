@@ -6,7 +6,13 @@
 import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { getLogger } from '../../../config/service-urls';
-import { serviceAuthMiddleware, extractAuthContext, serializeError, isFeatureEnabled, getResponseHelpers } from '@aiponge/platform-core';
+import {
+  serviceAuthMiddleware,
+  extractAuthContext,
+  serializeError,
+  isFeatureEnabled,
+  getResponseHelpers,
+} from '@aiponge/platform-core';
 import { contextIsPrivileged, CONTENT_VISIBILITY, GENERATION_STATUS } from '@aiponge/shared-contracts';
 import { FEATURE_FLAGS } from '@aiponge/shared-contracts/common';
 import { enqueueGenerationJob } from '../../../application/services/GenerationQueueProcessor.js';
@@ -106,11 +112,14 @@ async function getTrackGenerationService(): Promise<TrackGenerationService | nul
         albumRepository: new UnifiedAlbumRepository(db),
         userTrackRepository: new DrizzleUserTrackRepository(db),
         catalogRepository: new DrizzleMusicCatalogRepository(db),
-        storageClient: registry.storageClient as import('../../../infrastructure/clients/StorageServiceClient').StorageServiceClient,
+        storageClient:
+          registry.storageClient as import('../../../infrastructure/clients/StorageServiceClient').StorageServiceClient,
         artworkUseCase: new GenerateArtworkUseCase(),
         lyricsPreparationService,
         db,
-        musicProviderOrchestrator: createMusicOrchestrator(registry.providersClient as unknown as import('../../../domains/ai-music/interfaces/IProviderClient').IProviderClient),
+        musicProviderOrchestrator: createMusicOrchestrator(
+          registry.providersClient as unknown as import('../../../domains/ai-music/interfaces/IProviderClient').IProviderClient
+        ),
       };
       trackGenerationService = new TrackGenerationService(deps);
     } catch (error) {
@@ -138,13 +147,16 @@ async function getAlbumGenerationService(): Promise<AlbumGenerationService | nul
       const db = getDatabase();
       const registry = getServiceRegistry();
       const deps: AlbumGenerationServiceDependencies = {
-        storageClient: registry.storageClient as import('../../../infrastructure/clients/StorageServiceClient').StorageServiceClient,
+        storageClient:
+          registry.storageClient as import('../../../infrastructure/clients/StorageServiceClient').StorageServiceClient,
         artworkUseCase: new GenerateArtworkUseCase(),
         lyricsPreparationService,
         catalogRepository: new DrizzleMusicCatalogRepository(db),
         userTrackRepository: new DrizzleUserTrackRepository(db),
         lyricsRepository: new UnifiedLyricsRepository(db),
-        musicProviderOrchestrator: createMusicOrchestrator(registry.providersClient as unknown as import('../../../domains/ai-music/interfaces/IProviderClient').IProviderClient),
+        musicProviderOrchestrator: createMusicOrchestrator(
+          registry.providersClient as unknown as import('../../../domains/ai-music/interfaces/IProviderClient').IProviderClient
+        ),
       };
       albumGenerationService = new AlbumGenerationService(deps);
     } catch (error) {
@@ -205,7 +217,11 @@ router.post('/generate-track', internalAuthMiddleware, async (req, res) => {
 
     const { getDatabase } = await import('../../../infrastructure/database/DatabaseConnectionFactory');
     const db = getDatabase();
-    const sessionService = new GenerationSessionService(db, getServiceRegistry().storageClient as import('../../../infrastructure/clients/StorageServiceClient').StorageServiceClient);
+    const sessionService = new GenerationSessionService(
+      db,
+      getServiceRegistry()
+        .storageClient as import('../../../infrastructure/clients/StorageServiceClient').StorageServiceClient
+    );
 
     const session = await sessionService.create({
       userId: librarianUserId,
@@ -220,10 +236,14 @@ router.post('/generate-track', internalAuthMiddleware, async (req, res) => {
       entryId: cleanedData.entryId,
     });
 
-    sendSuccess(res, {
-      songRequestId: session.id,
-      message: 'Generation started. Poll /api/app/music/song-requests/{id} for progress.',
-    }, 202);
+    sendSuccess(
+      res,
+      {
+        songRequestId: session.id,
+        message: 'Generation started. Poll /api/app/music/song-requests/{id} for progress.',
+      },
+      202
+    );
 
     if (isFeatureEnabled(FEATURE_FLAGS.ASYNC_GENERATION)) {
       const jobId = await enqueueGenerationJob({
@@ -255,7 +275,10 @@ router.post('/generate-track', internalAuthMiddleware, async (req, res) => {
       try {
         if (taskController.signal.aborted) {
           await sessionService.markFailed(session.id, 'Generation aborted (server shutdown)').catch((err: unknown) => {
-            logger.error('Failed to mark session as failed after abort; client may poll indefinitely', { sessionId: session.id, error: err instanceof Error ? err.message : String(err) });
+            logger.error('Failed to mark session as failed after abort; client may poll indefinitely', {
+              sessionId: session.id,
+              error: err instanceof Error ? err.message : String(err),
+            });
           });
           return;
         }
@@ -263,7 +286,10 @@ router.post('/generate-track', internalAuthMiddleware, async (req, res) => {
 
         if (taskController.signal.aborted) {
           await sessionService.markFailed(session.id, 'Generation aborted (server shutdown)').catch((err: unknown) => {
-            logger.error('Failed to mark session as failed after abort; client may poll indefinitely', { sessionId: session.id, error: err instanceof Error ? err.message : String(err) });
+            logger.error('Failed to mark session as failed after abort; client may poll indefinitely', {
+              sessionId: session.id,
+              error: err instanceof Error ? err.message : String(err),
+            });
           });
           return;
         }
@@ -278,7 +304,10 @@ router.post('/generate-track', internalAuthMiddleware, async (req, res) => {
         if (taskController.signal.aborted) {
           logger.warn('Background task aborted after generation completed', { songRequestId: session.id });
           await sessionService.markFailed(session.id, 'Generation aborted (server shutdown)').catch((err: unknown) => {
-            logger.error('Failed to mark session as failed after abort; client may poll indefinitely', { sessionId: session.id, error: err instanceof Error ? err.message : String(err) });
+            logger.error('Failed to mark session as failed after abort; client may poll indefinitely', {
+              sessionId: session.id,
+              error: err instanceof Error ? err.message : String(err),
+            });
           });
           return;
         }
@@ -299,9 +328,14 @@ router.post('/generate-track', internalAuthMiddleware, async (req, res) => {
       } catch (error) {
         const errorMsg = taskController.signal.aborted
           ? 'Generation aborted (server shutdown)'
-          : (error instanceof Error ? error.message : 'Unknown error');
+          : error instanceof Error
+            ? error.message
+            : 'Unknown error';
         await sessionService.markFailed(session.id, errorMsg).catch((err: unknown) => {
-          logger.error('Failed to mark session as failed after exception; client may poll indefinitely', { sessionId: session.id, error: err instanceof Error ? err.message : String(err) });
+          logger.error('Failed to mark session as failed after exception; client may poll indefinitely', {
+            sessionId: session.id,
+            error: err instanceof Error ? err.message : String(err),
+          });
         });
         if (taskController.signal.aborted) {
           logger.info('Background task aborted during execution', { songRequestId: session.id });
@@ -431,12 +465,16 @@ router.post('/generate-album', internalAuthMiddleware, async (req, res) => {
       }
     }
 
-    sendSuccess(res, {
-      albumRequestId,
-      albumTitle,
-      totalTracks: data.entries.length,
-      status: GENERATION_STATUS.PROCESSING,
-    }, 202);
+    sendSuccess(
+      res,
+      {
+        albumRequestId,
+        albumTitle,
+        totalTracks: data.entries.length,
+        status: GENERATION_STATUS.PROCESSING,
+      },
+      202
+    );
 
     if (isFeatureEnabled(FEATURE_FLAGS.ASYNC_GENERATION)) {
       const jobId = await enqueueGenerationJob({
@@ -471,12 +509,14 @@ router.post('/generate-album', internalAuthMiddleware, async (req, res) => {
 
     const markAlbumAborted = async () => {
       if (reqRepo) {
-        await reqRepo.updateProgress(albumRequestId, {
-          status: GENERATION_STATUS.FAILED,
-          phase: GENERATION_STATUS.FAILED,
-          errorMessage: 'Generation aborted (server shutdown)',
-          completedAt: new Date(),
-        }).catch(() => {});
+        await reqRepo
+          .updateProgress(albumRequestId, {
+            status: GENERATION_STATUS.FAILED,
+            phase: GENERATION_STATUS.FAILED,
+            errorMessage: 'Generation aborted (server shutdown)',
+            completedAt: new Date(),
+          })
+          .catch(() => {});
       }
     };
 
@@ -498,9 +538,8 @@ router.post('/generate-album', internalAuthMiddleware, async (req, res) => {
                   currentTrack: progress.currentTrack,
                   percentComplete: progress.percentComplete,
                   successfulTracks:
-                    progress.successfulTracks ?? progress.trackResults?.filter((t) => t.success).length ?? 0,
-                  failedTracks:
-                    progress.failedTracks ?? progress.trackResults?.filter((t) => !t.success).length ?? 0,
+                    progress.successfulTracks ?? progress.trackResults?.filter(t => t.success).length ?? 0,
+                  failedTracks: progress.failedTracks ?? progress.trackResults?.filter(t => !t.success).length ?? 0,
                   trackResults: progress.trackResults || [],
                   trackCardDetails: progress.trackCardDetails || [],
                   albumArtworkUrl: progress.albumArtworkUrl,

@@ -43,7 +43,10 @@ export class ProviderComparisonAnalyzer {
     return weightSum > 0 ? score / weightSum : 0;
   }
 
-  private identifyProviderAdvantages(provider: ProviderComparison['providers'][number], allProviders: ProviderComparison['providers']): string[] {
+  private identifyProviderAdvantages(
+    provider: ProviderComparison['providers'][number],
+    allProviders: ProviderComparison['providers']
+  ): string[] {
     const advantages: string[] = [];
 
     const avgLatency = allProviders.reduce((sum, p) => sum + p.averageLatencyMs, 0) / allProviders.length;
@@ -83,8 +86,22 @@ export class ProviderComparisonAnalyzer {
     ];
   }
 
-  private assessProviderRisks(providers: ProviderComparison['providers']): Record<string, { reliability: 'low' | 'medium' | 'high'; costVolatility: 'low' | 'medium' | 'high'; performanceConsistency: 'low' | 'medium' | 'high' }> {
-    const riskAssessment: Record<string, { reliability: 'low' | 'medium' | 'high'; costVolatility: 'low' | 'medium' | 'high'; performanceConsistency: 'low' | 'medium' | 'high' }> = {};
+  private assessProviderRisks(providers: ProviderComparison['providers']): Record<
+    string,
+    {
+      reliability: 'low' | 'medium' | 'high';
+      costVolatility: 'low' | 'medium' | 'high';
+      performanceConsistency: 'low' | 'medium' | 'high';
+    }
+  > {
+    const riskAssessment: Record<
+      string,
+      {
+        reliability: 'low' | 'medium' | 'high';
+        costVolatility: 'low' | 'medium' | 'high';
+        performanceConsistency: 'low' | 'medium' | 'high';
+      }
+    > = {};
 
     providers.forEach(provider => {
       riskAssessment[provider.providerId] = {

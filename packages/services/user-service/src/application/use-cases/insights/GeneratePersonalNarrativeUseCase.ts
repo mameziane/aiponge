@@ -58,9 +58,7 @@ export class GeneratePersonalNarrativeUseCase {
       this.intelligenceRepo.getUserPatterns(userId, { limit: 10 }),
     ]);
 
-    const recentReflections = reflections.filter(
-      r => r.createdAt >= periodStart && r.createdAt <= periodEnd
-    );
+    const recentReflections = reflections.filter(r => r.createdAt >= periodStart && r.createdAt <= periodEnd);
 
     const breakthroughs = recentReflections.filter(r => r.isBreakthrough);
     const breakthroughIds = breakthroughs.map(b => b.id);
@@ -127,8 +125,12 @@ export class GeneratePersonalNarrativeUseCase {
         moodCounts[c.mood] = (moodCounts[c.mood] || 0) + 1;
       }
       const topMood = Object.entries(moodCounts).sort((a, b) => b[1] - a[1])[0];
-      const avgIntensity = Math.round(moodCheckins.reduce((sum, c) => sum + c.emotionalIntensity, 0) / moodCheckins.length);
-      parts.push(`You checked in ${moodCheckins.length} times. Your most frequent mood was "${topMood[0]}" (${topMood[1]} times), with an average intensity of ${avgIntensity}/10.`);
+      const avgIntensity = Math.round(
+        moodCheckins.reduce((sum, c) => sum + c.emotionalIntensity, 0) / moodCheckins.length
+      );
+      parts.push(
+        `You checked in ${moodCheckins.length} times. Your most frequent mood was "${topMood[0]}" (${topMood[1]} times), with an average intensity of ${avgIntensity}/10.`
+      );
     }
 
     if (reflections.length > 0) {
@@ -136,7 +138,9 @@ export class GeneratePersonalNarrativeUseCase {
     }
 
     if (breakthroughs.length > 0) {
-      parts.push(`You had ${breakthroughs.length} breakthrough moment${breakthroughs.length > 1 ? 's' : ''} - moments of deeper understanding.`);
+      parts.push(
+        `You had ${breakthroughs.length} breakthrough moment${breakthroughs.length > 1 ? 's' : ''} - moments of deeper understanding.`
+      );
     }
 
     if (patterns.length > 0) {
@@ -198,7 +202,7 @@ export class GeneratePersonalNarrativeUseCase {
     }
 
     if (moodCheckins.length > 5) {
-      return 'You\'ve been checking in frequently - that shows real commitment. What\'s one thing you\'d like to understand better about yourself this week?';
+      return "You've been checking in frequently - that shows real commitment. What's one thing you'd like to understand better about yourself this week?";
     }
 
     return 'As you move into the next week, what aspect of yourself would you like to explore more deeply?';

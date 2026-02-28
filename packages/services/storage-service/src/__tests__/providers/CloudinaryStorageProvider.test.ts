@@ -69,8 +69,8 @@ vi.mock('@aiponge/platform-core', () => ({
   waitForService: vi.fn(),
   listServices: () => [],
   createServiceUrlsConfig: vi.fn(() => ({})),
-  errorMessage: vi.fn((err: unknown) => err instanceof Error ? err.message : String(err)),
-  errorStack: vi.fn((err: unknown) => err instanceof Error ? err.stack : ''),
+  errorMessage: vi.fn((err: unknown) => (err instanceof Error ? err.message : String(err))),
+  errorStack: vi.fn((err: unknown) => (err instanceof Error ? err.stack : '')),
   withResilience: vi.fn((fn: (...args: unknown[]) => unknown) => fn),
   createIntervalScheduler: vi.fn(() => ({ start: vi.fn(), stop: vi.fn() })),
 }));
@@ -291,9 +291,7 @@ describe('CloudinaryStorageProvider', () => {
     it('should return public URL for read operations', async () => {
       const result = await provider.generateSignedUrl('test-file', 3600, 'read');
 
-      expect(result).toBe(
-        `https://res.cloudinary.com/${testConfig.cloudName}/image/upload/test-file`
-      );
+      expect(result).toBe(`https://res.cloudinary.com/${testConfig.cloudName}/image/upload/test-file`);
     });
 
     it('should generate signed upload URL for write operations', async () => {
@@ -343,10 +341,7 @@ describe('CloudinaryStorageProvider', () => {
   describe('listFiles', () => {
     it('should list files with given prefix', async () => {
       mockResources.mockResolvedValueOnce({
-        resources: [
-          { public_id: 'prefix/file1' },
-          { public_id: 'prefix/file2' },
-        ],
+        resources: [{ public_id: 'prefix/file1' }, { public_id: 'prefix/file2' }],
       });
 
       const files = await provider.listFiles('prefix/');

@@ -2,7 +2,9 @@ import type { Request, Response, NextFunction } from 'express';
 
 interface TraceApiModule {
   trace: {
-    getActiveSpan(): { spanContext(): { traceId: string; spanId: string }; setAttribute(key: string, value: string): void } | undefined;
+    getActiveSpan():
+      | { spanContext(): { traceId: string; spanId: string }; setAttribute(key: string, value: string): void }
+      | undefined;
   };
 }
 

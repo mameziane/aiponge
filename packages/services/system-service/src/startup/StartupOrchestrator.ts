@@ -219,7 +219,8 @@ export class StartupOrchestrator {
     }
 
     // Update the orchestrator's service registry
-    (this.dependencyOrchestrator as unknown as { serviceRegistry: Map<string, unknown> }).serviceRegistry = mockServiceRegistry;
+    (this.dependencyOrchestrator as unknown as { serviceRegistry: Map<string, unknown> }).serviceRegistry =
+      mockServiceRegistry;
     this.dependencyOrchestrator.buildDependencyGraph();
   }
 

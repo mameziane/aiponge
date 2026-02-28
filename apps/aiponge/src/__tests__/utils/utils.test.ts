@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
-vi.mock('../../utils/timeUtils', async (importOriginal) => {
+vi.mock('../../utils/timeUtils', async importOriginal => {
   const actual = await importOriginal<typeof import('../../utils/timeUtils')>();
   return actual;
 });
@@ -223,11 +223,7 @@ describe('trackUtils', () => {
 
   describe('buildPlaybackTracks', () => {
     it('filters out tracks without audio', () => {
-      const tracks = [
-        { id: '1', audioUrl: 'http://a.com/a.mp3' },
-        { id: '2' },
-        { id: '3', audioUrl: null },
-      ];
+      const tracks = [{ id: '1', audioUrl: 'http://a.com/a.mp3' }, { id: '2' }, { id: '3', audioUrl: null }];
       const result = buildPlaybackTracks(tracks);
       expect(result).toHaveLength(1);
       expect(result[0].id).toBe('1');
@@ -320,11 +316,7 @@ describe('trackUtils', () => {
   });
 
   describe('getNextTrack', () => {
-    const tracks = [
-      { id: '1' },
-      { id: '2' },
-      { id: '3' },
-    ];
+    const tracks = [{ id: '1' }, { id: '2' }, { id: '3' }];
 
     it('returns null for empty tracks', () => {
       expect(getNextTrack([], null, false, 'off')).toBeNull();
@@ -353,11 +345,7 @@ describe('trackUtils', () => {
   });
 
   describe('getPreviousTrack', () => {
-    const tracks = [
-      { id: '1' },
-      { id: '2' },
-      { id: '3' },
-    ];
+    const tracks = [{ id: '1' }, { id: '2' }, { id: '3' }];
 
     it('returns null for empty tracks', () => {
       expect(getPreviousTrack([], null, false, 'off')).toBeNull();
@@ -433,15 +421,19 @@ describe('errorSerialization', () => {
     });
 
     it('returns false when success is not false', () => {
-      expect(isBackendError({
-        response: { data: { success: true, error: { code: 'X' }, timestamp: '' } },
-      })).toBe(false);
+      expect(
+        isBackendError({
+          response: { data: { success: true, error: { code: 'X' }, timestamp: '' } },
+        })
+      ).toBe(false);
     });
 
     it('returns false when error.code is missing', () => {
-      expect(isBackendError({
-        response: { data: { success: false, error: { type: 'X', message: 'Z' }, timestamp: '' } },
-      })).toBe(false);
+      expect(
+        isBackendError({
+          response: { data: { success: false, error: { type: 'X', message: 'Z' }, timestamp: '' } },
+        })
+      ).toBe(false);
     });
   });
 
@@ -565,34 +557,55 @@ describe('errorSerialization', () => {
     });
 
     it('maps NOT_AUTHENTICATED to errors.pleaseLogin', () => {
-      const result = getTranslatedFriendlyMessage({ name: 'Error', message: 'Auth fail', code: 'NOT_AUTHENTICATED' }, mockT);
-      expect(mockT).toHaveBeenCalledWith('errors.pleaseLogin', expect.objectContaining({ defaultValue: expect.any(String) }));
+      const result = getTranslatedFriendlyMessage(
+        { name: 'Error', message: 'Auth fail', code: 'NOT_AUTHENTICATED' },
+        mockT
+      );
+      expect(mockT).toHaveBeenCalledWith(
+        'errors.pleaseLogin',
+        expect.objectContaining({ defaultValue: expect.any(String) })
+      );
       expect(result).toBe('translated:errors.pleaseLogin');
     });
 
     it('maps INVALID_TOKEN to errors.sessionExpired', () => {
       getTranslatedFriendlyMessage({ name: 'Error', message: 'expired', code: 'INVALID_TOKEN' }, mockT);
-      expect(mockT).toHaveBeenCalledWith('errors.sessionExpired', expect.objectContaining({ defaultValue: expect.any(String) }));
+      expect(mockT).toHaveBeenCalledWith(
+        'errors.sessionExpired',
+        expect.objectContaining({ defaultValue: expect.any(String) })
+      );
     });
 
     it('maps INSUFFICIENT_PERMISSIONS to errors.noPermission', () => {
       getTranslatedFriendlyMessage({ name: 'Error', message: 'denied', code: 'INSUFFICIENT_PERMISSIONS' }, mockT);
-      expect(mockT).toHaveBeenCalledWith('errors.noPermission', expect.objectContaining({ defaultValue: expect.any(String) }));
+      expect(mockT).toHaveBeenCalledWith(
+        'errors.noPermission',
+        expect.objectContaining({ defaultValue: expect.any(String) })
+      );
     });
 
     it('maps NOT_FOUND to errors.notFound', () => {
       getTranslatedFriendlyMessage({ name: 'Error', message: 'missing', code: 'NOT_FOUND' }, mockT);
-      expect(mockT).toHaveBeenCalledWith('errors.notFound', expect.objectContaining({ defaultValue: expect.any(String) }));
+      expect(mockT).toHaveBeenCalledWith(
+        'errors.notFound',
+        expect.objectContaining({ defaultValue: expect.any(String) })
+      );
     });
 
     it('maps RATE_LIMIT_EXCEEDED to errors.rateLimitExceeded', () => {
       getTranslatedFriendlyMessage({ name: 'Error', message: 'slow down', code: 'RATE_LIMIT_EXCEEDED' }, mockT);
-      expect(mockT).toHaveBeenCalledWith('errors.rateLimitExceeded', expect.objectContaining({ defaultValue: expect.any(String) }));
+      expect(mockT).toHaveBeenCalledWith(
+        'errors.rateLimitExceeded',
+        expect.objectContaining({ defaultValue: expect.any(String) })
+      );
     });
 
     it('returns translation for 5xx errors', () => {
       const result = getTranslatedFriendlyMessage({ name: 'Error', message: 'Server error', statusCode: 500 }, mockT);
-      expect(mockT).toHaveBeenCalledWith('errors.serviceUnavailable', expect.objectContaining({ defaultValue: expect.any(String) }));
+      expect(mockT).toHaveBeenCalledWith(
+        'errors.serviceUnavailable',
+        expect.objectContaining({ defaultValue: expect.any(String) })
+      );
       expect(result).toBe('translated:errors.serviceUnavailable');
     });
 
@@ -603,7 +616,10 @@ describe('errorSerialization', () => {
 
     it('returns generic translation when no status and no code', () => {
       const result = getTranslatedFriendlyMessage({ name: 'Error', message: 'something' }, mockT);
-      expect(mockT).toHaveBeenCalledWith('errors.connectionFailed', expect.objectContaining({ defaultValue: expect.any(String) }));
+      expect(mockT).toHaveBeenCalledWith(
+        'errors.connectionFailed',
+        expect.objectContaining({ defaultValue: expect.any(String) })
+      );
     });
   });
 
@@ -648,9 +664,12 @@ describe('errorSerialization', () => {
     it('calls logger.warn for network errors (no status)', () => {
       const err = new Error('Network Error');
       logError(err, 'test-context');
-      expect(logger.warn).toHaveBeenCalledWith('Network error (no response)', expect.objectContaining({
-        context: 'test-context',
-      }));
+      expect(logger.warn).toHaveBeenCalledWith(
+        'Network error (no response)',
+        expect.objectContaining({
+          context: 'test-context',
+        })
+      );
     });
 
     it('calls logger.error for 5xx errors', () => {
@@ -658,17 +677,24 @@ describe('errorSerialization', () => {
       (err.response as any).status = 500;
       (err.response.data.error as any).code = 'INTERNAL_ERROR';
       logError(err, 'server-ctx');
-      expect(logger.error).toHaveBeenCalledWith('Server Error', undefined, expect.objectContaining({
-        context: 'server-ctx',
-      }));
+      expect(logger.error).toHaveBeenCalledWith(
+        'Server Error',
+        undefined,
+        expect.objectContaining({
+          context: 'server-ctx',
+        })
+      );
     });
 
     it('calls logger.warn for 4xx errors', () => {
       const err = makeBackendError();
       logError(err, 'client-ctx');
-      expect(logger.warn).toHaveBeenCalledWith('Client Error', expect.objectContaining({
-        context: 'client-ctx',
-      }));
+      expect(logger.warn).toHaveBeenCalledWith(
+        'Client Error',
+        expect.objectContaining({
+          context: 'client-ctx',
+        })
+      );
     });
 
     it('suppresses 404 on /api/v1/auth/me', () => {

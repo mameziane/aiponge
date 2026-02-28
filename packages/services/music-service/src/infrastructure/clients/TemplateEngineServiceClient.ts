@@ -219,7 +219,9 @@ export class MusicTemplateServiceClient {
   /**
    * Get music templates by type
    */
-  async getMusicTemplates(musicType?: string): Promise<Array<{ id?: string; name: string; variables?: Array<{ name: string }>; tags?: string[] }>> {
+  async getMusicTemplates(
+    musicType?: string
+  ): Promise<Array<{ id?: string; name: string; variables?: Array<{ name: string }>; tags?: string[] }>> {
     return withServiceResilience('ai-config-service', 'getMusicTemplates', async () => {
       try {
         const params = new URLSearchParams();
@@ -232,7 +234,9 @@ export class MusicTemplateServiceClient {
 
         const data = await this.httpClient.get<{
           success: boolean;
-          data?: { templates?: Array<{ id?: string; name: string; variables?: Array<{ name: string }>; tags?: string[] }> };
+          data?: {
+            templates?: Array<{ id?: string; name: string; variables?: Array<{ name: string }>; tags?: string[] }>;
+          };
           error?: { message?: string };
         }>(getServiceUrl(SERVICE_NAME) + `/api/templates?${params.toString()}`);
 
@@ -245,13 +249,14 @@ export class MusicTemplateServiceClient {
 
         // Filter by music type if specified
         if (musicType) {
-          return templates.filter((template: { id?: string; name: string; variables?: Array<{ name: string }>; tags?: string[] }) =>
-            template.variables?.some(
-              (v: { name: string }) =>
-                v.name === 'music_type' ||
-                template.tags?.includes(musicType) ||
-                template.name.toLowerCase().includes(musicType.toLowerCase())
-            )
+          return templates.filter(
+            (template: { id?: string; name: string; variables?: Array<{ name: string }>; tags?: string[] }) =>
+              template.variables?.some(
+                (v: { name: string }) =>
+                  v.name === 'music_type' ||
+                  template.tags?.includes(musicType) ||
+                  template.name.toLowerCase().includes(musicType.toLowerCase())
+              )
           );
         }
 
@@ -473,7 +478,10 @@ export class MusicTemplateServiceClient {
     return interventions;
   }
 
-  private executeDefaultMusicGeneration(request: MusicTemplateExecutionRequest, startTime: number): MusicTemplateExecutionResult {
+  private executeDefaultMusicGeneration(
+    request: MusicTemplateExecutionRequest,
+    startTime: number
+  ): MusicTemplateExecutionResult {
     // Build a basic enhanced prompt as fallback
     let prompt = `Create ${request.musicType} music: ${request.userInput}`;
 
@@ -514,18 +522,18 @@ export class MusicTemplateServiceClient {
 
     // Add therapeutic considerations with detailed framework metadata
     const therapeuticInterventions: string[] = [];
-    
+
     if (request.context?.frameworkMetadata) {
       const fm = request.context.frameworkMetadata;
       prompt += `\n\n## Therapeutic Framework: ${fm.name} (${fm.shortName})`;
       prompt += `\nCore Principles: ${fm.keyPrinciples.slice(0, 3).join(', ')}`;
       prompt += `\nTherapeutic Goals: ${fm.therapeuticGoals.map(g => g.replace(/_/g, ' ')).join(', ')}`;
       therapeuticInterventions.push(fm.id);
-      
+
       if (fm.songStructureHint) {
         prompt += `\n\n## Song Structure Guidance\n${fm.songStructureHint}`;
       }
-      
+
       if (request.context.supportingFrameworks?.length) {
         const supporting = request.context.supportingFrameworks.slice(0, 2);
         prompt += `\nSupporting Approaches: ${supporting.map(f => `${f.shortName} (${f.keyPrinciples[0]})`).join('; ')}`;
@@ -535,19 +543,19 @@ export class MusicTemplateServiceClient {
       prompt += `\nTherapeutic Purpose: Apply ${request.context.therapeuticFramework} principles for wellness`;
       therapeuticInterventions.push(request.context.therapeuticFramework);
     }
-    
+
     if (request.context?.songStructureGuidance) {
       prompt += `\n\n## Song Structure\n${request.context.songStructureGuidance}`;
     }
-    
+
     if (request.context?.detectedEmotions?.length) {
       prompt += `\nDetected Emotions to Address: ${request.context.detectedEmotions.join(', ')}`;
     }
-    
+
     if (request.context?.detectedThemes?.length) {
       prompt += `\nLife Themes to Explore: ${request.context.detectedThemes.join(', ')}`;
     }
-    
+
     if (request.context?.therapeuticApproach) {
       prompt += `\n\n## Therapeutic Approach\n${request.context.therapeuticApproach}`;
     }
@@ -565,7 +573,7 @@ export class MusicTemplateServiceClient {
     logger.info('🎵 [MusicTemplateServiceClient] Using default music generation fallback', {
       module: 'music_service_template_engine_service_client',
       operation: 'executeTemplate',
-      phase: 'fallback_mode_activated'
+      phase: 'fallback_mode_activated',
     });
 
     return {

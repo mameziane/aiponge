@@ -1,7 +1,7 @@
 /**
  * Service Discovery Integration Tests
  * Tests for service URL resolution, port configuration, and fallback mechanisms.
- * 
+ *
  * NOTE: The @shared/service-discovery package was removed during consolidation.
  * Tests that required a ServiceDiscoveryClient (register/discover/deregister)
  * are skipped. URL resolution and port configuration tests remain active.
@@ -15,14 +15,13 @@ import { TestUtils, SERVICE_URLS, TIMEOUTS } from '../../utils/setup';
 const logger = createLogger('service-discovery-test');
 
 describe('Service Discovery Integration Tests', () => {
-
   describe('getServiceUrl() Resolution', () => {
     it('should resolve AI Content Service URL correctly', async () => {
       try {
         const url = getServiceUrl('aiContentService');
         expect(url).toBeDefined();
         expect(url).toMatch(/^https?:\/\/.+/);
-        
+
         const isHealthy = await TestUtils.waitForServiceHealth(url, 5000);
         if (!isHealthy) {
           logger.warn(`AI Content Service at ${url} is not responding to health checks`);
@@ -38,7 +37,7 @@ describe('Service Discovery Integration Tests', () => {
         const url = getServiceUrl('musicService');
         expect(url).toBeDefined();
         expect(url).toMatch(/^https?:\/\/.+/);
-        
+
         const isHealthy = await TestUtils.waitForServiceHealth(url, 5000);
         if (!isHealthy) {
           logger.warn(`Music Service at ${url} is not responding to health checks`);
@@ -54,7 +53,7 @@ describe('Service Discovery Integration Tests', () => {
         const url = getServiceUrl('aiConfigService');
         expect(url).toBeDefined();
         expect(url).toMatch(/^https?:\/\/.+/);
-        
+
         const isHealthy = await TestUtils.waitForServiceHealth(url, 5000);
         if (!isHealthy) {
           logger.warn(`AI Config Service at ${url} is not responding to health checks`);
@@ -70,14 +69,13 @@ describe('Service Discovery Integration Tests', () => {
         const url = getServiceUrl('systemService');
         expect(url).toBeDefined();
         expect(url).toMatch(/^https?:\/\/.+/);
-        
+
         const isHealthy = await TestUtils.waitForServiceHealth(url, 5000);
         expect(isHealthy).toBe(true);
       } catch (error) {
         throw new Error('System service should be available for integration tests');
       }
     });
-
   });
 
   describe.skip('Service Registration and Discovery (requires removed @shared/service-discovery)', () => {
@@ -96,7 +94,7 @@ describe('Service Discovery Integration Tests', () => {
     it('should get correct ports for all AI services', () => {
       const aiServices = [
         'systemService',
-        'aiConfigService', 
+        'aiConfigService',
         'aiContentService',
         'musicService',
         'aiAnalyticsService',

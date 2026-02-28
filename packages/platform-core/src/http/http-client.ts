@@ -160,8 +160,11 @@ export class HttpClient {
     );
   }
 
-  private shouldRetry(error: Record<string, unknown>, config?: AxiosRequestConfig & { __retryCount?: number }): boolean {
-    const method = (String(config?.method || '')).toUpperCase();
+  private shouldRetry(
+    error: Record<string, unknown>,
+    config?: AxiosRequestConfig & { __retryCount?: number }
+  ): boolean {
+    const method = String(config?.method || '').toUpperCase();
     const hasIdempotencyKey = (config?.headers as Record<string, unknown> | undefined)?.['x-idempotency-key'];
 
     if (!IDEMPOTENT_METHODS.has(method) && !hasIdempotencyKey) {
@@ -186,7 +189,10 @@ export class HttpClient {
       const data = response.data as Record<string, unknown> | undefined;
       const errorObj = data?.error as Record<string, unknown> | undefined;
       const message =
-        (errorObj?.message as string) || (data?.message as string) || (error.message as string) || `HTTP ${status} Error`;
+        (errorObj?.message as string) ||
+        (data?.message as string) ||
+        (error.message as string) ||
+        `HTTP ${status} Error`;
       return new HttpClientError(message, status, 'HTTP_ERROR', {
         url: config?.url as string,
         method: config?.method as string,
@@ -251,17 +257,29 @@ export class HttpClient {
     return this.toHttpResponse(response);
   }
 
-  async postWithResponse<T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<HttpResponse<T>> {
+  async postWithResponse<T = unknown>(
+    url: string,
+    data?: unknown,
+    config?: AxiosRequestConfig
+  ): Promise<HttpResponse<T>> {
     const response = await this.client.post<T>(url, data, config);
     return this.toHttpResponse(response);
   }
 
-  async putWithResponse<T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<HttpResponse<T>> {
+  async putWithResponse<T = unknown>(
+    url: string,
+    data?: unknown,
+    config?: AxiosRequestConfig
+  ): Promise<HttpResponse<T>> {
     const response = await this.client.put<T>(url, data, config);
     return this.toHttpResponse(response);
   }
 
-  async patchWithResponse<T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<HttpResponse<T>> {
+  async patchWithResponse<T = unknown>(
+    url: string,
+    data?: unknown,
+    config?: AxiosRequestConfig
+  ): Promise<HttpResponse<T>> {
     const response = await this.client.patch<T>(url, data, config);
     return this.toHttpResponse(response);
   }

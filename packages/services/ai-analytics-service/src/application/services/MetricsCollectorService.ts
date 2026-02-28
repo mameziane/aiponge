@@ -122,7 +122,10 @@ export class MetricsCollectorService {
   /**
    * Get provider-specific metrics
    */
-  async getProviderMetrics(providerId: string, timeRangeMs: number): Promise<{
+  async getProviderMetrics(
+    providerId: string,
+    timeRangeMs: number
+  ): Promise<{
     providerId: string;
     timeRange: { startTime: Date; endTime: Date };
     metrics: MetricEntry[];

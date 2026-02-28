@@ -21,8 +21,6 @@ export interface BookDisplay {
   subtitle?: string;
   coverIllustrationUrl?: string;
   author?: string;
-  era?: string;
-  tradition?: string;
   category: string;
   description?: string;
   status?: string;
@@ -45,8 +43,6 @@ export interface ManageBookData {
   coverIllustrationUrl?: string;
   author?: string;
   category?: string;
-  era?: string;
-  tradition?: string;
   status?: string;
   chapterCount?: number;
   entryCount?: number;

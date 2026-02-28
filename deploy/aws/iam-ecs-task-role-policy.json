@@ -12,28 +12,18 @@
         "s3:GetObjectAcl",
         "s3:PutObjectAcl"
       ],
-      "Resource": [
-        "arn:aws:s3:::aiponge-storage-*",
-        "arn:aws:s3:::aiponge-storage-*/*"
-      ]
+      "Resource": ["arn:aws:s3:::aiponge-storage-*", "arn:aws:s3:::aiponge-storage-*/*"]
     },
     {
       "Sid": "S3PresignedUrlGeneration",
       "Effect": "Allow",
-      "Action": [
-        "s3:GetObject",
-        "s3:PutObject"
-      ],
-      "Resource": [
-        "arn:aws:s3:::aiponge-storage-*/*"
-      ]
+      "Action": ["s3:GetObject", "s3:PutObject"],
+      "Resource": ["arn:aws:s3:::aiponge-storage-*/*"]
     },
     {
       "Sid": "CloudWatchMetrics",
       "Effect": "Allow",
-      "Action": [
-        "cloudwatch:PutMetricData"
-      ],
+      "Action": ["cloudwatch:PutMetricData"],
       "Resource": "*",
       "Condition": {
         "StringLike": {
@@ -56,32 +46,19 @@
     {
       "Sid": "SQSMessageAccess",
       "Effect": "Allow",
-      "Action": [
-        "sqs:SendMessage",
-        "sqs:ReceiveMessage",
-        "sqs:DeleteMessage",
-        "sqs:GetQueueAttributes"
-      ],
-      "Resource": [
-        "arn:aws:sqs:*:*:aiponge-*"
-      ]
+      "Action": ["sqs:SendMessage", "sqs:ReceiveMessage", "sqs:DeleteMessage", "sqs:GetQueueAttributes"],
+      "Resource": ["arn:aws:sqs:*:*:aiponge-*"]
     },
     {
       "Sid": "SNSPublishAccess",
       "Effect": "Allow",
-      "Action": [
-        "sns:Publish"
-      ],
-      "Resource": [
-        "arn:aws:sns:*:*:aiponge-*"
-      ]
+      "Action": ["sns:Publish"],
+      "Resource": ["arn:aws:sns:*:*:aiponge-*"]
     },
     {
       "Sid": "ServiceDiscoveryReadAccess",
       "Effect": "Allow",
-      "Action": [
-        "servicediscovery:DiscoverInstances"
-      ],
+      "Action": ["servicediscovery:DiscoverInstances"],
       "Resource": "*"
     }
   ]

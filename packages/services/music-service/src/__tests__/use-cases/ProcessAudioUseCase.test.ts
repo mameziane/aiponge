@@ -1,7 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const mockLogger = vi.hoisted(() => ({
-  info: vi.fn(), debug: vi.fn(), warn: vi.fn(), error: vi.fn(), child: vi.fn(),
+  info: vi.fn(),
+  debug: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  child: vi.fn(),
 }));
 vi.mock('@aiponge/platform-core', () => ({
   createLogger: () => mockLogger,
@@ -24,10 +28,7 @@ vi.mock('@config/service-urls', () => ({
   getLogger: () => mockLogger,
 }));
 
-import {
-  ProcessAudioUseCase,
-  type ProcessAudioRequest,
-} from '../../application/use-cases/music/ProcessAudioUseCase';
+import { ProcessAudioUseCase, type ProcessAudioRequest } from '../../application/use-cases/music/ProcessAudioUseCase';
 
 describe('ProcessAudioUseCase', () => {
   let useCase: ProcessAudioUseCase;
@@ -71,12 +72,14 @@ describe('ProcessAudioUseCase', () => {
       expect(result.jobId).toBeTruthy();
       expect(result.estimatedDuration).toBeDefined();
       expect(result.status).toBe('pending');
-      expect(mockJobRepo.save).toHaveBeenCalledWith(expect.objectContaining({
-        userId: 'user-1',
-        inputUrl: 'https://cdn.example.com/track.mp3',
-        processingType: 'normalize',
-        status: 'pending',
-      }));
+      expect(mockJobRepo.save).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userId: 'user-1',
+          inputUrl: 'https://cdn.example.com/track.mp3',
+          processingType: 'normalize',
+          status: 'pending',
+        })
+      );
     });
 
     it('should accept all processing types', async () => {
@@ -185,11 +188,13 @@ describe('ProcessAudioUseCase', () => {
       const result = await useCase.cancelJob('job-1');
 
       expect(result.success).toBe(true);
-      expect(mockJobRepo.update).toHaveBeenCalledWith(expect.objectContaining({
-        id: 'job-1',
-        status: 'failed',
-        errorMessage: 'Cancelled by user',
-      }));
+      expect(mockJobRepo.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: 'job-1',
+          status: 'failed',
+          errorMessage: 'Cancelled by user',
+        })
+      );
     });
 
     it('should not cancel a completed job', async () => {

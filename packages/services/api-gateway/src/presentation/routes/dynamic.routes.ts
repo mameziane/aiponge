@@ -162,7 +162,9 @@ export class DynamicRoutesHandler {
       res.status(200).json({
         success: true,
         services: services.map(service => ({
-          id: (service as unknown as Record<string, unknown>).id as string || `${service.name}-${service.host}-${service.port}`,
+          id:
+            ((service as unknown as Record<string, unknown>).id as string) ||
+            `${service.name}-${service.host}-${service.port}`,
           name: service.name,
           host: service.host,
           port: service.port,

@@ -135,11 +135,15 @@ export class MusicSessionController {
         return;
       }
 
-      sendSuccess(res, {
-        jobId: enqueuedJobId,
-        status: 'queued',
-        statusUrl: `/api/music/generation-jobs/${enqueuedJobId}/status`,
-      }, 202);
+      sendSuccess(
+        res,
+        {
+          jobId: enqueuedJobId,
+          status: 'queued',
+          statusUrl: `/api/music/generation-jobs/${enqueuedJobId}/status`,
+        },
+        202
+      );
     } catch (error) {
       logger.error('Failed to enqueue generation job', { error: serializeError(error) });
       ServiceErrors.fromException(res, error, 'Failed to enqueue generation job', req);
@@ -272,12 +276,7 @@ Return ONLY the JSON object.`;
       }
 
       logger.error('[ANALYZE PREFERENCES] Failed to parse AI response', { requestId });
-      ServiceErrors.fromException(
-        res,
-        new Error('Failed to parse AI response'),
-        'Failed to parse AI response',
-        req
-      );
+      ServiceErrors.fromException(res, new Error('Failed to parse AI response'), 'Failed to parse AI response', req);
     } catch (error) {
       logger.error('[ANALYZE PREFERENCES] Error', {
         error: serializeError(error),

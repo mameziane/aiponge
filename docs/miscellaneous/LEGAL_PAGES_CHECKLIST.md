@@ -6,14 +6,14 @@ This document lists all the HTML pages you need to create and host publicly for 
 
 ## Required Pages Overview
 
-| Page | URL Path | Required For | Priority |
-|------|----------|--------------|----------|
-| Privacy Policy | `/privacy` | Both stores | **Required** |
-| Terms of Service | `/terms` | Both stores | **Required** |
-| Support/Contact | `/support` | Both stores | **Required** |
-| Data Deletion | `/delete-data` | Both stores (GDPR) | **Required** |
-| Cookie Policy | `/cookies` | Web version | Recommended |
-| EULA | `/eula` | App Store | Recommended |
+| Page             | URL Path       | Required For       | Priority     |
+| ---------------- | -------------- | ------------------ | ------------ |
+| Privacy Policy   | `/privacy`     | Both stores        | **Required** |
+| Terms of Service | `/terms`       | Both stores        | **Required** |
+| Support/Contact  | `/support`     | Both stores        | **Required** |
+| Data Deletion    | `/delete-data` | Both stores (GDPR) | **Required** |
+| Cookie Policy    | `/cookies`     | Web version        | Recommended  |
+| EULA             | `/eula`        | App Store          | Recommended  |
 
 ---
 
@@ -24,6 +24,7 @@ This document lists all the HTML pages you need to create and host publicly for 
 **Required by:** App Store Connect, Google Play Console
 
 **Must include:**
+
 - [ ] What personal data is collected
 - [ ] How data is used
 - [ ] How data is stored and protected
@@ -35,6 +36,7 @@ This document lists all the HTML pages you need to create and host publicly for 
 - [ ] Last updated date
 
 **Special requirements:**
+
 - Must be publicly accessible (no login required)
 - Must NOT be a PDF or editable document
 - Must be linked within the app (Settings screen)
@@ -51,6 +53,7 @@ This document lists all the HTML pages you need to create and host publicly for 
 **Required by:** App Store Connect, Google Play Console
 
 **Must include:**
+
 - [ ] Acceptance of terms
 - [ ] User account responsibilities
 - [ ] Subscription and payment terms
@@ -75,6 +78,7 @@ This document lists all the HTML pages you need to create and host publicly for 
 **Required by:** App Store Connect, Google Play Console
 
 **Must include:**
+
 - [ ] Contact email: `support@aiponge.com`
 - [ ] FAQ section (common issues)
 - [ ] How to manage subscriptions
@@ -94,6 +98,7 @@ This document lists all the HTML pages you need to create and host publicly for 
 **Required by:** GDPR, Google Play (Data Safety), App Store (Privacy Nutrition Label)
 
 **Must include:**
+
 - [ ] Form to request data deletion
 - [ ] Required information (email, user ID, or account identifier)
 - [ ] Explanation of what data will be deleted
@@ -112,6 +117,7 @@ This document lists all the HTML pages you need to create and host publicly for 
 **Required by:** GDPR, ePrivacy Directive (if you have a web version)
 
 **Must include:**
+
 - [ ] What cookies are used
 - [ ] Purpose of each cookie
 - [ ] Third-party cookies
@@ -129,6 +135,7 @@ This document lists all the HTML pages you need to create and host publicly for 
 **Required by:** App Store (optional but recommended)
 
 **Must include:**
+
 - [ ] License grant
 - [ ] Restrictions on use
 - [ ] Intellectual property ownership
@@ -148,6 +155,7 @@ This document lists all the HTML pages you need to create and host publicly for 
 ### Domain Setup
 
 Host all pages at your main domain:
+
 ```
 https://aiponge.com/privacy
 https://aiponge.com/terms
@@ -156,6 +164,7 @@ https://aiponge.com/delete-data
 ```
 
 **Alternative structure:**
+
 ```
 https://legal.aiponge.com/privacy
 https://legal.aiponge.com/terms
@@ -275,15 +284,15 @@ apps/aiponge/src/config/urls.ts - URL constants (create if needed)
 
 List these in your Privacy Policy:
 
-| Service | Data Shared | Purpose |
-|---------|-------------|---------|
-| RevenueCat | Purchase data, user ID | Subscription management |
-| MusicAPI.ai | Text prompts | AI music generation |
-| ElevenLabs | Text prompts | AI music generation |
-| AWS S3 | Audio files, images | File storage |
-| PostgreSQL (Neon) | All user data | Database |
-| Expo | Device info, crash logs | App analytics |
-| Firebase/OneSignal | Device tokens | Push notifications |
+| Service            | Data Shared             | Purpose                 |
+| ------------------ | ----------------------- | ----------------------- |
+| RevenueCat         | Purchase data, user ID  | Subscription management |
+| MusicAPI.ai        | Text prompts            | AI music generation     |
+| ElevenLabs         | Text prompts            | AI music generation     |
+| AWS S3             | Audio files, images     | File storage            |
+| PostgreSQL (Neon)  | All user data           | Database                |
+| Expo               | Device info, crash logs | App analytics           |
+| Firebase/OneSignal | Device tokens           | Push notifications      |
 
 ---
 
@@ -322,16 +331,16 @@ List these in your Privacy Policy:
 
 ## Timeline Recommendation
 
-| Task | Time Estimate | Priority |
-|------|--------------|----------|
-| Convert existing MD docs to HTML | 2-4 hours | High |
-| Create support page | 1-2 hours | High |
-| Create data deletion page | 2-3 hours | High |
-| Set up hosting | 1-2 hours | High |
-| Add in-app links | 1 hour | High |
-| Complete store privacy forms | 2-3 hours | High |
-| EULA creation | 2-3 hours | Medium |
-| Cookie policy (if web) | 1-2 hours | Low |
+| Task                             | Time Estimate | Priority |
+| -------------------------------- | ------------- | -------- |
+| Convert existing MD docs to HTML | 2-4 hours     | High     |
+| Create support page              | 1-2 hours     | High     |
+| Create data deletion page        | 2-3 hours     | High     |
+| Set up hosting                   | 1-2 hours     | High     |
+| Add in-app links                 | 1 hour        | High     |
+| Complete store privacy forms     | 2-3 hours     | High     |
+| EULA creation                    | 2-3 hours     | Medium   |
+| Cookie policy (if web)           | 1-2 hours     | Low      |
 
 ---
 

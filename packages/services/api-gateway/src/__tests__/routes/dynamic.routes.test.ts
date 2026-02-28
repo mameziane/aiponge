@@ -108,7 +108,9 @@ describe('Dynamic Routes', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
     const { DynamicRoutesHandler } = await import('../../presentation/routes/dynamic.routes');
-    const handler = new DynamicRoutesHandler(mockDynamicRouter as unknown as ConstructorParameters<typeof DynamicRoutesHandler>[0]);
+    const handler = new DynamicRoutesHandler(
+      mockDynamicRouter as unknown as ConstructorParameters<typeof DynamicRoutesHandler>[0]
+    );
     app = express();
     app.use(express.json());
     app.use('/api', handler.getRouter());
@@ -144,16 +146,12 @@ describe('Dynamic Routes', () => {
 
   describe('POST /gateway/routes', () => {
     it('should return 400 when path or serviceName missing', async () => {
-      const res = await request(app)
-        .post('/api/gateway/routes')
-        .send({});
+      const res = await request(app).post('/api/gateway/routes').send({});
       expect(res.status).toBe(400);
     });
 
     it('should return 201 with valid route config', async () => {
-      const res = await request(app)
-        .post('/api/gateway/routes')
-        .send({ path: '/test', serviceName: 'test-service' });
+      const res = await request(app).post('/api/gateway/routes').send({ path: '/test', serviceName: 'test-service' });
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
     });

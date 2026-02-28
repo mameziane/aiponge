@@ -19,13 +19,15 @@ vi.mock('@aiponge/platform-core', () => ({
       if (cause) this.cause = cause;
     }
   },
-  createIntervalScheduler: vi.fn(({ handler }: { handler: () => void; name?: string; serviceName?: string; intervalMs?: number }) => ({
-    start: vi.fn(),
-    stop: vi.fn(),
-    isRunning: vi.fn().mockReturnValue(false),
-  })),
+  createIntervalScheduler: vi.fn(
+    ({ handler }: { handler: () => void; name?: string; serviceName?: string; intervalMs?: number }) => ({
+      start: vi.fn(),
+      stop: vi.fn(),
+      isRunning: vi.fn().mockReturnValue(false),
+    })
+  ),
   createServiceUrlsConfig: vi.fn(() => ({ getServiceUrl: vi.fn() })),
-  errorMessage: vi.fn((err: unknown) => err instanceof Error ? err.message : String(err)),
+  errorMessage: vi.fn((err: unknown) => (err instanceof Error ? err.message : String(err))),
 }));
 
 vi.mock('../config/service-urls', () => ({
@@ -33,7 +35,11 @@ vi.mock('../config/service-urls', () => ({
   getServiceUrls: () => ({}),
 }));
 
-import { SystemHealthService, type SystemHealthMetrics, type ServiceHealthCheck } from '../application/system-health/SystemHealthService';
+import {
+  SystemHealthService,
+  type SystemHealthMetrics,
+  type ServiceHealthCheck,
+} from '../application/system-health/SystemHealthService';
 
 function createMockHealthMetrics(overrides: Partial<SystemHealthMetrics> = {}): SystemHealthMetrics {
   return {
@@ -152,9 +158,7 @@ describe('SystemHealthService', () => {
 
       await service.recordSystemHealthMetrics(metrics);
 
-      expect(alertHandler).toHaveBeenCalledWith(
-        expect.objectContaining({ alertType: 'error_rate' })
-      );
+      expect(alertHandler).toHaveBeenCalledWith(expect.objectContaining({ alertType: 'error_rate' }));
     });
 
     it('should create alert for high CPU usage', async () => {
@@ -166,9 +170,7 @@ describe('SystemHealthService', () => {
 
       await service.recordSystemHealthMetrics(metrics);
 
-      expect(alertHandler).toHaveBeenCalledWith(
-        expect.objectContaining({ alertType: 'resource_usage' })
-      );
+      expect(alertHandler).toHaveBeenCalledWith(expect.objectContaining({ alertType: 'resource_usage' }));
     });
 
     it('should create alert for high memory usage', async () => {
@@ -180,9 +182,7 @@ describe('SystemHealthService', () => {
 
       await service.recordSystemHealthMetrics(metrics);
 
-      expect(alertHandler).toHaveBeenCalledWith(
-        expect.objectContaining({ alertType: 'resource_usage' })
-      );
+      expect(alertHandler).toHaveBeenCalledWith(expect.objectContaining({ alertType: 'resource_usage' }));
     });
 
     it('should not create duplicate alerts for same service and type', async () => {
@@ -243,18 +243,14 @@ describe('SystemHealthService', () => {
 
     it('should create alert for unhealthy dependency', async () => {
       const healthCheck = createMockHealthCheck({
-        dependencies: [
-          { name: 'database', status: 'unhealthy', error: 'Connection refused' },
-        ],
+        dependencies: [{ name: 'database', status: 'unhealthy', error: 'Connection refused' }],
       });
       const alertHandler = vi.fn();
       service.on('alert_triggered', alertHandler);
 
       await service.updateServiceHealth(healthCheck);
 
-      expect(alertHandler).toHaveBeenCalledWith(
-        expect.objectContaining({ alertType: 'dependency_failure' })
-      );
+      expect(alertHandler).toHaveBeenCalledWith(expect.objectContaining({ alertType: 'dependency_failure' }));
     });
 
     it('should emit service_health_updated event', async () => {

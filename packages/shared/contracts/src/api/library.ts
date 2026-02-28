@@ -70,22 +70,6 @@ export const BOOK_CATEGORIES = [
 
 export type BookCategory = (typeof BOOK_CATEGORIES)[number];
 
-export const BOOK_ERAS = ['Ancient', 'Medieval', 'Modern', 'Contemporary'] as const;
-
-export type BookEra = (typeof BOOK_ERAS)[number];
-
-export const BOOK_TRADITIONS = [
-  'Stoicism',
-  'Buddhism',
-  'Taoism',
-  'Mindfulness',
-  'Philosophy',
-  'Poetry',
-  'Spirituality',
-] as const;
-
-export type BookTradition = (typeof BOOK_TRADITIONS)[number];
-
 // =============================================================================
 // REMINDER TYPE CONSTANTS - Single source of truth for reminder types
 // =============================================================================
@@ -165,8 +149,6 @@ export const LibBookSchema = z
     isSystem: z.boolean().optional(),
     systemType: z.string().nullable().optional(),
     category: z.string().nullable().optional(),
-    era: z.string().nullable().optional(),
-    tradition: z.string().nullable().optional(),
     sortOrder: z.number().optional().default(0),
     chapterCount: z.number().optional().default(0),
     entryCount: z.number().optional().default(0),

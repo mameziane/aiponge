@@ -124,9 +124,7 @@ describe('Lyrics Routes', () => {
 
   describe('POST / (create lyrics)', () => {
     it('should return 401 when not authenticated', async () => {
-      const res = await request(app)
-        .post('/api/app/lyrics')
-        .send({ content: 'test content' });
+      const res = await request(app).post('/api/app/lyrics').send({ content: 'test content' });
       expect(res.status).toBe(401);
       expect(res.body.success).toBe(false);
     });
@@ -145,9 +143,7 @@ describe('Lyrics Routes', () => {
     });
 
     it('should forward service error on failure', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ message: 'AI service unavailable' }, 503)
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ message: 'AI service unavailable' }, 503));
       const res = await request(app)
         .post('/api/app/lyrics')
         .set('x-user-id', 'user-123')
@@ -173,17 +169,13 @@ describe('Lyrics Routes', () => {
       mockGatewayFetch.mockResolvedValueOnce(
         mockResponse({ success: true, data: { id: 'lyrics-1', content: 'Some lyrics' }, source: 'own' })
       );
-      const res = await request(app)
-        .get('/api/app/lyrics/id/lyrics-1')
-        .set('x-user-id', 'user-123');
+      const res = await request(app).get('/api/app/lyrics/id/lyrics-1').set('x-user-id', 'user-123');
       expect(res.status).toBe(200);
       expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/lyrics/'), expect.anything());
     });
 
     it('should forward 404 when lyrics not found', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ message: 'Lyrics not found' }, 404)
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ message: 'Lyrics not found' }, 404));
       const res = await request(app).get('/api/app/lyrics/id/nonexistent');
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
@@ -191,14 +183,9 @@ describe('Lyrics Routes', () => {
     });
 
     it('should pass type query parameter', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true, data: { id: 'lyrics-1' } })
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, data: { id: 'lyrics-1' } }));
       await request(app).get('/api/app/lyrics/id/lyrics-1?type=shared');
-      expect(mockGatewayFetch).toHaveBeenCalledWith(
-        expect.stringContaining('?visibility=shared'),
-        expect.any(Object)
-      );
+      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('?visibility=shared'), expect.any(Object));
     });
   });
 
@@ -212,20 +199,14 @@ describe('Lyrics Routes', () => {
       mockGatewayFetch.mockResolvedValueOnce(
         mockResponse({ success: true, data: { id: 'lyrics-1', entryId: 'entry-1' } })
       );
-      const res = await request(app)
-        .get('/api/app/lyrics/entry/entry-1')
-        .set('x-user-id', 'user-123');
+      const res = await request(app).get('/api/app/lyrics/entry/entry-1').set('x-user-id', 'user-123');
       expect(res.status).toBe(200);
       expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/lyrics/entry/'), expect.anything());
     });
 
     it('should forward 404 when entry has no lyrics', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ message: 'No lyrics found for entry' }, 404)
-      );
-      const res = await request(app)
-        .get('/api/app/lyrics/entry/entry-no-lyrics')
-        .set('x-user-id', 'user-123');
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ message: 'No lyrics found for entry' }, 404));
+      const res = await request(app).get('/api/app/lyrics/entry/entry-no-lyrics').set('x-user-id', 'user-123');
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
       expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/lyrics/entry/'), expect.anything());
@@ -239,36 +220,24 @@ describe('Lyrics Routes', () => {
     });
 
     it('should delete lyrics successfully', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true, message: 'Lyrics deleted' })
-      );
-      const res = await request(app)
-        .delete('/api/app/lyrics/lyrics-1')
-        .set('x-user-id', 'user-123');
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, message: 'Lyrics deleted' }));
+      const res = await request(app).delete('/api/app/lyrics/lyrics-1').set('x-user-id', 'user-123');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/lyrics/'), expect.anything());
     });
 
     it('should forward 404 when lyrics not found', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ message: 'Lyrics not found' }, 404)
-      );
-      const res = await request(app)
-        .delete('/api/app/lyrics/nonexistent')
-        .set('x-user-id', 'user-123');
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ message: 'Lyrics not found' }, 404));
+      const res = await request(app).delete('/api/app/lyrics/nonexistent').set('x-user-id', 'user-123');
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
       expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/lyrics/'), expect.anything());
     });
 
     it('should forward 500 on service error', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ message: 'Internal error' }, 500)
-      );
-      const res = await request(app)
-        .delete('/api/app/lyrics/lyrics-1')
-        .set('x-user-id', 'user-123');
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ message: 'Internal error' }, 500));
+      const res = await request(app).delete('/api/app/lyrics/lyrics-1').set('x-user-id', 'user-123');
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
       expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/lyrics/'), expect.anything());

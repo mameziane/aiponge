@@ -16,19 +16,23 @@ const mockGetSignedUrl = vi.hoisted(() => vi.fn());
 const mockGetMetadata = vi.hoisted(() => vi.fn());
 const mockGetFiles = vi.hoisted(() => vi.fn());
 
-const mockFile = vi.hoisted(() => vi.fn(() => ({
-  save: mockSave,
-  download: mockDownload,
-  delete: mockDelete,
-  exists: mockExists,
-  getSignedUrl: mockGetSignedUrl,
-  getMetadata: mockGetMetadata,
-})));
+const mockFile = vi.hoisted(() =>
+  vi.fn(() => ({
+    save: mockSave,
+    download: mockDownload,
+    delete: mockDelete,
+    exists: mockExists,
+    getSignedUrl: mockGetSignedUrl,
+    getMetadata: mockGetMetadata,
+  }))
+);
 
-const mockBucket = vi.hoisted(() => vi.fn(() => ({
-  file: mockFile,
-  getFiles: mockGetFiles,
-})));
+const mockBucket = vi.hoisted(() =>
+  vi.fn(() => ({
+    file: mockFile,
+    getFiles: mockGetFiles,
+  }))
+);
 
 vi.mock('@google-cloud/storage', () => ({
   Storage: class MockStorage {
@@ -76,8 +80,8 @@ vi.mock('@aiponge/platform-core', () => ({
   waitForService: vi.fn(),
   listServices: () => [],
   createServiceUrlsConfig: vi.fn(() => ({})),
-  errorMessage: vi.fn((err: unknown) => err instanceof Error ? err.message : String(err)),
-  errorStack: vi.fn((err: unknown) => err instanceof Error ? err.stack : ''),
+  errorMessage: vi.fn((err: unknown) => (err instanceof Error ? err.message : String(err))),
+  errorStack: vi.fn((err: unknown) => (err instanceof Error ? err.stack : '')),
   withResilience: vi.fn((fn: (...args: unknown[]) => unknown) => fn),
   createIntervalScheduler: vi.fn(() => ({ start: vi.fn(), stop: vi.fn() })),
 }));
@@ -108,9 +112,7 @@ describe('GCSStorageProvider', () => {
       const result = await provider.upload(file, path, options);
 
       expect(result.success).toBe(true);
-      expect(result.publicUrl).toBe(
-        `https://storage.googleapis.com/${testConfig.bucketName}/${path}`
-      );
+      expect(result.publicUrl).toBe(`https://storage.googleapis.com/${testConfig.bucketName}/${path}`);
       expect(result.location).toBeDefined();
       expect(mockFile).toHaveBeenCalledWith(path);
       expect(mockSave).toHaveBeenCalledWith(file, {
@@ -156,10 +158,12 @@ describe('GCSStorageProvider', () => {
     it('should download a file from GCS', async () => {
       const fileContent = Buffer.from('downloaded content');
       mockDownload.mockResolvedValueOnce([fileContent]);
-      mockGetMetadata.mockResolvedValueOnce([{
-        contentType: 'text/plain',
-        size: '18',
-      }]);
+      mockGetMetadata.mockResolvedValueOnce([
+        {
+          contentType: 'text/plain',
+          size: '18',
+        },
+      ]);
 
       const result = await provider.download('test-file.txt');
 
@@ -272,21 +276,21 @@ describe('GCSStorageProvider', () => {
 
       const result = await provider.generateSignedUrl('test-file.txt');
 
-      expect(result).toBe(
-        `https://storage.googleapis.com/${testConfig.bucketName}/test-file.txt`
-      );
+      expect(result).toBe(`https://storage.googleapis.com/${testConfig.bucketName}/test-file.txt`);
     });
   });
 
   describe('getMetadata', () => {
     it('should return file metadata', async () => {
       const timeCreated = '2025-01-01T00:00:00Z';
-      mockGetMetadata.mockResolvedValueOnce([{
-        size: '1024',
-        timeCreated,
-        contentType: 'text/plain',
-        md5Hash: 'abc123',
-      }]);
+      mockGetMetadata.mockResolvedValueOnce([
+        {
+          size: '1024',
+          timeCreated,
+          contentType: 'text/plain',
+          md5Hash: 'abc123',
+        },
+      ]);
 
       const metadata = await provider.getMetadata('test-file.txt');
 
@@ -309,9 +313,7 @@ describe('GCSStorageProvider', () => {
 
   describe('listFiles', () => {
     it('should list files with given prefix', async () => {
-      mockGetFiles.mockResolvedValueOnce([
-        [{ name: 'prefix/file1.txt' }, { name: 'prefix/file2.txt' }],
-      ]);
+      mockGetFiles.mockResolvedValueOnce([[{ name: 'prefix/file1.txt' }, { name: 'prefix/file2.txt' }]]);
 
       const files = await provider.listFiles('prefix/');
 

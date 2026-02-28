@@ -275,7 +275,9 @@ export class LibraryOperationsService {
 
       // Update total_tracks for affected playlists
       if (affectedPlaylists.rows && affectedPlaylists.rows.length > 0) {
-        const playlistIds = [...new Set(affectedPlaylists.rows.map((r: Record<string, unknown>) => r.playlist_id as string))];
+        const playlistIds = [
+          ...new Set(affectedPlaylists.rows.map((r: Record<string, unknown>) => r.playlist_id as string)),
+        ];
         for (const playlistId of playlistIds) {
           await db.execute(sql`
             UPDATE mus_playlists 
@@ -846,7 +848,9 @@ export class LibraryOperationsService {
 
       // Update total_tracks for affected playlists
       if (affectedPlaylists.rows && affectedPlaylists.rows.length > 0) {
-        const playlistIds = [...new Set(affectedPlaylists.rows.map((r: Record<string, unknown>) => r.playlist_id as string))];
+        const playlistIds = [
+          ...new Set(affectedPlaylists.rows.map((r: Record<string, unknown>) => r.playlist_id as string)),
+        ];
         for (const playlistId of playlistIds) {
           await db.execute(sql`
             UPDATE mus_playlists 

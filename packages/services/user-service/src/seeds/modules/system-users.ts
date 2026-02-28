@@ -124,7 +124,9 @@ export const systemUsersSeed: SeedModule = {
          ON CONFLICT DO NOTHING`
       );
 
-      const bookCheck = await db.execute(`SELECT id FROM lib_books WHERE user_id = '${user.id}' AND system_type = 'default'`);
+      const bookCheck = await db.execute(
+        `SELECT id FROM lib_books WHERE user_id = '${user.id}' AND system_type = 'default'`
+      );
       if (!bookCheck?.rows?.length) {
         await db.execute(
           `INSERT INTO lib_books (type_id, title, description, user_id, is_read_only, visibility, status, system_type)

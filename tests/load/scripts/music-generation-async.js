@@ -35,8 +35,8 @@ export default function () {
   );
 
   check(submitRes, {
-    'generation submitted': (r) => r.status === 200 || r.status === 202,
-    'has job id': (r) => {
+    'generation submitted': r => r.status === 200 || r.status === 202,
+    'has job id': r => {
       const body = r.json();
       return body?.data?.jobId != null || body?.jobId != null;
     },
@@ -50,7 +50,7 @@ export default function () {
         headers: { Authorization: `Bearer ${token}` },
       });
       check(pollRes, {
-        'poll status ok': (r) => r.status === 200,
+        'poll status ok': r => r.status === 200,
       });
       const status = pollRes.json()?.data?.status || pollRes.json()?.status;
       if (status === 'completed' || status === 'failed') break;

@@ -39,7 +39,7 @@ function getPortForService(service: string): number {
   return ports[service] || 8080;
 }
 
-vi.mock('@aiponge/platform-core', async (importOriginal) => {
+vi.mock('@aiponge/platform-core', async importOriginal => {
   const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
   return {
     ...actual,
@@ -158,7 +158,9 @@ describe('AdminProvidersController Integration Tests', () => {
     router.patch('/provider-configurations/:id', (req, res) => controller.updateProviderConfiguration(req, res));
     router.delete('/provider-configurations/:id', (req, res) => controller.deleteProviderConfiguration(req, res));
     router.post('/provider-configurations/:id/test', (req, res) => controller.testProviderConfiguration(req, res));
-    router.post('/provider-configurations/:id/health-check', (req, res) => controller.healthCheckProviderConfiguration(req, res));
+    router.post('/provider-configurations/:id/health-check', (req, res) =>
+      controller.healthCheckProviderConfiguration(req, res)
+    );
     router.post('/provider-configurations/:id/set-primary', (req, res) => controller.setProviderAsPrimary(req, res));
 
     app = express();

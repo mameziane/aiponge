@@ -30,10 +30,7 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
     return { filePath: IOS_STUB_MAP[moduleName], type: 'sourceFile' };
   }
 
-  if (
-    moduleName.endsWith('.js') &&
-    context.originModulePath.includes(workspaceRoot + '/packages')
-  ) {
+  if (moduleName.endsWith('.js') && context.originModulePath.includes(workspaceRoot + '/packages')) {
     try {
       const tsModuleName = moduleName.replace(/\.js$/, '.ts');
       return context.resolveRequest(context, tsModuleName, platform);

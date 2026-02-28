@@ -153,25 +153,16 @@ export class CreditError extends DetailedDomainError {
 }
 
 export class DomainServiceError<T extends string> extends DomainError {
-  public declare readonly code: T;
+  declare public readonly code: T;
 
-  constructor(
-    message: string,
-    statusCode: number,
-    code: T,
-    cause?: Error,
-    serviceName?: string
-  ) {
+  constructor(message: string, statusCode: number, code: T, cause?: Error, serviceName?: string) {
     super(message, statusCode, cause, code);
     if (serviceName) this.name = `${serviceName}Error`;
     this.code = code;
   }
 }
 
-export function createDomainServiceError<T extends string>(
-  serviceName: string,
-  domainErrorCodes: Record<string, T>
-) {
+export function createDomainServiceError<T extends string>(serviceName: string, domainErrorCodes: Record<string, T>) {
   class ServiceError extends DomainServiceError<T> {
     constructor(message: string, statusCode = 500, code?: T, cause?: Error) {
       super(message, statusCode, code || (domainErrorCodes.INTERNAL_ERROR as T), cause, serviceName);
@@ -183,7 +174,11 @@ export function createDomainServiceError<T extends string>(
     }
 
     static validationError(field: string, message: string) {
-      return new ServiceError(`Validation failed for ${field}: ${message}`, 400, domainErrorCodes.VALIDATION_ERROR as T);
+      return new ServiceError(
+        `Validation failed for ${field}: ${message}`,
+        400,
+        domainErrorCodes.VALIDATION_ERROR as T
+      );
     }
 
     static unauthorized(message = 'Unauthorized') {
@@ -302,7 +297,7 @@ export function errorHandler() {
       return;
     }
 
-    const statusCode = ((error.statusCode as number) || (error.status as number) || 500);
+    const statusCode = (error.statusCode as number) || (error.status as number) || 500;
     const message =
       process.env.NODE_ENV === 'production' && statusCode >= 500
         ? 'Internal Server Error'

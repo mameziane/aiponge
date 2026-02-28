@@ -5,9 +5,11 @@
 ### 🚀 For Daily Development
 
 #### `./start-dev.sh`
+
 **Start local development environment**
 
 Starts everything you need for development:
+
 - All 8 backend services
 - Mobile app with Expo
 - Development database
@@ -17,6 +19,7 @@ Starts everything you need for development:
 ```
 
 **When to use:**
+
 - Starting your development session
 - First time running the app
 - After pulling code changes
@@ -24,9 +27,11 @@ Starts everything you need for development:
 ---
 
 #### `./restart.sh`
+
 **Clean restart when things get stuck**
 
 Kills all processes and starts fresh:
+
 - Clears caches
 - Kills stuck processes
 - Restarts everything cleanly
@@ -36,6 +41,7 @@ Kills all processes and starts fresh:
 ```
 
 **When to use:**
+
 - Metro bundler is stuck
 - Services not responding
 - Port conflicts
@@ -46,9 +52,11 @@ Kills all processes and starts fresh:
 ### 🎯 For Production
 
 #### `prod-start.sh`
+
 **Production deployment startup**
 
 Starts minimal essential services for production:
+
 - API Gateway (port 8080)
 - User Service
 - System Service
@@ -58,6 +66,7 @@ Starts minimal essential services for production:
 ```
 
 **When to use:**
+
 - Automatically used by Replit deployment
 - Don't run this manually
 
@@ -66,6 +75,7 @@ Starts minimal essential services for production:
 ### 📱 For Native Builds (Optional)
 
 #### `create-dev-build.sh`
+
 **Create Expo development build**
 
 Creates a native development build for iOS/Android.
@@ -75,6 +85,7 @@ Creates a native development build for iOS/Android.
 ```
 
 **When to use:**
+
 - When you need native modules
 - Testing on physical device without Expo Go
 - Building for TestFlight/internal distribution
@@ -85,11 +96,11 @@ Creates a native development build for iOS/Android.
 
 ## 🎯 Quick Reference
 
-| Task | Command |
-|------|---------|
-| **Start development** | `./start-dev.sh` |
-| **Restart when stuck** | `./restart.sh` |
-| **Test on phone** | Run `start-dev.sh`, then open Expo Go |
+| Task                     | Command                                       |
+| ------------------------ | --------------------------------------------- |
+| **Start development**    | `./start-dev.sh`                              |
+| **Restart when stuck**   | `./restart.sh`                                |
+| **Test on phone**        | Run `start-dev.sh`, then open Expo Go         |
 | **Deploy to production** | Click "Publish" button (uses `prod-start.sh`) |
 
 ---
@@ -97,6 +108,7 @@ Creates a native development build for iOS/Android.
 ## 🔧 What Each Script Does Internally
 
 ### start-dev.sh
+
 ```
 1. Starts Redis cache
 2. Starts system-service (service discovery)
@@ -105,6 +117,7 @@ Creates a native development build for iOS/Android.
 ```
 
 ### restart.sh
+
 ```
 1. Kills all node/tsx processes
 2. Clears Metro cache
@@ -113,6 +126,7 @@ Creates a native development build for iOS/Android.
 ```
 
 ### prod-start.sh
+
 ```
 1. Sets NODE_ENV=production
 2. Starts Redis cache
@@ -141,6 +155,7 @@ This makes the Replit "Run" button use the new script names.
 ## ✅ Scripts Removed
 
 The following obsolete scripts were deleted:
+
 - ❌ `dev-full-with-tunnel.sh` - ngrok tunneling (replaced by production deployment)
 - ❌ `setup-cloudflare-tunnel.sh` - Cloudflare tunnel (never used)
 - ❌ `start-backend-tunnel.sh` - localtunnel (replaced by production deployment)
@@ -155,11 +170,13 @@ These were created during troubleshooting and are no longer needed.
 ## 🎓 Why This Naming Scheme?
 
 **Old naming:**
+
 - `dev-full.sh`, `dev-full-with-tunnel.sh` - confusing prefixes
 - `restart-dev.sh` - redundant "-dev"
 - Multiple tunnel scripts - which one to use?
 
 **New naming:**
+
 - `start-dev.sh` - clear action + purpose
 - `restart.sh` - simple, obvious
 - `prod-start.sh` - clearly for production

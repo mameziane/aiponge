@@ -23,7 +23,7 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "baseUrl": ".",
-    
+
     // Universal path mappings used across all project types
     "paths": {
       "@aiponge/shared-contracts": ["packages/shared/contracts/src/index.ts"],

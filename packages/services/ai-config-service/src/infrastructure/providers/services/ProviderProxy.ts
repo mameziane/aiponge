@@ -532,7 +532,10 @@ export class ProviderProxy implements IProviderProxy {
 
     return {
       totalRequests,
-      providerBreakdown: providerBreakdown as Record<string, { requests: number; successRate: number; averageLatencyMs: number; totalCost: number }>,
+      providerBreakdown: providerBreakdown as Record<
+        string,
+        { requests: number; successRate: number; averageLatencyMs: number; totalCost: number }
+      >,
       operationBreakdown,
     };
   }

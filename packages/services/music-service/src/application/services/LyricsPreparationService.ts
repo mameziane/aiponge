@@ -125,7 +125,13 @@ function removeSectionHeaders(lyrics: string): string {
 }
 
 export interface CachedUserContextInput {
-  preferences?: { currentMood?: string; displayName?: string; languagePreference?: string; emotionalState?: string; wellnessIntention?: string };
+  preferences?: {
+    currentMood?: string;
+    displayName?: string;
+    languagePreference?: string;
+    emotionalState?: string;
+    wellnessIntention?: string;
+  };
   narrativeSeeds?: { keywords?: string[]; emotionalProfile?: Record<string, unknown> };
   persona?: Record<string, unknown>;
 }
@@ -742,7 +748,9 @@ export class LyricsPreparationService {
       // Extract specific error from AI service response
       const rawError = (rawResult as Record<string, unknown>)?.error;
       const errorMessage: string =
-        typeof rawError === 'string' ? rawError : String((rawError as Record<string, unknown> | undefined)?.message || 'AI service returned empty content');
+        typeof rawError === 'string'
+          ? rawError
+          : String((rawError as Record<string, unknown> | undefined)?.message || 'AI service returned empty content');
 
       const emptyData = {
         requestId,

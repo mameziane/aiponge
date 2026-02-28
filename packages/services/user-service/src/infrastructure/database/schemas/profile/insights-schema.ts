@@ -1,15 +1,4 @@
-import {
-  pgTable,
-  varchar,
-  integer,
-  timestamp,
-  text,
-  uuid,
-  jsonb,
-  boolean,
-  numeric,
-  index,
-} from 'drizzle-orm/pg-core';
+import { pgTable, varchar, integer, timestamp, text, uuid, jsonb, boolean, numeric, index } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 import { createInsertSchema } from 'drizzle-zod';
 import { z } from 'zod';
@@ -105,6 +94,4 @@ export type Reflection = typeof usrReflections.$inferSelect;
 export type NewReflection = typeof usrReflections.$inferInsert;
 export type InsertReflection = z.infer<typeof insertReflectionSchema>;
 
-export {
-  usrReflections as reflections,
-};
+export { usrReflections as reflections };

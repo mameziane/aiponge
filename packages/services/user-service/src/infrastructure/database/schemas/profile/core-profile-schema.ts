@@ -105,7 +105,9 @@ export const usrUserPatterns = pgTable(
       .array()
       .default(sql`'{}'::text[]`),
     isActive: boolean('is_active').default(true),
-    evidenceEntryIds: uuid('evidence_entry_ids').array().default(sql`'{}'::uuid[]`),
+    evidenceEntryIds: uuid('evidence_entry_ids')
+      .array()
+      .default(sql`'{}'::uuid[]`),
     explorationPrompt: text('exploration_prompt'),
     metadata: jsonb('metadata').default('{}'),
     createdAt: timestamp('created_at').defaultNow().notNull(),

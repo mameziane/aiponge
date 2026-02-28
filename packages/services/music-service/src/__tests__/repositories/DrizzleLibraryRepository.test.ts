@@ -30,7 +30,7 @@ vi.mock('@aiponge/platform-core', () => ({
   waitForService: vi.fn(),
   listServices: vi.fn(),
   createServiceUrlsConfig: vi.fn(() => ({ getServiceUrl: vi.fn() })),
-  errorMessage: vi.fn((err: unknown) => err instanceof Error ? err.message : String(err)),
+  errorMessage: vi.fn((err: unknown) => (err instanceof Error ? err.message : String(err))),
   serializeError: vi.fn((err: unknown) => err),
 }));
 
@@ -255,9 +255,7 @@ describe('DrizzleLibraryRepository', () => {
 
       await repository.updateTrackRating('user-1', 'track-1', 5);
 
-      expect(mockDb.set).toHaveBeenCalledWith(
-        expect.objectContaining({ rating: 5 })
-      );
+      expect(mockDb.set).toHaveBeenCalledWith(expect.objectContaining({ rating: 5 }));
     });
 
     it('should throw on database error', async () => {
@@ -427,9 +425,7 @@ describe('DrizzleLibraryRepository', () => {
 
   describe('getLibraryStats', () => {
     it('should return library stats computed on the fly', async () => {
-      mockDb.where
-        .mockResolvedValueOnce([{ count: 10 }])
-        .mockResolvedValueOnce([{ count: 3 }]);
+      mockDb.where.mockResolvedValueOnce([{ count: 10 }]).mockResolvedValueOnce([{ count: 3 }]);
 
       const result = await repository.getLibraryStats('user-1');
 
@@ -441,9 +437,7 @@ describe('DrizzleLibraryRepository', () => {
     });
 
     it('should return zero stats when no data', async () => {
-      mockDb.where
-        .mockResolvedValueOnce([{ count: 0 }])
-        .mockResolvedValueOnce([{ count: 0 }]);
+      mockDb.where.mockResolvedValueOnce([{ count: 0 }]).mockResolvedValueOnce([{ count: 0 }]);
 
       const result = await repository.getLibraryStats('user-1');
 

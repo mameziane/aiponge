@@ -271,9 +271,7 @@ export class MetricsRepository {
         currentMetric = row.metric_name;
       }
 
-      const tags = row.tags
-        ? safeJsonParse(row.tags, {} as Record<string, string>)
-        : ({} as Record<string, string>);
+      const tags = row.tags ? safeJsonParse(row.tags, {} as Record<string, string>) : ({} as Record<string, string>);
       tags['service'] = row.service_name;
 
       const tagString = Object.entries(tags)

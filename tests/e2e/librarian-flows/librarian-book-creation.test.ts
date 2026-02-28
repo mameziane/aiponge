@@ -1,6 +1,6 @@
 /**
  * Librarian Book Creation Flow Test
- * 
+ *
  * Tests the complete flow of a librarian creating a wisdom book:
  * 1. Authenticate as librarian
  * 2. Generate book blueprint with AI
@@ -20,8 +20,8 @@ const TIMEOUTS = {
 };
 
 async function fetchWithTimeout(
-  url: string, 
-  options: RequestInit = {}, 
+  url: string,
+  options: RequestInit = {},
   timeoutMs = TIMEOUTS.REQUEST
 ): Promise<Response> {
   const controller = new AbortController();
@@ -41,14 +41,18 @@ async function apiRequest<T = unknown>(
 ): Promise<{ success: boolean; data?: T; error?: string; status: number }> {
   const url = `${API_GATEWAY_URL}${endpoint}`;
   try {
-    const response = await fetchWithTimeout(url, {
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...(options.headers as Record<string, string> || {}),
+    const response = await fetchWithTimeout(
+      url,
+      {
+        ...options,
+        headers: {
+          'Content-Type': 'application/json',
+          ...((options.headers as Record<string, string>) || {}),
+        },
       },
-    }, timeoutMs);
-    
+      timeoutMs
+    );
+
     const data = await response.json().catch(() => ({}));
     return {
       success: response.ok,
@@ -81,20 +85,26 @@ const BlueprintStatusResponseSchema = z.object({
   success: z.boolean(),
   requestId: z.string().optional(),
   status: z.enum(['pending', 'processing', 'completed', 'failed']).optional(),
-  book: z.object({
-    title: z.string(),
-    description: z.string(),
-    chapters: z.array(z.object({
+  book: z
+    .object({
       title: z.string(),
-      description: z.string().optional(),
-      order: z.number(),
-      entries: z.array(z.object({
-        prompt: z.string(),
-        type: z.string(),
-        content: z.string().optional(),
-      })),
-    })),
-  }).optional(),
+      description: z.string(),
+      chapters: z.array(
+        z.object({
+          title: z.string(),
+          description: z.string().optional(),
+          order: z.number(),
+          entries: z.array(
+            z.object({
+              prompt: z.string(),
+              type: z.string(),
+              content: z.string().optional(),
+            })
+          ),
+        })
+      ),
+    })
+    .optional(),
   error: z.string().optional(),
 });
 
@@ -105,13 +115,9 @@ describe('Librarian Book Creation Flow', () => {
 
   beforeAll(async () => {
     try {
-      const healthResponse = await fetchWithTimeout(
-        `${API_GATEWAY_URL}/health`,
-        {},
-        TIMEOUTS.HEALTH
-      );
+      const healthResponse = await fetchWithTimeout(`${API_GATEWAY_URL}/health`, {}, TIMEOUTS.HEALTH);
       isApiAvailable = healthResponse.ok;
-      
+
       if (!isApiAvailable) {
         console.log('⏭️ API Gateway not available, tests will be skipped');
         return;
@@ -137,7 +143,7 @@ describe('Librarian Book Creation Flow', () => {
 
   function getAuthHeaders(): Record<string, string> {
     return {
-      'Authorization': `Bearer ${authToken}`,
+      Authorization: `Bearer ${authToken}`,
       'x-user-id': userId || '',
       'x-user-role': 'librarian',
       'Content-Type': 'application/json',
@@ -180,7 +186,8 @@ describe('Librarian Book Creation Flow', () => {
       }
 
       const request = {
-        primaryGoal: 'A wisdom book about finding inner peace through ancient Stoic philosophy and Buddhist mindfulness practices',
+        primaryGoal:
+          'A wisdom book about finding inner peace through ancient Stoic philosophy and Buddhist mindfulness practices',
         language: 'en-US',
         tone: 'supportive',
         generationMode: 'book',
@@ -246,7 +253,7 @@ describe('Librarian Book Creation Flow', () => {
       }
 
       const depthLevels = ['brief', 'standard', 'deep'] as const;
-      
+
       for (const depth of depthLevels) {
         const request = {
           primaryGoal: `Test book for ${depth} depth validation - exploring mindfulness techniques`,
@@ -258,7 +265,7 @@ describe('Librarian Book Creation Flow', () => {
 
         const validation = BookGenerationRequestSchema.safeParse(request);
         expect(validation.success).toBe(true);
-        
+
         if (validation.success) {
           expect(validation.data.depthLevel).toBe(depth);
           console.log(`✅ Depth level '${depth}' validated correctly`);
@@ -293,7 +300,7 @@ describe('Librarian Book Creation Flow', () => {
 
       if (response.success && response.data?.books) {
         expect(Array.isArray(response.data.books)).toBe(true);
-        
+
         if (response.data.books.length > 0) {
           const book = response.data.books[0];
           expect(book).toHaveProperty('id');
@@ -352,7 +359,7 @@ describe('Librarian Book Creation Flow', () => {
       }
 
       const bookId = booksResponse.data.books[0].id;
-      
+
       const chaptersResponse = await apiRequest<{
         chapters?: Array<{ id: string }>;
       }>(`/api/app/library/books/${bookId}/chapters`, {
@@ -366,7 +373,7 @@ describe('Librarian Book Creation Flow', () => {
       }
 
       const chapterId = chaptersResponse.data.chapters[0].id;
-      
+
       const entriesResponse = await apiRequest<{
         entries?: Array<{ id: string; prompt?: string; content?: string }>;
         excerpts?: Array<unknown>;

@@ -3,7 +3,6 @@ import { Request, Response, NextFunction } from 'express';
 import { loggingMiddleware } from '../../presentation/middleware/LoggingMiddleware';
 import { errorHandlingMiddleware } from '../../presentation/middleware/ErrorHandlingMiddleware';
 
-
 vi.mock('../../utils/logger', () => ({
   __esModule: true,
   default: {
@@ -29,7 +28,7 @@ const mockLogger = vi.hoisted(() => ({
   debug: vi.fn(),
 }));
 
-vi.mock('@aiponge/platform-core', async (importOriginal) => {
+vi.mock('@aiponge/platform-core', async importOriginal => {
   const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
   return {
     ...actual,
@@ -37,10 +36,12 @@ vi.mock('@aiponge/platform-core', async (importOriginal) => {
     getLogger: vi.fn(() => mockLogger),
     correlationMiddleware: vi.fn((_req: Request, _res: Response, next: NextFunction) => next()),
     getCorrelationId: vi.fn((_req: Request) => 'test-correlation-id'),
-    errorHandler: vi.fn(() => (error: Error & { status?: number }, _req: Request, res: Response, _next: NextFunction) => {
-      const status = error.status || 500;
-      res.status(status).json({ error: error.message });
-    }),
+    errorHandler: vi.fn(
+      () => (error: Error & { status?: number }, _req: Request, res: Response, _next: NextFunction) => {
+        const status = error.status || 500;
+        res.status(status).json({ error: error.message });
+      }
+    ),
   };
 });
 

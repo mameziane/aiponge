@@ -444,9 +444,7 @@ function createStorageRoutes(
       });
 
       const deleteResults = await Promise.allSettled(
-        files.files.map(file =>
-          storageService.deleteFile({ fileId: file.id, userId })
-        )
+        files.files.map(file => storageService.deleteFile({ fileId: file.id, userId }))
       );
       const deletedCount = deleteResults.filter(r => r.status === 'fulfilled').length;
       for (const result of deleteResults) {
@@ -497,9 +495,7 @@ function createStorageRoutes(
           validPaths.push(resolvedPath);
         }
 
-        const assetResults = await Promise.allSettled(
-          validPaths.map(resolvedPath => fs.unlink(resolvedPath))
-        );
+        const assetResults = await Promise.allSettled(validPaths.map(resolvedPath => fs.unlink(resolvedPath)));
         for (const result of assetResults) {
           if (result.status === 'fulfilled') {
             additionalDeletedCount++;

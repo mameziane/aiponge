@@ -425,10 +425,7 @@ describe('CreatorMemberRepository', () => {
         memberId: TEST_MEMBER_ID,
       });
 
-      mockDb.select
-        .mockReturnValueOnce(
-          createSelectFieldsChainWhereLimit(librarians)
-        );
+      mockDb.select.mockReturnValueOnce(createSelectFieldsChainWhereLimit(librarians));
 
       const insertChain = createInsertChain([mockRel]);
       mockDb.insert.mockReturnValue(insertChain);

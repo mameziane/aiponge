@@ -5,9 +5,7 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     testTimeout: 30000,
-    projects: [
-      'packages/services/*/vitest.config.ts',
-    ],
+    projects: ['packages/services/*/vitest.config.ts'],
     coverage: {
       provider: 'v8',
       reporter: ['text-summary'],
@@ -19,9 +17,7 @@ export default defineConfig({
         functions: 45,
         lines: 50,
       },
-      include: [
-        'packages/services/*/src/**/*.ts',
-      ],
+      include: ['packages/services/*/src/**/*.ts'],
       exclude: [
         '**/*.test.ts',
         '**/*.spec.ts',

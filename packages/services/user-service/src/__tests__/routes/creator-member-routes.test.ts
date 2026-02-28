@@ -176,9 +176,7 @@ describe('Creator-Member API Routes', () => {
     it('should return empty array when user follows no creators', async () => {
       mockRepo.getFollowedCreators.mockResolvedValue([]);
 
-      const res = await request(app)
-        .get('/api/creator-members/following')
-        .set('x-user-id', TEST_MEMBER_ID);
+      const res = await request(app).get('/api/creator-members/following').set('x-user-id', TEST_MEMBER_ID);
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -193,9 +191,7 @@ describe('Creator-Member API Routes', () => {
       ];
       mockRepo.getFollowedCreators.mockResolvedValue(relationships);
 
-      const res = await request(app)
-        .get('/api/creator-members/following')
-        .set('x-user-id', TEST_MEMBER_ID);
+      const res = await request(app).get('/api/creator-members/following').set('x-user-id', TEST_MEMBER_ID);
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -213,9 +209,7 @@ describe('Creator-Member API Routes', () => {
       });
       mockRepo.getFollowedCreators.mockResolvedValue([selfRelationship]);
 
-      const res = await request(app)
-        .get('/api/creator-members/following')
-        .set('x-user-id', TEST_MEMBER_ID);
+      const res = await request(app).get('/api/creator-members/following').set('x-user-id', TEST_MEMBER_ID);
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -234,9 +228,7 @@ describe('Creator-Member API Routes', () => {
     it('should return empty array when no members follow creator', async () => {
       mockRepo.getMembers.mockResolvedValue([]);
 
-      const res = await request(app)
-        .get('/api/creator-members/members')
-        .set('x-user-id', TEST_CREATOR_1_ID);
+      const res = await request(app).get('/api/creator-members/members').set('x-user-id', TEST_CREATOR_1_ID);
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -251,9 +243,7 @@ describe('Creator-Member API Routes', () => {
       ];
       mockRepo.getMembers.mockResolvedValue(relationships);
 
-      const res = await request(app)
-        .get('/api/creator-members/members')
-        .set('x-user-id', TEST_CREATOR_1_ID);
+      const res = await request(app).get('/api/creator-members/members').set('x-user-id', TEST_CREATOR_1_ID);
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);

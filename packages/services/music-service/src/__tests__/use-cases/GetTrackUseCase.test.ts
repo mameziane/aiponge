@@ -1,7 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const mockLogger = vi.hoisted(() => ({
-  info: vi.fn(), debug: vi.fn(), warn: vi.fn(), error: vi.fn(), child: vi.fn(),
+  info: vi.fn(),
+  debug: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  child: vi.fn(),
 }));
 vi.mock('@aiponge/platform-core', () => ({
   createLogger: () => mockLogger,
@@ -20,7 +24,11 @@ vi.mock('@aiponge/platform-core', () => ({
   listServices: vi.fn(),
 }));
 
-import { GetTrackUseCase, type ITrackRepository, type TrackDetails } from '../../application/use-cases/streaming/GetTrackUseCase';
+import {
+  GetTrackUseCase,
+  type ITrackRepository,
+  type TrackDetails,
+} from '../../application/use-cases/streaming/GetTrackUseCase';
 
 describe('GetTrackUseCase', () => {
   let useCase: GetTrackUseCase;

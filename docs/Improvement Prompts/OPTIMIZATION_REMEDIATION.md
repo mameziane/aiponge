@@ -2,13 +2,13 @@
 
 ## Status Summary
 
-| # | Optimization | Status | Detail |
-|---|-------------|--------|--------|
-| 1 | WellnessScore `Promise.allSettled()` | DONE | Correctly implemented. 5 calls parallelized, critical/non-critical separation, graceful degradation with warn logs. |
-| 2 | TrackGenerationService sync I/O removal | DONE | `fs.appendFileSync`, `logToFile()`, `LOG_FILE`, and `import * as fs` all removed. Zero references remain. |
-| 3 | LibraryRepository subquery fix | DONE | `entryCountSq` now uses direct `lib_entries.book_id = lib_books.id` instead of nested `IN (SELECT ...)` through `lib_chapters`. Comment added explaining why. |
-| 4 | InsightReports parallelization | DONE | Both `gatherReportData()` (4 repo calls via `Promise.all`) and `execute()` (4 independent generation steps via `Promise.all`) correctly parallelized. |
-| 5 | Circuit breaker wrapping | 15% DONE | Utility created, export chain correct, but only 4 out of 14 client files actually wrap their methods. Of those 4, most methods within are still unwrapped. See detailed breakdown below. |
+| #   | Optimization                            | Status   | Detail                                                                                                                                                                                   |
+| --- | --------------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | WellnessScore `Promise.allSettled()`    | DONE     | Correctly implemented. 5 calls parallelized, critical/non-critical separation, graceful degradation with warn logs.                                                                      |
+| 2   | TrackGenerationService sync I/O removal | DONE     | `fs.appendFileSync`, `logToFile()`, `LOG_FILE`, and `import * as fs` all removed. Zero references remain.                                                                                |
+| 3   | LibraryRepository subquery fix          | DONE     | `entryCountSq` now uses direct `lib_entries.book_id = lib_books.id` instead of nested `IN (SELECT ...)` through `lib_chapters`. Comment added explaining why.                            |
+| 4   | InsightReports parallelization          | DONE     | Both `gatherReportData()` (4 repo calls via `Promise.all`) and `execute()` (4 independent generation steps via `Promise.all`) correctly parallelized.                                    |
+| 5   | Circuit breaker wrapping                | 15% DONE | Utility created, export chain correct, but only 4 out of 14 client files actually wrap their methods. Of those 4, most methods within are still unwrapped. See detailed breakdown below. |
 
 **Optimizations 1-4 are complete and correct. No remediation needed.**
 
@@ -55,21 +55,25 @@ async someMethod(params: SomeType): Promise<ResultType> {
 ```
 
 Import to add at the top of each file that does not already have it:
+
 ```typescript
 import { withServiceResilience } from '@aiponge/platform-core';
 ```
 
 Preset rules:
+
 - `'ai-provider'` — for calls to ai-config-service that invoke AI providers (generation, invocation, selection), and calls to ai-content-service (content/image generation)
 - `'internal-service'` — for calls to user-service, storage-service, system-service, ai-analytics-service, and non-AI calls to ai-config-service (templates, config reads, management)
 
 Do NOT wrap:
+
 - Health check methods (`isHealthy()`, `healthCheck()`, `ping()`) — circuit breakers use these to probe recovery
 - Event bus fire-and-forget methods (`recordEvent()`, `recordEvents()`) — these don't use HTTP
 - Stub methods that return hardcoded data without making HTTP calls
 - `MusicApiLyricsTimelineClient` — external API with its own retry/cache logic already
 
 For analytics/non-critical methods, add a silent catch:
+
 ```typescript
 async recordMetrics(data: MetricData): Promise<void> {
   try {
@@ -93,6 +97,7 @@ Current state: Imports `withServiceResilience`, wraps 3 methods (`invokeProvider
 Bug: All 3 wrapped methods use default preset `'internal-service'`. This is WRONG — calls to ai-config-service for provider invocation and selection are AI operations.
 
 Fix:
+
 - Change preset on `invokeProvider()`, `selectProvider()`, `getProviderHealth()` from default to `'ai-provider'`
 - Wrap these additional methods with `withServiceResilience('ai-config-service', methodName, fn, 'ai-provider')`:
   - `getProviderHealthById()`
@@ -120,6 +125,7 @@ Fix:
 Current state: Imports `withServiceResilience`, wraps only `executeTemplate()`. 6 methods unwrapped.
 
 Fix: Wrap these with `withServiceResilience('ai-config-service', methodName, fn, 'internal-service')`:
+
 - `createTemplate()`
 - `getTemplate()`
 - `listTemplates()`
@@ -132,6 +138,7 @@ Fix: Wrap these with `withServiceResilience('ai-config-service', methodName, fn,
 Current state: Does NOT import `withServiceResilience`. 12 HTTP methods, zero wrapped.
 
 Fix: Add import, then wrap:
+
 - With `'ai-provider'` preset (AI generation operations):
   - `generateMusic()` — CRITICAL, 5-minute timeout operation
   - `generateImage()`
@@ -152,6 +159,7 @@ Fix: Add import, then wrap:
 Current state: Does NOT import `withServiceResilience`. 10 HTTP methods, zero wrapped.
 
 Fix: Add import, then wrap all with `withServiceResilience('storage-service', methodName, fn, 'internal-service')`:
+
 - `uploadAudio()`
 - `downloadFromExternalUrl()`
 - `getDownloadUrl()`
@@ -171,6 +179,7 @@ Fix: Add import, then wrap all with `withServiceResilience('storage-service', me
 Current state: Does NOT import `withServiceResilience`. 11 HTTP methods, zero wrapped.
 
 Fix: Add import, then wrap with `withServiceResilience('user-service', methodName, fn, 'internal-service')`:
+
 - `getCreditBalance()`
 - `validateCredits()`
 - `deductCredits()` — CRITICAL financial operation
@@ -190,6 +199,7 @@ Fix: Add import, then wrap with `withServiceResilience('user-service', methodNam
 Current state: Does NOT import `withServiceResilience`. 3 HTTP methods, zero wrapped.
 
 Fix: Add import, then wrap with `withServiceResilience('ai-content-service', methodName, fn, 'ai-provider')`:
+
 - `generateContent()`
 - `generateAlbumArtwork()`
 - `generatePlaylistArtwork()`
@@ -202,6 +212,7 @@ Fix: Add import, then wrap with `withServiceResilience('ai-content-service', met
 Current state: Does NOT import `withServiceResilience`. 7 HTTP methods, zero wrapped.
 
 Fix: Add import, then wrap:
+
 - With `'ai-provider'` preset:
   - `generateText()` — CRITICAL, main AI text generation path
   - `generateImage()`
@@ -219,6 +230,7 @@ Fix: Add import, then wrap:
 Current state: Does NOT import `withServiceResilience`. 6 HTTP methods, zero wrapped.
 
 Fix: Add import, then wrap all with `withServiceResilience('storage-service', methodName, fn, 'internal-service')`:
+
 - `uploadImage()`
 - `downloadFromExternalUrl()`
 - `getDownloadUrl()`
@@ -235,6 +247,7 @@ Current state: May import `withServiceResilience` from local config but does NOT
 Fix — wrap at the bottleneck level. Do BOTH of the following:
 
 First, wrap the generic `makeRequest()` helper since all read/write methods delegate to it:
+
 ```typescript
 private async makeRequest<T>(method: string, path: string, data?: unknown): Promise<T> {
   return withServiceResilience('ai-config-service', `template:${method}:${path}`, async () => {
@@ -244,6 +257,7 @@ private async makeRequest<T>(method: string, path: string, data?: unknown): Prom
 ```
 
 Second, wrap `executeArtworkTemplate()` separately since it calls `httpClient.post()` directly instead of going through `makeRequest()`:
+
 ```typescript
 async executeArtworkTemplate(request: ArtworkTemplateRequest): Promise<ArtworkTemplateResponse> {
   return withServiceResilience('ai-config-service', 'executeArtworkTemplate', async () => {
@@ -259,6 +273,7 @@ async executeArtworkTemplate(request: ArtworkTemplateRequest): Promise<ArtworkTe
 Current state: Does NOT import `withServiceResilience`. 4 HTTP methods, zero wrapped.
 
 Fix: Add import, then wrap with `withServiceResilience('ai-content-service', methodName, fn, 'ai-provider')`:
+
 - `analyzeContent()`
 - `generateInsights()`
 - `analyzeEntry()`
@@ -271,6 +286,7 @@ Fix: Add import, then wrap with `withServiceResilience('ai-content-service', met
 Current state: Does NOT import `withServiceResilience`. 2 HTTP methods, zero wrapped.
 
 Fix: Add import, then wrap with `withServiceResilience('ai-content-service', methodName, fn, 'ai-provider')`:
+
 - `generateBookCover()`
 - `generateImage()`
 - Do NOT wrap: `isHealthy()` (health probe)
@@ -282,6 +298,7 @@ Fix: Add import, then wrap with `withServiceResilience('ai-content-service', met
 Current state: Does NOT import `withServiceResilience`. 1 HTTP method, unwrapped.
 
 Fix: Add import, then wrap:
+
 - `getLlmModel()` — `withServiceResilience('ai-config-service', 'getLlmModel', fn, 'internal-service')`
 
 ---

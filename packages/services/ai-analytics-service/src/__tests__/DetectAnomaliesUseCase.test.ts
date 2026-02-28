@@ -19,7 +19,7 @@ vi.mock('@aiponge/platform-core', () => ({
       if (cause) this.cause = cause;
     }
   },
-  errorMessage: vi.fn((err: unknown) => err instanceof Error ? err.message : String(err)),
+  errorMessage: vi.fn((err: unknown) => (err instanceof Error ? err.message : String(err))),
   createServiceUrlsConfig: vi.fn(() => ({ getServiceUrl: vi.fn() })),
 }));
 
@@ -231,9 +231,7 @@ describe('DetectAnomaliesUseCase', () => {
         );
       }
 
-      const result = await useCase.detectRealTime(
-        createMetricEntry({ value: 100, timestamp: new Date() })
-      );
+      const result = await useCase.detectRealTime(createMetricEntry({ value: 100, timestamp: new Date() }));
 
       expect(result === null || result !== undefined).toBe(true);
     });
@@ -245,9 +243,7 @@ describe('DetectAnomaliesUseCase', () => {
         );
       }
 
-      const result = await useCase.detectRealTime(
-        createMetricEntry({ value: 10000, timestamp: new Date() })
-      );
+      const result = await useCase.detectRealTime(createMetricEntry({ value: 10000, timestamp: new Date() }));
 
       if (result) {
         expect(result.metricName).toBe('response_time');
@@ -266,9 +262,7 @@ describe('DetectAnomaliesUseCase', () => {
         );
       }
 
-      const result = await useCase.detectRealTime(
-        createMetricEntry({ value: 10000, timestamp: new Date() })
-      );
+      const result = await useCase.detectRealTime(createMetricEntry({ value: 10000, timestamp: new Date() }));
 
       expect(result === null || result !== undefined).toBe(true);
     });
@@ -284,10 +278,7 @@ describe('DetectAnomaliesUseCase', () => {
         );
       }
 
-      expect(mockLogger.info).toHaveBeenCalledWith(
-        expect.stringContaining('LRU eviction'),
-        expect.any(Object)
-      );
+      expect(mockLogger.info).toHaveBeenCalledWith(expect.stringContaining('LRU eviction'), expect.any(Object));
     });
   });
 
@@ -334,7 +325,14 @@ describe('DetectAnomaliesUseCase', () => {
       const result = await useCase.configureDetection({
         metricName: 'error_rate',
         rules: [
-          { ruleId: 'r1', ruleName: 'Error Spike', algorithm: 'threshold', parameters: {}, severity: 'critical', enabled: true },
+          {
+            ruleId: 'r1',
+            ruleName: 'Error Spike',
+            algorithm: 'threshold',
+            parameters: {},
+            severity: 'critical',
+            enabled: true,
+          },
         ],
         alerting: {
           enabled: true,

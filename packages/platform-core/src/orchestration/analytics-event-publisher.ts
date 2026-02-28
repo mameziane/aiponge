@@ -139,7 +139,8 @@ export class AnalyticsEventPublisher {
   publishDirect(eventType: string, data: Record<string, unknown>): void {
     const standardEvent: StandardEvent = {
       eventId: `ana_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      correlationId: (data['correlationId'] as string) || `direct_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      correlationId:
+        (data['correlationId'] as string) || `direct_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       type: eventType,
       timestamp: new Date().toISOString(),
       version: '1.0',

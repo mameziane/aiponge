@@ -39,9 +39,7 @@ function extractUniqueKeywords(entries: EntryData[], keywords: string[]): string
 }
 
 export function extractEmotionalWords(entries: EntryData[]): Record<string, number> {
-  const emotionalWords = [
-    'happy', 'sad', 'angry', 'excited', 'anxious', 'calm', 'frustrated', 'grateful', 'peaceful',
-  ];
+  const emotionalWords = ['happy', 'sad', 'angry', 'excited', 'anxious', 'calm', 'frustrated', 'grateful', 'peaceful'];
   const wordCounts: Record<string, number> = {};
 
   entries.forEach(entry => {
@@ -258,7 +256,13 @@ export function generateBehavioralRecommendations(
 
 export function analyzeSocialConnections(entries: EntryData[]): SocialConnectionMetrics {
   const socialMentions = countKeywordMatches(entries, [
-    'friend', 'family', 'colleague', 'partner', 'relationship', 'social', 'connect',
+    'friend',
+    'family',
+    'colleague',
+    'partner',
+    'relationship',
+    'social',
+    'connect',
   ]);
 
   const score = Math.min(1, socialMentions.length / Math.max(entries.length * 0.3, 1));
@@ -325,7 +329,14 @@ export function generateSocialRecommendations(
 }
 
 export function findEnergyIndicators(entries: EntryData[]): EnergyIndicators {
-  const energyMentions = countKeywordMatches(entries, ['tired', 'exhausted', 'energetic', 'fatigue', 'refreshed', 'drained']);
+  const energyMentions = countKeywordMatches(entries, [
+    'tired',
+    'exhausted',
+    'energetic',
+    'fatigue',
+    'refreshed',
+    'drained',
+  ]);
   const averageLevel = 0.6;
 
   return { averageLevel, count: energyMentions.length };
@@ -359,7 +370,11 @@ export function calculatePhysicalTrend(_entries: EntryData[]): 'improving' | 'st
   return 'stable';
 }
 
-export function generatePhysicalRecommendations(score: number, energy: EnergyIndicators, _sleep: SleepIndicators): string[] {
+export function generatePhysicalRecommendations(
+  score: number,
+  energy: EnergyIndicators,
+  _sleep: SleepIndicators
+): string[] {
   const recommendations = [];
 
   if (score < 60) {
@@ -388,7 +403,13 @@ export function findPurposeIndicators(entries: EntryData[]): PurposeIndicators {
 }
 
 export function analyzeMeaningfulness(entries: EntryData[]): number {
-  const meaningfulEntries = countKeywordMatches(entries, ['meaningful', 'significant', 'important', 'valuable', 'profound']);
+  const meaningfulEntries = countKeywordMatches(entries, [
+    'meaningful',
+    'significant',
+    'important',
+    'valuable',
+    'profound',
+  ]);
   return Math.min(1, meaningfulEntries.length / Math.max(entries.length * 0.2, 1));
 }
 
@@ -410,7 +431,11 @@ export function calculateSpiritualTrend(_entries: EntryData[]): 'improving' | 's
   return 'stable';
 }
 
-export function generateSpiritualRecommendations(score: number, purpose: PurposeIndicators, gratitude: string[]): string[] {
+export function generateSpiritualRecommendations(
+  score: number,
+  purpose: PurposeIndicators,
+  gratitude: string[]
+): string[] {
   const recommendations = [];
 
   if (score < 50) {

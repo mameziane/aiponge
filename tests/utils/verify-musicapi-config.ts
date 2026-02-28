@@ -1,11 +1,11 @@
 /**
  * Verification Script: MusicAPI.ai Provider Configuration
- * 
+ *
  * This script ensures the MusicAPI.ai provider is properly configured to:
  * 1. Accept user-generated lyrics via the prompt parameter
  * 2. Use custom_mode=true for lyric-based generation
  * 3. Use free health checks to avoid wasting API credits
- * 
+ *
  * Run: npx tsx scripts/verify-musicapi-config.ts
  */
 
@@ -69,12 +69,7 @@ async function verifyMusicApiConfig() {
     const providers = await db
       .select()
       .from(providerConfigurations)
-      .where(
-        and(
-          eq(providerConfigurations.providerName, 'musicapi'),
-          eq(providerConfigurations.isActive, true)
-        )
-      );
+      .where(and(eq(providerConfigurations.providerName, 'musicapi'), eq(providerConfigurations.isActive, true)));
 
     if (providers.length === 0) {
       console.error('❌ MusicAPI.ai provider not found in database');
@@ -89,9 +84,7 @@ async function verifyMusicApiConfig() {
     // Parse configuration
     let config: any;
     try {
-      config = typeof provider.configuration === 'string' 
-        ? JSON.parse(provider.configuration) 
-        : provider.configuration;
+      config = typeof provider.configuration === 'string' ? JSON.parse(provider.configuration) : provider.configuration;
     } catch (error) {
       console.error('❌ Failed to parse provider configuration JSON');
       return false;
@@ -99,7 +92,7 @@ async function verifyMusicApiConfig() {
 
     // Verify critical fields
     const issues: string[] = [];
-    
+
     // 1. Ensure NO task_type field (doesn't exist in MusicAPI.ai API)
     if (config.requestTemplate?.task_type) {
       issues.push('❌ Invalid field task_type found - remove it (not part of MusicAPI.ai API)');
@@ -154,7 +147,7 @@ async function verifyMusicApiConfig() {
       issues.push('❌ Missing healthEndpoint configuration');
     } else {
       console.log(`✅ healthEndpoint.url: "${config.healthEndpoint.url}"`);
-      
+
       if (!config.healthEndpoint.isFree) {
         issues.push('🚨 CRITICAL: healthEndpoint.isFree is not true - HEALTH CHECKS WILL WASTE API CREDITS!');
       } else {
@@ -206,7 +199,6 @@ async function verifyMusicApiConfig() {
       console.log('   npx tsx scripts/update-musicapi-config.ts');
       return false;
     }
-
   } catch (error) {
     console.error('❌ Error verifying configuration:', error);
     return false;

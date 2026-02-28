@@ -1,6 +1,6 @@
 /**
  * Lyrics API Contract Tests
- * 
+ *
  * Validates lyrics API contracts including synced lyrics for karaoke display.
  */
 
@@ -106,9 +106,7 @@ describe('Lyrics API Contracts', () => {
       const lyrics = {
         id: 'lyrics-123',
         content: 'Hello world',
-        synced_lines: [
-          { text: 'Hello world', startTime: 0, endTime: 2 },
-        ],
+        synced_lines: [{ text: 'Hello world', startTime: 0, endTime: 2 }],
       };
 
       const result = LyricsSchema.safeParse(lyrics);
@@ -261,9 +259,7 @@ describe('Lyrics API Contracts', () => {
         const lyrics: Lyrics = {
           id: 'lyrics-123',
           content: 'Hello',
-          syncedLines: [
-            { text: 'Hello', startTime: 0, endTime: 1 },
-          ],
+          syncedLines: [{ text: 'Hello', startTime: 0, endTime: 1 }],
         };
 
         const lines = extractSyncedLines(lyrics);
@@ -275,9 +271,7 @@ describe('Lyrics API Contracts', () => {
         const lyrics: Lyrics = {
           id: 'lyrics-123',
           content: 'Hello',
-          synced_lines: [
-            { text: 'Hello', startTime: 0, endTime: 1 },
-          ],
+          synced_lines: [{ text: 'Hello', startTime: 0, endTime: 1 }],
         };
 
         const lines = extractSyncedLines(lyrics);
@@ -300,9 +294,7 @@ describe('Lyrics API Contracts', () => {
         const lyrics: Lyrics = {
           id: 'lyrics-123',
           content: 'Hello',
-          syncedLines: [
-            { text: 'Hello', startTime: 0, endTime: 1 },
-          ],
+          syncedLines: [{ text: 'Hello', startTime: 0, endTime: 1 }],
         };
 
         expect(hasSyncedLyrics(lyrics)).toBe(true);
@@ -312,9 +304,7 @@ describe('Lyrics API Contracts', () => {
         const lyrics: Lyrics = {
           id: 'lyrics-123',
           content: 'Hello',
-          syncedLines: [
-            { text: 'Hello', startMs: 0, endMs: 1000 },
-          ],
+          syncedLines: [{ text: 'Hello', startMs: 0, endMs: 1000 }],
         };
 
         expect(hasSyncedLyrics(lyrics)).toBe(true);
@@ -324,9 +314,7 @@ describe('Lyrics API Contracts', () => {
         const lyrics: Lyrics = {
           id: 'lyrics-123',
           content: 'Hello',
-          syncedLines: [
-            { text: 'Hello' },
-          ],
+          syncedLines: [{ text: 'Hello' }],
         };
 
         expect(hasSyncedLyrics(lyrics)).toBe(false);

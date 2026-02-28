@@ -12,7 +12,11 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 // Direct source import to avoid build dependency during postinstall
-import { SERVICES, type ServiceConfig, type ResourceRequirement } from '../../../../packages/platform-core/src/config/services-definition';
+import {
+  SERVICES,
+  type ServiceConfig,
+  type ResourceRequirement,
+} from '../../../../packages/platform-core/src/config/services-definition';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

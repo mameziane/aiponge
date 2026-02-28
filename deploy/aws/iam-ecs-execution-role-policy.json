@@ -15,40 +15,25 @@
     {
       "Sid": "CloudWatchLogsAccess",
       "Effect": "Allow",
-      "Action": [
-        "logs:CreateLogStream",
-        "logs:PutLogEvents",
-        "logs:CreateLogGroup"
-      ],
+      "Action": ["logs:CreateLogStream", "logs:PutLogEvents", "logs:CreateLogGroup"],
       "Resource": "arn:aws:logs:*:*:log-group:/ecs/aiponge-*"
     },
     {
       "Sid": "SecretsManagerReadAccess",
       "Effect": "Allow",
-      "Action": [
-        "secretsmanager:GetSecretValue"
-      ],
-      "Resource": [
-        "arn:aws:secretsmanager:*:*:secret:aiponge/*"
-      ]
+      "Action": ["secretsmanager:GetSecretValue"],
+      "Resource": ["arn:aws:secretsmanager:*:*:secret:aiponge/*"]
     },
     {
       "Sid": "SSMParameterReadAccess",
       "Effect": "Allow",
-      "Action": [
-        "ssm:GetParameters",
-        "ssm:GetParameter"
-      ],
-      "Resource": [
-        "arn:aws:ssm:*:*:parameter/aiponge/*"
-      ]
+      "Action": ["ssm:GetParameters", "ssm:GetParameter"],
+      "Resource": ["arn:aws:ssm:*:*:parameter/aiponge/*"]
     },
     {
       "Sid": "KMSDecryptForSecrets",
       "Effect": "Allow",
-      "Action": [
-        "kms:Decrypt"
-      ],
+      "Action": ["kms:Decrypt"],
       "Resource": "*",
       "Condition": {
         "StringLike": {

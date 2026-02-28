@@ -1,7 +1,9 @@
 import type { ProviderAnalytics } from '../../domains/entities/ProviderAnalytics.js';
 import type { InternalMetricEntry } from './insight-report-types';
 
-export function processMetricsData(metrics: InternalMetricEntry[]): Record<string, Record<string, InternalMetricEntry[]>> {
+export function processMetricsData(
+  metrics: InternalMetricEntry[]
+): Record<string, Record<string, InternalMetricEntry[]>> {
   return metrics.reduce((acc: Record<string, Record<string, InternalMetricEntry[]>>, metric) => {
     if (!acc[metric.serviceName]) {
       acc[metric.serviceName] = {};
@@ -33,9 +35,7 @@ export function aggregateResponseTimeByHour(providers: ProviderAnalytics[], star
     const hourStart = time;
     const hourEnd = time + hourMs;
 
-    const hourProviders = providers.filter(
-      p => p.timestamp.getTime() >= hourStart && p.timestamp.getTime() < hourEnd
-    );
+    const hourProviders = providers.filter(p => p.timestamp.getTime() >= hourStart && p.timestamp.getTime() < hourEnd);
 
     const avgResponseTime =
       hourProviders.length > 0

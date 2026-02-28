@@ -233,7 +233,9 @@ export class GetProviderAnalyticsUseCase {
 
       const currentHealth = await this.healthAnalyzer.getProviderHealthSummary(request.providerId, timeRange);
 
-      let healthHistory: Array<{ timestamp: Date; providerId: string; status: string; responseTime?: number; errorRate: number }> | undefined;
+      let healthHistory:
+        | Array<{ timestamp: Date; providerId: string; status: string; responseTime?: number; errorRate: number }>
+        | undefined;
       if (request.includeHistorical) {
         const healthMetrics = await this.repository.getProviderHealth(request.providerId);
         healthHistory = healthMetrics
@@ -276,7 +278,8 @@ export class GetProviderAnalyticsUseCase {
       });
 
       if (request.includeOptimizationRecommendations) {
-        costAnalysis.optimizationRecommendations = await this.costAnalyzer.generateCostOptimizationRecommendations(costAnalysis);
+        costAnalysis.optimizationRecommendations =
+          await this.costAnalyzer.generateCostOptimizationRecommendations(costAnalysis);
       }
 
       if (request.includeForecast) {

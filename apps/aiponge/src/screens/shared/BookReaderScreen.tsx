@@ -387,8 +387,6 @@ export function BookReaderScreen() {
             title={book.title}
             subtitle={book.subtitle}
             author={book.author}
-            tradition={book.tradition}
-            era={book.era}
             coverIllustrationUrl={book.coverIllustrationUrl}
             category={book.category}
           />

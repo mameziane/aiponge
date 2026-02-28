@@ -36,8 +36,8 @@ vi.mock('@aiponge/platform-core', () => ({
   waitForService: vi.fn(),
   listServices: () => [],
   createServiceUrlsConfig: vi.fn(() => ({})),
-  errorMessage: vi.fn((err: unknown) => err instanceof Error ? err.message : String(err)),
-  errorStack: vi.fn((err: unknown) => err instanceof Error ? err.stack : ''),
+  errorMessage: vi.fn((err: unknown) => (err instanceof Error ? err.message : String(err))),
+  errorStack: vi.fn((err: unknown) => (err instanceof Error ? err.stack : '')),
   withResilience: vi.fn((fn: (...args: unknown[]) => unknown) => fn),
   createIntervalScheduler: vi.fn(() => ({ start: vi.fn(), stop: vi.fn() })),
 }));
@@ -51,11 +51,21 @@ vi.mock('@aws-sdk/client-s3', () => {
   }
   return {
     S3Client: MockS3Client,
-    PutObjectCommand: class { constructor(public params: unknown) {} },
-    GetObjectCommand: class { constructor(public params: unknown) {} },
-    DeleteObjectCommand: class { constructor(public params: unknown) {} },
-    HeadObjectCommand: class { constructor(public params: unknown) {} },
-    ListObjectsV2Command: class { constructor(public params: unknown) {} },
+    PutObjectCommand: class {
+      constructor(public params: unknown) {}
+    },
+    GetObjectCommand: class {
+      constructor(public params: unknown) {}
+    },
+    DeleteObjectCommand: class {
+      constructor(public params: unknown) {}
+    },
+    HeadObjectCommand: class {
+      constructor(public params: unknown) {}
+    },
+    ListObjectsV2Command: class {
+      constructor(public params: unknown) {}
+    },
   };
 });
 
@@ -90,9 +100,7 @@ describe('S3StorageProvider', () => {
       const result = await provider.upload(file, path, options);
 
       expect(result.success).toBe(true);
-      expect(result.publicUrl).toBe(
-        `https://test-bucket.s3.us-east-1.amazonaws.com/${path}`
-      );
+      expect(result.publicUrl).toBe(`https://test-bucket.s3.us-east-1.amazonaws.com/${path}`);
       expect(result.location).toBeDefined();
     });
 
@@ -217,9 +225,7 @@ describe('S3StorageProvider', () => {
 
       const result = await provider.generateSignedUrl('test-file.txt');
 
-      expect(result).toBe(
-        'https://test-bucket.s3.us-east-1.amazonaws.com/test-file.txt'
-      );
+      expect(result).toBe('https://test-bucket.s3.us-east-1.amazonaws.com/test-file.txt');
     });
   });
 

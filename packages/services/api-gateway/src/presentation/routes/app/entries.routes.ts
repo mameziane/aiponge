@@ -156,7 +156,7 @@ router.get(
     });
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[ENTRIES LIST]') as ServiceErrorResponse;
+      const errorData = (await parseErrorBody(response, '[ENTRIES LIST]')) as ServiceErrorResponse;
       res.status(response.status).json({
         success: false,
         message: errorData.message || 'Failed to fetch entries',
@@ -172,12 +172,12 @@ router.get(
     const hasMore = data.data?.pagination?.hasMore ?? false;
 
     sendSuccess(res, {
-        entries,
-        total,
-        limit,
-        offset,
-        hasMore,
-      });
+      entries,
+      total,
+      limit,
+      offset,
+      hasMore,
+    });
   })
 );
 
@@ -202,7 +202,7 @@ router.get(
     });
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[ENTRIES GET]') as ServiceErrorResponse;
+      const errorData = (await parseErrorBody(response, '[ENTRIES GET]')) as ServiceErrorResponse;
       res.status(response.status).json({
         success: false,
         message: errorData.message || 'Entry not found',
@@ -254,7 +254,7 @@ router.post(
     });
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[ENTRIES CREATE]') as ServiceErrorResponse;
+      const errorData = (await parseErrorBody(response, '[ENTRIES CREATE]')) as ServiceErrorResponse;
       const errorDetails = extractErrorDetails(errorData, 'Failed to create entry');
       res.status(response.status).json({
         success: false,
@@ -324,7 +324,7 @@ router.patch(
     });
 
     if (!updateResponse.ok) {
-      const errorData = await parseErrorBody(updateResponse, '[ENTRIES UPDATE]') as ServiceErrorResponse;
+      const errorData = (await parseErrorBody(updateResponse, '[ENTRIES UPDATE]')) as ServiceErrorResponse;
       res.status(updateResponse.status).json({
         success: false,
         message: errorData.message || 'Failed to update entry',
@@ -383,7 +383,7 @@ router.delete(
     });
 
     if (!deleteResponse.ok) {
-      const errorData = await parseErrorBody(deleteResponse, '[ENTRIES DELETE]') as ServiceErrorResponse;
+      const errorData = (await parseErrorBody(deleteResponse, '[ENTRIES DELETE]')) as ServiceErrorResponse;
       res.status(deleteResponse.status).json({
         success: false,
         message: errorData.message || 'Failed to delete entry',
@@ -394,9 +394,9 @@ router.delete(
     }
 
     sendSuccess(res, {
-        id,
-        message: 'Entry deleted successfully',
-      });
+      id,
+      message: 'Entry deleted successfully',
+    });
   })
 );
 
@@ -486,7 +486,9 @@ router.post(
     });
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[ENTRIES BATCH ANALYZE]') as ServiceErrorResponse & { timestamp?: string };
+      const errorData = (await parseErrorBody(response, '[ENTRIES BATCH ANALYZE]')) as ServiceErrorResponse & {
+        timestamp?: string;
+      };
       const errorMessage = extractErrorMessage(errorData, 'Failed to analyze entries');
       const errorObj = typeof errorData.error === 'object' ? errorData.error : null;
       res.status(response.status).json({
@@ -550,7 +552,7 @@ router.get(
     });
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[ENTRY IMAGES GET]') as ServiceErrorResponse;
+      const errorData = (await parseErrorBody(response, '[ENTRY IMAGES GET]')) as ServiceErrorResponse;
       res.status(response.status).json({
         success: false,
         message: extractErrorMessage(errorData, 'Failed to get entry images'),
@@ -590,7 +592,7 @@ router.post(
     });
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[ENTRY IMAGES ADD]') as ServiceErrorResponse;
+      const errorData = (await parseErrorBody(response, '[ENTRY IMAGES ADD]')) as ServiceErrorResponse;
       res.status(response.status).json({
         success: false,
         message: extractErrorMessage(errorData, 'Failed to add entry image'),
@@ -626,7 +628,7 @@ router.delete(
     });
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[ENTRY IMAGES DELETE]') as ServiceErrorResponse;
+      const errorData = (await parseErrorBody(response, '[ENTRY IMAGES DELETE]')) as ServiceErrorResponse;
       res.status(response.status).json({
         success: false,
         message: extractErrorMessage(errorData, 'Failed to remove entry image'),
@@ -666,7 +668,7 @@ router.patch(
     });
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[ENTRY IMAGES REORDER]') as ServiceErrorResponse;
+      const errorData = (await parseErrorBody(response, '[ENTRY IMAGES REORDER]')) as ServiceErrorResponse;
       res.status(response.status).json({
         success: false,
         message: extractErrorMessage(errorData, 'Failed to reorder entry images'),

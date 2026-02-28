@@ -114,10 +114,9 @@ describe('FrameworkSelectionService', () => {
     });
 
     it('should limit supporting frameworks to maxFrameworks - 1', async () => {
-      const result = await service.selectFrameworks(
-        'I feel anxious and overwhelmed, stuck in negative thoughts',
-        { maxFrameworks: 2 }
-      );
+      const result = await service.selectFrameworks('I feel anxious and overwhelmed, stuck in negative thoughts', {
+        maxFrameworks: 2,
+      });
 
       expect(result.supportingFrameworks.length).toBeLessThanOrEqual(1);
     });
@@ -133,10 +132,9 @@ describe('FrameworkSelectionService', () => {
     });
 
     it('should filter by preferred categories', async () => {
-      const result = await service.selectFrameworks(
-        'I feel anxious and overwhelmed with intense emotions',
-        { preferredCategories: ['mindfulness'] }
-      );
+      const result = await service.selectFrameworks('I feel anxious and overwhelmed with intense emotions', {
+        preferredCategories: ['mindfulness'],
+      });
 
       if (result.primaryFramework) {
         expect(result.primaryFramework.framework.category).toBe('mindfulness');

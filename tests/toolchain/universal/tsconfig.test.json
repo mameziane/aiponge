@@ -7,10 +7,5 @@
     "allowJs": true,
     "jsx": "react-jsx"
   },
-  "include": [
-    "**/*.test.ts",
-    "**/*.test.tsx",
-    "**/*.spec.ts", 
-    "**/*.spec.tsx"
-  ]
+  "include": ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx"]
 }

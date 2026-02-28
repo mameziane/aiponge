@@ -217,8 +217,6 @@
       "subtitle": "Subtítulo",
       "author": "Autor Original",
       "category": "Categoría",
-      "era": "Era",
-      "tradition": "Tradición",
       "visibility": "Visibilidad",
       "createFailed": "Error al crear el libro",
       "updateFailed": "Error al actualizar el libro",

@@ -18,7 +18,14 @@ import { LiquidGlassButton } from '../../ui/LiquidGlassButton';
 import { useSubscriptionData } from '@/contexts/SubscriptionContext';
 import { RichText } from '../../shared/RichText';
 
-import { ChapterAssignmentModal, MoveChapterModal, ChapterViewContent, type ChapterControlsRef, type BookContentTabProps, type ViewMode } from './book-content';
+import {
+  ChapterAssignmentModal,
+  MoveChapterModal,
+  ChapterViewContent,
+  type ChapterControlsRef,
+  type BookContentTabProps,
+  type ViewMode,
+} from './book-content';
 
 export type { ChapterControlsRef } from './book-content';
 

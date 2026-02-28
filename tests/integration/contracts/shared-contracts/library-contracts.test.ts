@@ -1,6 +1,6 @@
 /**
  * Library API Contract Tests
- * 
+ *
  * These tests validate that backend responses match the contract schemas.
  * This would have caught the frontend-backend mismatch where:
  * - Backend returns: { success: true, data: { books: [...], total: N } }
@@ -26,7 +26,6 @@ import {
 } from '@aiponge/shared-contracts';
 
 describe('Library API Contract Tests', () => {
-  
   describe('Schema Definitions', () => {
     it('should validate LibBookSchema with valid data', () => {
       const validBook = {
@@ -221,9 +220,7 @@ describe('Library API Contract Tests', () => {
         },
       };
 
-      const whatFrontendExpectedBefore = ServiceResponseSchema(
-        LibBookSchema.array()
-      );
+      const whatFrontendExpectedBefore = ServiceResponseSchema(LibBookSchema.array());
 
       const whatFrontendShouldExpectNow = ListBooksResponseSchema;
 

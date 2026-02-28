@@ -32,7 +32,7 @@ vi.mock('@aiponge/platform-core', () => ({
   waitForService: vi.fn(),
   listServices: vi.fn(),
   createServiceUrlsConfig: vi.fn(() => ({ getServiceUrl: vi.fn() })),
-  errorMessage: vi.fn((err: unknown) => err instanceof Error ? err.message : String(err)),
+  errorMessage: vi.fn((err: unknown) => (err instanceof Error ? err.message : String(err))),
   serializeError: vi.fn((err: unknown) => err),
 }));
 
@@ -182,9 +182,7 @@ describe('DrizzleMusicCatalogRepository', () => {
         fileUrl: 'https://example.com/track.mp3',
       } as unknown as Record<string, unknown>);
 
-      expect(mockDb.values).toHaveBeenCalledWith(
-        expect.objectContaining({ title: 'Test Song', userId: 'user-1' })
-      );
+      expect(mockDb.values).toHaveBeenCalledWith(expect.objectContaining({ title: 'Test Song', userId: 'user-1' }));
       expect(result).toEqual(mockTrack);
     });
 
@@ -197,9 +195,7 @@ describe('DrizzleMusicCatalogRepository', () => {
         userId: 'user-1',
       } as unknown as Record<string, unknown>);
 
-      expect(mockDb.values).toHaveBeenCalledWith(
-        expect.objectContaining({ id: 'custom-id' })
-      );
+      expect(mockDb.values).toHaveBeenCalledWith(expect.objectContaining({ id: 'custom-id' }));
     });
 
     it('should generate id when not provided', async () => {
@@ -275,9 +271,7 @@ describe('DrizzleMusicCatalogRepository', () => {
 
       await repository.updateTrackPlayCount('track-1');
 
-      expect(mockDb.set).toHaveBeenCalledWith(
-        expect.objectContaining({ updatedAt: expect.any(Date) })
-      );
+      expect(mockDb.set).toHaveBeenCalledWith(expect.objectContaining({ updatedAt: expect.any(Date) }));
     });
   });
 
@@ -287,9 +281,7 @@ describe('DrizzleMusicCatalogRepository', () => {
 
       await repository.deleteTrack('track-1');
 
-      expect(mockDb.set).toHaveBeenCalledWith(
-        expect.objectContaining({ deletedAt: expect.any(Date) })
-      );
+      expect(mockDb.set).toHaveBeenCalledWith(expect.objectContaining({ deletedAt: expect.any(Date) }));
     });
   });
 
@@ -309,9 +301,7 @@ describe('DrizzleMusicCatalogRepository', () => {
 
       await repository.updateTrackAlbumLink('track-1', 'album-1', 3);
 
-      expect(mockDb.set).toHaveBeenCalledWith(
-        expect.objectContaining({ albumId: 'album-1', trackNumber: 3 })
-      );
+      expect(mockDb.set).toHaveBeenCalledWith(expect.objectContaining({ albumId: 'album-1', trackNumber: 3 }));
     });
   });
 
@@ -324,9 +314,7 @@ describe('DrizzleMusicCatalogRepository', () => {
         userId: 'user-1',
       } as unknown as Record<string, unknown>);
 
-      expect(mockDb.values).toHaveBeenCalledWith(
-        expect.objectContaining({ title: 'Test Album', userId: 'user-1' })
-      );
+      expect(mockDb.values).toHaveBeenCalledWith(expect.objectContaining({ title: 'Test Album', userId: 'user-1' }));
       expect(result).toEqual(mockAlbum);
     });
   });
@@ -409,9 +397,7 @@ describe('DrizzleMusicCatalogRepository', () => {
 
       await repository.updateAlbumPlayCount('album-1');
 
-      expect(mockDb.set).toHaveBeenCalledWith(
-        expect.objectContaining({ updatedAt: expect.any(Date) })
-      );
+      expect(mockDb.set).toHaveBeenCalledWith(expect.objectContaining({ updatedAt: expect.any(Date) }));
     });
   });
 
@@ -461,7 +447,9 @@ describe('DrizzleMusicCatalogRepository', () => {
     });
 
     it('should indicate hasMore when results exceed limit', async () => {
-      const manyTracks = Array(51).fill(mockTrack).map((t, i) => ({ ...t, id: `track-${i}` }));
+      const manyTracks = Array(51)
+        .fill(mockTrack)
+        .map((t, i) => ({ ...t, id: `track-${i}` }));
       mockDb.limit.mockResolvedValue(manyTracks);
 
       const result = await repository.searchTracks('test', 50);

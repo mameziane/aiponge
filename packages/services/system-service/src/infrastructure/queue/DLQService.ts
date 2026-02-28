@@ -111,7 +111,14 @@ export class DLQService {
     }
   }
 
-  async retryItem(dlqId: string, queueManager: { getQueue(name: string): { add(name: string, data: unknown, opts?: Record<string, unknown>): Promise<unknown> } | undefined }): Promise<{ success: boolean; error?: string }> {
+  async retryItem(
+    dlqId: string,
+    queueManager: {
+      getQueue(
+        name: string
+      ): { add(name: string, data: unknown, opts?: Record<string, unknown>): Promise<unknown> } | undefined;
+    }
+  ): Promise<{ success: boolean; error?: string }> {
     try {
       const db = this.getDb();
       const sysDeadLetterQueue = this.getSchema();

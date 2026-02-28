@@ -24,7 +24,7 @@ const audioDeviceManager = {
   getCurrentDevice: noopAsyncNull,
   selectDevice: noopAsyncFalse,
   refreshDevices: noopAsyncArray,
-  addDeviceChangeListener: (_callback) => noop,
+  addDeviceChangeListener: _callback => noop,
 };
 
 const useAudioDevices = () => ({

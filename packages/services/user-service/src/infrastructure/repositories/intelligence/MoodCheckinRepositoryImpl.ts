@@ -29,11 +29,7 @@ export class MoodCheckinRepositoryPart {
 
   async updateMoodCheckin(id: string, data: Partial<MoodCheckin>): Promise<MoodCheckin> {
     const moodCheckinsTable = usrMoodCheckins;
-    const [checkin] = await this.db
-      .update(moodCheckinsTable)
-      .set(data)
-      .where(eq(moodCheckinsTable.id, id))
-      .returning();
+    const [checkin] = await this.db.update(moodCheckinsTable).set(data).where(eq(moodCheckinsTable.id, id)).returning();
     if (!checkin) throw ProfileError.notFound('MoodCheckin', id);
     return checkin;
   }

@@ -103,7 +103,13 @@ export function serializeError(error: unknown, url?: string, correlationId?: str
     return {
       name: error.name,
       message: error.message,
-      stack: (() => { try { return error.stack?.split('\n').slice(0, 5); } catch { return ['[error.stack threw]']; } })(),
+      stack: (() => {
+        try {
+          return error.stack?.split('\n').slice(0, 5);
+        } catch {
+          return ['[error.stack threw]'];
+        }
+      })(),
       // Extract custom properties if they exist
       code: extErr.code,
       statusCode: extErr.statusCode,

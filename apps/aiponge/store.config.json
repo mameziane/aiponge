@@ -27,6 +27,15 @@
     },
     "category": "HEALTH_AND_FITNESS",
     "contentRating": "everyone",
-    "tags": ["ai music", "mindfulness", "meditation", "wellness", "self-help", "mood tracker", "relaxation", "stress relief"]
+    "tags": [
+      "ai music",
+      "mindfulness",
+      "meditation",
+      "wellness",
+      "self-help",
+      "mood tracker",
+      "relaxation",
+      "stress relief"
+    ]
   }
 }

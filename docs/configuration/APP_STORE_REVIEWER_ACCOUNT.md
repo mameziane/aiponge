@@ -10,6 +10,7 @@ This document contains the test account credentials for Apple App Store and Goog
 ## Account Setup
 
 The test account is pre-configured with:
+
 - Personal tier subscription (sandbox/test mode)
 - Sample generated music tracks
 - Pre-populated book entries

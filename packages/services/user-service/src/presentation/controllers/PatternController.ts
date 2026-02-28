@@ -257,9 +257,10 @@ export class PatternController {
           throw new Error('Pattern not found');
         }
         const reactions = await repository.findPatternReactionsByPatternId(patternId, userId as string);
-        const evidenceEntries = pattern.evidenceEntryIds && pattern.evidenceEntryIds.length > 0
-          ? await repository.findEntriesByIds(pattern.evidenceEntryIds, userId as string)
-          : [];
+        const evidenceEntries =
+          pattern.evidenceEntryIds && pattern.evidenceEntryIds.length > 0
+            ? await repository.findEntriesByIds(pattern.evidenceEntryIds, userId as string)
+            : [];
         return {
           pattern,
           reactions,

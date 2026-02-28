@@ -94,14 +94,14 @@ describe('ReverseProxy', () => {
       const result = await proxy.forward(
         makeRequest({ method: 'GET', path: '/api/users' }),
         'http://localhost:3000',
-        'user-service',
+        'user-service'
       );
 
       expect(result.status).toBe(200);
       expect(result.body).toEqual({ id: 1, name: 'John' });
       expect(mockHttpClient.get).toHaveBeenCalledWith(
         'http://localhost:3000/api/users',
-        expect.objectContaining({ headers: expect.any(Object) }),
+        expect.objectContaining({ headers: expect.any(Object) })
       );
     });
 
@@ -112,14 +112,14 @@ describe('ReverseProxy', () => {
       const result = await proxy.forward(
         makeRequest({ method: 'POST', path: '/api/users', body }),
         'http://localhost:3000',
-        'user-service',
+        'user-service'
       );
 
       expect(result.status).toBe(200);
       expect(mockHttpClient.post).toHaveBeenCalledWith(
         'http://localhost:3000/api/users',
         body,
-        expect.objectContaining({ headers: expect.any(Object) }),
+        expect.objectContaining({ headers: expect.any(Object) })
       );
     });
 
@@ -130,14 +130,14 @@ describe('ReverseProxy', () => {
       const result = await proxy.forward(
         makeRequest({ method: 'PUT', path: '/api/users/1', body }),
         'http://localhost:3000',
-        'user-service',
+        'user-service'
       );
 
       expect(result.status).toBe(200);
       expect(mockHttpClient.put).toHaveBeenCalledWith(
         'http://localhost:3000/api/users/1',
         body,
-        expect.objectContaining({ headers: expect.any(Object) }),
+        expect.objectContaining({ headers: expect.any(Object) })
       );
     });
 
@@ -147,28 +147,24 @@ describe('ReverseProxy', () => {
       const result = await proxy.forward(
         makeRequest({ method: 'DELETE', path: '/api/users/1' }),
         'http://localhost:3000',
-        'user-service',
+        'user-service'
       );
 
       expect(result.status).toBe(200);
       expect(mockHttpClient.delete).toHaveBeenCalledWith(
         'http://localhost:3000/api/users/1',
-        expect.objectContaining({ headers: expect.any(Object) }),
+        expect.objectContaining({ headers: expect.any(Object) })
       );
     });
 
     it('should preserve request paths', async () => {
       mockHttpClient.get.mockResolvedValue({});
 
-      await proxy.forward(
-        makeRequest({ path: '/api/v2/users/123/profile' }),
-        'http://localhost:3000',
-        'user-service',
-      );
+      await proxy.forward(makeRequest({ path: '/api/v2/users/123/profile' }), 'http://localhost:3000', 'user-service');
 
       expect(mockHttpClient.get).toHaveBeenCalledWith(
         'http://localhost:3000/api/v2/users/123/profile',
-        expect.any(Object),
+        expect.any(Object)
       );
     });
 
@@ -181,7 +177,7 @@ describe('ReverseProxy', () => {
           query: { page: '1', limit: '10' },
         }),
         'http://localhost:3000',
-        'user-service',
+        'user-service'
       );
 
       const calledUrl = mockHttpClient.get.mock.calls[0][0] as string;
@@ -193,23 +189,17 @@ describe('ReverseProxy', () => {
       const result = await proxy.forward(
         makeRequest({ method: 'PATCH', path: '/api/users/1', body: { name: 'x' } }),
         'http://localhost:3000',
-        'user-service',
+        'user-service'
       );
 
       expect(result.status).toBe(503);
-      expect(result.body).toEqual(
-        expect.objectContaining({ error: 'Service unavailable' }),
-      );
+      expect(result.body).toEqual(expect.objectContaining({ error: 'Service unavailable' }));
     });
 
     it('should handle case-insensitive HTTP methods', async () => {
       mockHttpClient.get.mockResolvedValue({ ok: true });
 
-      const result = await proxy.forward(
-        makeRequest({ method: 'get' }),
-        'http://localhost:3000',
-        'user-service',
-      );
+      const result = await proxy.forward(makeRequest({ method: 'get' }), 'http://localhost:3000', 'user-service');
 
       expect(result.status).toBe(200);
       expect(mockHttpClient.get).toHaveBeenCalled();
@@ -223,7 +213,7 @@ describe('ReverseProxy', () => {
       await proxy.forward(
         makeRequest({ headers: { authorization: 'Bearer token123' } }),
         'http://localhost:3000',
-        'user-service',
+        'user-service'
       );
 
       const calledOptions = mockHttpClient.get.mock.calls[0][1];
@@ -236,7 +226,7 @@ describe('ReverseProxy', () => {
       await proxy.forward(
         makeRequest({ headers: { 'x-correlation-id': 'abc-123' } }),
         'http://localhost:3000',
-        'user-service',
+        'user-service'
       );
 
       const calledOptions = mockHttpClient.get.mock.calls[0][1];
@@ -253,7 +243,7 @@ describe('ReverseProxy', () => {
           body: { data: 'test' },
         }),
         'http://localhost:3000',
-        'user-service',
+        'user-service'
       );
 
       const calledOptions = mockHttpClient.post.mock.calls[0][2];
@@ -266,7 +256,7 @@ describe('ReverseProxy', () => {
       await proxy.forward(
         makeRequest({ headers: { host: 'gateway.example.com' } }),
         'http://localhost:3000',
-        'user-service',
+        'user-service'
       );
 
       const calledOptions = mockHttpClient.get.mock.calls[0][1];
@@ -279,7 +269,7 @@ describe('ReverseProxy', () => {
       await proxy.forward(
         makeRequest({ headers: { connection: 'keep-alive' } }),
         'http://localhost:3000',
-        'user-service',
+        'user-service'
       );
 
       const calledOptions = mockHttpClient.get.mock.calls[0][1];
@@ -292,7 +282,7 @@ describe('ReverseProxy', () => {
       await proxy.forward(
         makeRequest({ headers: { 'x-forwarded-for': '192.168.1.1' } }),
         'http://localhost:3000',
-        'user-service',
+        'user-service'
       );
 
       const calledOptions = mockHttpClient.get.mock.calls[0][1];
@@ -302,11 +292,7 @@ describe('ReverseProxy', () => {
     it('should add x-forwarded-proto header', async () => {
       mockHttpClient.get.mockResolvedValue({});
 
-      await proxy.forward(
-        makeRequest(),
-        'http://localhost:3000',
-        'user-service',
-      );
+      await proxy.forward(makeRequest(), 'http://localhost:3000', 'user-service');
 
       const calledOptions = mockHttpClient.get.mock.calls[0][1];
       expect(calledOptions.headers['x-forwarded-proto']).toBe('http');
@@ -315,11 +301,7 @@ describe('ReverseProxy', () => {
     it('should add x-forwarded-by header', async () => {
       mockHttpClient.get.mockResolvedValue({});
 
-      await proxy.forward(
-        makeRequest(),
-        'http://localhost:3000',
-        'user-service',
-      );
+      await proxy.forward(makeRequest(), 'http://localhost:3000', 'user-service');
 
       const calledOptions = mockHttpClient.get.mock.calls[0][1];
       expect(calledOptions.headers['x-forwarded-by']).toBe('api-gateway');
@@ -328,11 +310,7 @@ describe('ReverseProxy', () => {
     it('should set user-agent to gateway identifier', async () => {
       mockHttpClient.get.mockResolvedValue({});
 
-      await proxy.forward(
-        makeRequest(),
-        'http://localhost:3000',
-        'user-service',
-      );
+      await proxy.forward(makeRequest(), 'http://localhost:3000', 'user-service');
 
       const calledOptions = mockHttpClient.get.mock.calls[0][1];
       expect(calledOptions.headers['user-agent']).toBe('aiponge-Gateway/1.0');
@@ -344,7 +322,7 @@ describe('ReverseProxy', () => {
       await proxy.forward(
         makeRequest({ headers: { 'x-real-ip': '10.0.0.1' } }),
         'http://localhost:3000',
-        'user-service',
+        'user-service'
       );
 
       const calledOptions = mockHttpClient.get.mock.calls[0][1];
@@ -357,7 +335,7 @@ describe('ReverseProxy', () => {
       await proxy.forward(
         makeRequest({ headers: { 'cf-connecting-ip': '172.16.0.1' } }),
         'http://localhost:3000',
-        'user-service',
+        'user-service'
       );
 
       const calledOptions = mockHttpClient.get.mock.calls[0][1];
@@ -367,11 +345,7 @@ describe('ReverseProxy', () => {
     it('should use "unknown" when no IP headers are present', async () => {
       mockHttpClient.get.mockResolvedValue({});
 
-      await proxy.forward(
-        makeRequest({ headers: {} }),
-        'http://localhost:3000',
-        'user-service',
-      );
+      await proxy.forward(makeRequest({ headers: {} }), 'http://localhost:3000', 'user-service');
 
       const calledOptions = mockHttpClient.get.mock.calls[0][1];
       expect(calledOptions.headers['x-forwarded-for']).toBe('unknown');
@@ -383,11 +357,7 @@ describe('ReverseProxy', () => {
       const responseData = { users: [{ id: 1 }, { id: 2 }] };
       mockHttpClient.get.mockResolvedValue(responseData);
 
-      const result = await proxy.forward(
-        makeRequest(),
-        'http://localhost:3000',
-        'user-service',
-      );
+      const result = await proxy.forward(makeRequest(), 'http://localhost:3000', 'user-service');
 
       expect(result.body).toEqual(responseData);
     });
@@ -395,11 +365,7 @@ describe('ReverseProxy', () => {
     it('should return status 200 for successful service calls', async () => {
       mockHttpClient.get.mockResolvedValue({});
 
-      const result = await proxy.forward(
-        makeRequest(),
-        'http://localhost:3000',
-        'user-service',
-      );
+      const result = await proxy.forward(makeRequest(), 'http://localhost:3000', 'user-service');
 
       expect(result.status).toBe(200);
     });
@@ -407,11 +373,7 @@ describe('ReverseProxy', () => {
     it('should include upstream URL in response', async () => {
       mockHttpClient.get.mockResolvedValue({});
 
-      const result = await proxy.forward(
-        makeRequest(),
-        'http://localhost:3000',
-        'user-service',
-      );
+      const result = await proxy.forward(makeRequest(), 'http://localhost:3000', 'user-service');
 
       expect(result.upstream).toBe('http://localhost:3000');
     });
@@ -419,11 +381,7 @@ describe('ReverseProxy', () => {
     it('should include latency in response', async () => {
       mockHttpClient.get.mockResolvedValue({});
 
-      const result = await proxy.forward(
-        makeRequest(),
-        'http://localhost:3000',
-        'user-service',
-      );
+      const result = await proxy.forward(makeRequest(), 'http://localhost:3000', 'user-service');
 
       expect(result.latency).toBeDefined();
       expect(typeof result.latency).toBe('number');
@@ -438,7 +396,7 @@ describe('ReverseProxy', () => {
         text: vi.fn(),
       };
       const headersObj = {
-        get: (key: string) => key === 'content-type' ? 'application/json' : null,
+        get: (key: string) => (key === 'content-type' ? 'application/json' : null),
         entries: () => [['content-type', 'application/json']],
       };
       const fetchResponse = {
@@ -451,7 +409,7 @@ describe('ReverseProxy', () => {
 
       const result = await proxy.forward(
         makeRequest({ method: 'GET', path: '/external' }),
-        'http://external-service.com',
+        'http://external-service.com'
       );
 
       expect(result.status).toBe(200);
@@ -462,7 +420,7 @@ describe('ReverseProxy', () => {
 
     it('should handle direct request with text response', async () => {
       const headersObj = {
-        get: (key: string) => key === 'content-type' ? 'text/plain' : null,
+        get: (key: string) => (key === 'content-type' ? 'text/plain' : null),
         entries: () => [['content-type', 'text/plain']],
       };
       const fetchResponse = {
@@ -475,7 +433,7 @@ describe('ReverseProxy', () => {
 
       const result = await proxy.forward(
         makeRequest({ method: 'GET', path: '/external' }),
-        'http://external-service.com',
+        'http://external-service.com'
       );
 
       expect(result.status).toBe(200);
@@ -486,7 +444,7 @@ describe('ReverseProxy', () => {
 
     it('should fallback to text when JSON parsing fails', async () => {
       const headersObj = {
-        get: (key: string) => key === 'content-type' ? 'application/json' : null,
+        get: (key: string) => (key === 'content-type' ? 'application/json' : null),
         entries: () => [['content-type', 'application/json']],
       };
       const fetchResponse = {
@@ -499,7 +457,7 @@ describe('ReverseProxy', () => {
 
       const result = await proxy.forward(
         makeRequest({ method: 'GET', path: '/external' }),
-        'http://external-service.com',
+        'http://external-service.com'
       );
 
       expect(result.body).toBe('not valid json');
@@ -509,8 +467,11 @@ describe('ReverseProxy', () => {
 
     it('should forward response headers from direct requests', async () => {
       const headersObj = {
-        get: (key: string) => key === 'content-type' ? 'application/json' : null,
-        entries: () => [['content-type', 'application/json'], ['x-request-id', 'req-456']],
+        get: (key: string) => (key === 'content-type' ? 'application/json' : null),
+        entries: () => [
+          ['content-type', 'application/json'],
+          ['x-request-id', 'req-456'],
+        ],
       };
       const fetchResponse = {
         status: 201,
@@ -522,7 +483,7 @@ describe('ReverseProxy', () => {
 
       const result = await proxy.forward(
         makeRequest({ method: 'POST', path: '/external', body: { data: 'x' } }),
-        'http://external-service.com',
+        'http://external-service.com'
       );
 
       expect(result.status).toBe(201);
@@ -546,7 +507,7 @@ describe('ReverseProxy', () => {
 
       await proxy.forward(
         makeRequest({ path: '/search', query: { q: 'hello', lang: 'en' } }),
-        'http://external-service.com',
+        'http://external-service.com'
       );
 
       const calledUrl = mockFetch.mock.calls[0][0] as string;
@@ -561,11 +522,7 @@ describe('ReverseProxy', () => {
     it('should return 503 when httpClient throws (connection refused)', async () => {
       mockHttpClient.get.mockRejectedValue(new Error('ECONNREFUSED'));
 
-      const result = await proxy.forward(
-        makeRequest(),
-        'http://localhost:3000',
-        'user-service',
-      );
+      const result = await proxy.forward(makeRequest(), 'http://localhost:3000', 'user-service');
 
       expect(result.status).toBe(503);
       expect(result.body).toEqual(
@@ -574,43 +531,35 @@ describe('ReverseProxy', () => {
           message: 'ECONNREFUSED',
           upstream: 'http://localhost:3000',
           serviceName: 'user-service',
-        }),
+        })
       );
     });
 
     it('should return 503 on DNS failure', async () => {
       mockHttpClient.get.mockRejectedValue(new Error('getaddrinfo ENOTFOUND unknown-host'));
 
-      const result = await proxy.forward(
-        makeRequest(),
-        'http://unknown-host:3000',
-        'user-service',
-      );
+      const result = await proxy.forward(makeRequest(), 'http://unknown-host:3000', 'user-service');
 
       expect(result.status).toBe(503);
       expect(result.body).toEqual(
         expect.objectContaining({
           error: 'Service unavailable',
           message: expect.stringContaining('ENOTFOUND'),
-        }),
+        })
       );
     });
 
     it('should return 503 on timeout errors', async () => {
       mockHttpClient.get.mockRejectedValue(new Error('Request timed out'));
 
-      const result = await proxy.forward(
-        makeRequest(),
-        'http://localhost:3000',
-        'user-service',
-      );
+      const result = await proxy.forward(makeRequest(), 'http://localhost:3000', 'user-service');
 
       expect(result.status).toBe(503);
       expect(result.body).toEqual(
         expect.objectContaining({
           error: 'Service unavailable',
           message: expect.stringContaining('timed out'),
-        }),
+        })
       );
     });
 
@@ -620,7 +569,7 @@ describe('ReverseProxy', () => {
       const result = await proxy.forward(
         makeRequest({ method: 'POST', body: {} }),
         'http://localhost:3000',
-        'user-service',
+        'user-service'
       );
 
       expect(result.status).toBe(503);
@@ -629,32 +578,22 @@ describe('ReverseProxy', () => {
     it('should handle non-Error thrown values', async () => {
       mockHttpClient.get.mockRejectedValue('string error');
 
-      const result = await proxy.forward(
-        makeRequest(),
-        'http://localhost:3000',
-        'user-service',
-      );
+      const result = await proxy.forward(makeRequest(), 'http://localhost:3000', 'user-service');
 
       expect(result.status).toBe(503);
       expect(result.body).toEqual(
         expect.objectContaining({
           message: 'Unknown error',
-        }),
+        })
       );
     });
 
     it('should include serviceName in error response', async () => {
       mockHttpClient.get.mockRejectedValue(new Error('fail'));
 
-      const result = await proxy.forward(
-        makeRequest(),
-        'http://localhost:3000',
-        'my-service',
-      );
+      const result = await proxy.forward(makeRequest(), 'http://localhost:3000', 'my-service');
 
-      expect(result.body).toEqual(
-        expect.objectContaining({ serviceName: 'my-service' }),
-      );
+      expect(result.body).toEqual(expect.objectContaining({ serviceName: 'my-service' }));
     });
 
     it('should use "unknown" for serviceName when not provided in error', async () => {
@@ -664,15 +603,10 @@ describe('ReverseProxy', () => {
       };
       vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('fetch failed')));
 
-      const result = await proxy.forward(
-        makeRequest(),
-        'http://external.com',
-      );
+      const result = await proxy.forward(makeRequest(), 'http://external.com');
 
       expect(result.status).toBe(503);
-      expect(result.body).toEqual(
-        expect.objectContaining({ serviceName: 'unknown' }),
-      );
+      expect(result.body).toEqual(expect.objectContaining({ serviceName: 'unknown' }));
 
       vi.unstubAllGlobals();
     });
@@ -680,11 +614,7 @@ describe('ReverseProxy', () => {
     it('should include latency in error responses', async () => {
       mockHttpClient.get.mockRejectedValue(new Error('fail'));
 
-      const result = await proxy.forward(
-        makeRequest(),
-        'http://localhost:3000',
-        'user-service',
-      );
+      const result = await proxy.forward(makeRequest(), 'http://localhost:3000', 'user-service');
 
       expect(result.latency).toBeDefined();
       expect(typeof result.latency).toBe('number');
@@ -693,11 +623,7 @@ describe('ReverseProxy', () => {
     it('should set content-type to application/json in error response headers', async () => {
       mockHttpClient.get.mockRejectedValue(new Error('fail'));
 
-      const result = await proxy.forward(
-        makeRequest(),
-        'http://localhost:3000',
-        'user-service',
-      );
+      const result = await proxy.forward(makeRequest(), 'http://localhost:3000', 'user-service');
 
       expect(result.headers['content-type']).toBe('application/json');
     });
@@ -707,10 +633,7 @@ describe('ReverseProxy', () => {
       abortError.name = 'AbortError';
       vi.stubGlobal('fetch', vi.fn().mockRejectedValue(abortError));
 
-      const result = await proxy.forward(
-        makeRequest({ path: '/timeout-path' }),
-        'http://external.com',
-      );
+      const result = await proxy.forward(makeRequest({ path: '/timeout-path' }), 'http://external.com');
 
       expect(result.status).toBe(503);
 
@@ -747,10 +670,7 @@ describe('ReverseProxy', () => {
       });
       vi.stubGlobal('fetch', fetchMock);
 
-      await proxy.forward(
-        makeRequest({ path: '/test' }),
-        'http://external.com',
-      );
+      await proxy.forward(makeRequest({ path: '/test' }), 'http://external.com');
 
       expect(fetchMock).toHaveBeenCalled();
       expect(receivedSignal).toBeDefined();
@@ -767,7 +687,7 @@ describe('ReverseProxy', () => {
         expect.objectContaining({
           message: expect.any(String),
           implementation: 'shared-service-discovery',
-        }),
+        })
       );
     });
 
@@ -790,7 +710,7 @@ describe('ReverseProxy', () => {
           circuitBreakerEnabled: true,
           circuitBreakers: expect.any(Object),
           unhealthyServices: expect.any(Array),
-        }),
+        })
       );
     });
   });

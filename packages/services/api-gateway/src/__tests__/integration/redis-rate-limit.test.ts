@@ -36,8 +36,12 @@ const { mockRedisInstance, MockRedisConstructor, mockLogger } = vi.hoisted(() =>
     _listeners: listeners,
   };
 
-  const MockRedisConstructor = vi.fn(function() { return mockRedisInstance; }) as unknown as ReturnType<typeof vi.fn> & { Cluster: ReturnType<typeof vi.fn> };
-  MockRedisConstructor.Cluster = vi.fn(function() { return mockRedisInstance; });
+  const MockRedisConstructor = vi.fn(function () {
+    return mockRedisInstance;
+  }) as unknown as ReturnType<typeof vi.fn> & { Cluster: ReturnType<typeof vi.fn> };
+  MockRedisConstructor.Cluster = vi.fn(function () {
+    return mockRedisInstance;
+  });
 
   const mockLogger = {
     info: vi.fn(),
@@ -57,7 +61,7 @@ vi.mock('../../config/service-urls', () => ({
   getLogger: vi.fn(() => mockLogger),
 }));
 
-vi.mock('@aiponge/platform-core', async (importOriginal) => {
+vi.mock('@aiponge/platform-core', async importOriginal => {
   const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
   return {
     ...actual,
@@ -67,7 +71,7 @@ vi.mock('@aiponge/platform-core', async (importOriginal) => {
   };
 });
 
-vi.mock('@aiponge/shared-contracts', async (importOriginal) => {
+vi.mock('@aiponge/shared-contracts', async importOriginal => {
   const actual = await importOriginal<typeof import('@aiponge/shared-contracts')>();
   return {
     ...actual,
@@ -341,7 +345,9 @@ describe('Redis Rate Limiting Integration Tests', () => {
       expect(MockRedisConstructor).toHaveBeenCalled();
 
       if (MockRedisConstructor.mock.calls.length > 0) {
-        const config = (MockRedisConstructor.mock.calls as unknown[][])[0][0] as Record<string, unknown> & { retryStrategy: (times: number) => number };
+        const config = (MockRedisConstructor.mock.calls as unknown[][])[0][0] as Record<string, unknown> & {
+          retryStrategy: (times: number) => number;
+        };
         expect(config).toBeDefined();
         expect(config).toHaveProperty('retryStrategy');
 
@@ -478,9 +484,8 @@ describe('Redis Rate Limiting Integration Tests', () => {
       mockRedisInstance.status = 'end';
 
       const rawMax = 8;
-      const fallbackDivisor = process.env.NODE_ENV === 'production'
-        ? parseInt(process.env.RATE_LIMIT_FALLBACK_DIVISOR || '4', 10)
-        : 1;
+      const fallbackDivisor =
+        process.env.NODE_ENV === 'production' ? parseInt(process.env.RATE_LIMIT_FALLBACK_DIVISOR || '4', 10) : 1;
       const effectiveMax = Math.ceil(rawMax / fallbackDivisor);
 
       const middleware = createRedisRateLimitMiddleware({

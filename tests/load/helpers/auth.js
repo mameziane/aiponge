@@ -14,9 +14,9 @@ export function registerUser(baseUrl, email, password) {
   });
 
   check(res, {
-    'register status 201': (r) => r.status === 201,
-    'register has token': (r) => JSON.parse(r.body).token !== undefined,
-    'register has refreshToken': (r) => JSON.parse(r.body).refreshToken !== undefined,
+    'register status 201': r => r.status === 201,
+    'register has token': r => JSON.parse(r.body).token !== undefined,
+    'register has refreshToken': r => JSON.parse(r.body).refreshToken !== undefined,
   });
 
   if (res.status === 201) {
@@ -39,8 +39,8 @@ export function loginUser(baseUrl, identifier, password) {
   });
 
   check(res, {
-    'login status 200': (r) => r.status === 200,
-    'login has token': (r) => JSON.parse(r.body).token !== undefined,
+    'login status 200': r => r.status === 200,
+    'login has token': r => JSON.parse(r.body).token !== undefined,
   });
 
   if (res.status === 200) {
@@ -63,8 +63,8 @@ export function refreshToken(baseUrl, refreshTk, sessionId) {
   });
 
   check(res, {
-    'refresh status 200': (r) => r.status === 200,
-    'refresh has new token': (r) => JSON.parse(r.body).token !== undefined,
+    'refresh status 200': r => r.status === 200,
+    'refresh has new token': r => JSON.parse(r.body).token !== undefined,
   });
 
   if (res.status === 200) {
@@ -84,8 +84,8 @@ export function guestAuth(baseUrl) {
   });
 
   check(res, {
-    'guest auth status 200': (r) => r.status === 200,
-    'guest has token': (r) => JSON.parse(r.body).token !== undefined,
+    'guest auth status 200': r => r.status === 200,
+    'guest has token': r => JSON.parse(r.body).token !== undefined,
   });
 
   if (res.status === 200) {
@@ -104,7 +104,7 @@ export function authHeaders(token) {
   return {
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
   };
 }

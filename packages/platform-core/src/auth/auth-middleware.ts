@@ -37,9 +37,12 @@ export class StandardAuthMiddleware {
           const serviceKey = req.headers['x-service-key'] as string;
           const expectedServiceKey = process.env.SERVICE_AUTH_KEY;
 
-          if (serviceKey && expectedServiceKey &&
-              serviceKey.length === expectedServiceKey.length &&
-              crypto.timingSafeEqual(Buffer.from(serviceKey), Buffer.from(expectedServiceKey))) {
+          if (
+            serviceKey &&
+            expectedServiceKey &&
+            serviceKey.length === expectedServiceKey.length &&
+            crypto.timingSafeEqual(Buffer.from(serviceKey), Buffer.from(expectedServiceKey))
+          ) {
             authReq.user = {
               id: 'service',
               email: `${this.serviceName}@internal.service`,

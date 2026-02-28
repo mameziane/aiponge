@@ -4,9 +4,7 @@ import { getDatabase, type DatabaseConnection } from '@infrastructure/database/D
 import { getLogger } from '@config/service-urls';
 import { sendSuccess, sendCreated, ServiceErrors } from '../../utils/response-helpers';
 import { createControllerHelpers, extractAuthContext } from '@aiponge/platform-core';
-import {
-  normalizeRole,
-} from '@aiponge/shared-contracts';
+import { normalizeRole } from '@aiponge/shared-contracts';
 import type { ContentAccessContext } from '@aiponge/shared-contracts';
 import {
   BookTypeRepository,
@@ -154,13 +152,7 @@ export function createDeps(): LibraryControllerDeps {
   const userLibraryRepo = new UserLibraryRepository(db);
   const shareLinkRepo = new ShareLinkRepository(db);
 
-  const bookService = new BookService(
-    bookRepo,
-    bookTypeRepo,
-    illustrationRepo,
-    chapterRepo,
-    entryRepo
-  );
+  const bookService = new BookService(bookRepo, bookTypeRepo, illustrationRepo, chapterRepo, entryRepo);
 
   const createChapterUseCase = new CreateChapterUseCase(chapterRepo, bookRepo);
   const getChapterUseCase = new GetChapterUseCase(chapterRepo, bookRepo, illustrationRepo);
@@ -178,7 +170,12 @@ export function createDeps(): LibraryControllerDeps {
 
   const addIllustrationUseCase = new AddIllustrationUseCase(illustrationRepo, bookRepo, chapterRepo, entryRepo);
   const removeIllustrationUseCase = new RemoveIllustrationUseCase(illustrationRepo, bookRepo, chapterRepo, entryRepo);
-  const reorderIllustrationsUseCase = new ReorderIllustrationsUseCase(illustrationRepo, entryRepo, chapterRepo, bookRepo);
+  const reorderIllustrationsUseCase = new ReorderIllustrationsUseCase(
+    illustrationRepo,
+    entryRepo,
+    chapterRepo,
+    bookRepo
+  );
   const generateBookCoverUseCase = new GenerateBookCoverUseCase(illustrationRepo, bookRepo, bookTypeRepo, entryRepo);
 
   return {

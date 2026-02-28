@@ -20,7 +20,10 @@ vi.mock('@aiponge/platform-core', () => ({
     getServicePort: vi.fn(() => 3020),
   },
   serializeError: vi.fn((e: unknown) => String(e)),
-  getValidation: () => ({ validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(), validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next() }),
+  getValidation: () => ({
+    validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+    validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+  }),
 }));
 
 vi.mock('@services/gatewayFetch', () => ({
@@ -114,44 +117,50 @@ describe('Config Routes', () => {
 
   describe('GET /defaults', () => {
     it('should return 200 with defaults data', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true, data: { theme: 'default' } })
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, data: { theme: 'default' } }));
       const res = await request(app).get('/api/app/config/defaults');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/config/librarian-defaults'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/config/librarian-defaults'),
+        expect.anything()
+      );
     });
 
     it('should return 502 when upstream fails', async () => {
       mockGatewayFetch.mockRejectedValueOnce(new Error('Connection refused'));
       const res = await request(app).get('/api/app/config/defaults');
       expect(res.status).toBe(502);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/config/librarian-defaults'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/config/librarian-defaults'),
+        expect.anything()
+      );
     });
   });
 
   describe('GET /available-options', () => {
     it('should return 200 with available options', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true, data: { genres: ['pop', 'rock'] } })
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, data: { genres: ['pop', 'rock'] } }));
       const res = await request(app).get('/api/app/config/available-options');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/config/available-options'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/config/available-options'),
+        expect.anything()
+      );
     });
   });
 
   describe('GET /content-limits', () => {
     it('should return 200 with content limits', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true, data: { maxEntries: 100 } })
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, data: { maxEntries: 100 } }));
       const res = await request(app).get('/api/app/config/content-limits');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/config/content-limits'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/config/content-limits'),
+        expect.anything()
+      );
     });
   });
 });

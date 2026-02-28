@@ -164,19 +164,21 @@ describe('TraceRepository', () => {
         errorMessage: null,
       };
 
-      const spanData = [{
-        spanId: 'span-1',
-        parentSpanId: null,
-        service: 'api-gateway',
-        operation: 'handleRequest',
-        startTime: new Date('2025-01-01T00:00:00Z'),
-        duration: 500,
-        status: 'completed',
-        errorCode: null,
-        errorMessage: null,
-        riskLevel: null,
-        metadata: null,
-      }];
+      const spanData = [
+        {
+          spanId: 'span-1',
+          parentSpanId: null,
+          service: 'api-gateway',
+          operation: 'handleRequest',
+          startTime: new Date('2025-01-01T00:00:00Z'),
+          duration: 500,
+          status: 'completed',
+          errorCode: null,
+          errorMessage: null,
+          riskLevel: null,
+          metadata: null,
+        },
+      ];
 
       mockDb._chain.limit.mockResolvedValueOnce([traceData]);
       mockDb._chain.orderBy.mockResolvedValueOnce(spanData);
@@ -265,11 +267,13 @@ describe('TraceRepository', () => {
         status: 'completed',
       };
 
-      const slowestSpan = [{
-        service: 'db-service',
-        operation: 'complexQuery',
-        duration: 4000,
-      }];
+      const slowestSpan = [
+        {
+          service: 'db-service',
+          operation: 'complexQuery',
+          duration: 4000,
+        },
+      ];
 
       mockDb._chain.limit.mockResolvedValueOnce([slowTrace]);
       mockDb._chain.limit.mockResolvedValueOnce(slowestSpan);
@@ -308,13 +312,15 @@ describe('TraceRepository', () => {
 
   describe('getTraceStats', () => {
     it('should return aggregated trace statistics', async () => {
-      const statsResult = [{
-        totalTraces: 100,
-        avgDuration: 250.5,
-        p95Duration: 800,
-        p99Duration: 1500,
-        errorCount: 5,
-      }];
+      const statsResult = [
+        {
+          totalTraces: 100,
+          avgDuration: 250.5,
+          p95Duration: 800,
+          p99Duration: 1500,
+          errorCount: 5,
+        },
+      ];
 
       const serviceStats = [
         { service: 'api-gateway', avgDuration: 300, count: 50 },
@@ -335,13 +341,15 @@ describe('TraceRepository', () => {
     });
 
     it('should handle empty stats', async () => {
-      mockDb._chain.where.mockResolvedValueOnce([{
-        totalTraces: 0,
-        avgDuration: null,
-        p95Duration: null,
-        p99Duration: null,
-        errorCount: 0,
-      }]);
+      mockDb._chain.where.mockResolvedValueOnce([
+        {
+          totalTraces: 0,
+          avgDuration: null,
+          p95Duration: null,
+          p99Duration: null,
+          errorCount: 0,
+        },
+      ]);
       mockDb._chain.limit.mockResolvedValueOnce([]);
 
       const result = await repository.getTraceStats(new Date());

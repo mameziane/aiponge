@@ -31,16 +31,16 @@ export default function AuthGate() {
   useEffect(() => {
     async function checkOnboardingAndRoute() {
       if (!user) return;
-      
+
       console.log('[AuthGate] Checking onboarding status for user:', user.id, 'isGuest:', user.isGuest);
-      
+
       const lastTab = await getLastVisitedTab();
       console.log('[AuthGate] Last visited tab:', lastTab);
-      
+
       const completed = await hasCompletedOnboarding(user.id, user.isGuest);
       console.log('[AuthGate] User (ID:', user.id, ', isGuest:', user.isGuest, ') - onboarding completed:', completed);
       setShowOnboarding(!completed);
-      
+
       const isLibrarianOrAdmin = user.role === USER_ROLES.ADMIN || user.role === USER_ROLES.LIBRARIAN;
       const isAdmin = user.role === USER_ROLES.ADMIN;
       const isLibrarianOnly = isLibrarianOrAdmin && !isAdmin;
@@ -69,10 +69,10 @@ export default function AuthGate() {
       } else {
         setInitialRoute('/(user)/books');
       }
-      
+
       setOnboardingChecked(true);
     }
-    
+
     if (isReady && user?.id && roleVerified) {
       console.log('[AuthGate] isReady=true with valid user, checking onboarding and route');
       checkOnboardingAndRoute();
@@ -96,12 +96,15 @@ export default function AuthGate() {
   if (!isReady || !onboardingChecked) {
     console.log('[AuthGate] Waiting... isReady:', isReady, 'onboardingChecked:', onboardingChecked);
     return (
-      <View style={{
-        flex: 1,
-        backgroundColor: colors.background.primary,
-        alignItems: 'center',
-        justifyContent: 'center',
-      }} testID="auth-loading">
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: colors.background.primary,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+        testID="auth-loading"
+      >
         <ActivityIndicator size="large" color={colors.brand.primary} />
       </View>
     );

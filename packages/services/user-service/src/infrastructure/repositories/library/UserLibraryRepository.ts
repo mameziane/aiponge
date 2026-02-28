@@ -1,8 +1,5 @@
 import { DatabaseConnection } from '../../database/DatabaseConnectionFactory';
-import {
-  libUserLibrary,
-  type UserLibrary,
-} from '../../database/schemas/library-schema';
+import { libUserLibrary, type UserLibrary } from '../../database/schemas/library-schema';
 import { eq, and, desc, isNull } from 'drizzle-orm';
 import { getLogger } from '../../../config/service-urls';
 

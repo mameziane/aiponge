@@ -565,10 +565,15 @@ export class AnalyticsServiceClient implements IAnalyticsServiceClient {
   }
 
   private handleError(error: unknown): Error {
-    const err = error as { response?: { status: number; statusText?: string; data?: Record<string, unknown> }; request?: unknown; message?: string };
+    const err = error as {
+      response?: { status: number; statusText?: string; data?: Record<string, unknown> };
+      request?: unknown;
+      message?: string;
+    };
     if (err.response) {
       const status = err.response.status;
-      const message = (err.response.data as Record<string, unknown>)?.error || err.response.statusText || 'Request failed';
+      const message =
+        (err.response.data as Record<string, unknown>)?.error || err.response.statusText || 'Request failed';
 
       if (status === 400) {
         return new Error(`Bad Request: ${message}`);

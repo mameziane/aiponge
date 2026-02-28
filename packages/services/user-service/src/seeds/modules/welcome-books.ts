@@ -21,8 +21,6 @@ interface WelcomeBookData {
   isReadOnly: boolean;
   category: string;
   language: string;
-  era: string;
-  tradition: string;
   visibility: string;
   status: string;
   systemType: string;
@@ -35,7 +33,7 @@ function loadBackup(): WelcomeBookData[] {
 
 export const welcomeBooksSeed: SeedModule = {
   name: 'welcome-books',
-  description: 'Seed welcome guide books with localized titles, subtitles, era, tradition, and category',
+  description: 'Seed welcome guide books with localized titles, subtitles, and category',
   priority: 20,
   dependencies: ['system-users'],
   version: '1.0.0',
@@ -47,7 +45,7 @@ export const welcomeBooksSeed: SeedModule = {
 
     for (const b of books) {
       await db.execute(
-        `INSERT INTO lib_books (id, type_id, title, subtitle, description, author, user_id, is_read_only, category, language, era, tradition, visibility, status, system_type, chapter_count, entry_count, created_at, updated_at)
+        `INSERT INTO lib_books (id, type_id, title, subtitle, description, author, user_id, is_read_only, category, language, visibility, status, system_type, chapter_count, entry_count, created_at, updated_at)
          VALUES (
            '${escSql(b.id)}',
            '${escSql(b.typeId)}',
@@ -59,8 +57,6 @@ export const welcomeBooksSeed: SeedModule = {
            ${b.isReadOnly},
            '${escSql(b.category)}',
            '${escSql(b.language)}',
-           '${escSql(b.era)}',
-           '${escSql(b.tradition)}',
            '${escSql(b.visibility)}',
            '${escSql(b.status)}',
            '${escSql(b.systemType)}',
@@ -76,8 +72,6 @@ export const welcomeBooksSeed: SeedModule = {
            author = EXCLUDED.author,
            category = EXCLUDED.category,
            language = EXCLUDED.language,
-           era = EXCLUDED.era,
-           tradition = EXCLUDED.tradition,
            visibility = EXCLUDED.visibility,
            status = EXCLUDED.status,
            system_type = EXCLUDED.system_type,

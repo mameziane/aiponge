@@ -51,13 +51,13 @@ async function tableExists(tableName: string): Promise<boolean> {
 
 async function verifySysAlertsTable(): Promise<void> {
   console.log('\n📋 Verifying sys_alerts table...');
-  
+
   const exists = await tableExists('sys_alerts');
   if (!exists) {
     results.push({
       table: 'sys_alerts',
       status: 'fail',
-      message: 'Table does not exist'
+      message: 'Table does not exist',
     });
     return;
   }
@@ -66,9 +66,18 @@ async function verifySysAlertsTable(): Promise<void> {
   const columnNames = columns.map(c => c.column_name);
 
   const expectedColumns = [
-    'id', 'alert_rule_id', 'service_name', 'severity', 'title', 
-    'message', 'status', 'metadata', 'triggered_at', 'resolved_at', 
-    'acknowledged_at', 'acknowledged_by'
+    'id',
+    'alert_rule_id',
+    'service_name',
+    'severity',
+    'title',
+    'message',
+    'status',
+    'metadata',
+    'triggered_at',
+    'resolved_at',
+    'acknowledged_at',
+    'acknowledged_by',
   ];
 
   const drizzleColumns = Object.keys(alerts);
@@ -83,33 +92,33 @@ async function verifySysAlertsTable(): Promise<void> {
       table: 'sys_alerts',
       status: 'fail',
       message: 'Missing expected columns',
-      details: missingInDb
+      details: missingInDb,
     });
   } else if (extraInDb.length > 0) {
     results.push({
       table: 'sys_alerts',
       status: 'warning',
       message: 'Extra columns in database (may be fine)',
-      details: extraInDb
+      details: extraInDb,
     });
   } else {
     results.push({
       table: 'sys_alerts',
       status: 'pass',
-      message: 'All expected columns present'
+      message: 'All expected columns present',
     });
   }
 }
 
 async function verifySysAlertRulesTable(): Promise<void> {
   console.log('\n📋 Verifying sys_alert_rules table...');
-  
+
   const exists = await tableExists('sys_alert_rules');
   if (!exists) {
     results.push({
       table: 'sys_alert_rules',
       status: 'fail',
-      message: 'Table does not exist'
+      message: 'Table does not exist',
     });
     return;
   }
@@ -118,9 +127,18 @@ async function verifySysAlertRulesTable(): Promise<void> {
   const columnNames = columns.map(c => c.column_name);
 
   const expectedColumns = [
-    'id', 'name', 'description', 'condition_type', 'condition_config',
-    'severity', 'is_enabled', 'notification_channels', 'cooldown_minutes',
-    'metadata', 'created_at', 'updated_at'
+    'id',
+    'name',
+    'description',
+    'condition_type',
+    'condition_config',
+    'severity',
+    'is_enabled',
+    'notification_channels',
+    'cooldown_minutes',
+    'metadata',
+    'created_at',
+    'updated_at',
   ];
 
   const drizzleColumns = Object.keys(alertRules);
@@ -134,32 +152,32 @@ async function verifySysAlertRulesTable(): Promise<void> {
       table: 'sys_alert_rules',
       status: 'fail',
       message: 'Missing expected columns',
-      details: missingInDb
+      details: missingInDb,
     });
   } else {
     results.push({
       table: 'sys_alert_rules',
       status: 'pass',
-      message: 'All expected columns present'
+      message: 'All expected columns present',
     });
   }
 }
 
 async function verifyNotificationChannelsTable(): Promise<void> {
   console.log('\n📋 Verifying notification_channels table...');
-  
+
   const exists = await tableExists('notification_channels');
   if (exists) {
     results.push({
       table: 'notification_channels',
       status: 'warning',
-      message: 'Table exists but code expects it to be inline in sys_alert_rules'
+      message: 'Table exists but code expects it to be inline in sys_alert_rules',
     });
   } else {
     results.push({
       table: 'notification_channels',
       status: 'pass',
-      message: 'Table correctly does not exist (stored inline in sys_alert_rules)'
+      message: 'Table correctly does not exist (stored inline in sys_alert_rules)',
     });
   }
 }
@@ -173,7 +191,7 @@ async function testBasicQueries(): Promise<void> {
     results.push({
       table: 'sys_alerts',
       status: 'pass',
-      message: `Basic query successful (${alertCount[0]?.count || 0} rows)`
+      message: `Basic query successful (${alertCount[0]?.count || 0} rows)`,
     });
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
@@ -181,7 +199,7 @@ async function testBasicQueries(): Promise<void> {
     results.push({
       table: 'sys_alerts',
       status: 'fail',
-      message: `Query failed: ${errorMessage}`
+      message: `Query failed: ${errorMessage}`,
     });
   }
 
@@ -191,7 +209,7 @@ async function testBasicQueries(): Promise<void> {
     results.push({
       table: 'sys_alert_rules',
       status: 'pass',
-      message: `Basic query successful (${ruleCount[0]?.count || 0} rows)`
+      message: `Basic query successful (${ruleCount[0]?.count || 0} rows)`,
     });
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
@@ -199,7 +217,7 @@ async function testBasicQueries(): Promise<void> {
     results.push({
       table: 'sys_alert_rules',
       status: 'fail',
-      message: `Query failed: ${errorMessage}`
+      message: `Query failed: ${errorMessage}`,
     });
   }
 }
@@ -219,7 +237,7 @@ async function testJoinQueries(): Promise<void> {
     results.push({
       table: 'join:alerts-rules',
       status: 'pass',
-      message: `Join query successful (${rows.length} rows)`
+      message: `Join query successful (${rows.length} rows)`,
     });
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
@@ -227,7 +245,7 @@ async function testJoinQueries(): Promise<void> {
     results.push({
       table: 'join:alerts-rules',
       status: 'fail',
-      message: `Join query failed: ${errorMessage}`
+      message: `Join query failed: ${errorMessage}`,
     });
   }
 }
@@ -251,7 +269,7 @@ async function printSummary(): Promise<void> {
 
   console.log('\n' + '-'.repeat(60));
   console.log(`Total: ${passed} passed, ${failed} failed, ${warnings} warnings`);
-  
+
   if (failed > 0) {
     console.log('\n❌ VERIFICATION FAILED - Database layer has issues');
     process.exit(1);

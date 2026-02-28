@@ -2,13 +2,7 @@ import { Request, Response, NextFunction, RequestHandler } from 'express';
 import { z } from 'zod';
 import { StructuredErrors, getCorrelationId } from '@aiponge/shared-contracts';
 
-function handleZodError(
-  res: Response,
-  req: Request,
-  error: z.ZodError,
-  serviceName: string,
-  message: string
-): void {
+function handleZodError(res: Response, req: Request, error: z.ZodError, serviceName: string, message: string): void {
   StructuredErrors.validation(res, message, {
     service: serviceName,
     correlationId: getCorrelationId(req),
@@ -120,16 +114,30 @@ export function initValidation(serviceName: string): ValidationMiddleware {
 
 function resolveValidation(): ValidationMiddleware {
   if (!_validationMiddleware) {
-    throw new Error('Validation middleware not initialized. Call initValidation(serviceName) during service bootstrap.');
+    throw new Error(
+      'Validation middleware not initialized. Call initValidation(serviceName) during service bootstrap.'
+    );
   }
   return _validationMiddleware;
 }
 
 export function getValidation(): ValidationMiddleware {
   return {
-    validateBody: <T>(schema: z.ZodSchema<T>): RequestHandler => (req, res, next) => resolveValidation().validateBody(schema)(req, res, next),
-    validateQuery: <T>(schema: z.ZodSchema<T>): RequestHandler => (req, res, next) => resolveValidation().validateQuery(schema)(req, res, next),
-    validateParams: <T extends Record<string, string>>(schema: z.ZodSchema<T>): RequestHandler => (req, res, next) => resolveValidation().validateParams(schema)(req, res, next),
-    validateRequest: <T>(schema: z.ZodSchema<T>): RequestHandler => (req, res, next) => resolveValidation().validateRequest(schema)(req, res, next),
+    validateBody:
+      <T>(schema: z.ZodSchema<T>): RequestHandler =>
+      (req, res, next) =>
+        resolveValidation().validateBody(schema)(req, res, next),
+    validateQuery:
+      <T>(schema: z.ZodSchema<T>): RequestHandler =>
+      (req, res, next) =>
+        resolveValidation().validateQuery(schema)(req, res, next),
+    validateParams:
+      <T extends Record<string, string>>(schema: z.ZodSchema<T>): RequestHandler =>
+      (req, res, next) =>
+        resolveValidation().validateParams(schema)(req, res, next),
+    validateRequest:
+      <T>(schema: z.ZodSchema<T>): RequestHandler =>
+      (req, res, next) =>
+        resolveValidation().validateRequest(schema)(req, res, next),
   };
 }

@@ -242,7 +242,7 @@ export class DrizzleAlbumRequestRepository {
       userId: request.userId,
       status: request.status,
       phase: request.phase,
-      subPhase: (request as Record<string, unknown>).subPhase as string || null,
+      subPhase: ((request as Record<string, unknown>).subPhase as string) || null,
       totalTracks: request.totalTracks,
       currentTrack: request.currentTrack,
       successfulTracks: request.successfulTracks,

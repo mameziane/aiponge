@@ -4,7 +4,12 @@
  */
 
 import { type HttpClient, getServiceUrl, getLogger } from '../../config/service-urls';
-import { withServiceResilience, HttpClient as PlatformHttpClient, parseServiceResponse, tryParseServiceResponse } from '@aiponge/platform-core';
+import {
+  withServiceResilience,
+  HttpClient as PlatformHttpClient,
+  parseServiceResponse,
+  tryParseServiceResponse,
+} from '@aiponge/platform-core';
 import {
   MusicGenerationResponseSchema,
   MusicGenerationSuccessDataSchema,
@@ -92,7 +97,6 @@ interface ImageGenerationApiResponse {
   metadata?: Record<string, unknown>;
   error?: string | { message?: string };
 }
-
 
 interface ModelConfiguration {
   model: string;
@@ -213,7 +217,8 @@ export class ProvidersServiceClient {
               providerId: inner.providerId,
               model: inner.model,
               cost: inner.cost,
-              processingTimeMs: (inner.processingTimeMs || (inner.metadata as Record<string, unknown>)?.processingTimeMs) as number | undefined,
+              processingTimeMs: (inner.processingTimeMs ||
+                (inner.metadata as Record<string, unknown>)?.processingTimeMs) as number | undefined,
               enhancedPrompt: inner.enhancedPrompt,
             };
           } else {

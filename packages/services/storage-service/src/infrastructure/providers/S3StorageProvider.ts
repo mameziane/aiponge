@@ -27,10 +27,12 @@ export interface S3Config {
 }
 
 interface S3CommandOutput {
-  Body?: Buffer | {
-    transformToByteArray?(): Promise<Uint8Array>;
-    getReader(): { read(): Promise<{ done: boolean; value: Uint8Array }> };
-  };
+  Body?:
+    | Buffer
+    | {
+        transformToByteArray?(): Promise<Uint8Array>;
+        getReader(): { read(): Promise<{ done: boolean; value: Uint8Array }> };
+      };
   ContentType?: string;
   ContentLength?: number;
   LastModified?: Date;
@@ -321,9 +323,7 @@ export class S3StorageProvider implements IStorageProvider {
       });
 
       const response = await this.s3Client!.send(command);
-      return (
-        response.Contents?.map((obj: { Key?: string }) => obj.Key! as string).filter((key: string) => key) || []
-      );
+      return response.Contents?.map((obj: { Key?: string }) => obj.Key! as string).filter((key: string) => key) || [];
     } catch (error) {
       logger.error('List files failed:', { error: error instanceof Error ? error.message : String(error) });
       return [];

@@ -10,11 +10,11 @@ This produces a 128-character hex string suitable for production use.
 
 ## Where Secrets Are Stored
 
-| Environment | Storage |
-|---|---|
-| Local Development | `.env` files (git-ignored, never committed) |
-| Replit Dev/Staging | Replit Secrets tab |
-| AWS Production | AWS Secrets Manager (referenced by Terraform) |
+| Environment        | Storage                                       |
+| ------------------ | --------------------------------------------- |
+| Local Development  | `.env` files (git-ignored, never committed)   |
+| Replit Dev/Staging | Replit Secrets tab                            |
+| AWS Production     | AWS Secrets Manager (referenced by Terraform) |
 
 ## Rotation Procedure
 
@@ -26,17 +26,18 @@ This produces a 128-character hex string suitable for production use.
 
 ## Required Secrets Per Service
 
-| Service | Required Secrets |
-|---|---|
-| api-gateway | `JWT_SECRET`, `SERVICE_AUTH_KEY` |
-| user-service | `JWT_SECRET`, `DATABASE_URL` |
-| All AI services | `OPENAI_API_KEY`, `MUSICAPI_API_KEY` |
+| Service         | Required Secrets                             |
+| --------------- | -------------------------------------------- |
+| api-gateway     | `JWT_SECRET`, `SERVICE_AUTH_KEY`             |
+| user-service    | `JWT_SECRET`, `DATABASE_URL`                 |
+| All AI services | `OPENAI_API_KEY`, `MUSICAPI_API_KEY`         |
 | storage-service | `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` |
-| system-service | `DATABASE_URL` |
+| system-service  | `DATABASE_URL`                               |
 
 ## Compromised Secret Detection
 
 All services validate at startup that:
+
 - `JWT_SECRET` is present and not empty
 - `JWT_SECRET` does not contain the known compromised value `aiponge-dev-secret-1759653153`
 

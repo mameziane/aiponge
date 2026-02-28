@@ -179,7 +179,7 @@ export class AudioProcessingController {
         }
 
         return {
-          jobs: jobs.map((job) => ({
+          jobs: jobs.map(job => ({
             id: job.id,
             jobType: job.jobType,
             processingType: job.processingType,

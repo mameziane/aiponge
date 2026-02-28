@@ -35,9 +35,7 @@ function createMockTemplate(overrides: Record<string, unknown> = {}) {
     description: 'A test template',
     category: 'test',
     content: 'Hello {{name}}!',
-    variables: [
-      { name: 'name', type: 'string', required: true },
-    ],
+    variables: [{ name: 'name', type: 'string', required: true }],
     isActive: true,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -77,9 +75,7 @@ describe('ExecutionService', () => {
     });
 
     it('should return error for inactive template', async () => {
-      mockTemplateService.getTemplate.mockResolvedValue(
-        createMockTemplate({ isActive: false })
-      );
+      mockTemplateService.getTemplate.mockResolvedValue(createMockTemplate({ isActive: false }));
 
       const result = await service.executeTemplate({
         templateId: 'tpl-1',

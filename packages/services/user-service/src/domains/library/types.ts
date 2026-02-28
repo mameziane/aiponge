@@ -9,8 +9,6 @@ export interface Book {
   isReadOnly: boolean;
   category: string | null;
   language: string | null;
-  era: string | null;
-  tradition: string | null;
   visibility: string | null;
   status: string | null;
   systemType: string | null;
@@ -32,8 +30,6 @@ export interface InsertBook {
   isReadOnly?: boolean;
   category?: string | null;
   language?: string | null;
-  era?: string | null;
-  tradition?: string | null;
   visibility?: string | null;
   status?: string | null;
   systemType?: string | null;

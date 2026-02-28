@@ -191,7 +191,11 @@ describe('Task 1: GeneratePersonalNarrativeUseCase - Quote user text', () => {
     mockRepo.findLatestNarrative.mockResolvedValue(null);
     mockRepo.findReflectionsByUserId.mockResolvedValue([]);
     mockRepo.findRecentMoodCheckins.mockResolvedValue([
-      { mood: 'anxious', emotionalIntensity: 7, microQuestionResponse: 'Work deadlines are overwhelming me right now.' },
+      {
+        mood: 'anxious',
+        emotionalIntensity: 7,
+        microQuestionResponse: 'Work deadlines are overwhelming me right now.',
+      },
       { mood: 'calm', emotionalIntensity: 4, microQuestionResponse: null },
     ]);
     mockRepo.getUserPatterns.mockResolvedValue([]);
@@ -246,7 +250,8 @@ describe('Task 1: GeneratePersonalNarrativeUseCase - Quote user text', () => {
   it('truncates long user quotes at sentence boundary', async () => {
     const now = new Date();
     const twoDaysAgo = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000);
-    const longResponse = 'I have been thinking about this for a long time. It seems like every time I try to move forward something holds me back. Maybe it is fear of the unknown or maybe it is something deeper that I have not yet discovered about myself.';
+    const longResponse =
+      'I have been thinking about this for a long time. It seems like every time I try to move forward something holds me back. Maybe it is fear of the unknown or maybe it is something deeper that I have not yet discovered about myself.';
 
     mockRepo.findLatestNarrative.mockResolvedValue(null);
     mockRepo.findReflectionsByUserId.mockResolvedValue([
@@ -311,9 +316,7 @@ describe('Task 2: DetectEntryPatternsUseCase - Personalize pattern names', () =>
     const mockRepo = createMockAnalysisRepository();
     const useCase = new DetectEntryPatternsUseCase(mockRepo as any);
 
-    const seeds = [
-      { keyword: 'growth', frequency: 5, source: 'content' as const, emotionalWeight: 1.5 },
-    ];
+    const seeds = [{ keyword: 'growth', frequency: 5, source: 'content' as const, emotionalWeight: 1.5 }];
 
     const result = useCase.personalizePatternName('Causal Reasoning', 'cognitive', seeds);
     expect(result.toLowerCase()).toContain('growth');
@@ -345,9 +348,7 @@ describe('Task 2: DetectEntryPatternsUseCase - Personalize pattern names', () =>
     const mockRepo = createMockAnalysisRepository();
     const useCase = new DetectEntryPatternsUseCase(mockRepo as any);
 
-    const seeds = [
-      { keyword: 'wonder', frequency: 3, source: 'content' as const, emotionalWeight: 1.0 },
-    ];
+    const seeds = [{ keyword: 'wonder', frequency: 3, source: 'content' as const, emotionalWeight: 1.0 }];
 
     const result = useCase.personalizePatternName('Unknown Pattern Type', 'cognitive', seeds);
     expect(result).toContain('Wonder');
@@ -397,7 +398,8 @@ describe('Task 3: ContinueReflectionDialogueUseCase - Breakthrough Insight creat
   });
 
   it('creates insight when breakthrough is detected', async () => {
-    const breakthroughResponse = 'I finally realize that my fear of failure has been driving all my decisions. I understand now that this pattern started in childhood when I was told I was never good enough. This makes sense because every time I face a challenge I freeze up.';
+    const breakthroughResponse =
+      'I finally realize that my fear of failure has been driving all my decisions. I understand now that this pattern started in childhood when I was told I was never good enough. This makes sense because every time I face a challenge I freeze up.';
 
     mockRepo.findReflectionById.mockResolvedValue({
       id: 'ref-1',
@@ -407,9 +409,36 @@ describe('Task 3: ContinueReflectionDialogueUseCase - Breakthrough Insight creat
     });
 
     mockRepo.findReflectionTurnsByReflectionId.mockResolvedValue([
-      { id: 'turn-1', reflectionId: 'ref-1', turnNumber: 1, question: 'Q1', response: 'R1', microInsight: null, therapeuticFramework: 'cbt', respondedAt: new Date() },
-      { id: 'turn-2', reflectionId: 'ref-1', turnNumber: 2, question: 'Q2', response: 'R2', microInsight: null, therapeuticFramework: 'cbt', respondedAt: new Date() },
-      { id: 'turn-3', reflectionId: 'ref-1', turnNumber: 3, question: 'Q3', response: null, microInsight: null, therapeuticFramework: 'cbt', respondedAt: null },
+      {
+        id: 'turn-1',
+        reflectionId: 'ref-1',
+        turnNumber: 1,
+        question: 'Q1',
+        response: 'R1',
+        microInsight: null,
+        therapeuticFramework: 'cbt',
+        respondedAt: new Date(),
+      },
+      {
+        id: 'turn-2',
+        reflectionId: 'ref-1',
+        turnNumber: 2,
+        question: 'Q2',
+        response: 'R2',
+        microInsight: null,
+        therapeuticFramework: 'cbt',
+        respondedAt: new Date(),
+      },
+      {
+        id: 'turn-3',
+        reflectionId: 'ref-1',
+        turnNumber: 3,
+        question: 'Q3',
+        response: null,
+        microInsight: null,
+        therapeuticFramework: 'cbt',
+        respondedAt: null,
+      },
     ]);
 
     mockRepo.getMaxTurnNumber.mockResolvedValue(3);
@@ -492,7 +521,8 @@ describe('Task 3: ContinueReflectionDialogueUseCase - Breakthrough Insight creat
   });
 
   it('returns savedInsightId in DialogueResult', async () => {
-    const breakthroughResponse = 'I realize now that everything makes sense. The pattern I see is that whenever I feel stressed I withdraw from people. I understand now that this is a protective mechanism I learned from my parents who always handled stress alone.';
+    const breakthroughResponse =
+      'I realize now that everything makes sense. The pattern I see is that whenever I feel stressed I withdraw from people. I understand now that this is a protective mechanism I learned from my parents who always handled stress alone.';
 
     mockRepo.findReflectionById.mockResolvedValue({
       id: 'ref-1',
@@ -502,9 +532,36 @@ describe('Task 3: ContinueReflectionDialogueUseCase - Breakthrough Insight creat
     });
 
     mockRepo.findReflectionTurnsByReflectionId.mockResolvedValue([
-      { id: 'turn-1', turnNumber: 1, question: 'Q1', response: 'R1', reflectionId: 'ref-1', microInsight: null, therapeuticFramework: 'cbt', respondedAt: new Date() },
-      { id: 'turn-2', turnNumber: 2, question: 'Q2', response: 'R2', reflectionId: 'ref-1', microInsight: null, therapeuticFramework: 'cbt', respondedAt: new Date() },
-      { id: 'turn-3', turnNumber: 3, question: 'Q3', response: null, reflectionId: 'ref-1', microInsight: null, therapeuticFramework: 'cbt', respondedAt: null },
+      {
+        id: 'turn-1',
+        turnNumber: 1,
+        question: 'Q1',
+        response: 'R1',
+        reflectionId: 'ref-1',
+        microInsight: null,
+        therapeuticFramework: 'cbt',
+        respondedAt: new Date(),
+      },
+      {
+        id: 'turn-2',
+        turnNumber: 2,
+        question: 'Q2',
+        response: 'R2',
+        reflectionId: 'ref-1',
+        microInsight: null,
+        therapeuticFramework: 'cbt',
+        respondedAt: new Date(),
+      },
+      {
+        id: 'turn-3',
+        turnNumber: 3,
+        question: 'Q3',
+        response: null,
+        reflectionId: 'ref-1',
+        microInsight: null,
+        therapeuticFramework: 'cbt',
+        respondedAt: null,
+      },
     ]);
 
     mockRepo.getMaxTurnNumber.mockResolvedValue(3);

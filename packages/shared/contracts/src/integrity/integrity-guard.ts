@@ -1,13 +1,5 @@
-import {
-  type CrossServiceReference,
-  type IntegrityGuardConfig,
-  type ServiceName,
-  OperationType,
-} from './types.js';
-import {
-  CROSS_SERVICE_REFERENCES,
-  getReferencesRequiringValidation,
-} from './references.js';
+import { type CrossServiceReference, type IntegrityGuardConfig, type ServiceName, OperationType } from './types.js';
+import { CROSS_SERVICE_REFERENCES, getReferencesRequiringValidation } from './references.js';
 
 interface CacheEntry {
   valid: boolean;

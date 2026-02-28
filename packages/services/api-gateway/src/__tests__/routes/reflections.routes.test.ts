@@ -20,7 +20,10 @@ vi.mock('@aiponge/platform-core', () => ({
     getServicePort: vi.fn(() => 3020),
   },
   serializeError: vi.fn((e: unknown) => String(e)),
-  getValidation: () => ({ validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(), validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next() }),
+  getValidation: () => ({
+    validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+    validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+  }),
 }));
 
 vi.mock('@services/gatewayFetch', () => ({
@@ -119,9 +122,7 @@ describe('Reflections Routes', () => {
 
   describe('POST /', () => {
     it('should return 401 when no user ID', async () => {
-      const res = await request(app)
-        .post('/api/app/reflections')
-        .send({ content: 'My reflection' });
+      const res = await request(app).post('/api/app/reflections').send({ content: 'My reflection' });
       expect(res.status).toBe(401);
     });
 
@@ -175,9 +176,7 @@ describe('Reflections Routes', () => {
         mockResponse({ success: true, data: { id: 'ref-123', content: 'My reflection' } })
       );
 
-      const res = await request(app)
-        .get('/api/app/reflections/ref-123')
-        .set('x-user-id', 'user-123');
+      const res = await request(app).get('/api/app/reflections/ref-123').set('x-user-id', 'user-123');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -187,9 +186,7 @@ describe('Reflections Routes', () => {
 
   describe('POST /generate', () => {
     it('should return 401 when no user ID', async () => {
-      const res = await request(app)
-        .post('/api/app/reflections/generate')
-        .send({ context: 'test' });
+      const res = await request(app).post('/api/app/reflections/generate').send({ context: 'test' });
       expect(res.status).toBe(401);
     });
 
@@ -206,7 +203,10 @@ describe('Reflections Routes', () => {
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/ai/reflection/generate'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/ai/reflection/generate'),
+        expect.anything()
+      );
     });
   });
 
@@ -217,13 +217,9 @@ describe('Reflections Routes', () => {
     });
 
     it('should return 200 on successful deletion', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true })
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true }));
 
-      const res = await request(app)
-        .delete('/api/app/reflections/ref-123')
-        .set('x-user-id', 'user-123');
+      const res = await request(app).delete('/api/app/reflections/ref-123').set('x-user-id', 'user-123');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);

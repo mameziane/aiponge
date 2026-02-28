@@ -6,15 +6,12 @@ import 'react-native-get-random-values';
 const originalWarn = console.warn.bind(console);
 console.warn = (...args: unknown[]) => {
   const message = args.join(' ');
-  
+
   // Filter out specific noisy warnings
-  if (
-    message.includes("Codegen didn't run for RNS") ||
-    message.includes('SafeAreaView has been deprecated')
-  ) {
+  if (message.includes("Codegen didn't run for RNS") || message.includes('SafeAreaView has been deprecated')) {
     return;
   }
-  
+
   // Pass through all other warnings
   originalWarn(...args);
 };

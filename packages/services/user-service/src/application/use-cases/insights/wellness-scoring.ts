@@ -1,9 +1,4 @@
-import type {
-  WellnessData,
-  WellnessMetrics,
-  WellnessTrend,
-  WellnessInsight,
-} from './wellness-types';
+import type { WellnessData, WellnessMetrics, WellnessTrend, WellnessInsight } from './wellness-types';
 
 export function calculateOverallWellnessScore(metrics: WellnessMetrics): number {
   const dimensions = Object.values(metrics);

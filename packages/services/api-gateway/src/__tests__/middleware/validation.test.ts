@@ -22,9 +22,18 @@ function createMockRes() {
   const res = {
     statusCode: 200,
     _data: undefined as unknown,
-    status: vi.fn(function (this: Record<string, unknown>, c: number) { this.statusCode = c; return this; }),
-    json: vi.fn(function (this: Record<string, unknown>, d: unknown) { this._data = d; return this; }),
-    send: vi.fn(function (this: Record<string, unknown>, d: unknown) { this._data = d; return this; }),
+    status: vi.fn(function (this: Record<string, unknown>, c: number) {
+      this.statusCode = c;
+      return this;
+    }),
+    json: vi.fn(function (this: Record<string, unknown>, d: unknown) {
+      this._data = d;
+      return this;
+    }),
+    send: vi.fn(function (this: Record<string, unknown>, d: unknown) {
+      this._data = d;
+      return this;
+    }),
     set: vi.fn().mockReturnThis(),
     end: vi.fn().mockReturnThis(),
     on: vi.fn(),
@@ -91,7 +100,9 @@ describe('validation middleware', () => {
 
     it('should forward non-Zod errors to next', () => {
       const throwingSchema = {
-        parse: () => { throw new Error('unexpected'); },
+        parse: () => {
+          throw new Error('unexpected');
+        },
       } as unknown as z.ZodSchema;
       const middleware = validateBody(throwingSchema);
       const req = createMockReq({ body: {} });
@@ -118,9 +129,11 @@ describe('validation middleware', () => {
     });
 
     it('should return 400 for invalid query', () => {
-      const strictSchema = z.object({
-        page: z.string(),
-      }).strict();
+      const strictSchema = z
+        .object({
+          page: z.string(),
+        })
+        .strict();
       const middleware = validateQuery(strictSchema);
       const req = createMockReq({ query: { invalid: 'field' } });
       const res = createMockRes();

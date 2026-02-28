@@ -340,16 +340,18 @@ export class DrizzleUserTrackRepository {
     return Track.create({
       id: r.id as string | undefined,
       userId: (r.user_id ?? r.userId) as string,
-      title: (r.title) as string,
+      title: r.title as string,
       fileUrl: (r.file_url ?? r.fileUrl) as string,
       artworkUrl: (r.artwork_url ?? r.artworkUrl) as string | undefined,
-      duration: (r.duration) as number | undefined,
+      duration: r.duration as number | undefined,
       fileSize: (r.file_size ?? r.fileSize) as number | undefined,
       mimeType: (r.mime_type ?? r.mimeType) as string | undefined,
       quality: (r.quality ?? 'high') as string,
-      status: (r.status) as import('@aiponge/shared-contracts').TrackLifecycleStatus | undefined,
-      visibility: (r.visibility ?? CONTENT_VISIBILITY.PERSONAL) as import('@aiponge/shared-contracts').ContentVisibility | undefined,
-      metadata: (r.metadata) as Record<string, unknown> | undefined,
+      status: r.status as import('@aiponge/shared-contracts').TrackLifecycleStatus | undefined,
+      visibility: (r.visibility ?? CONTENT_VISIBILITY.PERSONAL) as
+        | import('@aiponge/shared-contracts').ContentVisibility
+        | undefined,
+      metadata: r.metadata as Record<string, unknown> | undefined,
       sourceType: (r.source_type ?? r.sourceType ?? 'generated') as never,
       generationRequestId: (r.generation_request_id ?? r.generationRequestId) as string | undefined,
       generatedByUserId: (r.generated_by_user_id ?? r.generatedByUserId) as string | undefined,

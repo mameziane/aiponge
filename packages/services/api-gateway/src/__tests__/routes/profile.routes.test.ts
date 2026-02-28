@@ -20,7 +20,10 @@ vi.mock('@aiponge/platform-core', () => ({
     getServicePort: vi.fn(() => 3020),
   },
   serializeError: vi.fn((e: unknown) => String(e)),
-  getValidation: () => ({ validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(), validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next() }),
+  getValidation: () => ({
+    validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+    validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+  }),
 }));
 
 vi.mock('@services/gatewayFetch', () => ({
@@ -126,9 +129,7 @@ describe('Profile Routes', () => {
         mockResponse({ success: true, data: { id: 'user-123', displayName: 'Test' } })
       );
 
-      const res = await request(app)
-        .get('/api/app/profile')
-        .set('x-user-id', 'user-123');
+      const res = await request(app).get('/api/app/profile').set('x-user-id', 'user-123');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/profiles/'), expect.anything());
@@ -137,9 +138,7 @@ describe('Profile Routes', () => {
 
   describe('PATCH /', () => {
     it('should return 401 without user-id', async () => {
-      const res = await request(app)
-        .patch('/api/app/profile')
-        .send({ displayName: 'New Name' });
+      const res = await request(app).patch('/api/app/profile').send({ displayName: 'New Name' });
       expect(res.status).toBe(401);
     });
 
@@ -167,9 +166,7 @@ describe('Profile Routes', () => {
     });
 
     it('should return 200 with user-id', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true, data: { preferences: { theme: 'dark' } } })
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, data: { preferences: { theme: 'dark' } } }));
 
       const res = await request(app)
         .patch('/api/app/profile/preferences')
@@ -188,15 +185,14 @@ describe('Profile Routes', () => {
     });
 
     it('should return 200 with user-id', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true, data: { score: 85 } })
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, data: { score: 85 } }));
 
-      const res = await request(app)
-        .get('/api/app/profile/wellness')
-        .set('x-user-id', 'user-123');
+      const res = await request(app).get('/api/app/profile/wellness').set('x-user-id', 'user-123');
       expect(res.status).toBe(200);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/analytics/users/'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/analytics/users/'),
+        expect.anything()
+      );
     });
   });
 });

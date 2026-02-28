@@ -77,9 +77,7 @@ function createUpdateChain(returnValue?: unknown[]) {
   return {
     set: vi.fn().mockReturnValue({
       where: vi.fn().mockReturnValue({
-        returning: returnValue
-          ? vi.fn().mockResolvedValue(returnValue)
-          : vi.fn().mockResolvedValue(undefined),
+        returning: returnValue ? vi.fn().mockResolvedValue(returnValue) : vi.fn().mockResolvedValue(undefined),
       }),
     }),
   };
@@ -229,9 +227,7 @@ describe('GuestConversionRepository', () => {
       const createdState = createMockState();
       const updatedState = createMockState({ songsGenerated: 1 });
 
-      mockDb.select
-        .mockReturnValueOnce(createSelectChainNoLimit([]))
-        .mockReturnValueOnce(createSelectChain([]));
+      mockDb.select.mockReturnValueOnce(createSelectChainNoLimit([])).mockReturnValueOnce(createSelectChain([]));
 
       const insertChain = createInsertChain([createdState]);
       mockDb.insert.mockReturnValue(insertChain);

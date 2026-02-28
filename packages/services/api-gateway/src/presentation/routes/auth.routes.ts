@@ -16,9 +16,7 @@ const logger = getLogger('api-gateway-auth');
 
 // Direct target URL — immune to service discovery state changes (static/dynamic transitions).
 // Auth is critical-path; never route through ServiceLocator which can be momentarily empty.
-const USER_SERVICE_URL =
-  process.env.USER_SERVICE_URL ||
-  `http://localhost:${process.env.USER_SERVICE_PORT || '3003'}`;
+const USER_SERVICE_URL = process.env.USER_SERVICE_URL || `http://localhost:${process.env.USER_SERVICE_PORT || '3003'}`;
 
 /**
  * Create proxy middleware for auth endpoints - SINGLE INSTANCE
@@ -47,17 +45,20 @@ const authProxy = createProxyMiddleware({
         proxyReq.end(); // CRITICAL: Must call end() to complete the request
       }
     },
-    error: (err: Error, req: import('http').IncomingMessage, res: import('http').ServerResponse) => {
+    error: (err, req, res) => {
       logger.warn('Auth proxy error — user-service unreachable', {
         error: err.message,
         path: (req as Request).path,
       });
-      if (!res.headersSent) {
+      // res can be ServerResponse (HTTP) or Socket (WebSocket upgrade) — guard before using HTTP methods
+      if ('writeHead' in res && !res.headersSent) {
         res.writeHead(503, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({
-          success: false,
-          error: 'Authentication service temporarily unavailable. Please try again.',
-        }));
+        res.end(
+          JSON.stringify({
+            success: false,
+            error: 'Authentication service temporarily unavailable. Please try again.',
+          })
+        );
       }
     },
   },

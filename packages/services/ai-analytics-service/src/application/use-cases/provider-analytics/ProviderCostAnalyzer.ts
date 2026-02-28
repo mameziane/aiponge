@@ -1,11 +1,7 @@
 import { IProviderRepository } from '../../../domains/repositories/IAnalyticsRepository';
 import { TemplateServiceClient } from '../../../infrastructure/clients/TemplateServiceClient';
 import { TEMPLATE_IDS } from '../../../infrastructure/clients/TemplateIds';
-import type {
-  GetProviderAnalyticsRequest,
-  ProviderCostAnalysisRequest,
-  ProviderCostAnalysis,
-} from './types';
+import type { GetProviderAnalyticsRequest, ProviderCostAnalysisRequest, ProviderCostAnalysis } from './types';
 
 export class ProviderCostAnalyzer {
   constructor(
@@ -25,7 +21,10 @@ export class ProviderCostAnalyzer {
     const totalCost = costData.reduce((sum, item) => sum + item.totalCost, 0);
     const totalRequests = costData.reduce((sum, item) => sum + item.requestCount, 0);
 
-    const costByGroup: Record<string, { totalCost: number; requestCount: number; averageCost: number; percentage: number }> = {};
+    const costByGroup: Record<
+      string,
+      { totalCost: number; requestCount: number; averageCost: number; percentage: number }
+    > = {};
     costData.forEach(item => {
       costByGroup[item.group] = {
         totalCost: item.totalCost,

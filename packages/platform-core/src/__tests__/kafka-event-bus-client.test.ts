@@ -210,9 +210,7 @@ describe('KafkaEventBusClient', () => {
 
       expect(mockProducer.send).toHaveBeenCalledWith(
         expect.objectContaining({
-          messages: expect.arrayContaining([
-            expect.objectContaining({ key: 'user_123' }),
-          ]),
+          messages: expect.arrayContaining([expect.objectContaining({ key: 'user_123' })]),
         })
       );
       await client.shutdown();
@@ -229,9 +227,7 @@ describe('KafkaEventBusClient', () => {
 
       expect(mockProducer.send).toHaveBeenCalledWith(
         expect.objectContaining({
-          messages: expect.arrayContaining([
-            expect.objectContaining({ key: 'asset_789' }),
-          ]),
+          messages: expect.arrayContaining([expect.objectContaining({ key: 'asset_789' })]),
         })
       );
       await client.shutdown();
@@ -248,9 +244,7 @@ describe('KafkaEventBusClient', () => {
 
       expect(mockProducer.send).toHaveBeenCalledWith(
         expect.objectContaining({
-          messages: expect.arrayContaining([
-            expect.objectContaining({ key: 'cor_fallback' }),
-          ]),
+          messages: expect.arrayContaining([expect.objectContaining({ key: 'cor_fallback' })]),
         })
       );
       await client.shutdown();
@@ -268,9 +262,7 @@ describe('KafkaEventBusClient', () => {
 
       expect(mockProducer.send).toHaveBeenCalledWith(
         expect.objectContaining({
-          messages: expect.arrayContaining([
-            expect.objectContaining({ key: 'custom_track_99' }),
-          ]),
+          messages: expect.arrayContaining([expect.objectContaining({ key: 'custom_track_99' })]),
         })
       );
       await client.shutdown();
@@ -314,9 +306,7 @@ describe('KafkaEventBusClient', () => {
       mockProducer.send.mockRejectedValueOnce(new Error('Kafka unavailable'));
 
       const event = makeEvent({ type: 'test.event' });
-      await expect(
-        client.publishToDeadLetter(event, new Error('fail'))
-      ).resolves.not.toThrow();
+      await expect(client.publishToDeadLetter(event, new Error('fail'))).resolves.not.toThrow();
       await client.shutdown();
     });
   });

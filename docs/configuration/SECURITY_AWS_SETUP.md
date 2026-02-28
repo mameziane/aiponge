@@ -19,11 +19,13 @@ ENTRY_ENCRYPTION_KEY=<base64-encoded-32-byte-key>
 Generate a secure encryption key using one of these methods:
 
 **Option 1: Node.js (recommended)**
+
 ```bash
 node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 ```
 
 **Option 2: OpenSSL**
+
 ```bash
 openssl rand -base64 32
 ```
@@ -31,6 +33,7 @@ openssl rand -base64 32
 ### AWS Secrets Manager Setup
 
 1. Create a secret in AWS Secrets Manager:
+
    ```bash
    aws secretsmanager create-secret \
      --name aiponge/entry-encryption-key \
@@ -38,15 +41,14 @@ openssl rand -base64 32
    ```
 
 2. Grant your ECS task role access to the secret:
+
    ```json
    {
      "Version": "2012-10-17",
      "Statement": [
        {
          "Effect": "Allow",
-         "Action": [
-           "secretsmanager:GetSecretValue"
-         ],
+         "Action": ["secretsmanager:GetSecretValue"],
          "Resource": "arn:aws:secretsmanager:*:*:secret:aiponge/entry-encryption-key-*"
        }
      ]
@@ -94,12 +96,14 @@ aws secretsmanager create-secret \
 ### Enable Encryption at Rest
 
 When creating your RDS instance:
+
 - Enable "Encryption" option
 - Use AWS-managed key or create a Customer Managed Key (CMK)
 
 ### Enable SSL/TLS for Connections
 
 Add to your connection string:
+
 ```
 ?sslmode=require
 ```
@@ -123,14 +127,17 @@ VPC
 ### Security Groups
 
 **API Gateway Service**
+
 - Inbound: 443 from ALB
 - Outbound: All internal services on their respective ports
 
 **User Service / Music Service / Other Services**
+
 - Inbound: Only from API Gateway security group
 - Outbound: RDS, Redis, external APIs
 
 **RDS**
+
 - Inbound: PostgreSQL (5432) from service security groups only
 - Outbound: None
 
@@ -138,12 +145,12 @@ VPC
 
 Store these in AWS Secrets Manager:
 
-| Secret Name | Description | Required |
-|------------|-------------|----------|
-| `aiponge/entry-encryption-key` | AES-256 key for book entry encryption | Yes |
-| `aiponge/internal-service-secret` | HMAC key for service-to-service auth | Yes |
-| `aiponge/jwt-secret` | JWT signing key for user auth | Yes |
-| `aiponge/database-url` | PostgreSQL connection string | Yes |
+| Secret Name                       | Description                           | Required |
+| --------------------------------- | ------------------------------------- | -------- |
+| `aiponge/entry-encryption-key`    | AES-256 key for book entry encryption | Yes      |
+| `aiponge/internal-service-secret` | HMAC key for service-to-service auth  | Yes      |
+| `aiponge/jwt-secret`              | JWT signing key for user auth         | Yes      |
+| `aiponge/database-url`            | PostgreSQL connection string          | Yes      |
 
 ## 6. Pre-Launch Checklist
 
@@ -163,6 +170,7 @@ Store these in AWS Secrets Manager:
 ### CloudWatch Alarms
 
 Set up alerts for:
+
 - Unusual number of failed authentication attempts
 - Database connection failures
 - Service health check failures
@@ -171,6 +179,7 @@ Set up alerts for:
 ### Logging
 
 Ensure all services log:
+
 - Authentication failures (without sensitive data)
 - Encryption/decryption errors
 - Internal service call failures

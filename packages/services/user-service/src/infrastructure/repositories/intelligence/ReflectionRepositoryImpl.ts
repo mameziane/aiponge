@@ -1,9 +1,6 @@
 import { eq, desc, and, sql, isNull } from 'drizzle-orm';
 import { DatabaseConnection } from '../../database/DatabaseConnectionFactory';
-import {
-  usrReflections as reflections,
-  usrReflectionTurns,
-} from '../../database/schemas/profile-schema';
+import { usrReflections as reflections, usrReflectionTurns } from '../../database/schemas/profile-schema';
 import type { Reflection, NewReflection, ReflectionTurn, NewReflectionTurn } from '../../../domains/insights/types';
 import { getLogger } from '../../../config/service-urls';
 import { encryptReflectionData, decryptReflection, decryptReflections, encryptionService } from './encryption-helpers';
@@ -67,7 +64,11 @@ export class ReflectionRepositoryPart {
 
   async createReflectionTurn(turnData: NewReflectionTurn): Promise<ReflectionTurn> {
     const [turn] = await this.db.insert(reflectionTurns).values(turnData).returning();
-    logger.info('Reflection turn created', { id: turn.id, reflectionId: turn.reflectionId, turnNumber: turn.turnNumber });
+    logger.info('Reflection turn created', {
+      id: turn.id,
+      reflectionId: turn.reflectionId,
+      turnNumber: turn.turnNumber,
+    });
     return turn;
   }
 
@@ -80,11 +81,7 @@ export class ReflectionRepositoryPart {
   }
 
   async updateReflectionTurn(id: string, data: Partial<ReflectionTurn>): Promise<ReflectionTurn> {
-    const [turn] = await this.db
-      .update(reflectionTurns)
-      .set(data)
-      .where(eq(reflectionTurns.id, id))
-      .returning();
+    const [turn] = await this.db.update(reflectionTurns).set(data).where(eq(reflectionTurns.id, id)).returning();
     if (!turn) throw ProfileError.notFound('ReflectionTurn', id);
     return turn;
   }

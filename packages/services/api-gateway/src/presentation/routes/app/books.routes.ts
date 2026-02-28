@@ -46,7 +46,7 @@ booksGenerateRouter.get(
     });
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[BOOKS ACCESS]') as Record<string, unknown>;
+      const errorData = (await parseErrorBody(response, '[BOOKS ACCESS]')) as Record<string, unknown>;
       res.status(response.status).json({
         success: false,
         message: errorData.error || 'Failed to check access',
@@ -87,7 +87,7 @@ booksGenerateRouter.post(
     });
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[BOOKS GENERATE]') as Record<string, unknown>;
+      const errorData = (await parseErrorBody(response, '[BOOKS GENERATE]')) as Record<string, unknown>;
       res.status(response.status).json({
         success: false,
         message: errorData.error || 'Failed to generate book',
@@ -125,7 +125,7 @@ booksGenerateRouter.get(
     });
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[BOOKS GENERATION STATUS]') as Record<string, unknown>;
+      const errorData = (await parseErrorBody(response, '[BOOKS GENERATION STATUS]')) as Record<string, unknown>;
       res.status(response.status).json({
         success: false,
         message: errorData.error || 'Failed to fetch generation status',
@@ -155,19 +155,16 @@ booksGenerateRouter.get(
 
     logger.info('[BOOKS] SSE progress stream requested', { userId, generationRequestId, requestId });
 
-    const response = await gatewayFetch(
-      `${userServiceUrl}/api/books/generation/${generationRequestId}/progress`,
-      {
-        headers: {
-          'x-user-id': userId,
-          'x-request-id': requestId,
-          Accept: 'text/event-stream',
-        },
-      }
-    );
+    const response = await gatewayFetch(`${userServiceUrl}/api/books/generation/${generationRequestId}/progress`, {
+      headers: {
+        'x-user-id': userId,
+        'x-request-id': requestId,
+        Accept: 'text/event-stream',
+      },
+    });
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[BOOKS PROGRESS]') as Record<string, unknown>;
+      const errorData = (await parseErrorBody(response, '[BOOKS PROGRESS]')) as Record<string, unknown>;
       res.status(response.status).json({
         success: false,
         message: errorData.error || 'Failed to start progress stream',
@@ -236,7 +233,7 @@ booksGenerateRouter.post(
     });
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[BOOKS REGENERATE]') as Record<string, unknown>;
+      const errorData = (await parseErrorBody(response, '[BOOKS REGENERATE]')) as Record<string, unknown>;
       res.status(response.status).json({
         success: false,
         message: errorData.error || 'Failed to regenerate book',
@@ -273,7 +270,7 @@ booksGenerateRouter.get(
     });
 
     if (!response.ok) {
-      const errorData = await parseErrorBody(response, '[BOOKS BLUEPRINTS]') as Record<string, unknown>;
+      const errorData = (await parseErrorBody(response, '[BOOKS BLUEPRINTS]')) as Record<string, unknown>;
       res.status(response.status).json({
         success: false,
         message: errorData.error || 'Failed to fetch blueprints',

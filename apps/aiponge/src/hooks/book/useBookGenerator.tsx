@@ -16,8 +16,6 @@ import { useIsLibrarianWithLoading } from '../admin/useAdminQuery';
 export interface Source {
   author: string;
   work?: string;
-  era?: string;
-  tradition?: string;
 }
 
 export interface GeneratedEntry {
@@ -42,8 +40,6 @@ export interface GeneratedBookBlueprint {
   description: string;
   category?: string;
   language?: string;
-  era?: string;
-  tradition?: string;
   chapters: GeneratedChapter[];
 }
 

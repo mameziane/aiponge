@@ -20,7 +20,10 @@ vi.mock('@aiponge/platform-core', () => ({
     getServicePort: vi.fn(() => 3020),
   },
   serializeError: vi.fn((e: unknown) => String(e)),
-  getValidation: () => ({ validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(), validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next() }),
+  getValidation: () => ({
+    validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+    validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+  }),
 }));
 
 vi.mock('@services/gatewayFetch', () => ({
@@ -120,12 +123,13 @@ describe('Activity Routes', () => {
         mockResponse({ success: true, data: { summary: { activeDays: 5 }, days: [] } })
       );
 
-      const res = await request(app)
-        .get('/api/app/activity/calendar')
-        .set('x-user-id', 'user-123');
+      const res = await request(app).get('/api/app/activity/calendar').set('x-user-id', 'user-123');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/music/library/activity/calendar'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/music/library/activity/calendar'),
+        expect.anything()
+      );
     });
   });
 
@@ -136,15 +140,14 @@ describe('Activity Routes', () => {
     });
 
     it('should return 200 with user-id', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true, data: { tracks: [], entries: [] } })
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, data: { tracks: [], entries: [] } }));
 
-      const res = await request(app)
-        .get('/api/app/activity/day/2025-01-01')
-        .set('x-user-id', 'user-123');
+      const res = await request(app).get('/api/app/activity/day/2025-01-01').set('x-user-id', 'user-123');
       expect(res.status).toBe(200);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/music/library/activity/day/'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/music/library/activity/day/'),
+        expect.anything()
+      );
     });
   });
 
@@ -155,15 +158,14 @@ describe('Activity Routes', () => {
     });
 
     it('should return 200 with user-id', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true, data: [] })
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, data: [] }));
 
-      const res = await request(app)
-        .get('/api/app/activity/alarms')
-        .set('x-user-id', 'user-123');
+      const res = await request(app).get('/api/app/activity/alarms').set('x-user-id', 'user-123');
       expect(res.status).toBe(200);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/music/library/schedules'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/music/library/schedules'),
+        expect.anything()
+      );
     });
   });
 
@@ -174,16 +176,15 @@ describe('Activity Routes', () => {
     });
 
     it('should return 200 with user-id', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true })
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true }));
 
-      const res = await request(app)
-        .delete('/api/app/activity/alarms/schedule-1')
-        .set('x-user-id', 'user-123');
+      const res = await request(app).delete('/api/app/activity/alarms/schedule-1').set('x-user-id', 'user-123');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/music/library/schedules/'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/music/library/schedules/'),
+        expect.anything()
+      );
     });
   });
 
@@ -204,9 +205,7 @@ describe('Activity Routes', () => {
     });
 
     it('should return 200 with valid alarm data', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(
-        mockResponse({ success: true, data: { id: 'schedule-1' } })
-      );
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, data: { id: 'schedule-1' } }));
 
       const res = await request(app)
         .post('/api/app/activity/schedule-alarm')
@@ -214,7 +213,10 @@ describe('Activity Routes', () => {
         .send({ trackId: 't1', time: '07:00', daysOfWeek: [1], recurring: true });
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/music/library/schedules'), expect.anything());
+      expect(mockGatewayFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/api/music/library/schedules'),
+        expect.anything()
+      );
     });
   });
 });

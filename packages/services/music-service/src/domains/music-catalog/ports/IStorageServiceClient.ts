@@ -50,10 +50,7 @@ export interface FileMetadata {
 }
 
 export interface IStorageServiceClient {
-  uploadAudio(
-    request: StorageUploadRequest,
-    fileData?: Buffer | Readable
-  ): Promise<StorageUploadResponse>;
+  uploadAudio(request: StorageUploadRequest, fileData?: Buffer | Readable): Promise<StorageUploadResponse>;
 
   downloadFromExternalUrl(params: {
     taskId: string;
@@ -96,15 +93,13 @@ export interface IStorageServiceClient {
 
   deleteFile(fileId: string): Promise<{ success: boolean; error?: string }>;
 
-  listFiles(
-    options?: {
-      folder?: string;
-      tags?: string[];
-      contentType?: string;
-      limit?: number;
-      offset?: number;
-    }
-  ): Promise<{
+  listFiles(options?: {
+    folder?: string;
+    tags?: string[];
+    contentType?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<{
     success: boolean;
     files?: FileMetadata[];
     total?: number;

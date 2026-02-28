@@ -202,15 +202,19 @@ export class ProvidersServiceClient implements IProvidersServiceClient {
     return `${this.getBaseUrl()}${path}`;
   }
 
-  async invokeProvider<T = unknown>(request: ProviderRequest, options?: { timeout?: number }): Promise<ProviderResponse<T>> {
+  async invokeProvider<T = unknown>(
+    request: ProviderRequest,
+    options?: { timeout?: number }
+  ): Promise<ProviderResponse<T>> {
     return withServiceResilience(
       SERVICE_NAME,
       'invokeProvider',
-      () => this.httpClient.post<ProviderResponse<T>>(
-        this.url('/api/providers/invoke'),
-        request,
-        options?.timeout ? { timeout: options.timeout } : undefined
-      ),
+      () =>
+        this.httpClient.post<ProviderResponse<T>>(
+          this.url('/api/providers/invoke'),
+          request,
+          options?.timeout ? { timeout: options.timeout } : undefined
+        ),
       'ai-provider'
     );
   }

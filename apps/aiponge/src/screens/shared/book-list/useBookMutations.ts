@@ -56,8 +56,6 @@ export function useBookMutations({ refetchManageBooks, t, userId }: BookMutation
         data: {
           ...blueprint,
           // AI can return null for optional string fields; send undefined so the schema accepts them
-          era: blueprint.era ?? undefined,
-          tradition: blueprint.tradition ?? undefined,
           subtitle: blueprint.subtitle ?? undefined,
           typeId,
           scope: 'shared',
@@ -231,8 +229,6 @@ export function useBookMutations({ refetchManageBooks, t, userId }: BookMutation
       subtitle: book.subtitle || '',
       description: book.description || '',
       author: book.author || '',
-      era: book.era || '',
-      tradition: book.tradition || '',
       category: book.category,
       visibility: book.visibility || CONTENT_VISIBILITY.SHARED,
       status: book.status || BOOK_LIFECYCLE.ACTIVE,

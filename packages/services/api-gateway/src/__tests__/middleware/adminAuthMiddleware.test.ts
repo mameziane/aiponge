@@ -2,17 +2,21 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Request, Response, NextFunction } from 'express';
 
 let authenticateCallback: ((err?: unknown) => void) | undefined;
-const mockAuthHandler = vi.hoisted(() => vi.fn((_req: Request, _res: Response, next: NextFunction) => {
-  authenticateCallback = next;
-}));
+const mockAuthHandler = vi.hoisted(() =>
+  vi.fn((_req: Request, _res: Response, next: NextFunction) => {
+    authenticateCallback = next;
+  })
+);
 const mockAuthenticate = vi.hoisted(() => vi.fn().mockReturnValue(mockAuthHandler));
 
 const { StandardAuthMiddleware: MockStandardAuthMiddleware } = vi.hoisted(() => {
-  const cls = function(this: Record<string, unknown>) { this.authenticate = mockAuthenticate; } as unknown as new () => Record<string, unknown>;
+  const cls = function (this: Record<string, unknown>) {
+    this.authenticate = mockAuthenticate;
+  } as unknown as new () => Record<string, unknown>;
   return { StandardAuthMiddleware: cls };
 });
 
-vi.mock('@aiponge/platform-core', async (importOriginal) => {
+vi.mock('@aiponge/platform-core', async importOriginal => {
   const actual = await importOriginal<Record<string, unknown>>();
   return {
     ...actual,
@@ -21,7 +25,7 @@ vi.mock('@aiponge/platform-core', async (importOriginal) => {
   };
 });
 
-vi.mock('@aiponge/shared-contracts', async (importOriginal) => {
+vi.mock('@aiponge/shared-contracts', async importOriginal => {
   const actual = await importOriginal<Record<string, unknown>>();
   return {
     ...actual,
@@ -32,7 +36,11 @@ vi.mock('@aiponge/shared-contracts', async (importOriginal) => {
 });
 
 const mockLogger = vi.hoisted(() => ({
-  info: vi.fn(), debug: vi.fn(), warn: vi.fn(), error: vi.fn(), child: vi.fn(),
+  info: vi.fn(),
+  debug: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  child: vi.fn(),
 }));
 vi.mock('../../config/service-urls', () => ({
   getLogger: () => mockLogger,
@@ -45,10 +53,41 @@ import {
 } from '../../presentation/middleware/adminAuthMiddleware';
 
 function createMockReq(overrides = {}) {
-  return { headers: {}, params: {}, query: {}, body: {}, user: undefined, cookies: {}, ip: '127.0.0.1', method: 'GET', path: '/', get: vi.fn((h: string) => ({} as Record<string, string>)[h]), ...overrides } as unknown as Request;
+  return {
+    headers: {},
+    params: {},
+    query: {},
+    body: {},
+    user: undefined,
+    cookies: {},
+    ip: '127.0.0.1',
+    method: 'GET',
+    path: '/',
+    get: vi.fn((h: string) => (({}) as Record<string, string>)[h]),
+    ...overrides,
+  } as unknown as Request;
 }
 function createMockRes() {
-  const res = { _statusCode: 200, _data: undefined, locals: {}, status: vi.fn(function(this: Record<string, unknown>, c: number) { this._statusCode = c; return this; }), json: vi.fn(function(this: Record<string, unknown>, d: unknown) { this._data = d; return this; }), send: vi.fn(function(this: Record<string, unknown>, d: unknown) { this._data = d; return this; }), set: vi.fn().mockReturnThis(), setHeader: vi.fn().mockReturnThis(), end: vi.fn().mockReturnThis() } as unknown as Response;
+  const res = {
+    _statusCode: 200,
+    _data: undefined,
+    locals: {},
+    status: vi.fn(function (this: Record<string, unknown>, c: number) {
+      this._statusCode = c;
+      return this;
+    }),
+    json: vi.fn(function (this: Record<string, unknown>, d: unknown) {
+      this._data = d;
+      return this;
+    }),
+    send: vi.fn(function (this: Record<string, unknown>, d: unknown) {
+      this._data = d;
+      return this;
+    }),
+    set: vi.fn().mockReturnThis(),
+    setHeader: vi.fn().mockReturnThis(),
+    end: vi.fn().mockReturnThis(),
+  } as unknown as Response;
   return res;
 }
 
@@ -115,14 +154,16 @@ describe('adminAuthMiddleware', () => {
     authenticateCallback!();
 
     expect(res.status).toHaveBeenCalledWith(401);
-    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-      error: expect.objectContaining({
-        code: 'UNAUTHORIZED',
-        details: expect.objectContaining({
-          code: 'ADMIN_AUTH_REQUIRED',
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        error: expect.objectContaining({
+          code: 'UNAUTHORIZED',
+          details: expect.objectContaining({
+            code: 'ADMIN_AUTH_REQUIRED',
+          }),
         }),
-      }),
-    }));
+      })
+    );
     expect(mockLogger.warn).toHaveBeenCalled();
   });
 
@@ -148,14 +189,16 @@ describe('adminAuthMiddleware', () => {
     authenticateCallback!();
 
     expect(res.status).toHaveBeenCalledWith(403);
-    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-      error: expect.objectContaining({
-        code: 'FORBIDDEN',
-        details: expect.objectContaining({
-          code: 'ADMIN_ROLE_REQUIRED',
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        error: expect.objectContaining({
+          code: 'FORBIDDEN',
+          details: expect.objectContaining({
+            code: 'ADMIN_ROLE_REQUIRED',
+          }),
         }),
-      }),
-    }));
+      })
+    );
   });
 
   it('should return 403 for librarian role (not admin)', () => {
@@ -262,14 +305,16 @@ describe('librarianAuthMiddleware', () => {
     authenticateCallback!();
 
     expect(res.status).toHaveBeenCalledWith(401);
-    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-      error: expect.objectContaining({
-        code: 'UNAUTHORIZED',
-        details: expect.objectContaining({
-          code: 'LIBRARIAN_AUTH_REQUIRED',
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        error: expect.objectContaining({
+          code: 'UNAUTHORIZED',
+          details: expect.objectContaining({
+            code: 'LIBRARIAN_AUTH_REQUIRED',
+          }),
         }),
-      }),
-    }));
+      })
+    );
   });
 
   it('should return 403 for regular user role', () => {
@@ -283,14 +328,16 @@ describe('librarianAuthMiddleware', () => {
     authenticateCallback!();
 
     expect(res.status).toHaveBeenCalledWith(403);
-    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-      error: expect.objectContaining({
-        code: 'FORBIDDEN',
-        details: expect.objectContaining({
-          code: 'LIBRARIAN_ROLE_REQUIRED',
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        error: expect.objectContaining({
+          code: 'FORBIDDEN',
+          details: expect.objectContaining({
+            code: 'LIBRARIAN_ROLE_REQUIRED',
+          }),
         }),
-      }),
-    }));
+      })
+    );
   });
 
   it('should return 403 for invalid/unknown role', () => {
@@ -362,11 +409,13 @@ describe('developmentOnlyMiddleware', () => {
     developmentOnlyMiddleware(req, res, next);
 
     expect(res.status).toHaveBeenCalledWith(404);
-    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-      error: expect.objectContaining({
-        code: 'NOT_FOUND',
-      }),
-    }));
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        error: expect.objectContaining({
+          code: 'NOT_FOUND',
+        }),
+      })
+    );
     expect(next).not.toHaveBeenCalled();
   });
 });
