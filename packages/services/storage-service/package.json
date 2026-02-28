@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "@aiponge/platform-core": "*",
+    "@aiponge/shared-contracts": "*",
     "@aws-sdk/client-s3": "^3.948.0",
     "@aws-sdk/s3-request-presigner": "^3.948.0",
     "compression": "^1.7.4",

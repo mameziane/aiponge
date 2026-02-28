@@ -16,7 +16,8 @@ export async function runSeeds(options: SeedRunnerOptions = {}): Promise<void> {
     throw new Error('DATABASE_URL environment variable is required to run seeds');
   }
 
-  const isLocal = databaseUrl.includes('localhost') || databaseUrl.includes('127.0.0.1');
+  const isLocal =
+    databaseUrl.includes('localhost') || databaseUrl.includes('127.0.0.1') || databaseUrl.includes('.railway.internal');
   const pool = new Pool({
     connectionString: databaseUrl,
     max: 3,

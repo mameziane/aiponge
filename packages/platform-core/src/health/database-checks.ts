@@ -20,7 +20,10 @@ export class DatabaseHealthChecker {
    */
   static async executePgHealthCheck(databaseUrl: string): Promise<HealthCheckRow[]> {
     const { Pool } = await import('pg');
-    const isLocal = databaseUrl.includes('localhost') || databaseUrl.includes('127.0.0.1');
+    const isLocal =
+      databaseUrl.includes('localhost') ||
+      databaseUrl.includes('127.0.0.1') ||
+      databaseUrl.includes('.railway.internal');
     const pool = new Pool({
       connectionString: databaseUrl,
       max: 1,

@@ -118,9 +118,18 @@ class DatabaseConnectionFactoryClass<TSchema extends Record<string, unknown>> {
   }
 
   private getSslConfig(connStr: string): false | { rejectUnauthorized: boolean } {
+    if (process.env.DATABASE_SSL === 'false') {
+      return false;
+    }
     try {
       const url = new URL(connStr);
-      if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+      const host = url.hostname;
+      // Local, Railway internal, and other private network connections don't need SSL
+      if (host === 'localhost' || host === '127.0.0.1' || host.endsWith('.railway.internal')) {
+        return false;
+      }
+      // Check for explicit sslmode=disable in connection string
+      if (url.searchParams.get('sslmode') === 'disable') {
         return false;
       }
     } catch {
