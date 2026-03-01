@@ -29,7 +29,6 @@ import { Platform, Alert } from 'react-native';
 import { useAuthStore, selectUserAndRole } from '../auth/store';
 import { useShallow } from 'zustand/react/shallow';
 import { logger } from '../lib/logger';
-import { isExpoGo } from '../offline/offlineEnv';
 import { useTranslation } from '../i18n';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
@@ -252,29 +251,19 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
 
     const initializeRevenueCat = async () => {
       try {
-        const testStoreKey = process.env.EXPO_PUBLIC_REVENUECAT_TEST_STORE_KEY || '';
-        const nativeKey =
+        const apiKey =
           Platform.select({
             ios: process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY || '',
             android: process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_KEY || '',
           }) || '';
 
-        const apiKey = isExpoGo && testStoreKey ? testStoreKey : nativeKey;
-
         if (!apiKey) {
-          logger.warn('RevenueCat API key not configured', {
-            isExpoGo,
-            hasTestKey: !!testStoreKey,
-            hasNativeKey: !!nativeKey,
-          });
+          logger.warn('RevenueCat API key not configured');
           setIsLoading(false);
           return;
         }
 
-        logger.info('RevenueCat configuring', {
-          isExpoGo,
-          keyType: isExpoGo && testStoreKey ? 'test_store' : 'native',
-        });
+        logger.info('RevenueCat configuring');
 
         // Only configure if not already configured to prevent duplicate initialization warnings
         const isConfigured = await Purchases.isConfigured();

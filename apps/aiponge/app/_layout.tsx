@@ -30,7 +30,6 @@ import { AppProviders } from '../src/providers';
 import { useThemeMode } from '../src/theme/ThemeProvider';
 import { initAuth } from '../src/auth';
 import { initI18n, reloadAppForRTL } from '../src/i18n';
-import { initializeMediaSession } from '../src/hooks/music/MediaSessionService';
 import { i18nReady } from '../src/i18n';
 import { ErrorBoundary } from '../src/components/shared/ErrorBoundary';
 import { logger } from '../src/lib/logger';
@@ -148,11 +147,6 @@ export default function RootLayout() {
         // Still mark as loaded to prevent splash screen deadlock
         setLanguageLoaded(true);
       });
-    // Initialize media session for Bluetooth/lock screen track metadata
-    // This is safe to call even in Expo Go - it will fail silently if native module not available
-    initializeMediaSession().catch(() => {
-      logger.debug('[RootLayout] Media session not available (requires development build)');
-    });
   }, []);
 
   // Hide native splash for returning users when everything is ready

@@ -14,14 +14,12 @@ config.resolver.nodeModulesPaths = [
   path.resolve(workspaceRoot, 'node_modules'),
 ];
 
-const RNTP_STUB = path.resolve(__dirname, 'src/__stubs__/track-player-stub.js');
 const AUDIO_STUDIO_STUB = path.resolve(__dirname, 'src/__stubs__/expo-audio-studio-stub.js');
 
-// Modules excluded from iOS native linking (see react-native.config.js).
-// Metro must redirect their JS imports to stubs so the bundle never references
-// absent TurboModules. Android builds resolve normally.
+// @siteed/expo-audio-studio is excluded from iOS native linking (see react-native.config.js)
+// because its AVAudioSession monitoring crashes on iOS 26. Metro redirects the JS import
+// to a stub so the bundle never references the absent TurboModule. Android resolves normally.
 const IOS_STUB_MAP = {
-  'react-native-track-player': RNTP_STUB,
   '@siteed/expo-audio-studio': AUDIO_STUDIO_STUB,
 };
 

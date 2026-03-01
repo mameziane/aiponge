@@ -1,20 +1,11 @@
 /**
  * Offline Environment Module
- * Handles Expo Go detection and provides safe stubs for expo-file-system
- *
- * Environment Detection:
- * - Expo Go: Uses stub implementations (native FileSystem modules not available)
- * - Development Build: Uses expo-file-system for real file operations
+ * Provides expo-file-system with safe stubs as fallback.
  */
 
-import Constants from 'expo-constants';
 import { logger } from '../lib/logger';
 
-// Detect Expo Go environment
-export const isExpoGo = Constants.appOwnership === 'expo';
-export const isOfflineSupported = !isExpoGo;
-export const disableMessage =
-  'Offline downloads require a development build. This feature is not available in Expo Go.';
+export const isOfflineSupported = true;
 
 // FileSystem stub types matching expo-file-system
 interface FileInfo {
@@ -66,7 +57,7 @@ interface FileSystemInterface {
   getTotalDiskCapacityAsync: () => Promise<number>;
 }
 
-// Stub implementation for Expo Go (native FileSystem not available)
+// Stub implementation (fallback if native module fails to load)
 const fileSystemStub: FileSystemInterface = {
   documentDirectory: null,
   cacheDirectory: null,
@@ -90,24 +81,20 @@ const fileSystemStub: FileSystemInterface = {
   getTotalDiskCapacityAsync: async () => 0,
 };
 
-// Dynamic module loading with Expo Go protection
+// Dynamic module loading with fallback to stub
 let FileSystem: FileSystemInterface = fileSystemStub;
 
-if (isOfflineSupported) {
-  try {
-    const fs = require('expo-file-system');
-    FileSystem = fs as FileSystemInterface;
-    logger.info('[offlineEnv] Loaded expo-file-system module');
-  } catch (error) {
-    logger.warn('[offlineEnv] Failed to load expo-file-system, using stub', { error });
-  }
-} else {
-  logger.info('[offlineEnv] Running in Expo Go - offline downloads require development build');
+try {
+  const fs = require('expo-file-system');
+  FileSystem = fs as FileSystemInterface;
+  logger.info('[offlineEnv] Loaded expo-file-system module');
+} catch (error) {
+  logger.warn('[offlineEnv] Failed to load expo-file-system, using stub', { error });
 }
 
 export { FileSystem };
 
-// Helper to get offline directory path (returns null in Expo Go)
+// Helper to get offline directory path
 export function getOfflineDirectory(): string | null {
   if (!isOfflineSupported || !FileSystem.documentDirectory) {
     return null;

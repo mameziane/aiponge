@@ -4,25 +4,9 @@
  * Prevents multiple audio players from playing simultaneously
  * Exposes track completion callbacks for queue auto-advance
  *
- * ARCHITECTURE NOTE — DUAL AUDIO SYSTEM (future consolidation candidate):
- * The app uses two audio packages intentionally:
- *   1. expo-audio (this file) — handles actual audio playback everywhere, including Expo Go
- *   2. react-native-track-player (MediaSessionService.ts) — manages the iOS lock screen Now
- *      Playing widget, Bluetooth remote controls (AirPods, car audio), and Control Center.
- *      It does NOT play audio; its track URL is intentionally '' and it mirrors expo-audio state.
- *
- * The split exists because react-native-track-player is a third-party native module not bundled
- * in Expo Go, so expo-audio is required to keep audio working during development without a build.
- *
- * iOS 26 NOTE:
- * react-native-track-player 4.1.x has confirmed memory corruption on iOS 26 and remains
- * blocked in MediaSessionService.ts (lock screen / Bluetooth only — no audio impact).
- * expo-audio 1.1.x does NOT exhibit the same crash; audio playback works normally on iOS 26.
- * The playsInSilentMode session config (audioSession.ts) is required for sound to play
- * when the mute switch is on.
- *
- * TODO (future consolidation): Migrate to react-native-track-player for both playback and media
- * session. It handles both concerns in one package, which removes the dual-init crash risk.
+ * expo-audio handles everything: playback, lock screen controls, and Bluetooth remotes.
+ * Lock screen metadata is set via player.setActiveForLockScreen() in MediaSessionService.ts.
+ * Play/pause/seek from lock screen and Bluetooth are handled natively by expo-audio.
  */
 
 import { createContext, useContext, useRef, useCallback, useEffect, ReactNode } from 'react';

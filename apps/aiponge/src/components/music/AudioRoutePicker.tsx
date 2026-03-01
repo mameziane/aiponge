@@ -5,14 +5,11 @@
  * - iOS: Native AirPlay route picker (AVRoutePickerView) via react-airplay
  * - Android: Chromecast via react-native-google-cast + Bluetooth devices
  * - Both: Unified device picker with all available audio outputs
- *
- * Requires production/development build - will show fallback in Expo Go
  */
 
 import React, { useCallback, useState, useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform, Modal, FlatList, Alert, SectionList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import Constants from 'expo-constants';
 import { useThemeColors, type ColorScheme } from '../../theme';
 import { BORDER_RADIUS } from '../../theme/constants';
 import { useTranslation } from '../../i18n';
@@ -22,15 +19,13 @@ import { useCastPlayback } from '../../hooks/music/useCastPlayback';
 import { logger } from '../../lib/logger';
 import type { IconName } from '../../types/ui.types';
 
-const isExpoGo = Constants.appOwnership === 'expo';
-
 let AirplayButton: React.ComponentType<Record<string, unknown>> | null = null;
 let showRoutePicker: ((options?: { prioritizesVideoDevices?: boolean }) => void) | null = null;
 let useAirplayConnectivity: (() => boolean) | null = null;
 let useExternalPlaybackAvailability: (() => boolean) | null = null;
 let useAvAudioSessionRoutes: (() => Array<{ portName: string; portType: string; uid: string }>) | null = null;
 
-if (!isExpoGo && Platform.OS === 'ios') {
+if (Platform.OS === 'ios') {
   try {
     const reactAirplay = require('react-airplay');
     AirplayButton = reactAirplay.AirplayButton;
@@ -72,7 +67,7 @@ export function AudioRoutePicker({
   const color = colorProp ?? colors.text.secondary;
   const activeColor = activeColorProp ?? colors.brand.primary;
   const { t } = useTranslation();
-  const { outputInfo, allDevices, selectDevice, supportsOutputDiscovery, isRunningInExpoGo } = useAudioOutput();
+  const { outputInfo, allDevices, selectDevice, supportsOutputDiscovery } = useAudioOutput();
   const {
     isConnected: isCastConnected,
     device: castDevice,
@@ -224,20 +219,6 @@ export function AudioRoutePicker({
   const renderSectionHeader = ({ section }: { section: { title: string } }) => (
     <Text style={styles.sectionHeader}>{section.title}</Text>
   );
-
-  if (isRunningInExpoGo) {
-    return (
-      <View style={[styles.container, style]}>
-        <TouchableOpacity
-          onPress={() => Alert.alert(t('audioOutput.expoGoLimitation'), t('audioOutput.requiresDevelopmentBuild'))}
-          testID="audio-route-picker-stub"
-        >
-          <Ionicons name="volume-high" size={size} color={color} />
-          {showLabel && <Text style={[styles.label, { color }]}>{t('audioOutput.speaker')}</Text>}
-        </TouchableOpacity>
-      </View>
-    );
-  }
 
   if (Platform.OS === 'ios') {
     return (

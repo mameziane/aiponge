@@ -1,18 +1,11 @@
 /**
  * Speech Recognition Hook
- * Converts spoken voice to text input
- *
- * Environment Detection:
- * - Expo Go: Uses stub implementations (native modules blocked by Metro)
- * - Development Build: Uses expo-speech-recognition for real speech-to-text
- *
- * NOTE: Metro config blocks native modules and redirects to stubs automatically.
+ * Converts spoken voice to text input using expo-speech-recognition.
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { NativeEventEmitter, NativeModules, NativeModule, Platform } from 'react-native';
 import { logger } from '../../lib/logger';
-import Constants from 'expo-constants';
 
 export interface SpeechRecognitionState {
   isListening: boolean;
@@ -47,8 +40,6 @@ interface SpeechError {
   message?: string;
 }
 
-const isExpoGo = Constants.appOwnership === 'expo';
-
 // Stub module interface matching expo-speech-recognition
 interface ExpoSpeechRecognitionModuleInterface {
   start: (options: {
@@ -68,7 +59,7 @@ interface ExpoSpeechRecognitionModuleInterface {
   removeListeners?: (count: number) => void;
 }
 
-// Stub implementation for Expo Go (native modules not available)
+// Stub implementation (fallback if native module fails to load)
 const speechRecognitionStub: ExpoSpeechRecognitionModuleInterface = {
   start: () => {},
   stop: () => {},
@@ -79,26 +70,22 @@ const speechRecognitionStub: ExpoSpeechRecognitionModuleInterface = {
   requestPermissionsAsync: async () => ({ granted: false, status: 'undetermined' }),
 };
 
-// Dynamic module loading with Expo Go protection
+// Dynamic module loading
 let ExpoSpeechRecognitionModule: ExpoSpeechRecognitionModuleInterface = speechRecognitionStub;
 let speechEventEmitter: NativeEventEmitter | null = null;
 
-if (!isExpoGo) {
-  try {
-    const speechModule = require('expo-speech-recognition');
-    ExpoSpeechRecognitionModule = speechModule.ExpoSpeechRecognitionModule || speechRecognitionStub;
+try {
+  const speechModule = require('expo-speech-recognition');
+  ExpoSpeechRecognitionModule = speechModule.ExpoSpeechRecognitionModule || speechRecognitionStub;
 
-    // Create event emitter if the module supports it
-    if (ExpoSpeechRecognitionModule && ExpoSpeechRecognitionModule.addListener) {
-      speechEventEmitter = new NativeEventEmitter(ExpoSpeechRecognitionModule as NativeModule);
-    }
-
-    logger.info('[useSpeechRecognition] Loaded expo-speech-recognition module');
-  } catch (error) {
-    logger.warn('[useSpeechRecognition] Failed to load expo-speech-recognition, using stub', { error });
+  // Create event emitter if the module supports it
+  if (ExpoSpeechRecognitionModule && ExpoSpeechRecognitionModule.addListener) {
+    speechEventEmitter = new NativeEventEmitter(ExpoSpeechRecognitionModule as NativeModule);
   }
-} else {
-  logger.info('[useSpeechRecognition] Running in Expo Go - voice input requires development build');
+
+  logger.info('[useSpeechRecognition] Loaded expo-speech-recognition module');
+} catch (error) {
+  logger.warn('[useSpeechRecognition] Failed to load expo-speech-recognition, using stub', { error });
 }
 
 // Map language codes to speech recognition locales
@@ -119,7 +106,7 @@ export function useSpeechRecognition(options: SpeechRecognitionOptions = {}) {
     interimTranscript: '',
     error: null,
     isAvailable: false,
-    isSupported: !isExpoGo,
+    isSupported: true,
   });
 
   const optionsRef = useRef(options);
@@ -128,15 +115,6 @@ export function useSpeechRecognition(options: SpeechRecognitionOptions = {}) {
 
   // Check availability on mount
   useEffect(() => {
-    if (isExpoGo) {
-      setState(prev => ({
-        ...prev,
-        isAvailable: false,
-        isSupported: false,
-      }));
-      return;
-    }
-
     async function checkAvailability() {
       try {
         const available = await ExpoSpeechRecognitionModule.isRecognitionAvailable();
@@ -152,7 +130,7 @@ export function useSpeechRecognition(options: SpeechRecognitionOptions = {}) {
 
   // Set up event listeners for speech recognition
   useEffect(() => {
-    if (isExpoGo || !speechEventEmitter) return;
+    if (!speechEventEmitter) return;
 
     // Handle speech results
     const resultSubscription = speechEventEmitter.addListener('result', (event: SpeechResult) => {
@@ -215,10 +193,6 @@ export function useSpeechRecognition(options: SpeechRecognitionOptions = {}) {
   }, []);
 
   const requestPermissions = useCallback(async (): Promise<boolean> => {
-    if (isExpoGo) {
-      return false;
-    }
-
     try {
       const result = await ExpoSpeechRecognitionModule.requestPermissionsAsync();
       return result.granted;
@@ -230,14 +204,6 @@ export function useSpeechRecognition(options: SpeechRecognitionOptions = {}) {
 
   const startListening = useCallback(
     async (lang?: string) => {
-      if (isExpoGo) {
-        setState(prev => ({
-          ...prev,
-          error: 'Voice input requires a development build. Please install the development build on your device.',
-        }));
-        return false;
-      }
-
       // Request permissions first
       const hasPermission = await requestPermissions();
       if (!hasPermission) {
@@ -287,8 +253,6 @@ export function useSpeechRecognition(options: SpeechRecognitionOptions = {}) {
   );
 
   const stopListening = useCallback(() => {
-    if (isExpoGo) return;
-
     try {
       ExpoSpeechRecognitionModule.stop();
       setState(prev => ({ ...prev, isListening: false }));
@@ -299,8 +263,6 @@ export function useSpeechRecognition(options: SpeechRecognitionOptions = {}) {
   }, []);
 
   const cancelListening = useCallback(() => {
-    if (isExpoGo) return;
-
     try {
       ExpoSpeechRecognitionModule.abort();
       setState(prev => ({
@@ -336,6 +298,5 @@ export function useSpeechRecognition(options: SpeechRecognitionOptions = {}) {
     clearTranscript,
     clearError,
     requestPermissions,
-    isExpoGo,
   };
 }

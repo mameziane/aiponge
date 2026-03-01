@@ -2,17 +2,12 @@
  * Chromecast Hook
  *
  * Provides Chromecast/Google Cast functionality for casting audio to Cast devices.
- * Requires production/development build - will show fallback in Expo Go.
- *
  * Uses react-native-google-cast for native Cast SDK integration.
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Platform } from 'react-native';
-import Constants from 'expo-constants';
 import { logger } from '../../lib/logger';
-
-const isExpoGo = Constants.appOwnership === 'expo';
 
 export interface CastDevice {
   deviceId: string;
@@ -78,8 +73,6 @@ let castModuleLoadAttempted = false;
 function loadCastModule(): void {
   if (castModuleLoadAttempted) return;
   castModuleLoadAttempted = true;
-
-  if (isExpoGo) return;
 
   try {
     logger.info('[useChromecast] Loading react-native-google-cast (lazy)');
@@ -204,7 +197,7 @@ export function useChromecast() {
     device: null,
     devices: [],
   });
-  const [isSupported] = useState(!isExpoGo && castModuleLoaded);
+  const [isSupported] = useState(castModuleLoaded);
   const [error, setError] = useState<Error | null>(null);
 
   const nativeCastState = useSafeCastState();
@@ -394,7 +387,6 @@ export function useChromecast() {
   return {
     ...castState,
     isSupported,
-    isRunningInExpoGo: isExpoGo,
     error,
     showCastDialog,
     castMedia,

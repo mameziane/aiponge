@@ -61,7 +61,6 @@ export function useEntryEditor({
     stopListening,
     clearTranscript,
     clearError: clearSpeechError,
-    isExpoGo,
   } = useSpeechRecognition({
     lang: i18n.language,
     interimResults: true,
@@ -196,10 +195,6 @@ export function useEntryEditor({
   );
 
   const handleVoiceInput = useCallback(async () => {
-    if (isExpoGo) {
-      Alert.alert(t('create.voiceInputUnavailable'), t('create.voiceInputRequiresBuild'), [{ text: t('common.ok') }]);
-      return;
-    }
     if (isListening) {
       stopListening();
     } else {
@@ -208,7 +203,7 @@ export function useEntryEditor({
         Alert.alert(t('create.voiceInputError'), speechError, [{ text: t('common.ok'), onPress: clearSpeechError }]);
       }
     }
-  }, [isListening, isExpoGo, startListening, stopListening, i18n.language, speechError, clearSpeechError, t]);
+  }, [isListening, startListening, stopListening, i18n.language, speechError, clearSpeechError, t]);
 
   const resetEditorForEntry = useCallback((entry: Entry | null) => {
     isEditingRef.current = false;

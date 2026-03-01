@@ -2,17 +2,14 @@
  * Audio Output Hook
  * Detects and displays current audio output device (Bluetooth, speaker, headphones, etc.)
  *
- * Environment Detection:
- * - Expo Go: Uses stub implementations (native modules blocked by Metro)
- * - Development Build: Uses @siteed/expo-audio-studio for real device detection
- *
- * NOTE: Metro config blocks native modules and redirects to stubs automatically.
+ * Uses @siteed/expo-audio-studio for real device detection.
+ * On iOS 26, expo-audio-studio is disabled (AVAudioSession crash) — falls back to stub.
+ * Metro redirects the require() to a stub on iOS (see metro.config.js).
  */
 
 import { useState, useEffect, useCallback } from 'react';
 import { Platform } from 'react-native';
 import { logger } from '../../lib/logger';
-import Constants from 'expo-constants';
 import type { IconName } from '../../types/ui.types';
 
 export interface AudioOutputInfo {
@@ -28,18 +25,14 @@ interface AudioDevice {
   isDefault?: boolean;
 }
 
-const isExpoGo = Constants.appOwnership === 'expo';
-
 // iOS 26 detection — expo-audio-studio starts AVAudioSession monitoring at native init
-// time on iOS 26, activating CoreMedia queues and triggering NSException crashes.
-// Same root cause as the RNTP crash — native AppDelegate/+load code runs before JS.
+// time, activating CoreMedia queues and triggering NSException crashes on iOS 26.
 // Metro redirects the require() to a stub on iOS (see metro.config.js), and
-// react-native.config.js excludes the native binary entirely, preventing the
-// background thread from starting.
+// react-native.config.js excludes the native binary entirely.
 const iosVersionMajor = Platform.OS === 'ios' ? parseInt(String(Platform.Version).split('.')[0], 10) : 0;
 const isIOS26OrLater = iosVersionMajor >= 26;
 
-// Stub implementation for Expo Go and iOS 26 (native modules not available / unsafe)
+// Stub implementation for iOS 26 (native module unsafe)
 const audioDeviceManagerStub = {
   getAvailableDevices: async (): Promise<AudioDevice[]> => [],
   getCurrentDevice: async (): Promise<AudioDevice | null> => null,
@@ -50,23 +43,20 @@ const audioDeviceManagerStub = {
     () => {},
 };
 
-// Only load native module on non-Expo-Go AND non-iOS26 builds.
 // On iOS the Metro redirect to the stub handles this transparently.
 let audioDeviceManager: typeof audioDeviceManagerStub = audioDeviceManagerStub;
 
-if (!isExpoGo && !isIOS26OrLater) {
+if (!isIOS26OrLater) {
   try {
     const audioStudioModule = require('@siteed/expo-audio-studio');
     audioDeviceManager = audioStudioModule.audioDeviceManager || audioDeviceManagerStub;
   } catch (error) {
     logger.warn('[useAudioOutput] Failed to load @siteed/expo-audio-studio, using stub', { error });
   }
-} else if (isIOS26OrLater) {
+} else {
   logger.warn(
     '[useAudioOutput] iPhone OS 26+ — expo-audio-studio disabled (AVAudioSession crash). Audio device detection unavailable.'
   );
-} else {
-  logger.info('[useAudioOutput] Running in Expo Go - using stub (requires development build for device detection)');
 }
 
 function classifyDevice(device: AudioDevice | null): AudioOutputInfo {
@@ -115,10 +105,10 @@ export function useAudioOutput() {
     deviceType: 'builtin',
     icon: 'volume-high',
   });
-  const [isLoading, setIsLoading] = useState(!isExpoGo);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [allDevices, setAllDevices] = useState<AudioDevice[]>([]);
-  const [supportsOutputDiscovery, setSupportsOutputDiscovery] = useState(!isExpoGo);
+  const [supportsOutputDiscovery, setSupportsOutputDiscovery] = useState(true);
 
   useEffect(() => {
     let mounted = true;
@@ -214,6 +204,5 @@ export function useAudioOutput() {
     supportsOutputDiscovery,
     refreshDevices,
     selectDevice,
-    isRunningInExpoGo: isExpoGo,
   };
 }

@@ -11,7 +11,7 @@ import { useCallback, useRef, useEffect } from 'react';
 import { useDownloadStore, OFFLINE_DIR, ensureTrackDir } from './store';
 import { useNetworkStatus } from '../hooks/system/useNetworkStatus';
 import { logger } from '../lib/logger';
-import { FileSystem, isOfflineSupported, disableMessage } from './offlineEnv';
+import { FileSystem, isOfflineSupported } from './offlineEnv';
 import type { OfflineTrack } from './types';
 
 interface DownloadResumableRef {
@@ -41,44 +41,7 @@ export function useOfflineDownload() {
     isDownloaded,
   } = useDownloadStore();
 
-  // If offline is not supported (Expo Go), return a disabled state with no-op functions
-  // This ensures consumers get a consistent API without crashes
-  if (!isOfflineSupported) {
-    return {
-      // State - return empty/default values
-      downloads: {} as Record<string, OfflineTrack>,
-      queue: [],
-      isProcessing: false,
-      storageInfo: { usedBytes: 0, totalTracks: 0, limitBytes: 0 },
-      isOnline: networkStatus.isConnected,
-      isOfflineSupported: false,
-      disableMessage,
-
-      // Actions - return no-op or error functions
-      downloadTrack: async () => ({ success: false, error: 'EXPO_GO_NOT_SUPPORTED' }),
-      removeDownload: async () => {},
-      pauseDownload: async () => {},
-      resumeDownload: async () => {},
-      cancelDownload: async () => {},
-      refreshStorageInfo: async () => {},
-
-      // Helpers - return default values
-      getCompletedDownloads: () => [],
-      getDownload: () => undefined,
-      hasOfflineVersion: () => false,
-      resolvePlaybackUrl: (_trackId: string, remoteUrl: string) => remoteUrl,
-      getLocalAudioPath: () => undefined,
-      isDownloaded: () => false,
-    };
-  }
-
   const processQueue = useCallback(async () => {
-    // Guard for Expo Go - offline downloads not supported
-    if (!isOfflineSupported) {
-      logger.debug('[OfflineDownload] Offline downloads not supported in Expo Go');
-      return;
-    }
-
     const state = useDownloadStore.getState();
 
     if (state.isProcessing || state.queue.length === 0) {
@@ -342,7 +305,6 @@ export function useOfflineDownload() {
     storageInfo,
     isOnline: networkStatus.isConnected,
     isOfflineSupported,
-    disableMessage,
 
     // Actions
     downloadTrack,

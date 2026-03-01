@@ -3,9 +3,12 @@
  * Unified audio session and playback state management
  * Used by both useMyMusic and useSharedLibrary hooks
  *
- * Now supports auto-advance with shuffle and repeat modes
- * Uses global audio player context to prevent multiple players from playing simultaneously
- * Uses global playback state context to synchronize currentTrack/isPlaying across screens
+ * Supports auto-advance with shuffle and repeat modes.
+ * Uses global audio player context to prevent multiple players from playing simultaneously.
+ * Uses global playback state context to synchronize currentTrack/isPlaying across screens.
+ *
+ * Lock screen / Bluetooth remote controls are handled natively by expo-audio
+ * via setActiveForLockScreen() — no JS-side event bridging needed.
  */
 
 import { useEffect, useRef, useCallback } from 'react';
@@ -22,33 +25,11 @@ import { useCastPlayback } from './useCastPlayback';
 import { apiRequest } from '../../lib/axiosApiClient';
 import { useDownloadStore } from '../../offline/store';
 import { forceRefreshExplore } from '../../auth/cacheUtils';
-import {
-  updateMediaSessionTrack,
-  syncMediaSessionPlaybackState,
-  updateMediaSessionPosition,
-  registerMediaSessionEvents,
-  isMediaSessionAvailable,
-  type MediaSessionTrack,
-} from './MediaSessionService';
+import { updateMediaSessionTrack, clearMediaSession, type MediaSessionTrack } from './MediaSessionService';
 import type { PlayableTrack } from '../../types';
 import { CONFIG } from '../../constants/appConfig';
 
 export type { PlayableTrack };
-
-// Module-level singleton flag for MediaSession registration
-// This ensures handlers are registered EXACTLY once across all hook instances
-// but still allows cleanup for hot reload and dev teardown scenarios
-let globalMediaSessionRegistered = false;
-let globalMediaSessionCleanup: (() => void) | null = null;
-
-// Reset function for hot reload/dev scenarios - called when all components unmount
-export function resetMediaSessionRegistration() {
-  if (globalMediaSessionCleanup) {
-    globalMediaSessionCleanup();
-    globalMediaSessionCleanup = null;
-  }
-  globalMediaSessionRegistered = false;
-}
 
 export interface UseTrackPlaybackOptions {
   shuffleEnabled?: boolean;
@@ -172,23 +153,12 @@ export function useTrackPlayback<T extends PlayableTrack>(
   const interactionCountsRef = useRef({ skipCount: 0, pauseCount: 0, seekCount: 0 });
 
   /**
-   * Helper to update playback phase with automatic media session sync
-   * Consolidates scattered setPlaybackPhase + syncMediaSessionPlaybackState calls
-   * @param phase - The new playback phase
-   * @param syncSession - Whether to sync with media session (default: true for playing/paused/idle)
+   * Helper to update playback phase.
+   * expo-audio natively syncs play/pause state with the lock screen — no manual sync needed.
    */
   const updatePlaybackPhase = useCallback(
-    (phase: 'idle' | 'buffering' | 'playing' | 'paused', syncSession: boolean = true) => {
+    (phase: 'idle' | 'buffering' | 'playing' | 'paused') => {
       setPlaybackPhase(phase);
-
-      // Sync media session for phases that represent stable playback states
-      // Skip for 'buffering' since it's transitional and will be followed by 'playing'
-      if (syncSession && phase !== 'buffering') {
-        const isPlaying = phase === 'playing';
-        syncMediaSessionPlaybackState(isPlaying).catch(e =>
-          logger.warn('[Playback] Failed to sync media session state', e)
-        );
-      }
     },
     [setPlaybackPhase]
   );
@@ -207,6 +177,25 @@ export function useTrackPlayback<T extends PlayableTrack>(
       return { uri: track.audioUrl, isOffline: false };
     },
     [getLocalAudioPath]
+  );
+
+  /**
+   * Update the lock screen with track metadata via expo-audio's native API.
+   */
+  const updateLockScreen = useCallback(
+    (track: T) => {
+      const mediaTrack: MediaSessionTrack = {
+        id: track.id,
+        audioUrl: track.audioUrl,
+        title: track.title || t('common.unknownTrack'),
+        displayName: track.displayName || CONFIG.app.defaultDisplayName,
+        artworkUrl: track.artworkUrl,
+        duration: track.duration || player.duration,
+        album: CONFIG.app.albumName,
+      };
+      updateMediaSessionTrack(player, mediaTrack);
+    },
+    [player, t]
   );
 
   /**
@@ -245,7 +234,7 @@ export function useTrackPlayback<T extends PlayableTrack>(
             await castPlay();
           } else {
             await configureAudioSession(); // Configure audio to interrupt other apps
-            // Show buffering immediately for instant UI feedback (sync skipped for transitional state)
+            // Show buffering immediately for instant UI feedback
             updatePlaybackPhase('buffering');
             player.play();
           }
@@ -280,24 +269,18 @@ export function useTrackPlayback<T extends PlayableTrack>(
 
           // Local playback path
           await configureAudioSession();
-          // Resolve audio URL (prefer offline if available)
           const { uri, isOffline } = resolveAudioUrl(track);
-          // Replace and play from start for repeat modes
           player.replace({ uri });
           player.play();
-          // Update last played time for offline tracks
           if (isOffline) {
             updateLastPlayed(track.id);
           }
-          // Player started - playing phase will be set by sync effect when player.playing changes
           return;
         }
 
         // Load and play new track
         try {
           // Mark that we're loading a new track - prevents useEffect from transitioning to 'paused'
-          // when player.playing briefly becomes false during track switch
-          // Cancel any pending loading timeout from a previous track
           if (loadingTimeoutRef.current) clearTimeout(loadingTimeoutRef.current);
           isLoadingNewTrack.current = true;
           interactionCountsRef.current = { skipCount: 0, pauseCount: 0, seekCount: 0 };
@@ -322,19 +305,8 @@ export function useTrackPlayback<T extends PlayableTrack>(
               logger.warn('[Playback] Cast transfer failed, falling back to local');
               // Fall through to local playback
             } else {
-              // Cast successful - update media session and record play
-              const mediaTrack: MediaSessionTrack = {
-                id: track.id,
-                audioUrl: track.audioUrl,
-                title: track.title || t('common.unknownTrack'),
-                displayName: track.displayName || CONFIG.app.defaultDisplayName,
-                artworkUrl: track.artworkUrl,
-                duration: track.duration || player.duration,
-                album: CONFIG.app.albumName,
-              };
-              updateMediaSessionTrack(mediaTrack).catch(e =>
-                logger.warn('[Playback] Failed to update media session track', e)
-              );
+              // Cast successful - update lock screen and record play
+              updateLockScreen(track);
               if (onNewTrackStarted) {
                 onNewTrackStarted(track.id);
               }
@@ -349,7 +321,7 @@ export function useTrackPlayback<T extends PlayableTrack>(
           }
 
           // Local playback path
-          await configureAudioSession(); // Configure audio to interrupt other apps
+          await configureAudioSession();
 
           // Resolve audio URL (prefer offline if available)
           const { uri, isOffline } = resolveAudioUrl(track);
@@ -363,19 +335,8 @@ export function useTrackPlayback<T extends PlayableTrack>(
             updateLastPlayed(track.id);
           }
 
-          // Update media session for Bluetooth/lock screen display
-          const mediaTrack: MediaSessionTrack = {
-            id: track.id,
-            audioUrl: track.audioUrl,
-            title: track.title || t('common.unknownTrack'),
-            displayName: track.displayName || CONFIG.app.defaultDisplayName,
-            artworkUrl: track.artworkUrl,
-            duration: track.duration || player.duration,
-            album: CONFIG.app.albumName,
-          };
-          updateMediaSessionTrack(mediaTrack).catch(e =>
-            logger.warn('[Playback] Failed to update media session track', e)
-          );
+          // Update lock screen for Bluetooth/lock screen display
+          updateLockScreen(track);
 
           // Notify callback that a new track started playing (for guest conversion, analytics, etc.)
           if (onNewTrackStarted) {
@@ -412,6 +373,7 @@ export function useTrackPlayback<T extends PlayableTrack>(
       player,
       setCurrentTrack,
       updatePlaybackPhase,
+      updateLockScreen,
       toast,
       onNewTrackStarted,
       availableTracks,
@@ -436,8 +398,6 @@ export function useTrackPlayback<T extends PlayableTrack>(
       updatePlaybackPhase('playing');
 
       // Clear loading flag after a short delay to ignore transient player.playing=false during load
-      // The player can briefly report false states even after starting
-      // Cancel any previous timeout to handle rapid track switches
       if (loadingTimeoutRef.current) clearTimeout(loadingTimeoutRef.current);
       loadingTimeoutRef.current = setTimeout(() => {
         isLoadingNewTrack.current = false;
@@ -446,32 +406,23 @@ export function useTrackPlayback<T extends PlayableTrack>(
     } else if (!player.playing && playbackPhase === 'playing' && !isLoadingNewTrack.current) {
       // Player stopped while playing, update phase to paused
       // BUT only if we're not in the middle of loading a new track
-      // (during track switch, player.playing briefly becomes false)
       updatePlaybackPhase('paused');
     }
-    // Note: buffering → paused transition NOT included here - let buffering persist until player starts
   }, [player.playing, playbackPhase, updatePlaybackPhase]);
 
   /**
    * Auto-advance to next track when current track finishes
    * Monitors playback status and plays next track based on shuffle/repeat settings
-   *
-   * CRITICAL: This effect must include all context setters and closures in deps
-   * to prevent stale state when multiple screens mount simultaneously
    */
   useEffect(() => {
-    // Only set up listener if we have a current track
     if (!currentTrack) return;
 
     const checkInterval = setInterval(() => {
-      // Check if track has finished playing
-      // expo-audio player considers track finished when position >= duration - 100ms
       const hasFinished = player.currentTime >= player.duration - 0.1 && player.duration > 0 && !player.playing;
 
       if (hasFinished && !isHandlingTrackEnd.current) {
         isHandlingTrackEnd.current = true;
 
-        // Notify callback that track finished playing (for feedback prompt, analytics, etc.)
         if (onTrackFinished) {
           onTrackFinished(currentTrack.id, currentTrack.title);
         }
@@ -480,12 +431,9 @@ export function useTrackPlayback<T extends PlayableTrack>(
         );
         interactionCountsRef.current = { skipCount: 0, pauseCount: 0, seekCount: 0 };
 
-        // Get next track based on settings
         const nextTrack = getNextTrack<T>(availableTracks as T[], currentTrack, shuffleEnabled, repeatMode);
 
         if (nextTrack) {
-          // Play next track after a brief delay
-          // Force restart if it's the same track (repeat-one mode)
           const isReplayingSameTrack = nextTrack.id === currentTrack.id;
           setTimeout(() => {
             handlePlayTrack(nextTrack, isReplayingSameTrack).finally(() => {
@@ -497,14 +445,12 @@ export function useTrackPlayback<T extends PlayableTrack>(
           isHandlingTrackEnd.current = false;
         }
       }
-    }, 500); // Check every 500ms
+    }, 500);
 
     return () => {
       clearInterval(checkInterval);
-      // Reset handling flag on cleanup to prevent stale state
       isHandlingTrackEnd.current = false;
     };
-    // Include all referenced variables and functions to prevent stale closures
   }, [
     currentTrack,
     player.currentTime,
@@ -520,7 +466,6 @@ export function useTrackPlayback<T extends PlayableTrack>(
 
   /**
    * Pause current track (Cast-aware)
-   * Routes to Cast device if casting, otherwise pauses local player
    */
   const pause = useCallback(() => {
     if (isCasting) {
@@ -535,7 +480,6 @@ export function useTrackPlayback<T extends PlayableTrack>(
 
   /**
    * Resume current track (Cast-aware)
-   * Routes to Cast device if casting, otherwise resumes local player
    */
   const resume = useCallback(async () => {
     try {
@@ -560,175 +504,15 @@ export function useTrackPlayback<T extends PlayableTrack>(
 
   /**
    * Clear current track and reset player state
-   * Used when a track is deleted to prevent stale playback state
-   * The expo-audio player.replace() in handlePlayTrack will load new audio
-   * Seeking to 0 and pausing fully resets the player for the next track
    */
   const clearCurrentTrack = useCallback(() => {
     player.pause();
     player.seekTo(0);
+    clearMediaSession(player);
     setCurrentTrack(null);
     updatePlaybackPhase('idle');
     logger.debug('[Playback] Cleared current track');
   }, [player, setCurrentTrack, updatePlaybackPhase]);
-
-  /**
-   * Sync playback position with media session periodically
-   * Updates every 5 seconds for lock screen progress bar
-   */
-  useEffect(() => {
-    if (!isMediaSessionAvailable() || !currentTrack || !isPlaying) {
-      return;
-    }
-
-    const syncPosition = () => {
-      if (player.duration > 0) {
-        updateMediaSessionPosition(player.currentTime, player.duration).catch(e =>
-          logger.warn('[Playback] Failed to update media session position', e)
-        );
-      }
-    };
-
-    // Sync immediately and then every 5 seconds
-    syncPosition();
-    const interval = setInterval(syncPosition, 5000);
-
-    return () => clearInterval(interval);
-  }, [currentTrack, isPlaying, player.currentTime, player.duration]);
-
-  // Use refs to access current state in media session callbacks without re-registering
-  const currentTrackRef = useRef(currentTrack);
-  const isPlayingRef = useRef(isPlaying);
-  const availableTracksRef = useRef(availableTracks);
-  const shuffleEnabledRef = useRef(shuffleEnabled);
-  const isCastingRef = useRef(isCasting);
-  const castPlayRef = useRef(castPlay);
-  const castPauseRef = useRef(castPause);
-  const castSeekRef = useRef(castSeek);
-
-  // Keep refs in sync with state
-  useEffect(() => {
-    currentTrackRef.current = currentTrack;
-    isPlayingRef.current = isPlaying;
-    availableTracksRef.current = availableTracks;
-    shuffleEnabledRef.current = shuffleEnabled;
-    isCastingRef.current = isCasting;
-    castPlayRef.current = castPlay;
-    castPauseRef.current = castPause;
-    castSeekRef.current = castSeek;
-  }, [currentTrack, isPlaying, availableTracks, shuffleEnabled, isCasting, castPlay, castPause, castSeek]);
-
-  /**
-   * Register remote control handlers for Bluetooth/lock screen controls
-   * These handlers bridge media session controls to the audio player
-   * Only registers ONCE globally when media session is available (development builds only)
-   * Uses module-level singleton flag to prevent re-registration across all hook instances
-   * Uses refs to access current state without causing re-registration
-   */
-  useEffect(() => {
-    // Guard: Only register events if media session is initialized (not in Expo Go)
-    if (!isMediaSessionAvailable()) {
-      return;
-    }
-
-    // Prevent re-registration - use module-level singleton (not component ref)
-    // This ensures handlers are registered EXACTLY once across all hook instances
-    if (globalMediaSessionRegistered) {
-      return;
-    }
-
-    globalMediaSessionCleanup = registerMediaSessionEvents({
-      onPlay: () => {
-        if (currentTrackRef.current && !isPlayingRef.current) {
-          if (isCastingRef.current) {
-            logger.debug('[MediaSession] Remote play via Cast');
-            castPlayRef.current();
-          } else {
-            player.play();
-            setPlaybackPhase('playing');
-            syncMediaSessionPlaybackState(true).catch(e =>
-              logger.warn('[Playback] Failed to sync media session state', e)
-            );
-          }
-        }
-      },
-      onPause: () => {
-        if (isPlayingRef.current) {
-          if (isCastingRef.current) {
-            logger.debug('[MediaSession] Remote pause via Cast');
-            castPauseRef.current();
-          } else {
-            player.pause();
-            setPlaybackPhase('paused');
-            syncMediaSessionPlaybackState(false).catch(e =>
-              logger.warn('[Playback] Failed to sync media session state', e)
-            );
-          }
-        }
-      },
-      onNext: () => {
-        if (currentTrackRef.current && availableTracksRef.current.length > 0) {
-          const nextTrack = getNextTrack<T>(
-            availableTracksRef.current as T[],
-            currentTrackRef.current,
-            shuffleEnabledRef.current,
-            'off'
-          );
-          if (nextTrack && nextTrack.id !== currentTrackRef.current.id) {
-            handlePlayTrack(nextTrack);
-          }
-        }
-      },
-      onPrevious: () => {
-        if (player.currentTime > 3) {
-          if (isCastingRef.current) {
-            logger.debug('[MediaSession] Remote seek-to-start via Cast');
-            castSeekRef.current(0);
-          } else {
-            player.seekTo(0);
-          }
-          updateMediaSessionPosition(0, player.duration).catch(e =>
-            logger.warn('[Playback] Failed to update media session position', e)
-          );
-        } else if (currentTrackRef.current && availableTracksRef.current.length > 0) {
-          const currentIndex = availableTracksRef.current.findIndex(t => t.id === currentTrackRef.current!.id);
-          if (currentIndex > 0) {
-            handlePlayTrack(availableTracksRef.current[currentIndex - 1] as T);
-          }
-        }
-      },
-      onSeek: position => {
-        if (isCastingRef.current) {
-          logger.debug('[MediaSession] Remote seek via Cast', { position });
-          castSeekRef.current(position);
-        } else {
-          player.seekTo(position);
-        }
-        updateMediaSessionPosition(position, player.duration).catch(e =>
-          logger.warn('[Playback] Failed to update media session position', e)
-        );
-      },
-      onStop: () => {
-        if (isCastingRef.current) {
-          logger.debug('[MediaSession] Remote stop via Cast');
-          castPauseRef.current();
-        } else {
-          player.pause();
-        }
-        setPlaybackPhase('idle');
-        setCurrentTrack(null);
-        syncMediaSessionPlaybackState(false).catch(e =>
-          logger.warn('[Playback] Failed to sync media session state', e)
-        );
-      },
-    });
-
-    globalMediaSessionRegistered = true;
-    logger.info('[MediaSession] Handlers registered (first and only time)');
-
-    // Note: No cleanup that resets the flag - handlers stay registered for app lifetime
-    // This is intentional for singleton behavior
-  }, [player, handlePlayTrack, setPlaybackPhase, setCurrentTrack]);
 
   return {
     currentTrack,

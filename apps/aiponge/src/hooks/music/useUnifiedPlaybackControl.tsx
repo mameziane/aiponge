@@ -12,7 +12,7 @@ import { useCallback } from 'react';
 import { useGlobalAudioPlayer } from '../../contexts/AudioPlayerContext';
 import { usePlaybackState, PlaybackTrack } from '../../contexts/PlaybackContext';
 import { useCastPlayback } from './useCastPlayback';
-import { syncMediaSessionPlaybackState, updateMediaSessionTrack } from './MediaSessionService';
+import { updateMediaSessionTrack } from './MediaSessionService';
 import { logger } from '../../lib/logger';
 
 interface UseUnifiedPlaybackControlReturn {
@@ -52,9 +52,7 @@ export function useUnifiedPlaybackControl(): UseUnifiedPlaybackControlReturn {
       logger.debug('[UnifiedPlayback] Pausing locally');
       player.pause();
       setPlaybackPhase('paused');
-      syncMediaSessionPlaybackState(false).catch(e =>
-        logger.warn('[UnifiedPlayback] Failed to sync media session state', e)
-      );
+      // expo-audio natively syncs play/pause state with lock screen — no manual sync needed
     }
   }, [isCasting, castPause, player, setPlaybackPhase]);
 
@@ -97,9 +95,8 @@ export function useUnifiedPlaybackControl(): UseUnifiedPlaybackControlReturn {
         // from 'buffering' to 'playing' when player.playing becomes true
       }
 
-      updateMediaSessionTrack(track).catch(e =>
-        logger.warn('[UnifiedPlayback] Failed to update media session track', e)
-      );
+      // Update lock screen via expo-audio's native API
+      updateMediaSessionTrack(player, track);
     },
     [isCasting, player, setCurrentTrack, setPlaybackPhase, transferToCast]
   );
