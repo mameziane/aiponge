@@ -8,6 +8,7 @@ import { fontFamilies } from '../../theme/typography';
 import { useGlobalAudioPlayer } from '../../contexts/AudioPlayerContext';
 import { useTranslation } from '../../i18n';
 import { LiquidGlassCard } from '../ui';
+import { LyricsErrorBoundary } from './LyricsErrorBoundary';
 
 interface SyncedWord {
   word: string;
@@ -109,7 +110,15 @@ function cleanLinesPreservingStructure(lines: SyncedLine[]): CleanedLine[] {
   return result;
 }
 
-export function KaraokeLyricsDisplay({
+export function KaraokeLyricsDisplay(props: KaraokeLyricsDisplayProps) {
+  return (
+    <LyricsErrorBoundary lyricsLines={props.syncedLines} containerStyle={props.containerStyle}>
+      <KaraokeLyricsDisplayInner {...props} />
+    </LyricsErrorBoundary>
+  );
+}
+
+function KaraokeLyricsDisplayInner({
   syncedLines,
   containerStyle,
   variant = 'fullscreen',

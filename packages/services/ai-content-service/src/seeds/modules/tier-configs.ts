@@ -146,7 +146,7 @@ const TIER_CONFIGS = [
 
 export const tierConfigsSeed: SeedModule = {
   name: 'tier-configs',
-  description: 'Seed cfg_tier_configs with all subscription tier definitions (5-tier model)',
+  description: 'Seed aic_tier_configs with all subscription tier definitions (5-tier model)',
   priority: 15,
   dependencies: [],
   version: '2.0.0',
@@ -156,14 +156,14 @@ export const tierConfigsSeed: SeedModule = {
     const db = ctx.db as { execute: (query: string) => Promise<unknown> };
 
     await db.execute(
-      `UPDATE cfg_tier_configs SET is_active = false WHERE tier NOT IN ('${TIER_IDS.GUEST}', '${TIER_IDS.EXPLORER}', '${TIER_IDS.PERSONAL}', '${TIER_IDS.PRACTICE}', '${TIER_IDS.STUDIO}')`
+      `UPDATE aic_tier_configs SET is_active = false WHERE tier NOT IN ('${TIER_IDS.GUEST}', '${TIER_IDS.EXPLORER}', '${TIER_IDS.PERSONAL}', '${TIER_IDS.PRACTICE}', '${TIER_IDS.STUDIO}')`
     );
 
     for (const tierDef of TIER_CONFIGS) {
       const configJson = JSON.stringify(tierDef.config);
 
       await db.execute(
-        `INSERT INTO cfg_tier_configs (id, tier, config, is_active, version, created_at, updated_at)
+        `INSERT INTO aic_tier_configs (id, tier, config, is_active, version, created_at, updated_at)
          VALUES (
            gen_random_uuid(),
            '${escSql(tierDef.tier)}',

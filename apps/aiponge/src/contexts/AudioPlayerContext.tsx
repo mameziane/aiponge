@@ -36,7 +36,7 @@ import { logger } from '../lib/logger';
 
 // iOS 26 detection — must match the check in MediaSessionService.ts and audioSession.ts
 const iosVersionMajor = Platform.OS === 'ios' ? parseInt(String(Platform.Version).split('.')[0], 10) : 0;
-const isIOS26OrLater = iosVersionMajor >= 26;
+export const isIOS26OrLater = iosVersionMajor >= 26;
 
 type TrackEndCallback = () => void;
 
@@ -56,9 +56,28 @@ const AudioPlayerContext = createContext<AudioPlayerContextValue | null>(null);
 // ---------------------------------------------------------------------------
 class StubAudioPlayer {
   readonly isIOS26Stub = true;
+
+  // Satisfy property reads from useTrackPlayback and lyrics components.
+  // Without these, accessing player.currentTime / player.duration / player.playing
+  // returns undefined, and useAudioPlayerStatus(player) crashes because the native
+  // player handle is null.
+  playing = false;
+  currentTime = 0;
+  duration = 0;
+  isLoaded = false;
+  muted = false;
+  volume = 1;
+  rate = 1;
+  loop = false;
+  isBuffering = false;
+  paused = true;
+
   pause() {}
   play() {}
   remove() {}
+  replace(_source: unknown) {}
+  seekTo(_position: number) {}
+  setRate(_rate: number) {}
   addListener(_event: string, _handler: (...args: unknown[]) => void) {
     return { remove: () => {} };
   }

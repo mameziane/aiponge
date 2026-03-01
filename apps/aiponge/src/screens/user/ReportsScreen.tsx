@@ -301,7 +301,7 @@ export default function ReportsScreen() {
           };
           break;
         case 'personalBook':
-          endpoint = '/api/v1/app/reports/journal';
+          endpoint = '/api/v1/app/reports/book-export';
           body = { format: 'chapters', chapterId: options?.chapterId, bookId: options?.bookId };
           break;
         case 'lyrics':

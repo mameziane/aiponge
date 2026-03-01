@@ -457,7 +457,7 @@ export interface TierConfigJson {
 }
 
 export const tierConfigs = pgTable(
-  'cfg_tier_configs',
+  'aic_tier_configs',
   {
     id: uuid('id')
       .primaryKey()
@@ -470,8 +470,8 @@ export const tierConfigs = pgTable(
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
   },
   table => [
-    index('cfg_tier_configs_tier_idx').on(table.tier),
-    index('cfg_tier_configs_is_active_idx').on(table.isActive),
+    index('aic_tier_configs_tier_idx').on(table.tier),
+    index('aic_tier_configs_is_active_idx').on(table.isActive),
   ]
 );
 

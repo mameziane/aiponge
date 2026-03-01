@@ -89,15 +89,24 @@ export function AdminTemplatesSection() {
     try {
       setLoading(true);
       setError(null);
-      const response = await apiClient.get<{ success: boolean; data: LifeAreaTemplate[] }>(
-        '/api/v1/librarian/templates'
-      );
-      if (response?.data) {
-        setAllTemplates(response.data);
+      const response = await apiClient.get<{
+        success: boolean;
+        data: { templates: LifeAreaTemplate[]; total: number } | LifeAreaTemplate[];
+      }>('/api/v1/librarian/templates');
+      // Backend returns { templates: [...], total, offset, limit } under .data
+      // Extract the array whether it's wrapped or directly an array
+      const templates: LifeAreaTemplate[] = Array.isArray(response?.data)
+        ? response.data
+        : Array.isArray((response?.data as { templates?: unknown })?.templates)
+          ? (response.data as { templates: LifeAreaTemplate[] }).templates
+          : [];
+      if (templates.length > 0) {
+        setAllTemplates(templates);
         const grouped: Record<string, LifeAreaTemplate[]> = {};
-        for (const t of response.data) {
-          if (!grouped[t.lifeAreaKey]) grouped[t.lifeAreaKey] = [];
-          grouped[t.lifeAreaKey].push(t);
+        for (const t of templates) {
+          const key = t.lifeAreaKey || (t as unknown as { contentType?: string }).contentType || 'unknown';
+          if (!grouped[key]) grouped[key] = [];
+          grouped[key].push(t);
         }
         const derived: LifeAreaSummary[] = Object.entries(grouped).map(([key, items]) => ({
           lifeAreaKey: key,

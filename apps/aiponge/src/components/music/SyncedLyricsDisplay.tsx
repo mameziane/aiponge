@@ -7,6 +7,7 @@ import { fontFamilies } from '../../theme/typography';
 import { useGlobalAudioPlayer } from '../../contexts/AudioPlayerContext';
 import { useTranslation } from '../../i18n';
 import { LiquidGlassCard } from '../ui';
+import { LyricsErrorBoundary } from './LyricsErrorBoundary';
 
 interface SyncedLine {
   startTime?: number; // in seconds
@@ -62,7 +63,15 @@ interface SyncedLyricsDisplayProps {
  * ```
  */
 
-export function SyncedLyricsDisplay({
+export function SyncedLyricsDisplay(props: SyncedLyricsDisplayProps) {
+  return (
+    <LyricsErrorBoundary lyricsLines={props.syncedLines} containerStyle={props.containerStyle}>
+      <SyncedLyricsDisplayInner {...props} />
+    </LyricsErrorBoundary>
+  );
+}
+
+function SyncedLyricsDisplayInner({
   syncedLines,
   containerStyle,
   variant = 'fullscreen',
