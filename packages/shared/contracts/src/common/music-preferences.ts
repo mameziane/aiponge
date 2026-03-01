@@ -110,7 +110,6 @@ export const ONBOARDING_GENRES: GenreKey[] = [
   'rnb',
   'country',
   'classical',
-  'indie',
 ];
 
 export const POPULAR_GENRES: GenreKey[] = [...GENRE_KEYS];

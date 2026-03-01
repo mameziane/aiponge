@@ -234,18 +234,18 @@ const createStyles = (colors: ColorScheme) =>
       borderColor: colors.brand.primary,
     },
     albumCardInfo: {
-      padding: 12,
+      padding: 10,
     },
     albumCardTitle: {
       fontSize: 14,
       fontWeight: '600',
       color: colors.text.primary,
-      marginBottom: 2,
+      marginBottom: 1,
     },
     albumCardArtist: {
       fontSize: 12,
       color: colors.text.secondary,
-      marginBottom: 4,
+      marginBottom: 2,
     },
     albumCardMeta: {
       flexDirection: 'row',

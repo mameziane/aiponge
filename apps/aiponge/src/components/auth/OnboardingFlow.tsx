@@ -654,7 +654,7 @@ const createStyles = (colors: ColorScheme) =>
       textAlign: 'center',
     },
     preferenceSection: {
-      marginBottom: 28,
+      marginBottom: 20,
     },
     wellnessGrid: {
       flexDirection: 'row',
@@ -791,9 +791,9 @@ const createStyles = (colors: ColorScheme) =>
       alignItems: 'center',
       justifyContent: 'center',
       gap: 6,
-      marginTop: 20,
-      marginBottom: 8,
-      paddingVertical: 8,
+      marginTop: 12,
+      marginBottom: 4,
+      paddingVertical: 6,
     },
     otherGenresLabel: {
       fontFamily: fontFamilies.body.medium,

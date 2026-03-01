@@ -491,12 +491,16 @@ export class PlaylistController {
         return;
       }
 
-      await this.playlistService.addTrackToPlaylist(playlistId, trackId, userId);
+      const result = await this.playlistService.addTrackToPlaylist(playlistId, trackId, userId);
+      if (result.alreadyExists) {
+        // Idempotent — track was already in playlist, return 200 OK (not an error)
+        return sendSuccess(res, { message: 'Track already in playlist', alreadyExists: true });
+      }
       sendCreated(res, { message: 'Track added to playlist successfully' });
     } catch (error) {
       if (error instanceof DuplicateTrackError) {
-        ServiceErrors.badRequest(res, error.message, req);
-        return;
+        // Legacy safety net — should no longer be thrown after idempotent refactor
+        return sendSuccess(res, { message: 'Track already in playlist', alreadyExists: true });
       }
       logger.error('Failed to add track to playlist', { error: serializeError(error) });
       ServiceErrors.fromException(res, error, 'Failed to add track to playlist', req);

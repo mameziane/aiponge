@@ -117,8 +117,9 @@ export function useFavorites(userId: string) {
     },
     onError: (error, variables) => {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      // Handle "Track already in playlist" as success - just sync the state
-      if (errorMessage.includes('already in playlist')) {
+      // Handle "Track already in/exists in playlist" as success — just sync the state.
+      // Backend is now idempotent (returns 200), but keep this as a safety net.
+      if (errorMessage.includes('already exists in playlist') || errorMessage.includes('already in playlist')) {
         logger.debug('Track already in favorites, syncing state', { trackId: variables.trackId });
         setTrackIdsInFavorites(prev => new Set([...prev, variables.trackId]));
         invalidateOnEvent(queryClient, { type: 'TRACK_FAVORITED', trackId: variables.trackId });
@@ -215,7 +216,7 @@ export function useFavorites(userId: string) {
         }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        if (!errorMessage.includes('already in playlist')) {
+        if (!errorMessage.includes('already exists in playlist') && !errorMessage.includes('already in playlist')) {
           logger.error('Failed to toggle favorite', error, { trackId });
         }
       }

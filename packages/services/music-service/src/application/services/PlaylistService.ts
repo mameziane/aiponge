@@ -85,12 +85,15 @@ export class PlaylistService {
     await this.playlistRepository.deletePlaylist(playlistId);
   }
 
-  async addTrackToPlaylist(playlistId: string, trackId: string, userId: string): Promise<void> {
+  async addTrackToPlaylist(playlistId: string, trackId: string, userId: string): Promise<{ alreadyExists: boolean }> {
     logger.info('Adding track {} to playlist {}', { data0: trackId, data1: playlistId });
 
+    // Idempotent: if track is already in playlist, return success with flag instead of throwing.
+    // This prevents the Favorites heart icon from showing errors on repeat taps.
     const existingTracks = await this.playlistRepository.getPlaylistTracks(playlistId);
     if (existingTracks.some(t => t.trackId === trackId)) {
-      throw new DuplicateTrackError(trackId, playlistId);
+      logger.info('Track {} already in playlist {}, no-op', { data0: trackId, data1: playlistId });
+      return { alreadyExists: true };
     }
 
     const track: NewPlaylistTrack = {
@@ -105,6 +108,7 @@ export class PlaylistService {
     };
 
     await this.playlistRepository.addTrackToPlaylist(playlistId, track);
+    return { alreadyExists: false };
   }
 
   async removeTrackFromPlaylist(playlistId: string, trackId: string): Promise<void> {

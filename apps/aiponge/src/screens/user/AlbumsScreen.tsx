@@ -246,7 +246,7 @@ const createStyles = (colors: ColorScheme) =>
       fontSize: 16,
       fontWeight: '600',
       color: colors.text.primary,
-      marginBottom: 4,
+      marginBottom: 2,
     },
     moodBadge: {
       alignSelf: 'flex-start',
@@ -254,7 +254,7 @@ const createStyles = (colors: ColorScheme) =>
       paddingHorizontal: 8,
       paddingVertical: 2,
       borderRadius: BORDER_RADIUS.md,
-      marginBottom: 4,
+      marginBottom: 2,
     },
     moodText: {
       fontSize: 11,
