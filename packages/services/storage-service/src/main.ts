@@ -659,12 +659,16 @@ async function main(): Promise<void> {
       };
     }
 
-    const storageProviderFactory = StorageProviderFactory.getInstance(storageConfig);
+    const storageProviderFactory = StorageProviderFactory.getInstance();
+    // IMPORTANT: Update default config explicitly because the singleton may have been
+    // created at module-import time with 'local' defaults before env vars were read
+    storageProviderFactory.updateDefaultConfig(storageConfig);
     const provider = await storageProviderFactory.createAndInitializeProvider();
 
-    logger.debug('Storage provider initialized', {
+    logger.info('Storage provider initialized', {
       service: SERVICE_NAME,
-      provider: process.env.STORAGE_PROVIDER || 'local',
+      provider: storageProvider,
+      hasEndpoint: !!storageConfig.s3?.endpoint,
       phase: 'initialization',
     });
 
