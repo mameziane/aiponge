@@ -20,6 +20,7 @@ import { ErrorState } from '../../components/shared/ErrorState';
 import { useAuthStore, selectUser } from '../../auth/store';
 import type { ServiceResponse } from '@aiponge/shared-contracts';
 import { apiClient } from '../../lib/axiosApiClient';
+import { normalizeMediaUrl } from '../../lib/apiConfig';
 import { logger } from '../../lib/logger';
 
 type ReportType = 'insights' | 'personalBook' | 'lyrics';
@@ -339,43 +340,41 @@ export default function ReportsScreen() {
 
   const triggerShare = async (url: string) => {
     try {
+      // Normalize URL to ensure it uses the correct API gateway host
+      // (backend may return localhost or internal Railway hostname)
+      const normalizedUrl = normalizeMediaUrl(url) || url;
+
       if (Platform.OS === 'web') {
         if (window.navigator.share) {
           await window.navigator.share({
             title: t('screens.reports.shareTitle'),
-            url: url,
+            url: normalizedUrl,
           });
         } else {
-          await window.navigator.clipboard.writeText(url);
+          await window.navigator.clipboard.writeText(normalizedUrl);
           Alert.alert(t('common.success'), t('screens.reports.linkCopied'));
         }
       } else {
-        const { File, Paths } = await import('expo-file-system');
+        const { File, Paths, Directory } = await import('expo-file-system');
         const Sharing = await import('expo-sharing');
         const token = useAuthStore.getState().token;
 
-        const fileName = `report-${Date.now()}.pdf`;
-        const file = new File(Paths.document, fileName);
-
-        const response = await fetch(url, {
+        // Use native File.downloadFileAsync — handles binary data at the native
+        // layer (no JS fetch polyfill issues with arrayBuffer)
+        const destination = new File(Paths.cache, `report-${Date.now()}.pdf`);
+        const downloadedFile = await File.downloadFileAsync(normalizedUrl, destination, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
+          idempotent: true,
         });
-
-        if (!response.ok) {
-          throw new Error('Download failed');
-        }
-
-        const bytes = new Uint8Array(await response.arrayBuffer());
-        file.write(bytes);
 
         const canShare = await Sharing.isAvailableAsync();
         if (canShare) {
-          await Sharing.shareAsync(file.uri, {
+          await Sharing.shareAsync(downloadedFile.uri, {
             mimeType: 'application/pdf',
             dialogTitle: t('screens.reports.shareTitle'),
           });
         } else {
-          await Linking.openURL(url);
+          await Linking.openURL(normalizedUrl);
         }
       }
     } catch (error) {

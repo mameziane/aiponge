@@ -63,7 +63,7 @@ export class ReportController {
       const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
       const host = req.headers['x-forwarded-host'] || req.headers.host || req.hostname;
       const gatewayUrl = process.env.EXPO_PUBLIC_API_URL || process.env.API_GATEWAY_URL || `${protocol}://${host}`;
-      const downloadUrl = `${gatewayUrl}/api/app/reports/download/${result.reportId}`;
+      const downloadUrl = `${gatewayUrl}/api/v1/app/reports/download/${result.reportId}`;
 
       sendSuccess(res, {
         reportId: result.reportId,
@@ -146,7 +146,7 @@ export class ReportController {
       const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
       const host = req.headers['x-forwarded-host'] || req.headers.host || req.hostname;
       const gatewayUrl = process.env.EXPO_PUBLIC_API_URL || process.env.API_GATEWAY_URL || `${protocol}://${host}`;
-      const downloadUrl = `${gatewayUrl}/api/app/reports/download/${result.reportId}`;
+      const downloadUrl = `${gatewayUrl}/api/v1/app/reports/download/${result.reportId}`;
 
       sendSuccess(res, {
         reportId: result.reportId,
@@ -206,7 +206,7 @@ export class ReportController {
       const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
       const host = req.headers['x-forwarded-host'] || req.headers.host || req.hostname;
       const gatewayUrl = process.env.EXPO_PUBLIC_API_URL || process.env.API_GATEWAY_URL || `${protocol}://${host}`;
-      const downloadUrl = `${gatewayUrl}/api/app/reports/download/${result.reportId}`;
+      const downloadUrl = `${gatewayUrl}/api/v1/app/reports/download/${result.reportId}`;
 
       sendSuccess(res, {
         reportId: result.reportId,
