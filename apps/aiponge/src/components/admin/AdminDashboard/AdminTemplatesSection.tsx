@@ -1,6 +1,7 @@
 /**
  * Admin Templates Section
- * Manages journal templates and their translations for internationalization
+ * Manages AI prompt templates and their translations for internationalization.
+ * Templates are grouped by contentType (from the backend) or lifeAreaKey (future).
  */
 
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Alert, Modal } from 'react-native';
@@ -64,6 +65,26 @@ const LIFE_AREA_LABELS: Record<string, string> = {
   focus_productivity: 'Focus & Productivity',
 };
 
+/**
+ * Content type labels for AI prompt templates.
+ * The backend returns templates with 'contentType' (not 'lifeAreaKey'),
+ * so we need these labels to display them correctly.
+ */
+const CONTENT_TYPE_LABELS: Record<string, string> = {
+  image: 'Image Generation',
+  general: 'General',
+  creative: 'Creative Writing',
+  technical: 'Technical',
+  text: 'Text Content',
+  journal: 'Journal',
+  article: 'Article',
+  blog: 'Blog',
+  email: 'Email',
+  social: 'Social Media',
+  summary: 'Summary',
+  educational: 'Educational',
+};
+
 export function AdminTemplatesSection() {
   const { t } = useTranslation();
   const colors = useThemeColors();
@@ -103,15 +124,16 @@ export function AdminTemplatesSection() {
       if (templates.length > 0) {
         setAllTemplates(templates);
         const grouped: Record<string, LifeAreaTemplate[]> = {};
-        for (const t of templates) {
-          const key = t.lifeAreaKey || (t as unknown as { contentType?: string }).contentType || 'unknown';
+        for (const tpl of templates) {
+          // Group by lifeAreaKey if present, otherwise by contentType
+          const key = tpl.lifeAreaKey || (tpl as unknown as { contentType?: string }).contentType || 'unknown';
           if (!grouped[key]) grouped[key] = [];
-          grouped[key].push(t);
+          grouped[key].push(tpl);
         }
         const derived: LifeAreaSummary[] = Object.entries(grouped).map(([key, items]) => ({
           lifeAreaKey: key,
           templateCount: items.length,
-          activeCount: items.filter(i => i.isActive).length,
+          activeCount: items.filter(i => i.isActive !== false).length,
           translationCoverage: {},
           supportedLocales: Object.keys(LOCALE_LABELS),
         }));
@@ -126,7 +148,10 @@ export function AdminTemplatesSection() {
 
   const loadTemplatesForArea = useCallback(
     (lifeAreaKey: string) => {
-      const filtered = allTemplates.filter(t => t.lifeAreaKey === lifeAreaKey);
+      const filtered = allTemplates.filter(
+        tpl =>
+          tpl.lifeAreaKey === lifeAreaKey || (tpl as unknown as { contentType?: string }).contentType === lifeAreaKey
+      );
       setTemplates(filtered);
     },
     [allTemplates]
@@ -233,14 +258,18 @@ export function AdminTemplatesSection() {
 
     return (
       <View style={styles.pickerContainer}>
-        <Text style={styles.pickerLabel}>{t('admin.templatesMgmt.lifeFocusArea')}</Text>
+        <Text style={styles.pickerLabel}>{t('admin.templatesMgmt.contentCategory')}</Text>
         <TouchableOpacity
           style={styles.pickerButton}
           onPress={() => setShowAreaPicker(true)}
           testID="dropdown-life-area"
         >
           <Text style={styles.pickerButtonText}>
-            {selectedArea ? LIFE_AREA_LABELS[selectedArea.lifeAreaKey] : 'Select an area...'}
+            {selectedArea
+              ? LIFE_AREA_LABELS[selectedArea.lifeAreaKey] ||
+                CONTENT_TYPE_LABELS[selectedArea.lifeAreaKey] ||
+                selectedArea.lifeAreaKey
+              : t('admin.templatesMgmt.selectLifeFocusArea')}
           </Text>
           <Ionicons name="chevron-down" size={20} color={colors.text.secondary} />
         </TouchableOpacity>
@@ -272,7 +301,7 @@ export function AdminTemplatesSection() {
                       selectedLifeArea === area.lifeAreaKey && styles.pickerOptionTextSelected,
                     ]}
                   >
-                    {LIFE_AREA_LABELS[area.lifeAreaKey] || area.lifeAreaKey}
+                    {LIFE_AREA_LABELS[area.lifeAreaKey] || CONTENT_TYPE_LABELS[area.lifeAreaKey] || area.lifeAreaKey}
                   </Text>
                   <Text style={styles.pickerOptionStats}>
                     {area.activeCount}/{area.templateCount} active

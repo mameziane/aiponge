@@ -846,10 +846,18 @@
       "male": "Male"
     },
     "culturalStyles": {
+      "western_contemporary": "Western Contemporary",
+      "eastern_traditional": "Eastern Traditional",
       "latin": "Latin",
       "african": "African",
       "electronic": "Electronic",
       "classical": "Classical"
+    },
+    "durations": {
+      "2min": "2 min",
+      "3min": "3 min",
+      "4min": "4 min",
+      "5min": "5 min"
     },
     "languages": {
       "auto": "Auto",
@@ -2845,12 +2853,13 @@
       "tierStarter": "Starter"
     },
     "templatesMgmt": {
-      "title": "Templates",
+      "title": "Prompt Templates",
       "translations": "Translations",
       "chapterName": "Chapter name",
       "playlistName": "Playlist name",
       "lifeFocusArea": "Life Focus Area",
-      "selectLifeFocusArea": "Select Life Focus Area",
+      "contentCategory": "Content Category",
+      "selectLifeFocusArea": "Select a category...",
       "chapterNameLabel": "Chapter Name",
       "playlistNameLabel": "Playlist Name",
       "entryQuestions": "Entry Questions",

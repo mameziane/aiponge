@@ -203,7 +203,7 @@ export function LibrarianDefaultsSection() {
         <View style={styles.field}>
           <Text style={styles.fieldLabel}>{t('librarian.config.defaultLanguageLabel')}</Text>
           <View style={styles.optionsRow}>
-            {languageOptions.slice(0, 4).map(opt => (
+            {languageOptions.map(opt => (
               <TouchableOpacity
                 key={opt.code}
                 style={[
@@ -218,7 +218,7 @@ export function LibrarianDefaultsSection() {
                     localDefaults.musicDefaults.defaultLanguage === opt.code && styles.optionButtonTextActive,
                   ]}
                 >
-                  {opt.label}
+                  {opt.nativeLabel || opt.label}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -243,7 +243,7 @@ export function LibrarianDefaultsSection() {
                     localDefaults.musicDefaults.defaultDuration === opt.value && styles.optionButtonTextActive,
                   ]}
                 >
-                  {opt.labelKey ? t(opt.labelKey) : opt.label}
+                  {opt.labelKey ? t(opt.labelKey, { defaultValue: opt.label }) : opt.label}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -269,7 +269,7 @@ export function LibrarianDefaultsSection() {
                     localDefaults.musicDefaults.defaultCulturalStyle === opt.key && styles.optionButtonTextActive,
                   ]}
                 >
-                  {t(opt.labelKey) || opt.key}
+                  {t(opt.labelKey, { defaultValue: opt.key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) })}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -325,7 +325,7 @@ export function LibrarianDefaultsSection() {
         <View style={styles.field}>
           <Text style={styles.fieldLabel}>{t('librarian.config.defaultLanguageLabel')}</Text>
           <View style={styles.optionsRow}>
-            {languageOptions.slice(0, 4).map(opt => (
+            {languageOptions.map(opt => (
               <TouchableOpacity
                 key={opt.code}
                 style={[
@@ -340,7 +340,7 @@ export function LibrarianDefaultsSection() {
                     localDefaults.bookDefaults.defaultLanguage === opt.code && styles.optionButtonTextActive,
                   ]}
                 >
-                  {opt.label}
+                  {opt.nativeLabel || opt.label}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -517,6 +517,8 @@ const createStyles = (colors: ColorScheme) =>
       backgroundColor: colors.background.primary,
       borderWidth: 1,
       borderColor: colors.border.primary,
+      flexGrow: 1,
+      alignItems: 'center' as const,
     },
     optionButtonWide: {
       minWidth: '45%',
@@ -638,12 +640,15 @@ const createStyles = (colors: ColorScheme) =>
       marginTop: 8,
     },
     genreChip: {
-      paddingVertical: 6,
-      paddingHorizontal: 10,
+      paddingVertical: 8,
+      paddingHorizontal: 12,
       borderRadius: 6,
       backgroundColor: colors.background.primary,
       borderWidth: 1,
       borderColor: colors.border.primary,
+      flexGrow: 1,
+      flexBasis: '30%',
+      alignItems: 'center' as const,
     },
     genreChipActive: {
       backgroundColor: colors.brand.primary,
