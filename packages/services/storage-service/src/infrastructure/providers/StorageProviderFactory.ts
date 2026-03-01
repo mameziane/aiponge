@@ -16,6 +16,8 @@ export interface S3Config {
   region: string;
   accessKeyId: string;
   secretAccessKey: string;
+  endpoint?: string;
+  cdnDomain?: string;
 }
 
 export interface CloudinaryConfig {

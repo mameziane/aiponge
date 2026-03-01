@@ -631,11 +631,15 @@ async function main(): Promise<void> {
     };
 
     if (storageProvider === 's3') {
+      // Support both Railway Storage Bucket env vars and standard AWS env vars
+      // Railway provides: BUCKET, ACCESS_KEY_ID, SECRET_ACCESS_KEY, REGION, ENDPOINT
+      // AWS provides: AWS_S3_BUCKET, AWS_S3_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
       storageConfig.s3 = {
-        bucket: process.env.AWS_S3_BUCKET || '',
-        region: process.env.AWS_S3_REGION || '',
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
+        bucket: process.env.BUCKET || process.env.AWS_S3_BUCKET || '',
+        region: process.env.REGION || process.env.AWS_S3_REGION || '',
+        accessKeyId: process.env.ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID || '',
+        secretAccessKey: process.env.SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY || '',
+        endpoint: process.env.ENDPOINT || process.env.AWS_S3_ENDPOINT || undefined,
       };
     } else if (storageProvider === 'gcs') {
       storageConfig.gcs = {

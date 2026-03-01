@@ -66,6 +66,9 @@ export class S3StorageProvider implements IStorageProvider {
           secretAccessKey: this.config.secretAccessKey,
         },
         endpoint: this.config.endpoint,
+        // Railway Storage Buckets use virtual-hosted–style URLs (bucket as subdomain)
+        // AWS SDK v3 defaults to path-style for custom endpoints, so we override
+        forcePathStyle: this.config.endpoint ? false : undefined,
       }) as unknown as S3ClientInstance;
 
       this.isInitialized = true;
@@ -357,6 +360,12 @@ export class S3StorageProvider implements IStorageProvider {
   }
 
   private generatePublicUrl(path: string): string {
+    // Railway Storage Buckets use virtual-hosted–style URLs: https://{bucket}.{endpoint_host}/{path}
+    // AWS S3 uses: https://{bucket}.s3.{region}.amazonaws.com/{path}
+    if (this.config.endpoint) {
+      const endpointHost = this.config.endpoint.replace(/^https?:\/\//, '');
+      return `https://${this.config.bucket}.${endpointHost}/${path}`;
+    }
     return `https://${this.config.bucket}.s3.${this.config.region}.amazonaws.com/${path}`;
   }
 }
