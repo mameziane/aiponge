@@ -91,7 +91,7 @@ export async function runBackgroundCleanup(): Promise<void> {
     repo.startHealthChecking();
 
     // Defer the actual cleanup work to avoid blocking
-    setTimeout(async () => {
+    setImmediate(async () => {
       try {
         const cleanedCount = await repo.cleanupStaleServices();
         if (cleanedCount > 0) {
@@ -108,7 +108,7 @@ export async function runBackgroundCleanup(): Promise<void> {
           error: serializeError(error),
         });
       }
-    }, 2000); // Defer cleanup, but connection is already established
+    });
   } catch (error) {
     logger.error('⚠️ Failed to initialize database repository', {
       component: 'service_discovery',

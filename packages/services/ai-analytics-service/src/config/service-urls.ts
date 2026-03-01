@@ -3,10 +3,16 @@
  * Thin wrapper around platform-core's consolidated factory.
  */
 
-import { createServiceUrlsConfig } from '@aiponge/platform-core';
-import type { HttpClient, HttpResponse } from '@aiponge/platform-core';
+import {
+  createServiceUrlsConfig,
+  ServiceRegistry,
+  hasService,
+  waitForService,
+  listServices,
+  type HttpClient,
+  type HttpResponse,
+} from '@aiponge/platform-core';
 import type * as winston from 'winston';
-import { ServiceRegistry, hasService, waitForService, listServices } from '@aiponge/platform-core';
 
 export type Logger = winston.Logger;
 

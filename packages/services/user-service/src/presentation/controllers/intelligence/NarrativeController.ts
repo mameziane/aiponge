@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import { ServiceFactory } from '@infrastructure/composition/ServiceFactory';
 import { createControllerHelpers } from '@aiponge/platform-core';
 import { ServiceErrors } from '../../utils/response-helpers';
+import { InsightsError } from '../../../application/errors';
+import { GetNarrativeHistoryUseCase } from '../../../application/use-cases/intelligence';
 
 const { handleRequest } = createControllerHelpers('user-service', (res, error, message, req) =>
   ServiceErrors.fromException(res, error, message, req)
@@ -16,7 +18,7 @@ export class IntelligenceNarrativeController {
       handler: async () => {
         const userId = req.params.userId || (req.query.userId as string);
         if (!userId) {
-          throw new Error('userId is required');
+          throw InsightsError.userIdRequired();
         }
         const useCase = ServiceFactory.createGeneratePersonalNarrativeUseCase();
         return useCase.execute({ userId: userId as string });
@@ -32,9 +34,8 @@ export class IntelligenceNarrativeController {
       handler: async () => {
         const userId = req.params.userId as string;
         const limit = parseInt(req.query.limit as string) || 20;
-        const repository = ServiceFactory.createIntelligenceRepository();
-        const narratives = await repository.findNarrativesByUserId(userId, limit);
-        return { narratives, count: narratives.length };
+        const useCase = new GetNarrativeHistoryUseCase();
+        return useCase.execute({ userId, limit });
       },
     });
   }
@@ -48,7 +49,7 @@ export class IntelligenceNarrativeController {
         const narrativeId = req.params.id as string;
         const { userId, userReflection } = req.body;
         if (!userId || !userReflection) {
-          throw new Error('userId and userReflection are required');
+          throw InsightsError.validationError('userReflection', 'userId and userReflection are required');
         }
         const useCase = ServiceFactory.createGeneratePersonalNarrativeUseCase();
         return useCase.respondToNarrative({ narrativeId, userId, userReflection });

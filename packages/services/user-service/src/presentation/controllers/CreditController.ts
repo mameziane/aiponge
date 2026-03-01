@@ -9,6 +9,7 @@ import { CreditRepository, FulfillOrderInput } from '@infrastructure/repositorie
 import { createDrizzleRepository } from '@infrastructure/database/DatabaseConnectionFactory';
 import { getLogger } from '@config/service-urls';
 import { sendSuccess, ServiceErrors } from '../utils/response-helpers';
+import { BillingError } from '../../application/errors';
 import { createControllerHelpers, serializeError, extractAuthContext } from '@aiponge/platform-core';
 import { emailService } from '@infrastructure/services/EmailService';
 
@@ -605,7 +606,7 @@ export class CreditController {
         const creditRepository = createDrizzleRepository(CreditRepository);
         const { transactionId } = req.body;
         if (!transactionId) {
-          throw new Error('transactionId is required');
+          throw BillingError.validationError('transactionId', 'transactionId is required');
         }
         return creditRepository.updatePendingOrderTransaction(orderId, transactionId as string);
       },
@@ -627,7 +628,7 @@ export class CreditController {
         const creditRepository = createDrizzleRepository(CreditRepository);
         const { status } = req.body;
         if (!status) {
-          throw new Error('status is required');
+          throw BillingError.validationError('status', 'status is required');
         }
         return creditRepository.updatePendingOrderStatus(orderId, status as string);
       },

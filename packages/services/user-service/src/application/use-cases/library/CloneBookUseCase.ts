@@ -20,8 +20,8 @@ import { getLogger, SERVICE_URLS, createServiceHttpClient } from '@config/servic
 import {
   isPrivilegedRole,
   normalizeRole,
-  CONTENT_VISIBILITY,
   SUBSCRIPTION_STATUS,
+  isContentPubliclyAccessible,
   type UserRole,
 } from '@aiponge/shared-contracts';
 import { TierConfigClient } from '@aiponge/platform-core';
@@ -83,10 +83,7 @@ export class CloneBookUseCase {
     }
 
     const isOwned = sourceBook.userId === userId;
-    const isAccessible =
-      isOwned ||
-      sourceBook.visibility === CONTENT_VISIBILITY.SHARED ||
-      sourceBook.visibility === CONTENT_VISIBILITY.PUBLIC;
+    const isAccessible = isOwned || isContentPubliclyAccessible(sourceBook.visibility);
 
     if (!isAccessible) {
       return { success: false, error: 'You do not have access to clone this book' };

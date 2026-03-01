@@ -72,6 +72,14 @@ import { ContinueReflectionDialogueUseCase } from '../../application/use-cases/i
 import { ExplorePatternUseCase } from '../../application/use-cases/insights/ExplorePatternUseCase';
 import { RecordMoodCheckInUseCase } from '../../application/use-cases/insights/RecordMoodCheckInUseCase';
 import { GeneratePersonalNarrativeUseCase } from '../../application/use-cases/insights/GeneratePersonalNarrativeUseCase';
+import {
+  GetNarrativeHistoryUseCase,
+  GetMoodCheckinsUseCase,
+  GetReflectionsUseCase,
+  GetReflectionByIdUseCase,
+  UpdateReflectionUseCase,
+  DeleteReflectionUseCase,
+} from '../../application/use-cases/intelligence';
 
 // Library Entry Use Cases (unified with Clean Architecture)
 import {
@@ -368,6 +376,32 @@ export class ServiceFactory {
 
   static createGetInsightsUseCase() {
     return new GetInsightsUseCase(this.intelligenceRepo);
+  }
+
+  // ==================== INTELLIGENCE USE CASES ====================
+
+  static createGetNarrativeHistoryUseCase() {
+    return new GetNarrativeHistoryUseCase();
+  }
+
+  static createGetMoodCheckinsUseCase() {
+    return new GetMoodCheckinsUseCase();
+  }
+
+  static createGetReflectionsUseCase() {
+    return new GetReflectionsUseCase();
+  }
+
+  static createGetReflectionByIdUseCase() {
+    return new GetReflectionByIdUseCase();
+  }
+
+  static createUpdateReflectionUseCase() {
+    return new UpdateReflectionUseCase();
+  }
+
+  static createDeleteReflectionUseCase() {
+    return new DeleteReflectionUseCase();
   }
 
   static createUpdateUserGoalsFromInsightsUseCase() {

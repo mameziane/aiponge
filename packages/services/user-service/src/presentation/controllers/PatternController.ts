@@ -7,6 +7,7 @@ import { Response } from 'express';
 import { AuthenticatedRequest, createControllerHelpers } from '@aiponge/platform-core';
 import { getLogger } from '@config/service-urls';
 import { ServiceErrors, sendSuccess } from '../utils/response-helpers';
+import { InsightsError } from '../../application/errors';
 import { PatternRecognitionService } from '@domains/profile';
 import { PatternRepository } from '@infrastructure/repositories';
 import { createDrizzleRepository } from '@infrastructure/database/DatabaseConnectionFactory';
@@ -254,7 +255,7 @@ export class PatternController {
         const repository = ServiceFactory.createIntelligenceRepository();
         const pattern = await repository.getPatternById(patternId, userId as string);
         if (!pattern) {
-          throw new Error('Pattern not found');
+          throw InsightsError.insightNotFound(patternId);
         }
         const reactions = await repository.findPatternReactionsByPatternId(patternId, userId as string);
         const evidenceEntries =

@@ -1,4 +1,4 @@
-import type { AudioStreamingContract, OptimizedStreamUrl } from '../../../infrastructure/contracts/audio-integration';
+import type { AudioStreamingContract, OptimizedStreamUrl } from '../contracts/AudioStreamingContract';
 
 export interface AudioProcessingOptions {
   format?: 'mp3' | 'wav' | 'flac';

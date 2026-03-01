@@ -455,7 +455,7 @@ export class GenerateTherapeuticInsightsReportUseCase {
     } catch (aiError) {
       const isTimeout =
         aiError instanceof Error &&
-        (aiError.name === 'AbortError' || (aiError as NodeJS.ErrnoException).code === 'ECONNABORTED');
+        (aiError.name === 'AbortError' || (aiError as { code?: string }).code === 'ECONNABORTED');
       logger.warn('AI summary generation failed, using basic analysis', {
         error: aiError instanceof Error ? aiError.message : 'Unknown error',
         errorType: isTimeout ? 'TIMEOUT' : 'EXCEPTION',

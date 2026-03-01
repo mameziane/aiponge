@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { useShallow } from 'zustand/react/shallow';
 
 export interface SearchConfig {
   placeholder: string;
@@ -52,15 +53,26 @@ export const useSearchStore = create<SearchState>((set, get) => ({
   },
 }));
 
+// Selectors for optimized re-renders
+export const selectQuery = (state: SearchState) => state.query;
+export const selectIsSearchActive = (state: SearchState) => state.isSearchActive;
+export const selectSearchActions = (state: SearchState) => ({
+  setQuery: state.setQuery,
+  setIsSearchActive: state.setIsSearchActive,
+  registerSearch: state.registerSearch,
+  unregisterSearch: state.unregisterSearch,
+});
+
 export const useSearch = () => {
-  const store = useSearchStore();
-  return {
-    query: store.query,
-    setQuery: store.setQuery,
-    isSearchActive: store.isSearchActive,
-    setIsSearchActive: store.setIsSearchActive,
-    currentConfig: store.currentConfig,
-    registerSearch: store.registerSearch,
-    unregisterSearch: store.unregisterSearch,
-  };
+  return useSearchStore(
+    useShallow(state => ({
+      query: state.query,
+      setQuery: state.setQuery,
+      isSearchActive: state.isSearchActive,
+      setIsSearchActive: state.setIsSearchActive,
+      currentConfig: state.currentConfig,
+      registerSearch: state.registerSearch,
+      unregisterSearch: state.unregisterSearch,
+    }))
+  );
 };

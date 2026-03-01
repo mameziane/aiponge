@@ -8,8 +8,7 @@ import { IAnalyticsRepository } from '../../domains/repositories/IAnalyticsRepos
 import { EventEmitter } from 'events';
 import { getLogger } from '../../config/service-urls';
 import { AnalyticsError } from '../errors';
-import { createIntervalScheduler } from '@aiponge/platform-core';
-import type { IntervalScheduler } from '@aiponge/platform-core';
+import { createIntervalScheduler, type IntervalScheduler } from '@aiponge/platform-core';
 import { ALERT_STATUS } from '@aiponge/shared-contracts';
 
 const logger = getLogger('ai-analytics-service-systemhealthservice');

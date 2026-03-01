@@ -183,6 +183,9 @@ export function registerLibraryRoutes(router: Router, deps: LibraryRouteDeps): v
       closed = true;
     });
 
+    // Request-scoped SSE polling timer — intentionally uses setInterval/setTimeout rather than
+    // BaseScheduler because this is a transient, per-request timer that's cleaned up when
+    // the SSE connection closes. CLAUDE.md's scheduling rule targets service-level recurring jobs.
     const pollInterval = setInterval(async () => {
       if (closed) {
         clearInterval(pollInterval);

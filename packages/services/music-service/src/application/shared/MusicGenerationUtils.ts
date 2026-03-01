@@ -21,7 +21,7 @@ import type {
   MusicGenerationRequest as OrchestratorRequest,
   MusicProviderCapabilities,
 } from '../../domains/ai-music/interfaces/IMusicProvider';
-import { CONTENT_VISIBILITY, type ContentVisibility } from '@aiponge/shared-contracts';
+import { CONTENT_VISIBILITY, isContentPubliclyAccessible, type ContentVisibility } from '@aiponge/shared-contracts';
 import type { NewLyrics } from '../../schema/music-schema';
 
 const logger = getLogger('music-service-generation-utils');
@@ -626,7 +626,7 @@ export class MusicGenerationUtils {
     const effectiveProviderId = providerId || 'musicapi';
     const providerCaps = this.getProviderCapabilities(effectiveProviderId);
     const supportsSyncedLyrics = providerCaps?.supportsSyncedLyrics ?? false;
-    const isPublic = visibility === CONTENT_VISIBILITY.SHARED || visibility === CONTENT_VISIBILITY.PUBLIC;
+    const isPublic = isContentPubliclyAccessible(visibility);
 
     logger.info('Starting full lyrics sync', {
       trackId,

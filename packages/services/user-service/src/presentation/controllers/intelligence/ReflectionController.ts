@@ -2,6 +2,13 @@ import { Request, Response } from 'express';
 import { ServiceFactory } from '@infrastructure/composition/ServiceFactory';
 import { getLogger } from '@config/service-urls';
 import { sendSuccess, ServiceErrors } from '../../utils/response-helpers';
+import { InsightsError } from '../../../application/errors';
+import {
+  GetReflectionsUseCase,
+  GetReflectionByIdUseCase,
+  UpdateReflectionUseCase,
+  DeleteReflectionUseCase,
+} from '../../../application/use-cases/intelligence';
 import { createControllerHelpers, serializeError, extractAuthContext } from '@aiponge/platform-core';
 
 const logger = getLogger('intelligence-controller');
@@ -31,9 +38,8 @@ export class IntelligenceReflectionController {
       errorMessage: 'Failed to get reflections',
       handler: async () => {
         const userId = req.params.userId as string;
-        const repository = ServiceFactory.createIntelligenceRepository();
-        const result = await repository.findReflectionsByUserId(userId);
-        return { reflections: result };
+        const useCase = new GetReflectionsUseCase();
+        return useCase.execute({ userId });
       },
     });
   }
@@ -42,8 +48,8 @@ export class IntelligenceReflectionController {
     try {
       const id = req.params.id as string;
       const userId = req.query.userId as string;
-      const repository = ServiceFactory.createIntelligenceRepository();
-      const result = await repository.findReflectionById(id, userId);
+      const useCase = new GetReflectionByIdUseCase();
+      const result = await useCase.execute({ id, userId });
       if (!result) {
         ServiceErrors.notFound(res, 'Reflection', req);
         return;
@@ -63,9 +69,8 @@ export class IntelligenceReflectionController {
       handler: async () => {
         const id = req.params.id as string;
         const { userId, ...data } = req.body;
-        const repository = ServiceFactory.createIntelligenceRepository();
-        await repository.updateReflection(id, data);
-        return repository.findReflectionById(id, userId);
+        const useCase = new UpdateReflectionUseCase();
+        return useCase.execute({ id, userId, data });
       },
     });
   }
@@ -78,9 +83,8 @@ export class IntelligenceReflectionController {
       handler: async () => {
         const id = req.params.id as string;
         const { userId } = req.body;
-        const repository = ServiceFactory.createIntelligenceRepository();
-        await repository.deleteReflection(id, userId);
-        return { deleted: true };
+        const useCase = new DeleteReflectionUseCase();
+        return useCase.execute({ id, userId });
       },
     });
   }
@@ -94,7 +98,7 @@ export class IntelligenceReflectionController {
         const reflectionId = req.params.id as string;
         const { userId, userResponse } = req.body;
         if (!userId || !userResponse) {
-          throw new Error('userId and userResponse are required');
+          throw InsightsError.validationError('userResponse', 'userId and userResponse are required');
         }
         const useCase = ServiceFactory.createContinueReflectionDialogueUseCase();
         return useCase.execute({ reflectionId, userId, userResponse });
@@ -111,12 +115,12 @@ export class IntelligenceReflectionController {
         const reflectionId = req.params.id as string;
         const userId = req.query.userId as string;
         if (!userId) {
-          throw new Error('userId query parameter is required');
+          throw InsightsError.userIdRequired();
         }
         const repository = ServiceFactory.createIntelligenceRepository();
         const reflection = await repository.findReflectionById(reflectionId, userId);
         if (!reflection) {
-          throw new Error('Reflection not found');
+          throw InsightsError.reflectionNotFound(reflectionId);
         }
         const turns = await repository.findReflectionTurnsByReflectionId(reflectionId);
         return { reflection, turns };

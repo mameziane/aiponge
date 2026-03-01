@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import { ServiceFactory } from '@infrastructure/composition/ServiceFactory';
 import { createControllerHelpers } from '@aiponge/platform-core';
 import { ServiceErrors } from '../../utils/response-helpers';
+import { InsightsError } from '../../../application/errors';
+import { GetMoodCheckinsUseCase } from '../../../application/use-cases/intelligence';
 
 const { handleRequest } = createControllerHelpers('user-service', (res, error, message, req) =>
   ServiceErrors.fromException(res, error, message, req)
@@ -17,7 +19,7 @@ export class IntelligenceMoodController {
       handler: async () => {
         const { userId, mood, emotionalIntensity, content, triggerTag } = req.body;
         if (!userId || !mood || emotionalIntensity === undefined) {
-          throw new Error('userId, mood, and emotionalIntensity are required');
+          throw InsightsError.validationError('mood', 'userId, mood, and emotionalIntensity are required');
         }
         const useCase = ServiceFactory.createRecordMoodCheckInUseCase();
         return useCase.execute({ userId, mood, emotionalIntensity, content, triggerTag });
@@ -33,9 +35,8 @@ export class IntelligenceMoodController {
       handler: async () => {
         const userId = req.params.userId as string;
         const limit = parseInt(req.query.limit as string) || 50;
-        const repository = ServiceFactory.createIntelligenceRepository();
-        const checkins = await repository.findMoodCheckinsByUserId(userId, limit);
-        return { checkins, count: checkins.length };
+        const useCase = new GetMoodCheckinsUseCase();
+        return useCase.execute({ userId, limit });
       },
     });
   }
@@ -49,7 +50,7 @@ export class IntelligenceMoodController {
         const checkinId = req.params.id as string;
         const { microQuestionResponse } = req.body;
         if (!microQuestionResponse) {
-          throw new Error('microQuestionResponse is required');
+          throw InsightsError.validationError('microQuestionResponse', 'microQuestionResponse is required');
         }
         const repository = ServiceFactory.createIntelligenceRepository();
         return repository.updateMoodCheckin(checkinId, {

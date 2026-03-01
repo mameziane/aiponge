@@ -4,11 +4,9 @@
  */
 
 import { IMetricsRepository } from '../../domains/repositories/IAnalyticsRepository';
-import { type ICache } from '@aiponge/platform-core';
+import { type ICache, createIntervalScheduler, type IntervalScheduler } from '@aiponge/platform-core';
 import { MetricEntry } from '../../domains/entities/MetricEntry';
 import { getLogger } from '../../config/service-urls';
-import { createIntervalScheduler } from '@aiponge/platform-core';
-import type { IntervalScheduler } from '@aiponge/platform-core';
 
 const logger = getLogger('ai-analytics-service-metricscollectorservice');
 

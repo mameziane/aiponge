@@ -102,14 +102,15 @@ function useSafeCastState() {
 
   useEffect(() => {
     if (!castModuleLoaded || !CastContext) return;
+    const ctx = CastContext;
 
     let subscription: { remove?: () => void } | null = null;
 
     const checkState = async () => {
       try {
         logger.info('[useChromecast] useSafeCastState: calling getCastState');
-        const castState = await CastContext.getCastState?.();
-        logger.info('[useChromecast] useSafeCastState: getCastState returned:', castState);
+        const castState = await ctx.getCastState?.();
+        logger.info('[useChromecast] useSafeCastState: getCastState returned', { castState });
         setState(castState);
       } catch (err) {
         logger.debug('[useChromecast] getCastState not available', { error: err });
@@ -120,8 +121,8 @@ function useSafeCastState() {
 
     try {
       logger.info('[useChromecast] useSafeCastState: subscribing to onCastStateChanged');
-      if (typeof CastContext.onCastStateChanged === 'function') {
-        subscription = CastContext.onCastStateChanged((newState: unknown) => {
+      if (typeof ctx.onCastStateChanged === 'function') {
+        subscription = ctx.onCastStateChanged((newState: unknown) => {
           setState(newState);
         });
         logger.info('[useChromecast] useSafeCastState: onCastStateChanged subscribed OK');
@@ -154,7 +155,7 @@ function useSafeDevices() {
         const sessionManager = CastContext?.getSessionManager?.();
         if (sessionManager) {
           const discoveredDevices = (await sessionManager.getDiscoveredDevices?.()) || [];
-          logger.info('[useChromecast] useSafeDevices: got', discoveredDevices.length, 'devices');
+          logger.info('[useChromecast] useSafeDevices: discovered devices', { count: discoveredDevices.length });
           setDevices(discoveredDevices);
         }
       } catch (err) {
@@ -173,10 +174,11 @@ function useSafeRemoteMediaClient(): RemoteMediaClient | null {
 
   useEffect(() => {
     if (!castModuleLoaded || !CastContext) return;
+    const ctx = CastContext;
 
     const getClient = async () => {
       try {
-        const session = await CastContext.getSessionManager?.()?.getCurrentSession?.();
+        const session = await ctx.getSessionManager?.()?.getCurrentSession?.();
         if (session) {
           setClient(session.getRemoteMediaClient?.() || null);
         }

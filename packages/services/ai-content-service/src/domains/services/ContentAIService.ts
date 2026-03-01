@@ -484,7 +484,42 @@ export class ContentAIService {
     systemPrompt?: string;
     userPrompt?: string;
   }> {
-    // Select default template based on content type
+    const templateId = this.selectTemplateId(request);
+
+    const variables = {
+      ...this.buildBasicVariables(request),
+      ...this.buildEmotionalAndMusicVariables(request),
+      ...this.buildContextVariables(request),
+    };
+
+    // Execute template and get response with separated system/user prompts
+    const templateResponse = await this.templateClient.executeTemplate({
+      templateId,
+      variables,
+    });
+
+    if (!templateResponse.success || !templateResponse.result) {
+      const errorMessage = `Template execution failed for ${templateId}: ${templateResponse.error || 'no result'}`;
+      logger.error('Template execution failed - no fallback', {
+        templateId,
+        templateSuccess: templateResponse.success,
+        hasResult: !!templateResponse.result,
+        error: templateResponse.error,
+      });
+      throw ContentError.generationFailed(errorMessage);
+    }
+
+    return {
+      prompt: templateResponse.result,
+      systemPrompt: templateResponse.systemPrompt,
+      userPrompt: templateResponse.userPrompt || templateResponse.result,
+    };
+  }
+
+  /**
+   * Select the appropriate template ID based on content type and custom options
+   */
+  private selectTemplateId(request: ContentGenerationRequest): string {
     let templateId: string =
       request.contentType === 'analysis' ? TEMPLATE_IDS.ENTRY_ANALYSIS : TEMPLATE_IDS.SYSTEM_PROMPT;
 
@@ -503,87 +538,89 @@ export class ContentAIService {
       }
     }
 
-    // Execute template and get response with separated system/user prompts
-    const templateResponse = await this.templateClient.executeTemplate({
-      templateId,
-      variables: {
-        content_type: request.contentType,
-        user_input: request.prompt,
-        prompt: request.prompt, // Add for templates that use ${prompt}
-        tone: request.parameters?.tone,
-        target_audience: request.parameters?.targetAudience,
-        style: request.parameters?.style,
-        format_output:
-          request.options?.formatOutput && request.options.formatOutput !== 'plain'
-            ? request.options.formatOutput
-            : null,
-        optimize_seo: request.options?.optimizeForSEO || false,
-        add_citations: request.options?.addCitations || false,
-        // CRITICAL: Language parameter for multilingual templates - use user's preference
-        // Convert language codes (e.g., 'fr') to full names (e.g., 'French') for AI prompts
-        // 'auto-detect' or undefined means the AI should detect from input text
-        language: getLanguageName(request.parameters?.language),
-        language_preference: getLanguageName(request.parameters?.language),
-        // Music lyrics template variables (pass through all parameters for flexibility)
-        emotional_tone: request.parameters?.tone || 'supportive and encouraging',
-        emotional_context: (request.parameters as ExtendedContentParameters)?.emotional_context || 'general wellbeing',
-        primary_goal: (request.parameters as ExtendedContentParameters)?.primary_goal || 'personal growth',
-        musical_style: request.parameters?.style || 'contemporary',
-        complexity_preference: (request.parameters as ExtendedContentParameters)?.complexity_preference || 'moderate',
-        support_type: (request.parameters as ExtendedContentParameters)?.support_type || 'encouragement',
-        motivation_type: (request.parameters as ExtendedContentParameters)?.motivation_type || 'self-improvement',
-        communication_style: (request.parameters as ExtendedContentParameters)?.communication_style || 'gentle',
-        mood_descriptor: (request.parameters as ExtendedContentParameters)?.mood || 'hopeful',
-        cultural_sensitivity: (request.parameters as ExtendedContentParameters)?.cultural_sensitivity || 'high',
-        cultural_style: (request.parameters as ExtendedContentParameters)?.cultural_context || 'universal',
-        verbosity: (request.parameters as ExtendedContentParameters)?.verbosity || 'moderate',
-        emotional_intensity: (request.parameters as ExtendedContentParameters)?.emotional_intensity || '0.5',
-        current_mood: (request.parameters as ExtendedContentParameters)?.currentMood,
-        user_name: (request.parameters as ExtendedContentParameters)?.displayName,
-        // Bilingual/multi-language support
-        is_bilingual: (request.parameters as ExtendedContentParameters)?.isBilingual || false,
-        // Maps 'targetLanguages' to template variable '{{languages}}' (template DB contract)
-        languages: (request.parameters as ExtendedContentParameters)?.targetLanguages?.join(', '),
-        // Narrative personalization from book themes
-        narrative_seeds: (request.parameters as ExtendedContentParameters)?.narrativeSeeds?.join(', '),
-        narrative_emotional_context: (request.parameters as ExtendedContentParameters)?.narrativeEmotionalContext,
-        // Book context for source-aware lyrics generation
-        book_type: (request.parameters as ExtendedContentParameters)?.book_type,
-        book_title: (request.parameters as ExtendedContentParameters)?.book_title,
-        book_description: (request.parameters as ExtendedContentParameters)?.book_description,
-        chapter_title: (request.parameters as ExtendedContentParameters)?.chapter_title,
-        book_category: (request.parameters as ExtendedContentParameters)?.book_category,
-        book_tags: (request.parameters as ExtendedContentParameters)?.book_tags?.join(', '),
-        book_themes: (request.parameters as ExtendedContentParameters)?.book_themes?.join(', '),
-        has_book_context: !!(request.parameters as ExtendedContentParameters)?.book_type,
-        // Entry analysis template variables (used by entry-analysis template)
-        framework: (request.context as Record<string, unknown>)?.framework || 'cognitive-behavioral',
-        analysis_focus: (request.context as Record<string, unknown>)?.analysis_focus || 'patterns and insights',
-        analysis_depth: (request.context as Record<string, unknown>)?.analysis_depth || 'comprehensive',
-        therapeutic_goal: (request.context as Record<string, unknown>)?.therapeutic_goal || 'self-awareness',
-        cultural_context:
-          (request.context as Record<string, unknown>)?.cultural_context ||
-          (request.parameters as ExtendedContentParameters)?.cultural_context ||
-          'universal',
-        output_format: (request.context as Record<string, unknown>)?.output_format || 'structured',
-      },
-    });
+    return templateId;
+  }
 
-    if (!templateResponse.success || !templateResponse.result) {
-      const errorMessage = `Template execution failed for ${templateId}: ${templateResponse.error || 'no result'}`;
-      logger.error('Template execution failed - no fallback', {
-        templateId,
-        templateSuccess: templateResponse.success,
-        hasResult: !!templateResponse.result,
-        error: templateResponse.error,
-      });
-      throw ContentError.generationFailed(errorMessage);
-    }
+  /**
+   * Build basic template variables: content type, prompt, tone, audience, style, format, language
+   */
+  private buildBasicVariables(request: ContentGenerationRequest): Record<string, unknown> {
+    return {
+      content_type: request.contentType,
+      user_input: request.prompt,
+      prompt: request.prompt, // Add for templates that use ${prompt}
+      tone: request.parameters?.tone,
+      target_audience: request.parameters?.targetAudience,
+      style: request.parameters?.style,
+      format_output:
+        request.options?.formatOutput && request.options.formatOutput !== 'plain' ? request.options.formatOutput : null,
+      optimize_seo: request.options?.optimizeForSEO || false,
+      add_citations: request.options?.addCitations || false,
+      // CRITICAL: Language parameter for multilingual templates - use user's preference
+      // Convert language codes (e.g., 'fr') to full names (e.g., 'French') for AI prompts
+      // 'auto-detect' or undefined means the AI should detect from input text
+      language: getLanguageName(request.parameters?.language),
+      language_preference: getLanguageName(request.parameters?.language),
+    };
+  }
+
+  /**
+   * Build emotional, music, and personalization template variables
+   */
+  private buildEmotionalAndMusicVariables(request: ContentGenerationRequest): Record<string, unknown> {
+    const params = request.parameters as ExtendedContentParameters | undefined;
 
     return {
-      prompt: templateResponse.result,
-      systemPrompt: templateResponse.systemPrompt,
-      userPrompt: templateResponse.userPrompt || templateResponse.result,
+      // Music lyrics template variables (pass through all parameters for flexibility)
+      emotional_tone: request.parameters?.tone || 'supportive and encouraging',
+      emotional_context: params?.emotional_context || 'general wellbeing',
+      primary_goal: params?.primary_goal || 'personal growth',
+      musical_style: request.parameters?.style || 'contemporary',
+      complexity_preference: params?.complexity_preference || 'moderate',
+      support_type: params?.support_type || 'encouragement',
+      motivation_type: params?.motivation_type || 'self-improvement',
+      communication_style: params?.communication_style || 'gentle',
+      mood_descriptor: params?.mood || 'hopeful',
+      cultural_sensitivity: params?.cultural_sensitivity || 'high',
+      cultural_style: params?.cultural_context || 'universal',
+      verbosity: params?.verbosity || 'moderate',
+      emotional_intensity: params?.emotional_intensity || '0.5',
+      current_mood: params?.currentMood,
+      user_name: params?.displayName,
+      // Bilingual/multi-language support
+      is_bilingual: params?.isBilingual || false,
+      // Maps 'targetLanguages' to template variable '{{languages}}' (template DB contract)
+      languages: params?.targetLanguages?.join(', '),
+      // Narrative personalization from book themes
+      narrative_seeds: params?.narrativeSeeds?.join(', '),
+      narrative_emotional_context: params?.narrativeEmotionalContext,
+    };
+  }
+
+  /**
+   * Build book context and entry analysis template variables
+   */
+  private buildContextVariables(request: ContentGenerationRequest): Record<string, unknown> {
+    const params = request.parameters as ExtendedContentParameters | undefined;
+    const context = request.context as Record<string, unknown> | undefined;
+
+    return {
+      // Book context for source-aware lyrics generation
+      book_type: params?.book_type,
+      book_title: params?.book_title,
+      book_description: params?.book_description,
+      chapter_title: params?.chapter_title,
+      book_category: params?.book_category,
+      book_tags: params?.book_tags?.join(', '),
+      book_themes: params?.book_themes?.join(', '),
+      has_book_context: !!params?.book_type,
+      // Entry analysis template variables (used by entry-analysis template)
+      framework: context?.framework || 'cognitive-behavioral',
+      analysis_focus: context?.analysis_focus || 'patterns and insights',
+      analysis_depth: context?.analysis_depth || 'comprehensive',
+      therapeutic_goal: context?.therapeutic_goal || 'self-awareness',
+      cultural_context: context?.cultural_context || params?.cultural_context || 'universal',
+      output_format: context?.output_format || 'structured',
     };
   }
 

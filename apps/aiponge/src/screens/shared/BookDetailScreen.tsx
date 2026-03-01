@@ -386,14 +386,14 @@ export function BookDetailScreen({ mode = 'view' }: BookDetailScreenProps) {
     (entry: BookDisplayEntry) => {
       const createPath = user?.role === 'librarian' ? '/(librarian)/create' : '/(user)/create';
       router.push({
-        pathname: createPath as Href,
+        pathname: createPath,
         params: {
           sourceEntryId: entry.id,
           sourceText: entry.text,
           sourceReference: entry.reference || '',
           sourceBookTitle: book?.title || '',
         },
-      });
+      } as Href);
     },
     [router, book?.title, user?.role]
   );

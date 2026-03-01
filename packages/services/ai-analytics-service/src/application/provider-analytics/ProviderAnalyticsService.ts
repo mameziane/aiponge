@@ -15,11 +15,9 @@ import {
 } from '../../domains/entities/ProviderAnalytics.js';
 import { IProviderRepository } from '../../domains/repositories/IAnalyticsRepository';
 import { MetricsCollectorService } from '../services/MetricsCollectorService';
-import { type ICache } from '@aiponge/platform-core';
+import { type ICache, createIntervalScheduler, type IntervalScheduler } from '@aiponge/platform-core';
 import { EventEmitter } from 'events';
 import { getLogger } from '../../config/service-urls';
-import { createIntervalScheduler } from '@aiponge/platform-core';
-import type { IntervalScheduler } from '@aiponge/platform-core';
 
 const logger = getLogger('ai-analytics-service-provideranalyticsservice');
 
