@@ -10,7 +10,7 @@ export default function LibrarianBooksTab() {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background.primary }}>
-      <BookListScreen externalCreateTrigger={bookCreationTrigger} />
+      <BookListScreen embedded externalCreateTrigger={bookCreationTrigger} />
     </View>
   );
 }

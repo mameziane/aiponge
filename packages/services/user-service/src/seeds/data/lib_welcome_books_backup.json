@@ -12,7 +12,201 @@
     "language": "ar",
     "visibility": "shared",
     "status": "active",
-    "systemType": "welcome-guide-ar"
+    "systemType": "welcome-guide-ar",
+    "chapters": [
+      {
+        "title": "Welcome",
+        "sortOrder": 0,
+        "entries": [
+          {
+            "content": "**الحكمة القديمة**\n\nمنذ 2500 عام، سافر الباحثون إلى دلفي بحثاً عن الوضوح وفهم الذات. فكرتان خالدتان أرشدتاهم: \"اعرف نفسك\" و\"لا شيء بإفراط\". هذه الحكمة ذاتها الآن ترشد aiponge.",
+            "entryType": "note",
+            "sortOrder": 0,
+            "tags": ["introduction", "manifesto"]
+          },
+          {
+            "content": "**دلفي اليومي الخاص بك**\n\nالوحي لم يتنبأ أبداً بالمستقبل — خلق مساحة للتبصر، مرآة بدلاً من إجابة. aiponge يجلب هذه الروح القديمة إلى جيبك من خلال أغانٍ مصنوعة من كلماتك وذكرياتك ومشاعرك.",
+            "entryType": "note",
+            "sortOrder": 1,
+            "tags": ["introduction", "manifesto"]
+          }
+        ]
+      },
+      {
+        "title": "بيان aiponge",
+        "sortOrder": 1,
+        "entries": [
+          {
+            "content": "**مساحة للتأمل**\n\nهذه مساحتك للاستماع إلى ما تخبرك به حياتك بالفعل — من خلال الموسيقى التي تخلقها من ذاتك. مرحباً بك في aiponge.",
+            "entryType": "note",
+            "sortOrder": 0,
+            "tags": ["manifesto"]
+          },
+          {
+            "content": "**العلم وراء ذلك**\n\nيدمج aiponge رؤى من 29 إطاراً نفسياً لإنشاء محتوى علاجي مخصص بعمق، يجمع بين الحكمة القديمة والعلم الحديث.",
+            "entryType": "note",
+            "sortOrder": 1,
+            "tags": ["manifesto"]
+          },
+          {
+            "content": "\"اعرف نفسك\"\n\"لا شيء بإفراط\"\n— الحكم الدلفية",
+            "entryType": "quote",
+            "sortOrder": 2,
+            "tags": ["manifesto", "delphic"]
+          }
+        ]
+      },
+      {
+        "title": "إنشاء",
+        "sortOrder": 2,
+        "entries": [
+          {
+            "content": "**مذكرات شخصية**\n\nمساحة خاصة لأفكارك وتأملاتك",
+            "entryType": "note",
+            "sortOrder": 0,
+            "tags": ["book-type", "personal"]
+          },
+          {
+            "content": "**كتاب حكمة**\n\nحكمة خالدة من الفلسفة والتقاليد الروحية",
+            "entryType": "note",
+            "sortOrder": 1,
+            "tags": ["book-type", "wisdom"]
+          },
+          {
+            "content": "**سيرة ذاتية**\n\nإرشادات لرواية قصة حياتك",
+            "entryType": "note",
+            "sortOrder": 2,
+            "tags": ["book-type", "memoir"]
+          },
+          {
+            "content": "**خيال**\n\nقصص قصيرة ذات مواضيع علاجية",
+            "entryType": "note",
+            "sortOrder": 3,
+            "tags": ["book-type", "fiction"]
+          },
+          {
+            "content": "**شعر**\n\nمجموعة شعرية من تقاليد ثقافية متنوعة",
+            "entryType": "note",
+            "sortOrder": 4,
+            "tags": ["book-type", "poetry"]
+          },
+          {
+            "content": "**تأكيدات**\n\nتأكيدات إيجابية للممارسة اليومية",
+            "entryType": "note",
+            "sortOrder": 5,
+            "tags": ["book-type", "affirmations"]
+          },
+          {
+            "content": "**تأمل**\n\nنصوص تأمل موجهة وممارسات",
+            "entryType": "note",
+            "sortOrder": 6,
+            "tags": ["book-type", "meditation"]
+          },
+          {
+            "content": "**دليل النمو**\n\nكتاب تطوير ذاتي مع تمارين",
+            "entryType": "note",
+            "sortOrder": 7,
+            "tags": ["book-type", "growth"]
+          },
+          {
+            "content": "**قصص أطفال**\n\nقصص مناسبة للعمر مع دروس حياتية",
+            "entryType": "note",
+            "sortOrder": 8,
+            "tags": ["book-type", "children"]
+          },
+          {
+            "content": "**تعليمي**\n\nمحتوى تعليمي يغطي العلوم والتاريخ واللغات والمهارات العملية",
+            "entryType": "note",
+            "sortOrder": 9,
+            "tags": ["book-type", "educational"]
+          },
+          {
+            "content": "**فلسفة**\n\nمقالات فلسفية وتجارب فكرية",
+            "entryType": "note",
+            "sortOrder": 10,
+            "tags": ["book-type", "philosophy"]
+          },
+          {
+            "content": "**مذكرات الأحلام**\n\nاستكشاف وتحليل موجه للأحلام",
+            "entryType": "note",
+            "sortOrder": 11,
+            "tags": ["book-type", "dreams"]
+          },
+          {
+            "content": "**مجموعة اقتباسات**\n\nاقتباسات وأقوال مختارة حول أي موضوع",
+            "entryType": "note",
+            "sortOrder": 12,
+            "tags": ["book-type", "quotes"]
+          },
+          {
+            "content": "**مستكشف علمي**\n\nرؤى قائمة على الأدلة واكتشافات",
+            "entryType": "note",
+            "sortOrder": 13,
+            "tags": ["book-type", "scientific"]
+          }
+        ]
+      },
+      {
+        "title": "Ethics & Values",
+        "sortOrder": 3,
+        "entries": [
+          {
+            "content": "**موسيقاك ملك لك**\n\naiponge ليست منصة موسيقى تقليدية.\nهنا، أنت الفنان والمستمع في آن واحد.\nكل مقطع يُنشأ من إدخالاتك ومشاعرك ونواياك - وليس بنسخ الموسيقيين أو استبدال العمل الفني.\n\n• لا يتم إزاحة أي فنان\n• لا تُنتهك أي حقوق\n• لا يُمس أي كتالوج تجاري",
+            "entryType": "note",
+            "sortOrder": 0,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**لا نتاجر بالمقدس أبداً**\n\nالتنفس، الوعي، الحضور، المعنى - هذه القدرات العالمية تبقى حرة ولا تُمس.\n\naiponge يتقاضى فقط مقابل الحرفية اللازمة لدعم رحلتك:\n\n• صوت مخصص\n• تنظيم المزاج والحالة\n• تأملات موجهة\n• أدوات الكتاب\n• تجارب مرتبطة بالنية",
+            "entryType": "note",
+            "sortOrder": 1,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**الإبداع حق إنساني**\n\nليس كل شخص لديه وصول إلى الآلات الموسيقية أو التدريب أو الاستوديوهات.\nلكن الجميع لديهم مشاعر.\nالجميع لديهم قصة.\nالجميع يستحقون صوتاً.\n\nالموسيقى المُنتجة بالذكاء الاصطناعي في aiponge لا تحل محل الموسيقيين -\nإنها توسع دائرة من يمكنهم التعبير عن أنفسهم.",
+            "entryType": "note",
+            "sortOrder": 2,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**لا حلقات إدمان، لا أنماط مظلمة**\n\naiponge لا يستخدم فخاخ الانتباه.\nnحن نحسّن من أجل:\n\n• الهدوء\n• الوضوح\n• التنظيم العاطفي\n• الوعي الذاتي",
+            "entryType": "note",
+            "sortOrder": 3,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**بياناتك ملك لك**\n\nإدخالاتك وحالاتك ونواياك شخصية جداً.\naiponge يعاملها بالاحترام الذي تستحقه:\n\n• لا بيع للبيانات\n• لا ملفات تعريف إعلانية\n• مشفرة وخاصة\n• أنت تتحكم فيما يبقى وما يُمحى",
+            "entryType": "note",
+            "sortOrder": 4,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**الشفافية فوق التلاعب**\n\nالتكنولوجيا الأخلاقية تعني:\n\n• أسعار واضحة\n• لا رسوم خفية\n• لا خدع\n• لا عمليات بيع إضافية متنكرة كمساعدة",
+            "entryType": "note",
+            "sortOrder": 5,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**مستدام، ليس استغلالياً**\n\naiponge يتقاضى فقط مقابل العمل المطلوب لبناء وصيانة أدوات عالية الجودة:\nنماذج الذكاء الاصطناعي، البنية التحتية، محركات الصوت، التحديثات، والأمان.\n\nالأساسيات الفلسفية - الجزء البشري - تبقى مجانية.",
+            "entryType": "note",
+            "sortOrder": 6,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**الإنسان أولاً، التكنولوجيا ثانياً**\n\naiponge مصمم حول أولوية واحدة:\nحياتك الداخلية.\n\nنحن ندعم:\n\n• الوعي\n• المرونة\n• الوضوح العاطفي\n• التعبير الإبداعي\n• راحة البال",
+            "entryType": "note",
+            "sortOrder": 7,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**التزامنا**\n\naiponge سيقف دائماً من أجل:\nالاحترام • الخصوصية • الشفافية • التمكين\nالإبداع • الكرامة • حرية استكشاف عالمك الداخلي\n\n_إذا لم يخدم نموك، فلن نبنيه._",
+            "entryType": "note",
+            "sortOrder": 8,
+            "tags": ["ethics", "commitment"]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "c4ccdd1f-2de4-4b19-b178-5bf9fa5a81cc",
@@ -27,7 +221,201 @@
     "language": "de",
     "visibility": "shared",
     "status": "active",
-    "systemType": "welcome-guide-de"
+    "systemType": "welcome-guide-de",
+    "chapters": [
+      {
+        "title": "Welcome",
+        "sortOrder": 0,
+        "entries": [
+          {
+            "content": "**Alte Weisheit**\n\nVor 2.500 Jahren reisten Suchende nach Delphi auf der Suche nach Klarheit und Selbsterkenntnis. Zwei zeitlose Ideen leiteten sie: \"Erkenne dich selbst\" und \"Nichts im Übermaß\". Dieselbe Weisheit leitet jetzt aiponge.",
+            "entryType": "note",
+            "sortOrder": 0,
+            "tags": ["introduction", "manifesto"]
+          },
+          {
+            "content": "**Dein Tägliches Delphi**\n\nDas Orakel sagte nie die Zukunft voraus — es schuf Raum für Einsicht, ein Spiegel statt einer Antwort. aiponge bringt diesen alten Geist durch Songs in deine Tasche, die aus deinen Worten, Erinnerungen und Emotionen entstehen.",
+            "entryType": "note",
+            "sortOrder": 1,
+            "tags": ["introduction", "manifesto"]
+          }
+        ]
+      },
+      {
+        "title": "Das aiponge Manifest",
+        "sortOrder": 1,
+        "entries": [
+          {
+            "content": "**Ein Raum zur Reflexion**\n\nDies ist dein Raum, um zu hören, was dein Leben dir bereits sagt — durch die Musik, die du aus dem erschaffst, wer du bist. Willkommen bei aiponge.",
+            "entryType": "note",
+            "sortOrder": 0,
+            "tags": ["manifesto"]
+          },
+          {
+            "content": "**Die Wissenschaft Dahinter**\n\naiponge integriert Erkenntnisse aus 29 psychologischen Rahmenwerken, um tiefgreifend personalisierte therapeutische Inhalte zu erstellen, die alte Weisheit mit moderner Wissenschaft verbinden.",
+            "entryType": "note",
+            "sortOrder": 1,
+            "tags": ["manifesto"]
+          },
+          {
+            "content": "\"Erkenne dich selbst\"\n\"Nichts im Übermaß\"\n— Die Delphischen Maximen",
+            "entryType": "quote",
+            "sortOrder": 2,
+            "tags": ["manifesto", "delphic"]
+          }
+        ]
+      },
+      {
+        "title": "Erstellen",
+        "sortOrder": 2,
+        "entries": [
+          {
+            "content": "**Persönliches Tagebuch**\n\nEin privater Raum für Ihre Gedanken und Reflexionen",
+            "entryType": "note",
+            "sortOrder": 0,
+            "tags": ["book-type", "personal"]
+          },
+          {
+            "content": "**Weisheitsbuch**\n\nZeitlose Weisheit aus Philosophie und spirituellen Traditionen",
+            "entryType": "note",
+            "sortOrder": 1,
+            "tags": ["book-type", "wisdom"]
+          },
+          {
+            "content": "**Memoiren**\n\nGeführte Anregungen, um Ihre Lebensgeschichte zu erzählen",
+            "entryType": "note",
+            "sortOrder": 2,
+            "tags": ["book-type", "memoir"]
+          },
+          {
+            "content": "**Fiktion**\n\nKurzgeschichten mit therapeutischen Themen",
+            "entryType": "note",
+            "sortOrder": 3,
+            "tags": ["book-type", "fiction"]
+          },
+          {
+            "content": "**Poesie**\n\nGedichtsammlung aus verschiedenen kulturellen Traditionen",
+            "entryType": "note",
+            "sortOrder": 4,
+            "tags": ["book-type", "poetry"]
+          },
+          {
+            "content": "**Affirmationen**\n\nPositive Affirmationen für die tägliche Praxis",
+            "entryType": "note",
+            "sortOrder": 5,
+            "tags": ["book-type", "affirmations"]
+          },
+          {
+            "content": "**Meditation**\n\nGeführte Meditationsskripte und Übungen",
+            "entryType": "note",
+            "sortOrder": 6,
+            "tags": ["book-type", "meditation"]
+          },
+          {
+            "content": "**Wachstumsführer**\n\nArbeitsbuch zur Selbstverbesserung mit Übungen",
+            "entryType": "note",
+            "sortOrder": 7,
+            "tags": ["book-type", "growth"]
+          },
+          {
+            "content": "**Kindergeschichten**\n\nAltersgerechte Geschichten mit Lebenslektionen",
+            "entryType": "note",
+            "sortOrder": 8,
+            "tags": ["book-type", "children"]
+          },
+          {
+            "content": "**Bildung**\n\nBildungsinhalte zu Wissenschaft, Geschichte, Sprachen und praktischen Fähigkeiten",
+            "entryType": "note",
+            "sortOrder": 9,
+            "tags": ["book-type", "educational"]
+          },
+          {
+            "content": "**Philosophie**\n\nPhilosophische Essays und Gedankenexperimente",
+            "entryType": "note",
+            "sortOrder": 10,
+            "tags": ["book-type", "philosophy"]
+          },
+          {
+            "content": "**Traumtagebuch**\n\nTraumerkundung und geführte Analyse",
+            "entryType": "note",
+            "sortOrder": 11,
+            "tags": ["book-type", "dreams"]
+          },
+          {
+            "content": "**Zitatesammlung**\n\nKuratierte Zitate und Sprüche zu jedem Thema",
+            "entryType": "note",
+            "sortOrder": 12,
+            "tags": ["book-type", "quotes"]
+          },
+          {
+            "content": "**Wissenschaftsexplorer**\n\nEvidenzbasierte Erkenntnisse und Entdeckungen",
+            "entryType": "note",
+            "sortOrder": 13,
+            "tags": ["book-type", "scientific"]
+          }
+        ]
+      },
+      {
+        "title": "Ethics & Values",
+        "sortOrder": 3,
+        "entries": [
+          {
+            "content": "**deine Musik gehört dir**\n\naiponge ist keine traditionelle Musikplattform.\nHier bist du sowohl Künstler als auch Hörer.\nJeder Track wird aus deinen Eintrag, Emotionen und Absichten erschaffen - nicht durch Kopieren von Musikern oder Ersetzen künstlerischer Arbeit.\n\n• kein Künstler wird verdrängt\n• keine Rechte werden verletzt\n• kein kommerzieller Katalog wird berührt",
+            "entryType": "note",
+            "sortOrder": 0,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**wir kommerzialisieren niemals das Heilige**\n\nAtem, Bewusstsein, Präsenz, Bedeutung - diese universellen Fähigkeiten bleiben frei und unberührt.\n\naiponge berechnet nur für die Handwerkskunst, die zur Unterstützung deiner Reise erforderlich ist:\n\n• personalisiertes Audio\n• Stimmungs- und Zustandsregulierung\n• reflektierende Impulse\n• Buch-Werkzeuge\n• absichtsverknüpfte Erfahrungen",
+            "entryType": "note",
+            "sortOrder": 1,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**Kreativität ist ein Menschenrecht**\n\nnicht jeder hat Zugang zu Instrumenten, Ausbildung oder Studios.\naber jeder hat Emotionen.\njeder hat eine Geschichte.\njeder verdient eine Stimme.\n\nKI-generierte Musik in aiponge ersetzt keine Musiker -\nsie erweitert den Kreis derer, die sich ausdrücken können.",
+            "entryType": "note",
+            "sortOrder": 2,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**keine Suchtschleifen, keine dunklen Muster**\n\naiponge verwendet keine Aufmerksamkeitsfallen.\nwir optimieren für:\n\n• Ruhe\n• Klarheit\n• emotionale Regulierung\n• Selbstwahrnehmung",
+            "entryType": "note",
+            "sortOrder": 3,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**deine Daten gehören dir**\n\ndeine Einträge, Zustände und Absichten sind zutiefst persönlich.\naiponge behandelt sie mit dem Respekt, den sie verdienen:\n\n• kein Datenverkauf\n• keine Werbeprofile\n• verschlüsselt und privat\n• du kontrollierst, was bleibt und was gelöscht wird",
+            "entryType": "note",
+            "sortOrder": 4,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**Transparenz statt Manipulation**\n\nethische Technologie bedeutet:\n\n• klare Preise\n• keine versteckten Gebühren\n• keine Tricks\n• keine als Hilfe getarnten Zusatzverkäufe",
+            "entryType": "note",
+            "sortOrder": 5,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**nachhaltig, nicht ausbeutend**\n\naiponge berechnet nur für die Arbeit, die zum Aufbau und zur Wartung hochwertiger Werkzeuge erforderlich ist:\nKI-Modelle, Infrastruktur, Sound-Engines, Updates und Sicherheit.\n\ndie philosophischen Grundlagen - der menschliche Teil - bleiben kostenlos.",
+            "entryType": "note",
+            "sortOrder": 6,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**Mensch zuerst, Technologie danach**\n\naiponge ist um eine Priorität herum gestaltet:\ndein inneres Leben.\n\nwir unterstützen:\n\n• Bewusstsein\n• Resilienz\n• emotionale Klarheit\n• kreativen Ausdruck\n• Seelenfrieden",
+            "entryType": "note",
+            "sortOrder": 7,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**unser Versprechen**\n\naiponge wird immer für Folgendes eintreten:\nRespekt • Privatsphäre • Transparenz • Ermächtigung\nKreativität • Würde • die Freiheit, deine innere Welt zu erkunden\n\n_wenn es deinem Wachstum nicht dient, bauen wir es nicht._",
+            "entryType": "note",
+            "sortOrder": 8,
+            "tags": ["ethics", "commitment"]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "ebe25e44-f9b3-4a92-bb81-8683584ea2d3",
@@ -42,7 +430,201 @@
     "language": "en",
     "visibility": "shared",
     "status": "active",
-    "systemType": "welcome-guide-en"
+    "systemType": "welcome-guide-en",
+    "chapters": [
+      {
+        "title": "Welcome",
+        "sortOrder": 0,
+        "entries": [
+          {
+            "content": "**Ancient Wisdom**\n\n2,500 years ago, seekers traveled to Delphi for clarity and self-understanding. Two timeless ideas guided them: \"Know yourself\" and \"Nothing in excess.\" This same wisdom now guides aiponge.",
+            "entryType": "note",
+            "sortOrder": 0,
+            "tags": ["introduction", "manifesto"]
+          },
+          {
+            "content": "**Your Daily Delphi**\n\nThe oracle never predicted the future — it created space for insight, a mirror rather than an answer. aiponge brings this ancient spirit into your pocket through songs crafted from your words, memories, and emotions.",
+            "entryType": "note",
+            "sortOrder": 1,
+            "tags": ["introduction", "manifesto"]
+          }
+        ]
+      },
+      {
+        "title": "The aiponge Manifesto",
+        "sortOrder": 1,
+        "entries": [
+          {
+            "content": "**A Space for Reflection**\n\nThis is your space to hear what your life is already telling you — through the music you create from who you are. Welcome to aiponge.",
+            "entryType": "note",
+            "sortOrder": 0,
+            "tags": ["manifesto"]
+          },
+          {
+            "content": "**The Craft Behind It**\n\nThe songs aren't random. They're shaped by what psychology, philosophy, and healing traditions have learned about how we actually change. Not just understand — but feel differently.",
+            "entryType": "note",
+            "sortOrder": 1,
+            "tags": ["manifesto"]
+          },
+          {
+            "content": "\"Know yourself\"\n\"Nothing in excess\"\n— The Delphic Maxims",
+            "entryType": "quote",
+            "sortOrder": 2,
+            "tags": ["manifesto", "delphic"]
+          }
+        ]
+      },
+      {
+        "title": "What You Can Create",
+        "sortOrder": 2,
+        "entries": [
+          {
+            "content": "**Personal Journal**\n\nA private space for your thoughts and reflections",
+            "entryType": "note",
+            "sortOrder": 0,
+            "tags": ["book-type", "personal"]
+          },
+          {
+            "content": "**Wisdom Book**\n\nTimeless wisdom from philosophy and spiritual traditions",
+            "entryType": "note",
+            "sortOrder": 1,
+            "tags": ["book-type", "wisdom"]
+          },
+          {
+            "content": "**Memoir**\n\nGuided prompts to tell your life story",
+            "entryType": "note",
+            "sortOrder": 2,
+            "tags": ["book-type", "memoir"]
+          },
+          {
+            "content": "**Fiction**\n\nShort stories with therapeutic themes",
+            "entryType": "note",
+            "sortOrder": 3,
+            "tags": ["book-type", "fiction"]
+          },
+          {
+            "content": "**Poetry**\n\nPoetry collection across cultural traditions",
+            "entryType": "note",
+            "sortOrder": 4,
+            "tags": ["book-type", "poetry"]
+          },
+          {
+            "content": "**Affirmations**\n\nPositive affirmations for daily practice",
+            "entryType": "note",
+            "sortOrder": 5,
+            "tags": ["book-type", "affirmations"]
+          },
+          {
+            "content": "**Meditation**\n\nGuided meditation scripts and practices",
+            "entryType": "note",
+            "sortOrder": 6,
+            "tags": ["book-type", "meditation"]
+          },
+          {
+            "content": "**Growth Guide**\n\nSelf-improvement workbook with exercises",
+            "entryType": "note",
+            "sortOrder": 7,
+            "tags": ["book-type", "growth"]
+          },
+          {
+            "content": "**Children's Stories**\n\nAge-appropriate stories with life lessons",
+            "entryType": "note",
+            "sortOrder": 8,
+            "tags": ["book-type", "children"]
+          },
+          {
+            "content": "**Educational**\n\nEducational content covering science, history, languages, and practical skills",
+            "entryType": "note",
+            "sortOrder": 9,
+            "tags": ["book-type", "educational"]
+          },
+          {
+            "content": "**Philosophy**\n\nPhilosophical essays and thought experiments",
+            "entryType": "note",
+            "sortOrder": 10,
+            "tags": ["book-type", "philosophy"]
+          },
+          {
+            "content": "**Dream Journal**\n\nDream exploration and guided analysis",
+            "entryType": "note",
+            "sortOrder": 11,
+            "tags": ["book-type", "dreams"]
+          },
+          {
+            "content": "**Quotes Collection**\n\nCurated quotes and sayings on any theme",
+            "entryType": "note",
+            "sortOrder": 12,
+            "tags": ["book-type", "quotes"]
+          },
+          {
+            "content": "**Science Explorer**\n\nEvidence-based insights and discoveries",
+            "entryType": "note",
+            "sortOrder": 13,
+            "tags": ["book-type", "scientific"]
+          }
+        ]
+      },
+      {
+        "title": "Ethics & Values",
+        "sortOrder": 3,
+        "entries": [
+          {
+            "content": "**your music belongs to you**\n\naiponge is not a traditional music platform.\nHere, you are both the artist and the listener.\nEach track is created from your entries, emotions, and intentions - not from copying musicians or replacing artistic work.\n\n• no artist is displaced\n• no rights are violated\n• no commercial catalog is touched",
+            "entryType": "note",
+            "sortOrder": 0,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**we never commercialize the sacred**\n\nbreath, awareness, presence, meaning - these universal capacities remain free and untouched.\n\naiponge only charges for the craftsmanship needed to support you:\n\n• personalized audio\n• mood and state regulation\n• reflective prompts\n• writing tools\n• intention-linked experiences",
+            "entryType": "note",
+            "sortOrder": 1,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**creativity is a human right**\n\nnot everyone has access to instruments, training, or studios.\nbut everyone has emotions.\neveryone has a story.\neveryone deserves a voice.\n\nai-generated music in aiponge doesn't replace musicians -\nit expands the circle of who can express themselves.",
+            "entryType": "note",
+            "sortOrder": 2,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**no addiction loops, no dark patterns**\n\naiponge does not use attention traps.\nwe optimize for:\n\n• calm\n• clarity\n• emotional regulation\n• self-awareness",
+            "entryType": "note",
+            "sortOrder": 3,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**your data stays yours**\n\nyour entries, states, and intentions are deeply personal.\naiponge treats them with the respect they deserve:\n\n• no data selling\n• no advertising profiles\n• encrypted and private\n• you control what stays and what gets erased",
+            "entryType": "note",
+            "sortOrder": 4,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**transparency over manipulation**\n\nethical technology means:\n\n• clear pricing\n• no hidden fees\n• no tricks\n• no upsells disguised as help",
+            "entryType": "note",
+            "sortOrder": 5,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**sustainable, not extractive**\n\naiponge charges only for the work required to build and maintain high-quality tools:\nai models, infrastructure, sound engines, updates, and safety.\n\nthe philosophical basics - the human part - remain free.",
+            "entryType": "note",
+            "sortOrder": 6,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**human first, technology second**\n\naiponge is designed around one priority:\nyour inner life.\n\nwe support:\n\n• awareness\n• resilience\n• emotional clarity\n• creative expression\n• peace of mind",
+            "entryType": "note",
+            "sortOrder": 7,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**our commitment**\n\naiponge will always stand for:\nrespect • privacy • transparency • empowerment\ncreativity • dignity • the freedom to explore your inner world\n\n_if it doesn't serve your growth, we won't build it._",
+            "entryType": "note",
+            "sortOrder": 8,
+            "tags": ["ethics", "commitment"]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "a5b06a00-83d1-4055-be1f-1b54118a7ffb",
@@ -57,7 +639,201 @@
     "language": "es",
     "visibility": "shared",
     "status": "active",
-    "systemType": "welcome-guide-es"
+    "systemType": "welcome-guide-es",
+    "chapters": [
+      {
+        "title": "Welcome",
+        "sortOrder": 0,
+        "entries": [
+          {
+            "content": "**Sabiduría Antigua**\n\nHace 2.500 años, los buscadores viajaban a Delfos en busca de claridad y autoconocimiento. Dos ideas atemporales los guiaban: «Conócete a ti mismo» y «Nada en exceso». Esta misma sabiduría ahora guía a aiponge.",
+            "entryType": "note",
+            "sortOrder": 0,
+            "tags": ["introduction", "manifesto"]
+          },
+          {
+            "content": "**Tu Delfos Diario**\n\nEl oráculo nunca predecía el futuro — creaba espacio para la reflexión, un espejo en lugar de una respuesta. aiponge trae ese espíritu antiguo a tu bolsillo a través de canciones creadas de tus palabras, recuerdos y emociones.",
+            "entryType": "note",
+            "sortOrder": 1,
+            "tags": ["introduction", "manifesto"]
+          }
+        ]
+      },
+      {
+        "title": "El Manifiesto aiponge",
+        "sortOrder": 1,
+        "entries": [
+          {
+            "content": "**Un Espacio para la Reflexión**\n\nEste es tu espacio para escuchar lo que tu vida ya te está diciendo — a través de la música que creas de quien eres. Bienvenido a aiponge.",
+            "entryType": "note",
+            "sortOrder": 0,
+            "tags": ["manifesto"]
+          },
+          {
+            "content": "**La Ciencia Detrás**\n\naiponge integra conocimientos de 29 marcos psicológicos para crear contenido terapéutico profundamente personalizado, combinando sabiduría antigua con ciencia moderna.",
+            "entryType": "note",
+            "sortOrder": 1,
+            "tags": ["manifesto"]
+          },
+          {
+            "content": "«Conócete a ti mismo»\n«Nada en exceso»\n— Las Máximas Délficas",
+            "entryType": "quote",
+            "sortOrder": 2,
+            "tags": ["manifesto", "delphic"]
+          }
+        ]
+      },
+      {
+        "title": "Crear",
+        "sortOrder": 2,
+        "entries": [
+          {
+            "content": "**Diario personal**\n\nUn espacio privado para tus pensamientos y reflexiones",
+            "entryType": "note",
+            "sortOrder": 0,
+            "tags": ["book-type", "personal"]
+          },
+          {
+            "content": "**Libro de sabiduría**\n\nSabiduría atemporal de la filosofía y tradiciones espirituales",
+            "entryType": "note",
+            "sortOrder": 1,
+            "tags": ["book-type", "wisdom"]
+          },
+          {
+            "content": "**Memorias**\n\nGuías para contar tu historia de vida",
+            "entryType": "note",
+            "sortOrder": 2,
+            "tags": ["book-type", "memoir"]
+          },
+          {
+            "content": "**Ficción**\n\nRelatos cortos con temas terapéuticos",
+            "entryType": "note",
+            "sortOrder": 3,
+            "tags": ["book-type", "fiction"]
+          },
+          {
+            "content": "**Poesía**\n\nColección de poesía de diversas tradiciones culturales",
+            "entryType": "note",
+            "sortOrder": 4,
+            "tags": ["book-type", "poetry"]
+          },
+          {
+            "content": "**Afirmaciones**\n\nAfirmaciones positivas para la práctica diaria",
+            "entryType": "note",
+            "sortOrder": 5,
+            "tags": ["book-type", "affirmations"]
+          },
+          {
+            "content": "**Meditación**\n\nGuiones de meditación guiada y prácticas",
+            "entryType": "note",
+            "sortOrder": 6,
+            "tags": ["book-type", "meditation"]
+          },
+          {
+            "content": "**Guía de crecimiento**\n\nCuaderno de superación personal con ejercicios",
+            "entryType": "note",
+            "sortOrder": 7,
+            "tags": ["book-type", "growth"]
+          },
+          {
+            "content": "**Cuentos infantiles**\n\nHistorias apropiadas con lecciones de vida",
+            "entryType": "note",
+            "sortOrder": 8,
+            "tags": ["book-type", "children"]
+          },
+          {
+            "content": "**Educativo**\n\nContenido educativo sobre ciencia, historia, idiomas y habilidades prácticas",
+            "entryType": "note",
+            "sortOrder": 9,
+            "tags": ["book-type", "educational"]
+          },
+          {
+            "content": "**Filosofía**\n\nEnsayos filosóficos y experimentos mentales",
+            "entryType": "note",
+            "sortOrder": 10,
+            "tags": ["book-type", "philosophy"]
+          },
+          {
+            "content": "**Diario de sueños**\n\nExploración y análisis guiado de sueños",
+            "entryType": "note",
+            "sortOrder": 11,
+            "tags": ["book-type", "dreams"]
+          },
+          {
+            "content": "**Colección de citas**\n\nCitas y proverbios sobre cualquier tema",
+            "entryType": "note",
+            "sortOrder": 12,
+            "tags": ["book-type", "quotes"]
+          },
+          {
+            "content": "**Explorador científico**\n\nPerspectivas basadas en evidencia",
+            "entryType": "note",
+            "sortOrder": 13,
+            "tags": ["book-type", "scientific"]
+          }
+        ]
+      },
+      {
+        "title": "Ethics & Values",
+        "sortOrder": 3,
+        "entries": [
+          {
+            "content": "**tu música te pertenece**\n\naiponge no es una plataforma de música tradicional.\nAquí, eres tanto el artista como el oyente.\nCada pista se crea a partir de tus entradas, emociones e intenciones - no copiando músicos ni reemplazando trabajo artístico.\n\n• ningún artista es desplazado\n• ningún derecho es violado\n• ningún catálogo comercial es tocado",
+            "entryType": "note",
+            "sortOrder": 0,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**nunca comercializamos lo sagrado**\n\nrespiración, conciencia, presencia, significado - estas capacidades universales permanecen libres e intactas.\n\naiponge solo cobra por la artesanía necesaria para apoyar tu viaje:\n\n• audio personalizado\n• regulación del estado de ánimo\n• indicaciones reflexivas\n• herramientas de libros\n• experiencias vinculadas a la intención",
+            "entryType": "note",
+            "sortOrder": 1,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**la creatividad es un derecho humano**\n\nno todos tienen acceso a instrumentos, formación o estudios.\npero todos tienen emociones.\ntodos tienen una historia.\ntodos merecen una voz.\n\nla música generada por IA en aiponge no reemplaza a los músicos -\nexpande el círculo de quienes pueden expresarse.",
+            "entryType": "note",
+            "sortOrder": 2,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**sin bucles de adicción, sin patrones oscuros**\n\naiponge no usa trampas de atención.\noptimizamos para:\n\n• calma\n• claridad\n• regulación emocional\n• autoconciencia",
+            "entryType": "note",
+            "sortOrder": 3,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**tus datos son tuyos**\n\ntus entradas, estados e intenciones son profundamente personales.\naiponge los trata con el respeto que merecen:\n\n• sin venta de datos\n• sin perfiles publicitarios\n• encriptado y privado\n• tú controlas lo que se queda y lo que se borra",
+            "entryType": "note",
+            "sortOrder": 4,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**transparencia sobre manipulación**\n\ntecnología ética significa:\n\n• precios claros\n• sin tarifas ocultas\n• sin trucos\n• sin ventas adicionales disfrazadas de ayuda",
+            "entryType": "note",
+            "sortOrder": 5,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**sostenible, no extractivo**\n\naiponge solo cobra por el trabajo requerido para construir y mantener herramientas de alta calidad:\nmodelos de IA, infraestructura, motores de sonido, actualizaciones y seguridad.\n\nlos fundamentos filosóficos - la parte humana - permanecen gratis.",
+            "entryType": "note",
+            "sortOrder": 6,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**primero humanos, después tecnología**\n\naiponge está diseñado alrededor de una prioridad:\ntu vida interior.\n\napoyamos:\n\n• conciencia\n• resiliencia\n• claridad emocional\n• expresión creativa\n• paz mental",
+            "entryType": "note",
+            "sortOrder": 7,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**nuestro compromiso**\n\naiponge siempre defenderá:\nrespeto • privacidad • transparencia • empoderamiento\ncreatividad • dignidad • la libertad de explorar tu mundo interior\n\n_si no sirve a tu crecimiento, no lo construiremos._",
+            "entryType": "note",
+            "sortOrder": 8,
+            "tags": ["ethics", "commitment"]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "ded1e43c-1f4d-4d98-82e2-bb372a1bc6ee",
@@ -72,7 +848,201 @@
     "language": "fr",
     "visibility": "shared",
     "status": "active",
-    "systemType": "welcome-guide-fr"
+    "systemType": "welcome-guide-fr",
+    "chapters": [
+      {
+        "title": "Welcome",
+        "sortOrder": 0,
+        "entries": [
+          {
+            "content": "**Sagesse Ancienne**\n\nIl y a 2 500 ans, les chercheurs se rendaient à Delphes pour trouver clarté et compréhension de soi. Deux idées intemporelles les guidaient : « Connais-toi toi-même » et « Rien de trop ». Cette même sagesse guide maintenant aiponge.",
+            "entryType": "note",
+            "sortOrder": 0,
+            "tags": ["introduction", "manifesto"]
+          },
+          {
+            "content": "**Ton Delphes Quotidien**\n\nL'oracle ne prédisait pas l'avenir — il créait un espace pour la réflexion, un miroir plutôt qu'une réponse. aiponge apporte cet esprit ancien dans ta poche à travers des chansons créées à partir de tes mots, souvenirs et émotions.",
+            "entryType": "note",
+            "sortOrder": 1,
+            "tags": ["introduction", "manifesto"]
+          }
+        ]
+      },
+      {
+        "title": "Le Manifeste aiponge",
+        "sortOrder": 1,
+        "entries": [
+          {
+            "content": "**Un Espace de Réflexion**\n\nC'est ton espace pour écouter ce que ta vie te dit déjà — à travers la musique que tu crées à partir de qui tu es. Bienvenue sur aiponge.",
+            "entryType": "note",
+            "sortOrder": 0,
+            "tags": ["manifesto"]
+          },
+          {
+            "content": "**La Science Derrière**\n\naiponge intègre les connaissances de 29 cadres psychologiques pour créer un contenu thérapeutique profondément personnalisé, combinant sagesse ancienne et science moderne.",
+            "entryType": "note",
+            "sortOrder": 1,
+            "tags": ["manifesto"]
+          },
+          {
+            "content": "« Connais-toi toi-même »\n« Rien de trop »\n— Les Maximes Delphiques",
+            "entryType": "quote",
+            "sortOrder": 2,
+            "tags": ["manifesto", "delphic"]
+          }
+        ]
+      },
+      {
+        "title": "Créer",
+        "sortOrder": 2,
+        "entries": [
+          {
+            "content": "**Journal personnel**\n\nUn espace privé pour vos pensées et réflexions",
+            "entryType": "note",
+            "sortOrder": 0,
+            "tags": ["book-type", "personal"]
+          },
+          {
+            "content": "**Livre de sagesse**\n\nSagesse intemporelle de la philosophie et des traditions spirituelles",
+            "entryType": "note",
+            "sortOrder": 1,
+            "tags": ["book-type", "wisdom"]
+          },
+          {
+            "content": "**Mémoires**\n\nDes invites guidées pour raconter votre histoire",
+            "entryType": "note",
+            "sortOrder": 2,
+            "tags": ["book-type", "memoir"]
+          },
+          {
+            "content": "**Fiction**\n\nNouvelles à thèmes thérapeutiques",
+            "entryType": "note",
+            "sortOrder": 3,
+            "tags": ["book-type", "fiction"]
+          },
+          {
+            "content": "**Poésie**\n\nCollection de poésie à travers les traditions culturelles",
+            "entryType": "note",
+            "sortOrder": 4,
+            "tags": ["book-type", "poetry"]
+          },
+          {
+            "content": "**Affirmations**\n\nAffirmations positives pour la pratique quotidienne",
+            "entryType": "note",
+            "sortOrder": 5,
+            "tags": ["book-type", "affirmations"]
+          },
+          {
+            "content": "**Méditation**\n\nScripts de méditation guidée et pratiques",
+            "entryType": "note",
+            "sortOrder": 6,
+            "tags": ["book-type", "meditation"]
+          },
+          {
+            "content": "**Guide de croissance**\n\nCahier de développement personnel avec exercices",
+            "entryType": "note",
+            "sortOrder": 7,
+            "tags": ["book-type", "growth"]
+          },
+          {
+            "content": "**Histoires pour enfants**\n\nHistoires adaptées à l'âge avec des leçons de vie",
+            "entryType": "note",
+            "sortOrder": 8,
+            "tags": ["book-type", "children"]
+          },
+          {
+            "content": "**Éducatif**\n\nContenu éducatif couvrant les sciences, l'histoire, les langues et les compétences pratiques",
+            "entryType": "note",
+            "sortOrder": 9,
+            "tags": ["book-type", "educational"]
+          },
+          {
+            "content": "**Philosophie**\n\nEssais philosophiques et expériences de pensée",
+            "entryType": "note",
+            "sortOrder": 10,
+            "tags": ["book-type", "philosophy"]
+          },
+          {
+            "content": "**Journal de rêves**\n\nExploration et analyse guidée des rêves",
+            "entryType": "note",
+            "sortOrder": 11,
+            "tags": ["book-type", "dreams"]
+          },
+          {
+            "content": "**Collection de citations**\n\nCitations et proverbes sur n'importe quel thème",
+            "entryType": "note",
+            "sortOrder": 12,
+            "tags": ["book-type", "quotes"]
+          },
+          {
+            "content": "**Explorateur scientifique**\n\nPerspectives fondées sur des preuves",
+            "entryType": "note",
+            "sortOrder": 13,
+            "tags": ["book-type", "scientific"]
+          }
+        ]
+      },
+      {
+        "title": "Ethics & Values",
+        "sortOrder": 3,
+        "entries": [
+          {
+            "content": "**ta musique t'appartient**\n\naiponge n'est pas une plateforme musicale traditionnelle.\nIci, tu es à la fois l'artiste et l'auditeur.\nChaque morceau est créé à partir de tes entrées, émotions et intentions - pas en copiant des musiciens ou en remplaçant un travail artistique.\n\n• aucun artiste n'est déplacé\n• aucun droit n'est violé\n• aucun catalogue commercial n'est touché",
+            "entryType": "note",
+            "sortOrder": 0,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**nous ne commercialisons jamais le sacré**\n\nrespiration, conscience, présence, sens - ces capacités universelles restent libres et intactes.\n\naiponge ne facture que l'artisanat nécessaire pour soutenir ton parcours :\n\n• audio personnalisé\n• régulation de l'humeur et de l'état\n• invites de réflexion\n• outils de livre\n• expériences liées à l'intention",
+            "entryType": "note",
+            "sortOrder": 1,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**la créativité est un droit humain**\n\ntout le monde n'a pas accès à des instruments, une formation ou des studios.\nmais tout le monde a des émotions.\ntout le monde a une histoire.\ntout le monde mérite une voix.\n\nla musique générée par IA dans aiponge ne remplace pas les musiciens -\nelle élargit le cercle de ceux qui peuvent s'exprimer.",
+            "entryType": "note",
+            "sortOrder": 2,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**pas de boucles d'addiction, pas de dark patterns**\n\naiponge n'utilise pas de pièges à attention.\nnous optimisons pour :\n\n• le calme\n• la clarté\n• la régulation émotionnelle\n• la conscience de soi",
+            "entryType": "note",
+            "sortOrder": 3,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**tes données restent tiennes**\n\ntes entrées, états et intentions sont profondément personnels.\naiponge les traite avec le respect qu'ils méritent :\n\n• pas de vente de données\n• pas de profils publicitaires\n• chiffré et privé\n• tu contrôles ce qui reste et ce qui est effacé",
+            "entryType": "note",
+            "sortOrder": 4,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**transparence plutôt que manipulation**\n\nla technologie éthique signifie :\n\n• des prix clairs\n• pas de frais cachés\n• pas de trucs\n• pas de ventes additionnelles déguisées en aide",
+            "entryType": "note",
+            "sortOrder": 5,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**durable, pas extractif**\n\naiponge ne facture que le travail nécessaire pour construire et maintenir des outils de haute qualité :\nmodèles d'IA, infrastructure, moteurs sonores, mises à jour et sécurité.\n\nles bases philosophiques - la partie humaine - restent gratuites.",
+            "entryType": "note",
+            "sortOrder": 6,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**l'humain d'abord, la technologie ensuite**\n\naiponge est conçu autour d'une priorité :\nta vie intérieure.\n\nnous soutenons :\n\n• la conscience\n• la résilience\n• la clarté émotionnelle\n• l'expression créative\n• la paix de l'esprit",
+            "entryType": "note",
+            "sortOrder": 7,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**notre engagement**\n\naiponge défendra toujours :\nle respect • la vie privée • la transparence • l'autonomisation\nla créativité • la dignité • la liberté d'explorer ton monde intérieur\n\n_si ça ne sert pas ta croissance, nous ne le construirons pas._",
+            "entryType": "note",
+            "sortOrder": 8,
+            "tags": ["ethics", "commitment"]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "6847142f-181d-4c9c-908c-fcfc094049c1",
@@ -87,7 +1057,201 @@
     "language": "ja",
     "visibility": "shared",
     "status": "active",
-    "systemType": "welcome-guide-ja"
+    "systemType": "welcome-guide-ja",
+    "chapters": [
+      {
+        "title": "Welcome",
+        "sortOrder": 0,
+        "entries": [
+          {
+            "content": "**古代の知恵**\n\n2,500年前、人々は明確さと自己理解を求めてデルフィを訪れました。「汝自身を知れ」と「過ぎたるは及ばざるがごとし」という二つの永遠のアイデアが彼らを導きました。この同じ知恵が今、aipongeを導いています。",
+            "entryType": "note",
+            "sortOrder": 0,
+            "tags": ["introduction", "manifesto"]
+          },
+          {
+            "content": "**あなたの日々のデルフィ**\n\n神託は未来を予言しませんでした — それは洞察のための空間を作り、答えではなく鏡でした。aipongeはあなたの言葉、記憶、感情から作られた曲を通じて、この古代の精神をあなたのポケットに届けます。",
+            "entryType": "note",
+            "sortOrder": 1,
+            "tags": ["introduction", "manifesto"]
+          }
+        ]
+      },
+      {
+        "title": "aipongeマニフェスト",
+        "sortOrder": 1,
+        "entries": [
+          {
+            "content": "**内省の空間**\n\nこれはあなたの人生があなたに伝えていることを聞くための空間です — あなた自身から作られた音楽を通じて。aipongeへようこそ。",
+            "entryType": "note",
+            "sortOrder": 0,
+            "tags": ["manifesto"]
+          },
+          {
+            "content": "**その背後にある科学**\n\naipongeは29の心理学的フレームワークからの洞察を統合し、古代の知恵と現代科学を組み合わせて、深くパーソナライズされたセラピューティックコンテンツを作成します。",
+            "entryType": "note",
+            "sortOrder": 1,
+            "tags": ["manifesto"]
+          },
+          {
+            "content": "「汝自身を知れ」\n「過ぎたるは及ばざるがごとし」\n— デルフィの格言",
+            "entryType": "quote",
+            "sortOrder": 2,
+            "tags": ["manifesto", "delphic"]
+          }
+        ]
+      },
+      {
+        "title": "作成",
+        "sortOrder": 2,
+        "entries": [
+          {
+            "content": "**個人日記**\n\nあなたの考えと振り返りのためのプライベートスペース",
+            "entryType": "note",
+            "sortOrder": 0,
+            "tags": ["book-type", "personal"]
+          },
+          {
+            "content": "**知恵の書**\n\n哲学と精神的伝統からの不朽の知恵",
+            "entryType": "note",
+            "sortOrder": 1,
+            "tags": ["book-type", "wisdom"]
+          },
+          {
+            "content": "**回想録**\n\n人生の物語を語るためのガイド付きプロンプト",
+            "entryType": "note",
+            "sortOrder": 2,
+            "tags": ["book-type", "memoir"]
+          },
+          {
+            "content": "**フィクション**\n\n治療的テーマの短編小説",
+            "entryType": "note",
+            "sortOrder": 3,
+            "tags": ["book-type", "fiction"]
+          },
+          {
+            "content": "**詩集**\n\n多様な文化的伝統からの詩のコレクション",
+            "entryType": "note",
+            "sortOrder": 4,
+            "tags": ["book-type", "poetry"]
+          },
+          {
+            "content": "**アファメーション**\n\n日常的な実践のためのポジティブなアファメーション",
+            "entryType": "note",
+            "sortOrder": 5,
+            "tags": ["book-type", "affirmations"]
+          },
+          {
+            "content": "**瞑想**\n\nガイド付き瞑想スクリプトと実践",
+            "entryType": "note",
+            "sortOrder": 6,
+            "tags": ["book-type", "meditation"]
+          },
+          {
+            "content": "**成長ガイド**\n\nエクササイズ付き自己改善ワークブック",
+            "entryType": "note",
+            "sortOrder": 7,
+            "tags": ["book-type", "growth"]
+          },
+          {
+            "content": "**子供向けの物語**\n\n人生の教訓を含む年齢に適した物語",
+            "entryType": "note",
+            "sortOrder": 8,
+            "tags": ["book-type", "children"]
+          },
+          {
+            "content": "**教育**\n\n科学、歴史、言語、実用的なスキルをカバーする教育コンテンツ",
+            "entryType": "note",
+            "sortOrder": 9,
+            "tags": ["book-type", "educational"]
+          },
+          {
+            "content": "**哲学**\n\n哲学的エッセイと思考実験",
+            "entryType": "note",
+            "sortOrder": 10,
+            "tags": ["book-type", "philosophy"]
+          },
+          {
+            "content": "**夢日記**\n\n夢の探求とガイド付き分析",
+            "entryType": "note",
+            "sortOrder": 11,
+            "tags": ["book-type", "dreams"]
+          },
+          {
+            "content": "**引用集**\n\nあらゆるテーマの厳選された引用と格言",
+            "entryType": "note",
+            "sortOrder": 12,
+            "tags": ["book-type", "quotes"]
+          },
+          {
+            "content": "**科学探究**\n\nエビデンスに基づく洞察と発見",
+            "entryType": "note",
+            "sortOrder": 13,
+            "tags": ["book-type", "scientific"]
+          }
+        ]
+      },
+      {
+        "title": "Ethics & Values",
+        "sortOrder": 3,
+        "entries": [
+          {
+            "content": "**あなたの音楽はあなたのもの**\n\naipongeは従来の音楽プラットフォームではありません。\nここでは、あなたはアーティストであり、リスナーでもあります。\n各トラックはあなたのエントリー、感情、意図から作成されます - ミュージシャンのコピーや芸術作品の置き換えではありません。\n\n• アーティストを置き換えません\n• 権利を侵害しません\n• 商業カタログに触れません",
+            "entryType": "note",
+            "sortOrder": 0,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**神聖なものを商業化しません**\n\n呼吸、意識、存在、意味 - これらの普遍的な能力は無料で手付かずのままです。\n\naipongeはあなたの旅をサポートするために必要な職人技のみに課金します：\n\n• パーソナライズされたオーディオ\n• 気分と状態の調整\n• 内省のプロンプト\n• ブックツール\n• 意図に関連した体験",
+            "entryType": "note",
+            "sortOrder": 1,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**創造性は人権です**\n\nすべての人が楽器、トレーニング、スタジオにアクセスできるわけではありません。\nしかし、誰もが感情を持っています。\n誰もが物語を持っています。\n誰もが声を持つ権利があります。\n\naipongeのAI生成音楽はミュージシャンを置き換えません -\nそれは自己表現できる人の輪を広げます。",
+            "entryType": "note",
+            "sortOrder": 2,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**依存ループもダークパターンもなし**\n\naipongeは注意のトラップを使用しません。\n私たちは以下を最適化します：\n\n• 穏やかさ\n• 明確さ\n• 感情の調整\n• 自己認識",
+            "entryType": "note",
+            "sortOrder": 3,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**あなたのデータはあなたのもの**\n\nあなたのエントリー、状態、意図は非常に個人的なものです。\naipongeはそれらにふさわしい敬意を持って扱います：\n\n• データの販売なし\n• 広告プロファイルなし\n• 暗号化されプライベート\n• 何を残し、何を消去するかはあなたが管理",
+            "entryType": "note",
+            "sortOrder": 4,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**操作よりも透明性**\n\n倫理的なテクノロジーとは：\n\n• 明確な価格設定\n• 隠れた料金なし\n• トリックなし\n• ヘルプを装ったアップセルなし",
+            "entryType": "note",
+            "sortOrder": 5,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**搾取的ではなく持続可能**\n\naipongeは高品質ツールの構築と維持に必要な作業のみに課金します：\nAIモデル、インフラストラクチャ、サウンドエンジン、更新、安全性。\n\n哲学的な基本 - 人間の部分 - は無料のままです。",
+            "entryType": "note",
+            "sortOrder": 6,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**人間第一、テクノロジー第二**\n\naipongeは一つの優先事項を中心に設計されています：\nあなたの内なる生活。\n\n私たちは以下をサポートします：\n\n• 意識\n• レジリエンス\n• 感情の明確さ\n• 創造的表現\n• 心の平和",
+            "entryType": "note",
+            "sortOrder": 7,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**私たちの約束**\n\naipongeは常に以下のために立ち上がります：\n尊重 • プライバシー • 透明性 • エンパワーメント\n創造性 • 尊厳 • 内なる世界を探求する自由\n\n_あなたの成長に役立たないなら、私たちは構築しません。_",
+            "entryType": "note",
+            "sortOrder": 8,
+            "tags": ["ethics", "commitment"]
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "5e140a76-98ac-4212-a88c-262cf6d651fe",
@@ -102,6 +1266,200 @@
     "language": "pt",
     "visibility": "shared",
     "status": "active",
-    "systemType": "welcome-guide-pt"
+    "systemType": "welcome-guide-pt",
+    "chapters": [
+      {
+        "title": "Welcome",
+        "sortOrder": 0,
+        "entries": [
+          {
+            "content": "**Sabedoria Antiga**\n\nHá 2.500 anos, buscadores viajavam para Delfos em busca de clareza e autoconhecimento. Duas ideias atemporais os guiavam: \"Conhece-te a ti mesmo\" e \"Nada em excesso\". Essa mesma sabedoria agora guia o aiponge.",
+            "entryType": "note",
+            "sortOrder": 0,
+            "tags": ["introduction", "manifesto"]
+          },
+          {
+            "content": "**Seu Delfos Diário**\n\nO oráculo nunca previa o futuro — ele criava espaço para a reflexão, um espelho em vez de uma resposta. O aiponge traz esse espírito ancestral para o seu bolso através de músicas criadas de suas palavras, memórias e emoções.",
+            "entryType": "note",
+            "sortOrder": 1,
+            "tags": ["introduction", "manifesto"]
+          }
+        ]
+      },
+      {
+        "title": "O Manifesto aiponge",
+        "sortOrder": 1,
+        "entries": [
+          {
+            "content": "**Um Espaço para Reflexão**\n\nEste é o seu espaço para ouvir o que sua vida já está te dizendo — através da música que você cria de quem você é. Bem-vindo ao aiponge.",
+            "entryType": "note",
+            "sortOrder": 0,
+            "tags": ["manifesto"]
+          },
+          {
+            "content": "**A Ciência Por Trás**\n\nO aiponge integra insights de 29 estruturas psicológicas para criar conteúdo terapêutico profundamente personalizado, combinando sabedoria antiga com ciência moderna.",
+            "entryType": "note",
+            "sortOrder": 1,
+            "tags": ["manifesto"]
+          },
+          {
+            "content": "\"Conhece-te a ti mesmo\"\n\"Nada em excesso\"\n— As Máximas Délficas",
+            "entryType": "quote",
+            "sortOrder": 2,
+            "tags": ["manifesto", "delphic"]
+          }
+        ]
+      },
+      {
+        "title": "Criar",
+        "sortOrder": 2,
+        "entries": [
+          {
+            "content": "**Diário pessoal**\n\nUm espaço privado para seus pensamentos e reflexões",
+            "entryType": "note",
+            "sortOrder": 0,
+            "tags": ["book-type", "personal"]
+          },
+          {
+            "content": "**Livro de sabedoria**\n\nSabedoria atemporal da filosofia e tradições espirituais",
+            "entryType": "note",
+            "sortOrder": 1,
+            "tags": ["book-type", "wisdom"]
+          },
+          {
+            "content": "**Memórias**\n\nOrientações guiadas para contar sua história",
+            "entryType": "note",
+            "sortOrder": 2,
+            "tags": ["book-type", "memoir"]
+          },
+          {
+            "content": "**Ficção**\n\nContos com temas terapêuticos",
+            "entryType": "note",
+            "sortOrder": 3,
+            "tags": ["book-type", "fiction"]
+          },
+          {
+            "content": "**Poesia**\n\nColeção de poesia de diversas tradições culturais",
+            "entryType": "note",
+            "sortOrder": 4,
+            "tags": ["book-type", "poetry"]
+          },
+          {
+            "content": "**Afirmações**\n\nAfirmações positivas para a prática diária",
+            "entryType": "note",
+            "sortOrder": 5,
+            "tags": ["book-type", "affirmations"]
+          },
+          {
+            "content": "**Meditação**\n\nScripts de meditação guiada e práticas",
+            "entryType": "note",
+            "sortOrder": 6,
+            "tags": ["book-type", "meditation"]
+          },
+          {
+            "content": "**Guia de crescimento**\n\nCaderno de autodesenvolvimento com exercícios",
+            "entryType": "note",
+            "sortOrder": 7,
+            "tags": ["book-type", "growth"]
+          },
+          {
+            "content": "**Histórias infantis**\n\nHistórias adequadas à idade com lições de vida",
+            "entryType": "note",
+            "sortOrder": 8,
+            "tags": ["book-type", "children"]
+          },
+          {
+            "content": "**Educacional**\n\nConteúdo educacional cobrindo ciências, história, idiomas e habilidades práticas",
+            "entryType": "note",
+            "sortOrder": 9,
+            "tags": ["book-type", "educational"]
+          },
+          {
+            "content": "**Filosofia**\n\nEnsaios filosóficos e experimentos mentais",
+            "entryType": "note",
+            "sortOrder": 10,
+            "tags": ["book-type", "philosophy"]
+          },
+          {
+            "content": "**Diário de sonhos**\n\nExploração e análise guiada de sonhos",
+            "entryType": "note",
+            "sortOrder": 11,
+            "tags": ["book-type", "dreams"]
+          },
+          {
+            "content": "**Coleção de citações**\n\nCitações e provérbios sobre qualquer tema",
+            "entryType": "note",
+            "sortOrder": 12,
+            "tags": ["book-type", "quotes"]
+          },
+          {
+            "content": "**Explorador científico**\n\nPerspectivas baseadas em evidências",
+            "entryType": "note",
+            "sortOrder": 13,
+            "tags": ["book-type", "scientific"]
+          }
+        ]
+      },
+      {
+        "title": "Ethics & Values",
+        "sortOrder": 3,
+        "entries": [
+          {
+            "content": "**sua música pertence a você**\n\naiponge não é uma plataforma de música tradicional.\nAqui, você é tanto o artista quanto o ouvinte.\nCada faixa é criada a partir dos seus entradas, emoções e intenções - não copiando músicos ou substituindo trabalho artístico.\n\n• nenhum artista é deslocado\n• nenhum direito é violado\n• nenhum catálogo comercial é tocado",
+            "entryType": "note",
+            "sortOrder": 0,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**nunca comercializamos o sagrado**\n\nrespiração, consciência, presença, significado - essas capacidades universais permanecem livres e intocadas.\n\naiponge cobra apenas pela artesania necessária para apoiar sua jornada:\n\n• áudio personalizado\n• regulação de humor e estado\n• reflexões guiadas\n• ferramentas de livros\n• experiências vinculadas à intenção",
+            "entryType": "note",
+            "sortOrder": 1,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**criatividade é um direito humano**\n\nnem todos têm acesso a instrumentos, treinamento ou estúdios.\nmas todos têm emoções.\ntodos têm uma história.\ntodos merecem uma voz.\n\na música gerada por IA no aiponge não substitui músicos -\nela expande o círculo de quem pode se expressar.",
+            "entryType": "note",
+            "sortOrder": 2,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**sem loops de vício, sem padrões obscuros**\n\naiponge não usa armadilhas de atenção.\notimizamos para:\n\n• calma\n• clareza\n• regulação emocional\n• autoconsciência",
+            "entryType": "note",
+            "sortOrder": 3,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**seus dados são seus**\n\nseus entradas, estados e intenções são profundamente pessoais.\naiponge os trata com o respeito que merecem:\n\n• sem venda de dados\n• sem perfis publicitários\n• criptografado e privado\n• você controla o que fica e o que é apagado",
+            "entryType": "note",
+            "sortOrder": 4,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**transparência sobre manipulação**\n\ntecnologia ética significa:\n\n• preços claros\n• sem taxas ocultas\n• sem truques\n• sem vendas adicionais disfarçadas de ajuda",
+            "entryType": "note",
+            "sortOrder": 5,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**sustentável, não extrativo**\n\naiponge cobra apenas pelo trabalho necessário para construir e manter ferramentas de alta qualidade:\nmodelos de IA, infraestrutura, motores de som, atualizações e segurança.\n\nos fundamentos filosóficos - a parte humana - permanecem gratuitos.",
+            "entryType": "note",
+            "sortOrder": 6,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**humanos primeiro, tecnologia depois**\n\naiponge é projetado em torno de uma prioridade:\nsua vida interior.\n\napoiamos:\n\n• consciência\n• resiliência\n• clareza emocional\n• expressão criativa\n• paz de espírito",
+            "entryType": "note",
+            "sortOrder": 7,
+            "tags": ["ethics"]
+          },
+          {
+            "content": "**nosso compromisso**\n\naiponge sempre defenderá:\nrespeito • privacidade • transparência • empoderamento\ncriatividade • dignidade • a liberdade de explorar seu mundo interior\n\n_se não serve ao seu crescimento, não vamos construir._",
+            "entryType": "note",
+            "sortOrder": 8,
+            "tags": ["ethics", "commitment"]
+          }
+        ]
+      }
+    ]
   }
 ]
