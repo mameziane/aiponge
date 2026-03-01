@@ -41,7 +41,8 @@ const TEST_USERS = [
 ];
 
 const SYSTEM_PASSWORD_HASH = '$2b$10$PLACEHOLDER_SYSTEM_ACCOUNT_NOT_FOR_LOGIN';
-const TEST_USER_PASSWORD_HASH = '$2b$10$KsB8scnDzCGRywZZ.HgO9uz.wBC0lmuwq.98575KsFm/NcTgkcFpK';
+// Password: TestPassword123!  (bcrypt cost 10)
+const TEST_USER_PASSWORD_HASH = '$2b$10$.wN.ohhZBtUSNGQn9Lg2JOCOwRy2J/0P0oJpvhmOhsEix8bjk2fDK';
 
 type DbExec = { execute: (sql: string) => Promise<{ rows?: unknown[] }> };
 

@@ -126,10 +126,16 @@ export function useBookListData({ userDisplayName, t }: BookListDataOptions) {
 
   const ownBookIds = useMemo(() => new Set(ownBooksRaw.map(b => b.id)), [ownBooksRaw]);
 
+  const activeLang = selectedLanguage || (i18n.language || 'en').split('-')[0];
+
   const ownBooksData = useMemo((): BookCardData[] => {
     return ownBooksRaw
       .filter(book => {
         if (selectedTypeId && book.typeId !== selectedTypeId) return false;
+        if (selectedLanguage) {
+          const bookLang = book.language;
+          if (bookLang && !bookLang.toLowerCase().startsWith(activeLang.toLowerCase())) return false;
+        }
         return true;
       })
       .map(
@@ -154,7 +160,7 @@ export function useBookListData({ userDisplayName, t }: BookListDataOptions) {
           themes: (book as unknown as { themes?: string[] }).themes || [],
         })
       );
-  }, [ownBooksRaw, selectedTypeId, userDisplayName, user?.id]);
+  }, [ownBooksRaw, selectedTypeId, selectedLanguage, activeLang, userDisplayName, user?.id]);
 
   const mapBookToCard = (
     book: LibBook & { coverIllustrationUrl?: string; chapters?: LibChapter[]; userId?: string }
@@ -174,8 +180,6 @@ export function useBookListData({ userDisplayName, t }: BookListDataOptions) {
     themes: book.themes || [],
     userId: book.userId || undefined,
   });
-
-  const activeLang = selectedLanguage || (i18n.language || 'en').split('-')[0];
 
   const publicBooksData = useMemo((): BookCardData[] => {
     if (!browseBooks) return [];

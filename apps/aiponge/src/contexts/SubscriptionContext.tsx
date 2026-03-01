@@ -285,12 +285,23 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
           });
         } else {
           // SDK already configured - log in as new user (handles user switch)
-          const { customerInfo: newInfo } = await Purchases.logIn(user.id);
-          setCustomerInfo(newInfo);
+          try {
+            const { customerInfo: newInfo } = await Purchases.logIn(user.id);
+            setCustomerInfo(newInfo);
+          } catch (loginError) {
+            logger.warn('RevenueCat: logIn failed, continuing with cached data', {
+              error: String(loginError),
+              userId: user.id,
+            });
+          }
         }
 
         if (__DEV__) {
-          await Purchases.setLogLevel(LOG_LEVEL.DEBUG);
+          try {
+            await Purchases.setLogLevel(LOG_LEVEL.DEBUG);
+          } catch {
+            // Ignore - debug logging is non-critical
+          }
         }
 
         listenerRef.current = (info: CustomerInfo) => {
@@ -299,22 +310,35 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
 
         Purchases.addCustomerInfoUpdateListener(listenerRef.current);
 
-        const [info, availableOfferings] = await Promise.all([Purchases.getCustomerInfo(), Purchases.getOfferings()]);
-        setCustomerInfo(info);
-        if (availableOfferings.current) {
-          setOfferings(availableOfferings.current);
-        } else {
-          logger.warn('RevenueCat: No current offering found');
+        // Fetch customer info and offerings separately so one failure doesn't block the other
+        try {
+          const info = await Purchases.getCustomerInfo();
+          setCustomerInfo(info);
+        } catch (infoError) {
+          logger.warn('RevenueCat: getCustomerInfo failed', { error: String(infoError) });
         }
 
-        // Fetch credits offering for consumable purchases
-        if (availableOfferings.all['credits']) {
-          setCreditsOffering(availableOfferings.all['credits']);
-        } else {
-          logger.warn('RevenueCat: No credits offering found');
+        try {
+          const availableOfferings = await Purchases.getOfferings();
+          if (availableOfferings.current) {
+            setOfferings(availableOfferings.current);
+          } else {
+            logger.warn('RevenueCat: No current offering found');
+          }
+
+          // Fetch credits offering for consumable purchases
+          if (availableOfferings.all['credits']) {
+            setCreditsOffering(availableOfferings.all['credits']);
+          } else {
+            logger.warn('RevenueCat: No credits offering found');
+          }
+        } catch (offeringsError) {
+          logger.warn('RevenueCat: getOfferings failed', { error: String(offeringsError) });
         }
 
-        // Only mark as initialized after successful setup
+        // Mark as initialized even if offerings/customerInfo fetch failed —
+        // the app works fine without them (free tier defaults).
+        // This prevents infinite retry loops from the useEffect.
         lastUserIdRef.current = user.id;
         setIsInitialized(true);
       } catch (error) {
@@ -349,8 +373,9 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
       const info = await Purchases.getCustomerInfo();
       setCustomerInfo(info);
     } catch (error) {
-      logger.error('Error refreshing customer info', error);
-      handlePurchaseErrorRef.current(error);
+      // Only log — don't show alert for background refresh failures.
+      // Alerts should only appear on explicit user-initiated purchase actions.
+      logger.warn('Error refreshing customer info', { error: String(error) });
     }
   }, []);
 
