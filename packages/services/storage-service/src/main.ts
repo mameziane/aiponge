@@ -752,65 +752,86 @@ async function main(): Promise<void> {
         logger.debug('🔒 Custom helmet CSP + CORP configured for media files');
       },
       customRoutes: (bootstrapApp: Express) => {
-        // Add static file serving for uploads (music and artwork)
-        // FIXED: Use workspace root uploads directory (absolute path from __dirname)
         const uploadsDir = resolve(WORKSPACE_ROOT, 'uploads');
 
-        // Configure express.static with proper options for audio/media files
-        bootstrapApp.use(
-          '/uploads',
-          express.static(uploadsDir, {
-            etag: true, // Enable Express's built-in ETag (uses file stats)
-            lastModified: true, // Enable Last-Modified header
-            setHeaders: (res: Response, filePath: string) => {
-              // Detect file type
-              const isAudio =
-                filePath.endsWith('.mp3') ||
-                filePath.endsWith('.wav') ||
-                filePath.endsWith('.ogg') ||
-                filePath.endsWith('.m4a');
-              const isImage =
-                filePath.endsWith('.png') ||
-                filePath.endsWith('.jpg') ||
-                filePath.endsWith('.jpeg') ||
-                filePath.endsWith('.webp');
+        /** Set cache and CORS headers for media files */
+        function setMediaHeaders(res: Response, filePath: string): void {
+          const isAudio = /\.(mp3|wav|ogg|m4a)$/.test(filePath);
+          const isImage = /\.(png|jpg|jpeg|webp|gif)$/.test(filePath);
 
-              // Set proper Content-Type for audio files
-              if (filePath.endsWith('.mp3')) {
-                res.setHeader('Content-Type', 'audio/mpeg');
-              } else if (filePath.endsWith('.wav')) {
-                res.setHeader('Content-Type', 'audio/wav');
-              } else if (filePath.endsWith('.ogg')) {
-                res.setHeader('Content-Type', 'audio/ogg');
-              } else if (filePath.endsWith('.m4a')) {
-                res.setHeader('Content-Type', 'audio/mp4');
+          // Set Content-Type for audio files
+          const audioTypes: Record<string, string> = {
+            '.mp3': 'audio/mpeg',
+            '.wav': 'audio/wav',
+            '.ogg': 'audio/ogg',
+            '.m4a': 'audio/mp4',
+          };
+          for (const [ext, type] of Object.entries(audioTypes)) {
+            if (filePath.endsWith(ext)) res.setHeader('Content-Type', type);
+          }
+
+          let maxAge = 86400; // 1 day default
+          if (isImage)
+            maxAge = 31536000; // 1 year for artwork
+          else if (isAudio) maxAge = 2592000; // 30 days for music
+
+          res.setHeader('Cache-Control', `public, max-age=${maxAge}`);
+          res.setHeader('Accept-Ranges', 'bytes');
+          res.setHeader('Access-Control-Allow-Origin', '*');
+          res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
+          res.setHeader('Access-Control-Allow-Headers', 'Range');
+        }
+
+        if (storageProvider === 's3') {
+          // S3 proxy: fetch files from S3 bucket and serve them
+          // Railway/Tigris buckets are private, so we proxy through the backend
+          bootstrapApp.get('/uploads/*', async (req, res) => {
+            try {
+              const s3Key = req.path.replace(/^\/uploads\//, '');
+              if (!s3Key || s3Key.includes('..')) {
+                res.status(400).json({ error: 'Invalid path' });
+                return;
               }
 
-              // ⚡ PERFORMANCE: CDN caching headers for 90% bandwidth reduction
-              // Images cached for 1 year, music for 30 days
-              // NOTE: Not using 'immutable' to allow cache revalidation if files are updated
-              let maxAge = 86400; // Default: 1 day
-              if (isImage) {
-                maxAge = 31536000; // 1 year for artwork (rarely changes)
-              } else if (isAudio) {
-                maxAge = 2592000; // 30 days for music files
+              const result = await provider.download(s3Key);
+              if (!result.success || !result.data) {
+                res.status(404).json({ error: 'File not found' });
+                return;
               }
 
-              res.setHeader('Cache-Control', `public, max-age=${maxAge}`);
-              // ETag and Last-Modified are automatically set by express.static
+              // Set media headers
+              setMediaHeaders(res, s3Key);
+              if (result.contentType) {
+                res.setHeader('Content-Type', result.contentType);
+              }
+              if (result.size) {
+                res.setHeader('Content-Length', result.size.toString());
+              }
 
-              // Enable range requests for audio streaming (seeking)
-              res.setHeader('Accept-Ranges', 'bytes');
-
-              // CORS headers for cross-origin audio playback
-              res.setHeader('Access-Control-Allow-Origin', '*');
-              res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
-              res.setHeader('Access-Control-Allow-Headers', 'Range');
-            },
-          })
-        );
-
-        logger.debug('📁 Serving uploads from:', { uploadsDir });
+              res.send(result.data);
+            } catch (error) {
+              logger.error('S3 proxy download failed', {
+                path: req.path,
+                error: error instanceof Error ? error.message : String(error),
+              });
+              res.status(500).json({ error: 'File download failed' });
+            }
+          });
+          logger.info('📁 S3 proxy configured for /uploads/* routes');
+        } else {
+          // Local filesystem: serve static files directly
+          bootstrapApp.use(
+            '/uploads',
+            express.static(uploadsDir, {
+              etag: true,
+              lastModified: true,
+              setHeaders: (staticRes: Response, filePath: string) => {
+                setMediaHeaders(staticRes, filePath);
+              },
+            })
+          );
+          logger.info('📁 Serving uploads from local filesystem', { uploadsDir });
+        }
 
         // Register all routes
         bootstrapApp.use('/', storageRouter);

@@ -109,7 +109,9 @@ export class S3StorageProvider implements IStorageProvider {
         ContentType: options?.contentType,
         CacheControl: options?.cacheControl,
         Metadata: options?.metadata,
-        ACL: options?.isPublic ? 'public-read' : 'private',
+        // Railway/Tigris buckets are private-only; files are served via backend proxy
+        // Only set ACL for standard AWS S3 buckets that support it
+        ...(this.config.endpoint ? {} : { ACL: options?.isPublic ? 'public-read' : 'private' }),
       });
 
       await this.s3Client!.send(command);
@@ -359,9 +361,25 @@ export class S3StorageProvider implements IStorageProvider {
     logger.info('Cleanup completed');
   }
 
+  /**
+   * Generate a public URL for a stored file.
+   * For Railway/Tigris (private buckets): returns a relative proxy URL served by storage-service
+   * For standard AWS S3 (public buckets): returns the direct S3 URL
+   */
   private generatePublicUrl(path: string): string {
-    // Railway Storage Buckets use virtual-hosted–style URLs: https://{bucket}.{endpoint_host}/{path}
-    // AWS S3 uses: https://{bucket}.s3.{region}.amazonaws.com/{path}
+    if (this.config.cdnDomain) {
+      return `${this.config.cdnDomain}/${path}`;
+    }
+    // Railway/Tigris buckets are private — serve files via backend proxy at /uploads/{path}
+    // This matches the same URL format as local storage, so mobile app URLs stay consistent
+    if (this.config.endpoint) {
+      return `/uploads/${path}`;
+    }
+    return `https://${this.config.bucket}.s3.${this.config.region}.amazonaws.com/${path}`;
+  }
+
+  /** Get the direct S3 URL for internal use (presigned URL generation, etc.) */
+  getDirectS3Url(path: string): string {
     if (this.config.endpoint) {
       const endpointHost = this.config.endpoint.replace(/^https?:\/\//, '');
       return `https://${this.config.bucket}.${endpointHost}/${path}`;
