@@ -14,14 +14,12 @@
  * The split exists because react-native-track-player is a third-party native module not bundled
  * in Expo Go, so expo-audio is required to keep audio working during development without a build.
  *
- * iOS 26 EXPO-AUDIO HARD BLOCK
- * expo-audio 1.x initialises an AVAudioEngine instance on the UI thread the moment
- * useAudioPlayer() is called.  On iPhone OS 26 this engine starts a background audio
- * processing thread that races with the Hermes GC during startup — same class of
- * EXC_BAD_ACCESS heap-corruption crash as react-native-track-player 4.1.x.
- * The fix mirrors the RNTP guard: on iOS 26 the real AudioPlayerProvider is never
- * mounted; a lightweight stub provider is used instead.  Audio playback is unavailable
- * on iOS 26 until expo-audio ships a compatible release.
+ * iOS 26 NOTE:
+ * react-native-track-player 4.1.x has confirmed memory corruption on iOS 26 and remains
+ * blocked in MediaSessionService.ts (lock screen / Bluetooth only — no audio impact).
+ * expo-audio 1.1.x does NOT exhibit the same crash; audio playback works normally on iOS 26.
+ * The playsInSilentMode session config (audioSession.ts) is required for sound to play
+ * when the mute switch is on.
  *
  * TODO (future consolidation): Migrate to react-native-track-player for both playback and media
  * session. It handles both concerns in one package, which removes the dual-init crash risk.
@@ -34,16 +32,13 @@ import { useAuthStore, selectIsAuthenticated } from '../auth';
 import { configureAudioSession } from '../hooks/music/audioSession';
 import { logger } from '../lib/logger';
 
-// iOS 26 detection — must match the check in MediaSessionService.ts and audioSession.ts
+// iOS 26 detection — exported for other modules (MediaSessionService, Reanimated guards, etc.)
 const iosVersionMajor = Platform.OS === 'ios' ? parseInt(String(Platform.Version).split('.')[0], 10) : 0;
 export const isIOS26OrLater = iosVersionMajor >= 26;
 
 type TrackEndCallback = () => void;
 
 interface AudioPlayerContextValue {
-  // Always typed as AudioPlayer so callers don't need to handle the iOS 26 stub union.
-  // The iOS 26 provider casts the stub to AudioPlayer at the boundary; the stub's
-  // no-op methods are call-safe for all properties consumers actually access.
   player: AudioPlayer;
   registerTrackEndListener: (callback: TrackEndCallback) => () => void;
 }
@@ -51,69 +46,7 @@ interface AudioPlayerContextValue {
 const AudioPlayerContext = createContext<AudioPlayerContextValue | null>(null);
 
 // ---------------------------------------------------------------------------
-// Stub player for iOS 26 — satisfies the AudioPlayer duck-type without
-// touching AVAudioEngine or the AVAudioSession at all.
-// ---------------------------------------------------------------------------
-class StubAudioPlayer {
-  readonly isIOS26Stub = true;
-
-  // Satisfy property reads from useTrackPlayback and lyrics components.
-  // Without these, accessing player.currentTime / player.duration / player.playing
-  // returns undefined, and useAudioPlayerStatus(player) crashes because the native
-  // player handle is null.
-  playing = false;
-  currentTime = 0;
-  duration = 0;
-  isLoaded = false;
-  muted = false;
-  volume = 1;
-  rate = 1;
-  loop = false;
-  isBuffering = false;
-  paused = true;
-
-  pause() {}
-  play() {}
-  remove() {}
-  replace(_source: unknown) {}
-  seekTo(_position: number) {}
-  setRate(_rate: number) {}
-  addListener(_event: string, _handler: (...args: unknown[]) => void) {
-    return { remove: () => {} };
-  }
-}
-
-// ---------------------------------------------------------------------------
-// iOS 26 stub provider — no expo-audio hooks, no AVAudioEngine init
-// ---------------------------------------------------------------------------
-function AudioPlayerProviderIOS26({ children }: { children: ReactNode }) {
-  const stubPlayer = useRef(new StubAudioPlayer()).current;
-  const trackEndListeners = useRef<Set<TrackEndCallback>>(new Set());
-
-  const registerTrackEndListener = useCallback((callback: TrackEndCallback): (() => void) => {
-    trackEndListeners.current.add(callback);
-    return () => {
-      trackEndListeners.current.delete(callback);
-    };
-  }, []);
-
-  useEffect(() => {
-    logger.warn(
-      '[AudioPlayer] iPhone OS 26+ detected — expo-audio AVAudioEngine is incompatible ' +
-        '(background-thread crash). Using stub. Audio playback disabled until expo-audio is updated.',
-      { iosVersionMajor }
-    );
-  }, []);
-
-  return (
-    <AudioPlayerContext.Provider value={{ player: stubPlayer as unknown as AudioPlayer, registerTrackEndListener }}>
-      {children}
-    </AudioPlayerContext.Provider>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Real provider — used on iOS < 26 and Android
+// Audio player provider — uses expo-audio on all platforms including iOS 26
 // ---------------------------------------------------------------------------
 function AudioPlayerProviderReal({ children }: { children: ReactNode }) {
   const player = useAudioPlayer();
@@ -162,12 +95,9 @@ function AudioPlayerProviderReal({ children }: { children: ReactNode }) {
 }
 
 // ---------------------------------------------------------------------------
-// Public export — picks the right provider based on OS version
+// Public export
 // ---------------------------------------------------------------------------
 export function AudioPlayerProvider({ children }: { children: ReactNode }) {
-  if (isIOS26OrLater) {
-    return <AudioPlayerProviderIOS26>{children}</AudioPlayerProviderIOS26>;
-  }
   return <AudioPlayerProviderReal>{children}</AudioPlayerProviderReal>;
 }
 
