@@ -1635,7 +1635,43 @@
       }
     },
     "chooseType": "What would you like to create?",
+    "chooseCategory": "Choose a category",
+    "backToCategories": "All categories",
     "generateWithAI": "Generate with AI",
+    "categories": {
+      "personal_reflection": {
+        "name": "Personal & Reflection",
+        "description": "Journals, memoirs, and dream exploration"
+      },
+      "wellness_mindfulness": {
+        "name": "Wellness & Mindfulness",
+        "description": "Growth, affirmations, and meditation"
+      },
+      "story_identity": {
+        "name": "Story & Identity",
+        "description": "Narrative therapy and identity work"
+      },
+      "thinking_choice": {
+        "name": "Thinking & Choice",
+        "description": "Cognitive tools and decision frameworks"
+      },
+      "emotion_regulation": {
+        "name": "Emotion & Regulation",
+        "description": "Emotional skills and body awareness"
+      },
+      "motivation_action": {
+        "name": "Motivation & Action",
+        "description": "Values, habits, and goal systems"
+      },
+      "knowledge_wisdom": {
+        "name": "Knowledge & Wisdom",
+        "description": "Philosophy, science, and learning"
+      },
+      "creative_writing": {
+        "name": "Creative Writing",
+        "description": "Fiction, poetry, and children's stories"
+      }
+    },
     "types": {
       "personal": {
         "name": "Personal Journal",
@@ -1692,6 +1728,78 @@
       "dreams": {
         "name": "Dream Journal",
         "description": "Dream exploration and guided analysis"
+      },
+      "gratitude": {
+        "name": "Gratitude Journal",
+        "description": "Daily gratitude practice with guided reflection prompts"
+      },
+      "narrative_reauthoring": {
+        "name": "Narrative Re-authoring",
+        "description": "Rewrite personal narratives and discover empowering story alternatives"
+      },
+      "meaning_reconstruction": {
+        "name": "Meaning Reconstruction",
+        "description": "Rebuild meaning and purpose after loss or change"
+      },
+      "identity_design": {
+        "name": "Identity Design",
+        "description": "Explore and intentionally design your personal identity"
+      },
+      "life_story_timeline": {
+        "name": "Life Story Timeline",
+        "description": "Map key life events, turning points, and their connections"
+      },
+      "shadow_integration": {
+        "name": "Shadow Integration",
+        "description": "Explore hidden aspects of self and work toward wholeness"
+      },
+      "cognitive_reframing": {
+        "name": "Cognitive Reframing",
+        "description": "Identify and restructure unhelpful thought patterns"
+      },
+      "belief_excavation": {
+        "name": "Belief Excavation",
+        "description": "Uncover core beliefs and guided processes for belief updating"
+      },
+      "decision_making": {
+        "name": "Decision Making",
+        "description": "Frameworks and tools for clearer, values-aligned decisions"
+      },
+      "attention_focus": {
+        "name": "Attention Focus",
+        "description": "Training attention and cultivating deep focus"
+      },
+      "emotional_regulation": {
+        "name": "Emotional Regulation",
+        "description": "Strategies for understanding and managing emotions skillfully"
+      },
+      "emotional_literacy": {
+        "name": "Emotional Literacy",
+        "description": "Expand emotional vocabulary and recognition skills"
+      },
+      "self_compassion": {
+        "name": "Self Compassion",
+        "description": "Practices for developing kindness and mindful self-awareness"
+      },
+      "somatic_awareness": {
+        "name": "Somatic Awareness",
+        "description": "Connect physical sensations to emotional experiences"
+      },
+      "values_clarification": {
+        "name": "Values Clarification",
+        "description": "Identify and align daily life with core personal values"
+      },
+      "motivation_diagnostics": {
+        "name": "Motivation Diagnostics",
+        "description": "Understand motivation patterns and behavioral drivers"
+      },
+      "habit_architecture": {
+        "name": "Habit Architecture",
+        "description": "Design and sustain transformative habits"
+      },
+      "life_goals": {
+        "name": "Life Goals",
+        "description": "Comprehensive goal-setting spanning vision to accountability"
       }
     },
     "createWisdomBook": "Create Wisdom Book",
@@ -1720,6 +1828,42 @@
     "editEducationalBook": "Edit Educational Book",
     "editPhilosophyBook": "Edit Philosophy Book",
     "editDreamsBook": "Edit Dream Journal",
+    "createGratitudeBook": "Create Gratitude Journal",
+    "editGratitudeBook": "Edit Gratitude Journal",
+    "createNarrativeReauthoringBook": "Create Narrative Re-authoring Journal",
+    "createMeaningReconstructionBook": "Create Meaning Reconstruction Book",
+    "createIdentityDesignBook": "Create Identity Design Notebook",
+    "createLifeStoryTimelineBook": "Create Life Story Timeline",
+    "createShadowIntegrationBook": "Create Shadow Integration Journal",
+    "createCognitiveReframingBook": "Create Cognitive Reframing Workbook",
+    "createBeliefExcavationBook": "Create Belief Excavation Manual",
+    "createDecisionMakingBook": "Create Decision Making Playbook",
+    "createAttentionFocusBook": "Create Attention Focus Workbook",
+    "createEmotionalRegulationBook": "Create Emotional Regulation Guide",
+    "createEmotionalLiteracyBook": "Create Emotional Literacy Companion",
+    "createSelfCompassionBook": "Create Self Compassion Handbook",
+    "createSomaticAwarenessBook": "Create Somatic Awareness Journal",
+    "createValuesClarificationBook": "Create Values Clarification Journal",
+    "createMotivationDiagnosticsBook": "Create Motivation Diagnostics Guide",
+    "createHabitArchitectureBook": "Create Habit Architecture Journal",
+    "createLifeGoalsBook": "Create Life Goals Manual",
+    "editNarrativeReauthoringBook": "Edit Narrative Re-authoring Journal",
+    "editMeaningReconstructionBook": "Edit Meaning Reconstruction Book",
+    "editIdentityDesignBook": "Edit Identity Design Notebook",
+    "editLifeStoryTimelineBook": "Edit Life Story Timeline",
+    "editShadowIntegrationBook": "Edit Shadow Integration Journal",
+    "editCognitiveReframingBook": "Edit Cognitive Reframing Workbook",
+    "editBeliefExcavationBook": "Edit Belief Excavation Manual",
+    "editDecisionMakingBook": "Edit Decision Making Playbook",
+    "editAttentionFocusBook": "Edit Attention Focus Workbook",
+    "editEmotionalRegulationBook": "Edit Emotional Regulation Guide",
+    "editEmotionalLiteracyBook": "Edit Emotional Literacy Companion",
+    "editSelfCompassionBook": "Edit Self Compassion Handbook",
+    "editSomaticAwarenessBook": "Edit Somatic Awareness Journal",
+    "editValuesClarificationBook": "Edit Values Clarification Journal",
+    "editMotivationDiagnosticsBook": "Edit Motivation Diagnostics Guide",
+    "editHabitArchitectureBook": "Edit Habit Architecture Journal",
+    "editLifeGoalsBook": "Edit Life Goals Manual",
     "clone": {
       "title": "Clone this book",
       "sourceLabel": "Based on",
@@ -1750,6 +1894,24 @@
     "aiDreamsDesc": "Guided dream analysis and exploration",
     "aiQuotesDesc": "Curated quotes on your chosen theme",
     "aiScientificDesc": "Evidence-based insights on any subject",
+    "aiNarrativeReauthoringDesc": "Rewrite your life story through narrative therapy exercises",
+    "aiMeaningReconstructionDesc": "Find new meaning in life transitions and loss",
+    "aiIdentityDesignDesc": "Explore and design your future self through structured exercises",
+    "aiLifeStoryTimelineDesc": "Map your life story as a rich, meaningful timeline",
+    "aiShadowIntegrationDesc": "Explore hidden parts of your personality for wholeness",
+    "aiCognitiveReframingDesc": "Challenge and reshape unhelpful thought patterns",
+    "aiBeliefExcavationDesc": "Uncover and examine your core beliefs and schemas",
+    "aiDecisionMakingDesc": "Structured frameworks to make better decisions",
+    "aiAttentionFocusDesc": "Train deep focus and protect your attention",
+    "aiEmotionalRegulationDesc": "DBT-inspired strategies for managing intense emotions",
+    "aiEmotionalLiteracyDesc": "Build a richer vocabulary for understanding emotions",
+    "aiSelfCompassionDesc": "Cultivate kindness toward yourself through guided practice",
+    "aiSomaticAwarenessDesc": "Reconnect with your body's wisdom and signals",
+    "aiValuesClarificationDesc": "Discover and align your life with your core values",
+    "aiMotivationDiagnosticsDesc": "Understand what drives you and unlock intrinsic motivation",
+    "aiHabitArchitectureDesc": "Design and build lasting habits using behavioral science",
+    "aiGratitudeDesc": "Cultivate daily gratitude with guided reflection prompts",
+    "aiLifeGoalsDesc": "Define and pursue meaningful life goals with clarity",
     "quotesBook": {
       "title": "Create a Quotes Book",
       "description": "Receive a curated collection of meaningful quotes on your chosen theme.",
@@ -2038,6 +2200,456 @@
       "premiumDescription": "Dream journals are available for Premium subscribers.",
       "previewTitle": "Your Dream Journal",
       "entriesCount": "{{count}} dream explorations",
+      "regenerate": "Try Again",
+      "minLengthHint": "Please enter at least {{minLength}} characters"
+    },
+    "gratitudeBook": {
+      "title": "Create a Gratitude Journal",
+      "description": "Cultivate a daily gratitude practice with guided prompts. Research shows gratitude journaling improves well-being, sleep, and resilience.",
+      "placeholder": "Example: Noticing the small moments of beauty and kindness in everyday life...",
+      "generate": "Create Book",
+      "generating": "Cultivating gratitude...",
+      "generatingSubtitle": "Crafting your gratitude practice",
+      "badge": "Gratitude",
+      "depthLabel": "Choose depth",
+      "depth": {
+        "brief": "Brief",
+        "briefDesc": "3-5 gratitude reflection prompts",
+        "standard": "Standard",
+        "standardDesc": "8-12 guided gratitude exercises",
+        "deep": "Deep",
+        "deepDesc": "15-25 comprehensive gratitude practices"
+      },
+      "createBook": "Create Book",
+      "premiumRequired": "Premium Feature",
+      "premiumDescription": "Gratitude journals are available for Premium subscribers.",
+      "previewTitle": "Your Gratitude Journal",
+      "entriesCount": "{{count}} reflections",
+      "regenerate": "Try Again",
+      "minLengthHint": "Please enter at least {{minLength}} characters"
+    },
+    "narrativeReauthoringBook": {
+      "title": "Create a Narrative Re-authoring Journal",
+      "description": "Rewrite your life story using narrative therapy techniques. Externalize problems, find unique outcomes, and author a preferred identity narrative.",
+      "placeholder": "Example: I want to rewrite my relationship with self-doubt and reclaim my confidence...",
+      "generate": "Create Book",
+      "generating": "Re-authoring your story...",
+      "generatingSubtitle": "Crafting new narrative possibilities",
+      "badge": "Narrative",
+      "depthLabel": "Choose depth",
+      "depth": {
+        "brief": "Brief",
+        "briefDesc": "3-5 guided re-authoring exercises",
+        "standard": "Standard",
+        "standardDesc": "8-12 narrative therapy explorations",
+        "deep": "Deep",
+        "deepDesc": "15-25 comprehensive story transformations"
+      },
+      "createBook": "Create Book",
+      "premiumRequired": "Premium Feature",
+      "premiumDescription": "Narrative re-authoring journals are available for Premium subscribers.",
+      "previewTitle": "Your Narrative Re-authoring Journal",
+      "entriesCount": "{{count}} exercises",
+      "regenerate": "Try Again",
+      "minLengthHint": "Please enter at least {{minLength}} characters"
+    },
+    "meaningReconstructionBook": {
+      "title": "Create a Meaning Reconstruction Book",
+      "description": "Find new meaning in life transitions, loss, and change. Guided by logotherapy and constructivist grief theory.",
+      "placeholder": "Example: Finding meaning after a major career change and sense of lost identity...",
+      "generate": "Create Book",
+      "generating": "Reconstructing meaning...",
+      "generatingSubtitle": "Building bridges to new understanding",
+      "badge": "Meaning",
+      "depthLabel": "Choose depth",
+      "depth": {
+        "brief": "Brief",
+        "briefDesc": "3-5 meaning-finding exercises",
+        "standard": "Standard",
+        "standardDesc": "8-12 guided meaning explorations",
+        "deep": "Deep",
+        "deepDesc": "15-25 deep meaning reconstruction practices"
+      },
+      "createBook": "Create Book",
+      "premiumRequired": "Premium Feature",
+      "premiumDescription": "Meaning reconstruction books are available for Premium subscribers.",
+      "previewTitle": "Your Meaning Reconstruction Book",
+      "entriesCount": "{{count}} exercises",
+      "regenerate": "Try Again",
+      "minLengthHint": "Please enter at least {{minLength}} characters"
+    },
+    "identityDesignBook": {
+      "title": "Create an Identity Design Notebook",
+      "description": "Explore who you are and design who you want to become. Based on Possible Selves theory and Stanford Life Design.",
+      "placeholder": "Example: Designing my identity as a creative leader and mindful parent...",
+      "generate": "Create Book",
+      "generating": "Designing your future self...",
+      "generatingSubtitle": "Mapping possible identities",
+      "badge": "Identity",
+      "depthLabel": "Choose depth",
+      "depth": {
+        "brief": "Brief",
+        "briefDesc": "3-5 identity exploration exercises",
+        "standard": "Standard",
+        "standardDesc": "8-12 structured identity design activities",
+        "deep": "Deep",
+        "deepDesc": "15-25 comprehensive identity blueprints"
+      },
+      "createBook": "Create Book",
+      "premiumRequired": "Premium Feature",
+      "premiumDescription": "Identity design notebooks are available for Premium subscribers.",
+      "previewTitle": "Your Identity Design Notebook",
+      "entriesCount": "{{count}} exercises",
+      "regenerate": "Try Again",
+      "minLengthHint": "Please enter at least {{minLength}} characters"
+    },
+    "lifeStoryTimelineBook": {
+      "title": "Create a Life Story Timeline",
+      "description": "Map your life as a rich, meaningful narrative timeline. Identify key chapters, turning points, and themes using Dan McAdams' Life Story Model.",
+      "placeholder": "Example: Mapping my journey from small-town beginnings to finding my purpose abroad...",
+      "generate": "Create Book",
+      "generating": "Mapping your timeline...",
+      "generatingSubtitle": "Charting your life chapters",
+      "badge": "Timeline",
+      "depthLabel": "Choose depth",
+      "depth": {
+        "brief": "Brief",
+        "briefDesc": "3-5 key life chapters",
+        "standard": "Standard",
+        "standardDesc": "8-12 detailed timeline entries",
+        "deep": "Deep",
+        "deepDesc": "15-25 rich narrative moments"
+      },
+      "createBook": "Create Book",
+      "premiumRequired": "Premium Feature",
+      "premiumDescription": "Life story timelines are available for Premium subscribers.",
+      "previewTitle": "Your Life Story Timeline",
+      "entriesCount": "{{count}} chapters",
+      "regenerate": "Try Again",
+      "minLengthHint": "Please enter at least {{minLength}} characters"
+    },
+    "shadowIntegrationBook": {
+      "title": "Create a Shadow Integration Journal",
+      "description": "Explore hidden parts of your personality for greater wholeness. Guided by Jungian shadow work and depth psychology.",
+      "placeholder": "Example: Understanding my shadow patterns around anger and control...",
+      "generate": "Create Book",
+      "generating": "Illuminating the shadows...",
+      "generatingSubtitle": "Exploring hidden dimensions",
+      "badge": "Shadow",
+      "depthLabel": "Choose depth",
+      "depth": {
+        "brief": "Brief",
+        "briefDesc": "3-5 shadow exploration exercises",
+        "standard": "Standard",
+        "standardDesc": "8-12 guided shadow integration practices",
+        "deep": "Deep",
+        "deepDesc": "15-25 deep shadow work journeys"
+      },
+      "createBook": "Create Book",
+      "premiumRequired": "Premium Feature",
+      "premiumDescription": "Shadow integration journals are available for Premium subscribers.",
+      "previewTitle": "Your Shadow Integration Journal",
+      "entriesCount": "{{count}} exercises",
+      "regenerate": "Try Again",
+      "minLengthHint": "Please enter at least {{minLength}} characters"
+    },
+    "cognitiveReframingBook": {
+      "title": "Create a Cognitive Reframing Workbook",
+      "description": "Challenge and reshape unhelpful thought patterns using evidence-based CBT techniques from Aaron Beck and David Burns.",
+      "placeholder": "Example: Reframing my catastrophic thinking about work performance...",
+      "generate": "Create Book",
+      "generating": "Reframing your thoughts...",
+      "generatingSubtitle": "Building new thought patterns",
+      "badge": "Reframing",
+      "depthLabel": "Choose depth",
+      "depth": {
+        "brief": "Brief",
+        "briefDesc": "3-5 reframing exercises",
+        "standard": "Standard",
+        "standardDesc": "8-12 cognitive restructuring activities",
+        "deep": "Deep",
+        "deepDesc": "15-25 comprehensive thought challenges"
+      },
+      "createBook": "Create Book",
+      "premiumRequired": "Premium Feature",
+      "premiumDescription": "Cognitive reframing workbooks are available for Premium subscribers.",
+      "previewTitle": "Your Cognitive Reframing Workbook",
+      "entriesCount": "{{count}} exercises",
+      "regenerate": "Try Again",
+      "minLengthHint": "Please enter at least {{minLength}} characters"
+    },
+    "beliefExcavationBook": {
+      "title": "Create a Belief Excavation Manual",
+      "description": "Uncover and examine your core beliefs, schemas, and hidden assumptions. Inspired by Schema Therapy.",
+      "placeholder": "Example: Excavating my beliefs about worthiness and what I deserve in relationships...",
+      "generate": "Create Book",
+      "generating": "Excavating core beliefs...",
+      "generatingSubtitle": "Digging into foundational patterns",
+      "badge": "Beliefs",
+      "depthLabel": "Choose depth",
+      "depth": {
+        "brief": "Brief",
+        "briefDesc": "3-5 belief discovery exercises",
+        "standard": "Standard",
+        "standardDesc": "8-12 schema exploration activities",
+        "deep": "Deep",
+        "deepDesc": "15-25 deep belief excavations"
+      },
+      "createBook": "Create Book",
+      "premiumRequired": "Premium Feature",
+      "premiumDescription": "Belief excavation manuals are available for Premium subscribers.",
+      "previewTitle": "Your Belief Excavation Manual",
+      "entriesCount": "{{count}} exercises",
+      "regenerate": "Try Again",
+      "minLengthHint": "Please enter at least {{minLength}} characters"
+    },
+    "decisionMakingBook": {
+      "title": "Create a Decision Making Playbook",
+      "description": "Build structured frameworks for better decisions. Drawing on Kahneman, Klein, and Annie Duke's thinking tools.",
+      "placeholder": "Example: Making a career pivot decision — weighing security vs. passion...",
+      "generate": "Create Book",
+      "generating": "Building your playbook...",
+      "generatingSubtitle": "Structuring decision frameworks",
+      "badge": "Decisions",
+      "depthLabel": "Choose depth",
+      "depth": {
+        "brief": "Brief",
+        "briefDesc": "3-5 decision frameworks",
+        "standard": "Standard",
+        "standardDesc": "8-12 structured decision analyses",
+        "deep": "Deep",
+        "deepDesc": "15-25 comprehensive decision explorations"
+      },
+      "createBook": "Create Book",
+      "premiumRequired": "Premium Feature",
+      "premiumDescription": "Decision making playbooks are available for Premium subscribers.",
+      "previewTitle": "Your Decision Making Playbook",
+      "entriesCount": "{{count}} frameworks",
+      "regenerate": "Try Again",
+      "minLengthHint": "Please enter at least {{minLength}} characters"
+    },
+    "attentionFocusBook": {
+      "title": "Create an Attention Focus Workbook",
+      "description": "Train deep focus and protect your attention. Based on Cal Newport's Deep Work and Csikszentmihalyi's flow research.",
+      "placeholder": "Example: Designing my ideal focus environment and defeating digital distraction...",
+      "generate": "Create Book",
+      "generating": "Focusing your attention...",
+      "generatingSubtitle": "Designing your focus system",
+      "badge": "Focus",
+      "depthLabel": "Choose depth",
+      "depth": {
+        "brief": "Brief",
+        "briefDesc": "3-5 focus training exercises",
+        "standard": "Standard",
+        "standardDesc": "8-12 attention design activities",
+        "deep": "Deep",
+        "deepDesc": "15-25 comprehensive focus practices"
+      },
+      "createBook": "Create Book",
+      "premiumRequired": "Premium Feature",
+      "premiumDescription": "Attention focus workbooks are available for Premium subscribers.",
+      "previewTitle": "Your Attention Focus Workbook",
+      "entriesCount": "{{count}} exercises",
+      "regenerate": "Try Again",
+      "minLengthHint": "Please enter at least {{minLength}} characters"
+    },
+    "emotionalRegulationBook": {
+      "title": "Create an Emotional Regulation Guide",
+      "description": "Learn to manage intense emotions with DBT-inspired strategies from Marsha Linehan's dialectical behavior therapy.",
+      "placeholder": "Example: Building emotional regulation skills for anxiety and overwhelm...",
+      "generate": "Create Book",
+      "generating": "Building regulation skills...",
+      "generatingSubtitle": "Crafting your emotional toolkit",
+      "badge": "Regulation",
+      "depthLabel": "Choose depth",
+      "depth": {
+        "brief": "Brief",
+        "briefDesc": "3-5 regulation techniques",
+        "standard": "Standard",
+        "standardDesc": "8-12 emotional regulation strategies",
+        "deep": "Deep",
+        "deepDesc": "15-25 comprehensive regulation practices"
+      },
+      "createBook": "Create Book",
+      "premiumRequired": "Premium Feature",
+      "premiumDescription": "Emotional regulation guides are available for Premium subscribers.",
+      "previewTitle": "Your Emotional Regulation Guide",
+      "entriesCount": "{{count}} strategies",
+      "regenerate": "Try Again",
+      "minLengthHint": "Please enter at least {{minLength}} characters"
+    },
+    "emotionalLiteracyBook": {
+      "title": "Create an Emotional Literacy Companion",
+      "description": "Build a richer vocabulary for understanding and expressing emotions. Based on Barrett's theory and Brackett's RULER approach.",
+      "placeholder": "Example: Expanding my emotional vocabulary beyond just happy, sad, and angry...",
+      "generate": "Create Book",
+      "generating": "Expanding emotional vocabulary...",
+      "generatingSubtitle": "Building your emotion lexicon",
+      "badge": "Literacy",
+      "depthLabel": "Choose depth",
+      "depth": {
+        "brief": "Brief",
+        "briefDesc": "3-5 emotional literacy exercises",
+        "standard": "Standard",
+        "standardDesc": "8-12 emotion mapping activities",
+        "deep": "Deep",
+        "deepDesc": "15-25 comprehensive literacy practices"
+      },
+      "createBook": "Create Book",
+      "premiumRequired": "Premium Feature",
+      "premiumDescription": "Emotional literacy companions are available for Premium subscribers.",
+      "previewTitle": "Your Emotional Literacy Companion",
+      "entriesCount": "{{count}} exercises",
+      "regenerate": "Try Again",
+      "minLengthHint": "Please enter at least {{minLength}} characters"
+    },
+    "selfCompassionBook": {
+      "title": "Create a Self-Compassion Handbook",
+      "description": "Cultivate kindness toward yourself through guided practice. Based on Kristin Neff's three pillars and Mindful Self-Compassion.",
+      "placeholder": "Example: Learning to be kind to myself after failure instead of harsh self-criticism...",
+      "generate": "Create Book",
+      "generating": "Cultivating self-compassion...",
+      "generatingSubtitle": "Opening the door to self-kindness",
+      "badge": "Compassion",
+      "depthLabel": "Choose depth",
+      "depth": {
+        "brief": "Brief",
+        "briefDesc": "3-5 self-compassion practices",
+        "standard": "Standard",
+        "standardDesc": "8-12 guided compassion exercises",
+        "deep": "Deep",
+        "deepDesc": "15-25 deep self-compassion journeys"
+      },
+      "createBook": "Create Book",
+      "premiumRequired": "Premium Feature",
+      "premiumDescription": "Self-compassion handbooks are available for Premium subscribers.",
+      "previewTitle": "Your Self-Compassion Handbook",
+      "entriesCount": "{{count}} practices",
+      "regenerate": "Try Again",
+      "minLengthHint": "Please enter at least {{minLength}} characters"
+    },
+    "somaticAwarenessBook": {
+      "title": "Create a Somatic Awareness Journal",
+      "description": "Reconnect with your body's wisdom and signals. Guided by Somatic Experiencing and Focusing techniques.",
+      "placeholder": "Example: Listening to tension in my shoulders and what it tells me about stress...",
+      "generate": "Create Book",
+      "generating": "Tuning into the body...",
+      "generatingSubtitle": "Connecting mind and body wisdom",
+      "badge": "Somatic",
+      "depthLabel": "Choose depth",
+      "depth": {
+        "brief": "Brief",
+        "briefDesc": "3-5 body awareness exercises",
+        "standard": "Standard",
+        "standardDesc": "8-12 somatic exploration practices",
+        "deep": "Deep",
+        "deepDesc": "15-25 comprehensive body-mind exercises"
+      },
+      "createBook": "Create Book",
+      "premiumRequired": "Premium Feature",
+      "premiumDescription": "Somatic awareness journals are available for Premium subscribers.",
+      "previewTitle": "Your Somatic Awareness Journal",
+      "entriesCount": "{{count}} exercises",
+      "regenerate": "Try Again",
+      "minLengthHint": "Please enter at least {{minLength}} characters"
+    },
+    "valuesClarificationBook": {
+      "title": "Create a Values Clarification Journal",
+      "description": "Discover and align your life with your core values. Based on ACT, Steven Hayes, and Russ Harris's values work.",
+      "placeholder": "Example: Clarifying what truly matters to me in work, relationships, and purpose...",
+      "generate": "Create Book",
+      "generating": "Clarifying your values...",
+      "generatingSubtitle": "Discovering what matters most",
+      "badge": "Values",
+      "depthLabel": "Choose depth",
+      "depth": {
+        "brief": "Brief",
+        "briefDesc": "3-5 values discovery exercises",
+        "standard": "Standard",
+        "standardDesc": "8-12 values clarification activities",
+        "deep": "Deep",
+        "deepDesc": "15-25 comprehensive values alignment practices"
+      },
+      "createBook": "Create Book",
+      "premiumRequired": "Premium Feature",
+      "premiumDescription": "Values clarification journals are available for Premium subscribers.",
+      "previewTitle": "Your Values Clarification Journal",
+      "entriesCount": "{{count}} exercises",
+      "regenerate": "Try Again",
+      "minLengthHint": "Please enter at least {{minLength}} characters"
+    },
+    "motivationDiagnosticsBook": {
+      "title": "Create a Motivation Diagnostics Guide",
+      "description": "Understand what drives you and unlock intrinsic motivation. Based on Deci & Ryan's Self-Determination Theory.",
+      "placeholder": "Example: Understanding why I lose motivation midway through projects...",
+      "generate": "Create Book",
+      "generating": "Diagnosing your motivation...",
+      "generatingSubtitle": "Mapping your motivational landscape",
+      "badge": "Motivation",
+      "depthLabel": "Choose depth",
+      "depth": {
+        "brief": "Brief",
+        "briefDesc": "3-5 motivation diagnostics",
+        "standard": "Standard",
+        "standardDesc": "8-12 motivation analysis exercises",
+        "deep": "Deep",
+        "deepDesc": "15-25 comprehensive motivation explorations"
+      },
+      "createBook": "Create Book",
+      "premiumRequired": "Premium Feature",
+      "premiumDescription": "Motivation diagnostics guides are available for Premium subscribers.",
+      "previewTitle": "Your Motivation Diagnostics Guide",
+      "entriesCount": "{{count}} diagnostics",
+      "regenerate": "Try Again",
+      "minLengthHint": "Please enter at least {{minLength}} characters"
+    },
+    "habitArchitectureBook": {
+      "title": "Create a Habit Architecture Journal",
+      "description": "Design and build lasting habits using behavioral science. Based on BJ Fogg's Tiny Habits and James Clear's Atomic Habits.",
+      "placeholder": "Example: Building a morning routine that sticks — exercise, reading, and journaling...",
+      "generate": "Create Book",
+      "generating": "Architecting your habits...",
+      "generatingSubtitle": "Building your habit blueprint",
+      "badge": "Habits",
+      "depthLabel": "Choose depth",
+      "depth": {
+        "brief": "Brief",
+        "briefDesc": "3-5 habit design exercises",
+        "standard": "Standard",
+        "standardDesc": "8-12 habit architecture activities",
+        "deep": "Deep",
+        "deepDesc": "15-25 comprehensive habit system designs"
+      },
+      "createBook": "Create Book",
+      "premiumRequired": "Premium Feature",
+      "premiumDescription": "Habit architecture journals are available for Premium subscribers.",
+      "previewTitle": "Your Habit Architecture Journal",
+      "entriesCount": "{{count}} habit designs",
+      "regenerate": "Try Again",
+      "minLengthHint": "Please enter at least {{minLength}} characters"
+    },
+    "lifeGoalsBook": {
+      "title": "Create a Life Goals Manual",
+      "description": "Define and pursue meaningful life goals with clarity and structure. Uses WOOP framework and mental contrasting.",
+      "placeholder": "Example: Setting clear goals for the next 5 years — career, health, and relationships...",
+      "generate": "Create Book",
+      "generating": "Charting your goals...",
+      "generatingSubtitle": "Mapping the path forward",
+      "badge": "Goals",
+      "depthLabel": "Choose depth",
+      "depth": {
+        "brief": "Brief",
+        "briefDesc": "3-5 goal-setting exercises",
+        "standard": "Standard",
+        "standardDesc": "8-12 structured goal explorations",
+        "deep": "Deep",
+        "deepDesc": "15-25 comprehensive life goal frameworks"
+      },
+      "createBook": "Create Book",
+      "premiumRequired": "Premium Feature",
+      "premiumDescription": "Life goals manuals are available for Premium subscribers.",
+      "previewTitle": "Your Life Goals Manual",
+      "entriesCount": "{{count}} goals",
       "regenerate": "Try Again",
       "minLengthHint": "Please enter at least {{minLength}} characters"
     },

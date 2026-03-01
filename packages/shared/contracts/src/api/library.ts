@@ -33,9 +33,48 @@ export const BOOK_TYPE_IDS = {
   EDUCATIONAL: 'educational',
   PHILOSOPHY: 'philosophy',
   DREAMS: 'dreams',
+  GRATITUDE: 'gratitude',
+  // Story Identity
+  NARRATIVE_REAUTHORING: 'narrative_reauthoring',
+  MEANING_RECONSTRUCTION: 'meaning_reconstruction',
+  IDENTITY_DESIGN: 'identity_design',
+  LIFE_STORY_TIMELINE: 'life_story_timeline',
+  SHADOW_INTEGRATION: 'shadow_integration', // category: personal_reflection
+  // Thinking Choice
+  COGNITIVE_REFRAMING: 'cognitive_reframing',
+  BELIEF_EXCAVATION: 'belief_excavation',
+  DECISION_MAKING: 'decision_making',
+  ATTENTION_FOCUS: 'attention_focus',
+  // Emotion Regulation
+  EMOTIONAL_REGULATION: 'emotional_regulation',
+  EMOTIONAL_LITERACY: 'emotional_literacy',
+  SELF_COMPASSION: 'self_compassion',
+  SOMATIC_AWARENESS: 'somatic_awareness',
+  // Motivation Action
+  VALUES_CLARIFICATION: 'values_clarification',
+  MOTIVATION_DIAGNOSTICS: 'motivation_diagnostics',
+  HABIT_ARCHITECTURE: 'habit_architecture',
+  LIFE_GOALS: 'life_goals',
 } as const;
 
 export type BookTypeId = (typeof BOOK_TYPE_IDS)[keyof typeof BOOK_TYPE_IDS];
+
+// =============================================================================
+// BOOK TYPE CATEGORIES - Grouping of book types for UI display
+// =============================================================================
+
+export const BOOK_TYPE_CATEGORIES = {
+  PERSONAL_REFLECTION: 'personal_reflection',
+  CREATIVE_WRITING: 'creative_writing',
+  KNOWLEDGE_WISDOM: 'knowledge_wisdom',
+  WELLNESS_MINDFULNESS: 'wellness_mindfulness',
+  STORY_IDENTITY: 'story_identity',
+  THINKING_CHOICE: 'thinking_choice',
+  EMOTION_REGULATION: 'emotion_regulation',
+  MOTIVATION_ACTION: 'motivation_action',
+} as const;
+
+export type BookTypeCategory = (typeof BOOK_TYPE_CATEGORIES)[keyof typeof BOOK_TYPE_CATEGORIES];
 
 // =============================================================================
 // ENTRY TYPE CONSTANTS - Single source of truth for all entry type IDs
@@ -102,6 +141,24 @@ export const LibBookTypeIdSchema = z.enum([
   BOOK_TYPE_IDS.EDUCATIONAL,
   BOOK_TYPE_IDS.PHILOSOPHY,
   BOOK_TYPE_IDS.DREAMS,
+  BOOK_TYPE_IDS.GRATITUDE,
+  BOOK_TYPE_IDS.NARRATIVE_REAUTHORING,
+  BOOK_TYPE_IDS.MEANING_RECONSTRUCTION,
+  BOOK_TYPE_IDS.IDENTITY_DESIGN,
+  BOOK_TYPE_IDS.LIFE_STORY_TIMELINE,
+  BOOK_TYPE_IDS.SHADOW_INTEGRATION,
+  BOOK_TYPE_IDS.COGNITIVE_REFRAMING,
+  BOOK_TYPE_IDS.BELIEF_EXCAVATION,
+  BOOK_TYPE_IDS.DECISION_MAKING,
+  BOOK_TYPE_IDS.ATTENTION_FOCUS,
+  BOOK_TYPE_IDS.EMOTIONAL_REGULATION,
+  BOOK_TYPE_IDS.EMOTIONAL_LITERACY,
+  BOOK_TYPE_IDS.SELF_COMPASSION,
+  BOOK_TYPE_IDS.SOMATIC_AWARENESS,
+  BOOK_TYPE_IDS.VALUES_CLARIFICATION,
+  BOOK_TYPE_IDS.MOTIVATION_DIAGNOSTICS,
+  BOOK_TYPE_IDS.HABIT_ARCHITECTURE,
+  BOOK_TYPE_IDS.LIFE_GOALS,
 ]);
 export type LibBookTypeId = z.infer<typeof LibBookTypeIdSchema>;
 
@@ -109,6 +166,7 @@ export const LibBookTypeSchema = z.object({
   id: LibBookTypeIdSchema,
   name: z.string(),
   description: z.string().nullable().optional(),
+  category: z.string().nullable().optional(),
   promptTemplateId: z.string().nullable().optional(),
   defaultSettings: z.record(z.unknown()).default({}),
   iconName: z.string().nullable().optional(),

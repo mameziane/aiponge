@@ -10,9 +10,13 @@ import {
   getBookTypeConfig,
   BOOK_TYPE_IDS,
   BOOK_TYPES_SORTED,
+  BOOK_TYPE_CATEGORY_CONFIGS,
+  getBookTypesForCategory,
   resolveBookTypeColor,
   type BookTypeId,
   type BookTypeConfig,
+  type BookTypeCategoryConfig,
+  type BookTypeCategory,
 } from '../../constants/bookTypes';
 
 export interface BookTemplate {
@@ -32,7 +36,47 @@ interface CreateBookModalProps {
   canQuickCreate?: boolean;
 }
 
-type ModalStep = 'pick-type' | 'create';
+type ModalStep = 'pick-category' | 'pick-type' | 'create';
+
+function CategoryTile({
+  config,
+  typeCount,
+  onPress,
+}: {
+  config: BookTypeCategoryConfig;
+  typeCount: number;
+  onPress: () => void;
+}) {
+  const { t } = useTranslation();
+  const colors = useThemeColors();
+  const typePickerStyles = useMemo(() => createTypePickerStyles(colors), [colors]);
+
+  return (
+    <TouchableOpacity
+      style={typePickerStyles.tile}
+      onPress={onPress}
+      activeOpacity={0.7}
+      testID={`book-category-tile-${config.id}`}
+    >
+      <View style={[typePickerStyles.tileIconWrap, { backgroundColor: colors.brand.primary + '15' }]}>
+        <Ionicons
+          name={config.icon as ComponentProps<typeof Ionicons>['name']}
+          size={24}
+          color={colors.brand.primary}
+        />
+      </View>
+      <Text style={typePickerStyles.tileName} numberOfLines={1}>
+        {t(config.nameKey)}
+      </Text>
+      <Text style={typePickerStyles.tileDesc} numberOfLines={2}>
+        {t(config.descriptionKey)}
+      </Text>
+      <Text style={typePickerStyles.tileCount}>
+        {typeCount} {typeCount === 1 ? t('common.type', 'type') : t('common.types', 'types')}
+      </Text>
+    </TouchableOpacity>
+  );
+}
 
 function BookTypeTile({ config, onPress }: { config: BookTypeConfig; onPress: () => void }) {
   const { t } = useTranslation();
@@ -74,12 +118,18 @@ export function CreateBookModal({
   const colors = useThemeColors();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const typePickerStyles = useMemo(() => createTypePickerStyles(colors), [colors]);
-  const [step, setStep] = useState<ModalStep>('pick-type');
+  const [step, setStep] = useState<ModalStep>('pick-category');
+  const [selectedCategory, setSelectedCategory] = useState<BookTypeCategory | null>(null);
   const [selectedTypeId, setSelectedTypeId] = useState<BookTypeId>(bookTypeId);
   const bookTypeConfig = getBookTypeConfig(selectedTypeId);
   const [showGenerator, setShowGenerator] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+
+  const filteredBookTypes = useMemo(
+    () => (selectedCategory ? getBookTypesForCategory(selectedCategory) : BOOK_TYPES_SORTED),
+    [selectedCategory]
+  );
 
   useEffect(() => {
     if (visible && onLoadTemplates && (!templates || templates.length === 0)) {
@@ -92,7 +142,8 @@ export function CreateBookModal({
       setShowGenerator(false);
       setIsSubmitting(false);
       setSelectedTemplate(null);
-      setStep('pick-type');
+      setStep('pick-category');
+      setSelectedCategory(null);
       setSelectedTypeId(bookTypeId);
     }
   }, [visible]);
@@ -108,6 +159,11 @@ export function CreateBookModal({
     [onCreateFromBlueprint, selectedTypeId]
   );
 
+  const handleSelectCategory = (category: BookTypeCategory) => {
+    setSelectedCategory(category);
+    setStep('pick-type');
+  };
+
   const handleSelectType = (typeId: BookTypeId) => {
     setSelectedTypeId(typeId);
     const config = getBookTypeConfig(typeId);
@@ -120,6 +176,11 @@ export function CreateBookModal({
         setShowGenerator(true);
       }, 100);
     }
+  };
+
+  const handleBackToCategories = () => {
+    setStep('pick-category');
+    setSelectedCategory(null);
   };
 
   const handleBackToTypePicker = () => {
@@ -151,15 +212,48 @@ export function CreateBookModal({
       <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
         <Pressable style={styles.overlay} onPress={() => !isSubmitting && onClose()}>
           <Pressable
-            style={step === 'pick-type' ? typePickerStyles.content : styles.content}
+            style={step === 'create' ? styles.content : typePickerStyles.content}
             onPress={e => e.stopPropagation()}
           >
-            {step === 'pick-type' ? (
+            {step === 'pick-category' ? (
               <>
-                <Text style={typePickerStyles.title}>{t('books.chooseType', 'What would you like to create?')}</Text>
+                <Text style={typePickerStyles.title}>{t('books.chooseCategory', 'Choose a category')}</Text>
                 <ScrollView style={typePickerStyles.grid} showsVerticalScrollIndicator={false}>
                   <View style={typePickerStyles.gridInner}>
-                    {BOOK_TYPES_SORTED.map(config => (
+                    {BOOK_TYPE_CATEGORY_CONFIGS.map(cat => (
+                      <CategoryTile
+                        key={cat.id}
+                        config={cat}
+                        typeCount={getBookTypesForCategory(cat.id).length}
+                        onPress={() => handleSelectCategory(cat.id)}
+                      />
+                    ))}
+                  </View>
+                </ScrollView>
+                <TouchableOpacity style={styles.cancelButton} onPress={onClose} testID="button-cancel-category-picker">
+                  <Text style={styles.cancelButtonText}>{t('common.cancel')}</Text>
+                </TouchableOpacity>
+              </>
+            ) : step === 'pick-type' ? (
+              <>
+                <View style={typePickerStyles.createHeader}>
+                  <TouchableOpacity
+                    onPress={handleBackToCategories}
+                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                    testID="button-back-to-categories"
+                  >
+                    <Ionicons name="arrow-back" size={22} color={colors.text.secondary} />
+                  </TouchableOpacity>
+                  <Text style={typePickerStyles.createTitle}>
+                    {selectedCategory
+                      ? t(BOOK_TYPE_CATEGORY_CONFIGS.find(c => c.id === selectedCategory)?.nameKey || '')
+                      : t('books.chooseType', 'Choose a type')}
+                  </Text>
+                  <View style={{ width: 22 }} />
+                </View>
+                <ScrollView style={typePickerStyles.grid} showsVerticalScrollIndicator={false}>
+                  <View style={typePickerStyles.gridInner}>
+                    {filteredBookTypes.map(config => (
                       <BookTypeTile key={config.id} config={config} onPress={() => handleSelectType(config.id)} />
                     ))}
                   </View>
@@ -326,6 +420,12 @@ const createTypePickerStyles = (colors: ColorScheme) =>
       fontSize: 11,
       color: colors.text.tertiary,
       lineHeight: 15,
+    },
+    tileCount: {
+      fontSize: 10,
+      color: colors.text.tertiary,
+      marginTop: 6,
+      fontWeight: '500',
     },
     createHeader: {
       flexDirection: 'row',

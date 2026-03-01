@@ -30,6 +30,7 @@ export const libBookTypes = pgTable('lib_book_types', {
   id: varchar('id', { length: 50 }).primaryKey(), // e.g. 'personal', 'wisdom', 'quotes', 'scientific', 'memoir', etc.
   name: varchar('name', { length: 100 }).notNull(),
   description: text('description'),
+  category: varchar('category', { length: 50 }), // UI grouping: personal_reflection, creative_writing, story_identity, etc.
   promptTemplateId: varchar('prompt_template_id', { length: 100 }), // References aic_prompt_templates.id
   defaultSettings: jsonb('default_settings').default('{}'), // Default chapter structure, etc.
   iconName: varchar('icon_name', { length: 50 }), // UI icon identifier
