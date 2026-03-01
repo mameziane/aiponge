@@ -631,15 +631,17 @@ async function main(): Promise<void> {
     };
 
     if (storageProvider === 's3') {
-      // Support both Railway Storage Bucket env vars and standard AWS env vars
-      // Railway provides: BUCKET, ACCESS_KEY_ID, SECRET_ACCESS_KEY, REGION, ENDPOINT
-      // AWS provides: AWS_S3_BUCKET, AWS_S3_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
+      // Support Railway auto-injected AWS preset vars, explicit Railway vars, and standard AWS vars
+      // Railway "Add to Service" auto-injects: AWS_S3_BUCKET_NAME, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY,
+      //   AWS_DEFAULT_REGION, AWS_ENDPOINT_URL (these create canvas connections)
+      // Our explicit vars: BUCKET, ACCESS_KEY_ID, SECRET_ACCESS_KEY, REGION, ENDPOINT
+      // Standard AWS SDK: AWS_S3_BUCKET, AWS_S3_REGION
       storageConfig.s3 = {
-        bucket: process.env.BUCKET || process.env.AWS_S3_BUCKET || '',
-        region: process.env.REGION || process.env.AWS_S3_REGION || '',
+        bucket: process.env.BUCKET || process.env.AWS_S3_BUCKET_NAME || process.env.AWS_S3_BUCKET || '',
+        region: process.env.REGION || process.env.AWS_DEFAULT_REGION || process.env.AWS_S3_REGION || '',
         accessKeyId: process.env.ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID || '',
         secretAccessKey: process.env.SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY || '',
-        endpoint: process.env.ENDPOINT || process.env.AWS_S3_ENDPOINT || undefined,
+        endpoint: process.env.ENDPOINT || process.env.AWS_ENDPOINT_URL || process.env.AWS_S3_ENDPOINT || undefined,
       };
     } else if (storageProvider === 'gcs') {
       storageConfig.gcs = {
