@@ -50,6 +50,47 @@ router.delete(
   })
 );
 
+router.get(
+  '/members',
+  injectAuthenticatedUserId,
+  wrapAsync(async (req, res) => {
+    const { userId } = extractAuthContext(req);
+    const userServiceUrl = ServiceLocator.getServiceUrl('user-service');
+
+    const response = await gatewayFetch(`${userServiceUrl}/api/creator-members/members`, {
+      method: 'GET',
+      headers: {
+        'x-user-id': userId,
+        'x-request-id': (req.headers['x-request-id'] as string) || '',
+      },
+    });
+
+    const data = await response.json();
+    res.status(response.status).json(data);
+  })
+);
+
+router.delete(
+  '/members/:memberId',
+  injectAuthenticatedUserId,
+  wrapAsync(async (req, res) => {
+    const { userId } = extractAuthContext(req);
+    const userServiceUrl = ServiceLocator.getServiceUrl('user-service');
+    const { memberId } = req.params;
+
+    const response = await gatewayFetch(`${userServiceUrl}/api/creator-members/members/${memberId}`, {
+      method: 'DELETE',
+      headers: {
+        'x-user-id': userId,
+        'x-request-id': (req.headers['x-request-id'] as string) || '',
+      },
+    });
+
+    const data = await response.json();
+    res.status(response.status).json(data);
+  })
+);
+
 router.post(
   '/invitations',
   injectAuthenticatedUserId,

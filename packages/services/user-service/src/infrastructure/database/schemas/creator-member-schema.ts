@@ -44,6 +44,7 @@ export const creatorMembers = pgTable(
     memberId: uuid('member_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
+    invitationId: uuid('invitation_id').references(() => invitations.id, { onDelete: 'set null' }),
     status: varchar('status', { length: 20 }).notNull().default('active'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     acceptedAt: timestamp('accepted_at'),
@@ -54,6 +55,7 @@ export const creatorMembers = pgTable(
     memberIdIdx: index('usr_creator_members_member_id_idx').on(table.memberId),
     creatorIdIdx: index('usr_creator_members_creator_id_idx').on(table.creatorId),
     statusIdx: index('usr_creator_members_status_idx').on(table.status),
+    invitationIdIdx: index('usr_creator_members_invitation_id_idx').on(table.invitationId),
     activeIdx: index('idx_usr_creator_members_active')
       .on(table.id)
       .where(sql`deleted_at IS NULL`),

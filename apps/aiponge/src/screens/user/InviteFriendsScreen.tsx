@@ -32,7 +32,11 @@ interface Invitation {
 
 const CREDITS_PER_REFERRAL = 50;
 
-export function InviteFriends() {
+interface InviteFriendsProps {
+  onNavigateToMembers?: () => void;
+}
+
+export function InviteFriends({ onNavigateToMembers }: InviteFriendsProps) {
   const colors = useThemeColors();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const { t } = useTranslation();
@@ -224,14 +228,28 @@ export function InviteFriends() {
         )}
 
         <View style={styles.statsSection}>
-          <LiquidGlassCard intensity="medium" style={styles.statCard} padding={10}>
-            <Text style={styles.statValue}>{invitations?.length ?? 0}</Text>
-            <Text style={styles.statLabel}>{t('sharing.friendsInvited')}</Text>
-          </LiquidGlassCard>
-          <LiquidGlassCard intensity="medium" style={styles.statCard} padding={10}>
-            <Text style={styles.statValue}>{totalUses}</Text>
-            <Text style={styles.statLabel}>{t('sharing.friendsJoined', { count: totalUses })}</Text>
-          </LiquidGlassCard>
+          <TouchableOpacity
+            style={styles.statCardTouchable}
+            onPress={onNavigateToMembers}
+            activeOpacity={0.7}
+            disabled={!onNavigateToMembers}
+          >
+            <LiquidGlassCard intensity="medium" style={styles.statCard} padding={10}>
+              <Text style={styles.statValue}>{invitations?.length ?? 0}</Text>
+              <Text style={styles.statLabel}>{t('sharing.friendsInvited')}</Text>
+            </LiquidGlassCard>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.statCardTouchable}
+            onPress={onNavigateToMembers}
+            activeOpacity={0.7}
+            disabled={!onNavigateToMembers}
+          >
+            <LiquidGlassCard intensity="medium" style={styles.statCard} padding={10}>
+              <Text style={styles.statValue}>{totalUses}</Text>
+              <Text style={styles.statLabel}>{t('sharing.friendsJoined', { count: totalUses })}</Text>
+            </LiquidGlassCard>
+          </TouchableOpacity>
           <LiquidGlassCard intensity="medium" style={styles.statCard} padding={10}>
             <Text style={styles.statValue}>{totalUses * CREDITS_PER_REFERRAL}</Text>
             <Text style={styles.statLabel}>{t('sharing.creditsEarned')}</Text>
@@ -394,6 +412,9 @@ const createStyles = (colors: ColorScheme) =>
       flexDirection: 'row',
       gap: 12,
       marginBottom: 24,
+    },
+    statCardTouchable: {
+      flex: 1,
     },
     statCard: {
       flex: 1,

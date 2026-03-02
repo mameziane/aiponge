@@ -5,7 +5,8 @@ import { sendSuccess, ServiceErrors } from '../utils/response-helpers';
 import { UserEventPublisher } from '../../infrastructure/events/UserEventPublisher';
 import { getLogger } from '../../config/service-urls';
 import { users } from '../../infrastructure/database/schemas/user-schema';
-import { eq, inArray } from 'drizzle-orm';
+import { creatorMembers, invitations } from '../../infrastructure/database/schemas/creator-member-schema';
+import { eq, and, isNull, inArray } from 'drizzle-orm';
 import { z } from 'zod';
 import { getDatabase } from '../../infrastructure/database/DatabaseConnectionFactory';
 import type { OrganizationController } from '../controllers/OrganizationController';
@@ -408,7 +409,7 @@ export function registerOrganizationRoutes(router: Router, deps: OrganizationRou
     }
   });
 
-  // List members following the current user (as creator)
+  // List members following the current user (as creator) — enriched with user details + invitation info
   // GET /api/creator-members/members
   router.get('/creator-members/members', serviceAuthMiddleware({ required: true }), async (req, res) => {
     try {
@@ -418,17 +419,75 @@ export function registerOrganizationRoutes(router: Router, deps: OrganizationRou
         return;
       }
 
-      const { CreatorMemberRepository } = await import('../../infrastructure/repositories/CreatorMemberRepository');
-      const repo = new CreatorMemberRepository(db);
-      const relationships = await repo.getMembers(userId);
+      // Fetch active relationships where this user is the creator
+      const relationships = await db
+        .select({
+          memberId: creatorMembers.memberId,
+          invitationId: creatorMembers.invitationId,
+          status: creatorMembers.status,
+          followedAt: creatorMembers.createdAt,
+        })
+        .from(creatorMembers)
+        .where(
+          and(
+            eq(creatorMembers.creatorId, userId),
+            eq(creatorMembers.status, 'active'),
+            isNull(creatorMembers.deletedAt)
+          )
+        );
 
-      // Filter out self-relationship from the list
-      const members = relationships
-        .filter(r => r.memberId !== userId)
-        .map(r => ({
+      // Filter out self-relationship
+      const filtered = relationships.filter(r => r.memberId !== userId);
+
+      if (filtered.length === 0) {
+        sendSuccess(res, []);
+        return;
+      }
+
+      // Batch-fetch member user details (same pattern as /following endpoint)
+      const memberIds = filtered.map(r => r.memberId);
+      const memberRows = await db
+        .select({
+          id: users.id,
+          email: users.email,
+          metadata: users.metadata,
+          profile: users.profile,
+        })
+        .from(users)
+        .where(inArray(users.id, memberIds));
+
+      const memberMap: Record<string, (typeof memberRows)[0]> = {};
+      for (const row of memberRows) {
+        memberMap[row.id] = row;
+      }
+
+      // Batch-fetch invitation tokens for members that joined via invitation
+      const invitationIds = filtered.map(r => r.invitationId).filter((id): id is string => id !== null);
+      const invitationMap: Record<string, string> = {};
+      if (invitationIds.length > 0) {
+        const invitationRows = await db
+          .select({ id: invitations.id, token: invitations.token })
+          .from(invitations)
+          .where(inArray(invitations.id, invitationIds));
+        for (const row of invitationRows) {
+          invitationMap[row.id] = row.token;
+        }
+      }
+
+      const members = filtered.map(r => {
+        const member = memberMap[r.memberId];
+        const meta = member?.metadata as { displayName?: string } | null;
+        const profile = member?.profile as { avatar?: string } | null;
+        return {
           memberId: r.memberId,
-          followedAt: r.createdAt,
-        }));
+          memberName: meta?.displayName || null,
+          memberEmail: member?.email || null,
+          memberAvatar: profile?.avatar || null,
+          status: r.status,
+          followedAt: r.followedAt,
+          invitationToken: r.invitationId ? invitationMap[r.invitationId] || null : null,
+        };
+      });
 
       sendSuccess(res, members);
     } catch (error) {

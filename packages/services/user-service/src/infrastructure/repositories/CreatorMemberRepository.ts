@@ -3,7 +3,7 @@
  * Handles creator-member relationships for the unified content access model
  */
 
-import { eq, and, sql, isNull } from 'drizzle-orm';
+import { eq, and, sql, isNull, inArray } from 'drizzle-orm';
 import { createLogger, serializeError } from '@aiponge/platform-core';
 import { ProfileError } from '../../application/errors/errors';
 import type { DatabaseConnection } from '../database/DatabaseConnectionFactory';
@@ -324,12 +324,13 @@ export class CreatorMemberRepository implements ICreatorMemberRepository {
           };
         }
 
-        // Step 5: Create relationship (within transaction)
+        // Step 5: Create relationship (within transaction), linking back to the invitation
         const [relationship] = await tx
           .insert(creatorMembers)
           .values({
             creatorId: invitation.creatorId,
             memberId,
+            invitationId: invitation.id,
             status: CREATOR_MEMBER_STATUS.ACTIVE,
           })
           .returning();

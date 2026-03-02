@@ -1,18 +1,21 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useTranslation } from '../../i18n';
 import { useThemeColors, type ColorScheme } from '../../theme';
 import { TabBar } from '../../components/shared/TabBar';
 import { InviteFriends } from './InviteFriendsScreen';
+import { MembersScreen } from './MembersScreen';
 import { FollowingScreen } from './FollowingScreen';
 
-type ShareTab = 'invite' | 'following';
+type ShareTab = 'invite' | 'members' | 'following';
 
 export function ShareScreen() {
   const { t } = useTranslation();
   const colors = useThemeColors();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const [activeTab, setActiveTab] = useState<ShareTab>('invite');
+
+  const navigateToMembers = useCallback(() => setActiveTab('members'), []);
 
   return (
     <View style={styles.container}>
@@ -23,6 +26,10 @@ export function ShareScreen() {
               id: 'invite',
               label: t('sharing.inviteFriends', { defaultValue: 'Invite Friends' }),
             },
+            {
+              id: 'members',
+              label: t('creatorMembers.members'),
+            },
             { id: 'following', label: t('settingsPage.following') },
           ]}
           activeTab={activeTab}
@@ -30,7 +37,8 @@ export function ShareScreen() {
           testIDPrefix="share-tab"
         />
       </View>
-      {activeTab === 'invite' && <InviteFriends />}
+      {activeTab === 'invite' && <InviteFriends onNavigateToMembers={navigateToMembers} />}
+      {activeTab === 'members' && <MembersScreen />}
       {activeTab === 'following' && <FollowingScreen />}
     </View>
   );
