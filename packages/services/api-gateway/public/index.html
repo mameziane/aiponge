@@ -16,12 +16,16 @@
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://aiponge.app" />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="supported-color-schemes" content="dark" />
     <link rel="icon" type="image/png" href="assets/icon.png" />
     <style>
       :root {
+        color-scheme: dark;
         --bg-primary: #1a0b2e;
         --bg-secondary: #2d1b4e;
         --bg-card: rgba(139, 92, 246, 0.08);
+        --bg-card-solid: #1f1040;
         --border-card: rgba(139, 92, 246, 0.2);
         --text-primary: #ffffff;
         --text-secondary: #b8a8d0;
@@ -40,11 +44,14 @@
 
       html {
         scroll-behavior: smooth;
+        background-color: #1a0b2e;
       }
 
       body {
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        background-color: #1a0b2e;
         background: var(--bg-primary);
+        color: #ffffff;
         color: var(--text-primary);
         line-height: 1.7;
         min-height: 100vh;
@@ -140,10 +147,16 @@
         right: 0;
         z-index: 100;
         padding: 16px 0;
-        background: rgba(26, 11, 46, 0.8);
-        backdrop-filter: blur(20px);
+        background-color: #1a0b2e;
+        background: rgba(26, 11, 46, 0.95);
         -webkit-backdrop-filter: blur(20px);
+        backdrop-filter: blur(20px);
         border-bottom: 1px solid rgba(139, 92, 246, 0.1);
+      }
+      @supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+        nav {
+          background: rgba(26, 11, 46, 0.8);
+        }
       }
       nav .container {
         display: flex;
@@ -216,12 +229,19 @@
         letter-spacing: -0.02em;
       }
       .hero h1 .gradient-text {
-        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-pink) 50%, var(--accent) 100%);
+        color: #8b5cf6;
+        background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 50%, #8b5cf6 100%);
         background-size: 200% auto;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
         animation: shimmer 4s linear infinite;
+      }
+      @supports not (-webkit-background-clip: text) {
+        .hero h1 .gradient-text {
+          background: none;
+          color: #a78bfa;
+        }
       }
       .hero-subtitle {
         font-size: clamp(1.05rem, 2.5vw, 1.25rem);
@@ -284,9 +304,10 @@
       }
       .store-badge.coming-soon {
         opacity: 0.85;
+        background-color: #2d1b4e;
         background: rgba(255, 255, 255, 0.1);
-        color: var(--text-primary);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+        border: 1px solid rgba(255, 255, 255, 0.25);
         cursor: default;
       }
       .store-badge.coming-soon:hover {
@@ -349,7 +370,8 @@
         line-height: 1.3;
       }
       .gap-statement .highlight {
-        background: linear-gradient(135deg, var(--accent), var(--accent-pink));
+        color: #a78bfa;
+        background: linear-gradient(135deg, #8b5cf6, #ec4899);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -366,6 +388,7 @@
         counter-reset: step;
       }
       .process-step {
+        background-color: var(--bg-card-solid);
         background: var(--bg-card);
         border: 1px solid var(--border-card);
         border-radius: 20px;
@@ -393,8 +416,9 @@
         width: 36px;
         height: 36px;
         border-radius: 50%;
-        background: linear-gradient(135deg, var(--accent), var(--accent-pink));
-        color: white;
+        background-color: #8b5cf6;
+        background: linear-gradient(135deg, #8b5cf6, #ec4899);
+        color: #ffffff;
         font-weight: 700;
         font-size: 1rem;
         flex-shrink: 0;
@@ -428,6 +452,7 @@
         gap: 24px;
       }
       .science-card {
+        background-color: var(--bg-card-solid);
         background: var(--bg-card);
         border: 1px solid var(--border-card);
         border-radius: 20px;
@@ -469,6 +494,7 @@
         padding: 56px 0;
       }
       .transformation-inner {
+        background-color: #1f1040;
         background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(236, 72, 153, 0.08) 100%);
         border: 1px solid rgba(139, 92, 246, 0.2);
         border-radius: 28px;
@@ -504,14 +530,16 @@
         max-width: 340px;
       }
       .identity-before {
-        color: var(--text-muted);
+        color: #8b7aa8;
+        background-color: #1a1030;
         background: rgba(255, 255, 255, 0.04);
         border: 1px solid rgba(255, 255, 255, 0.08);
         text-decoration: line-through;
         text-decoration-color: rgba(239, 68, 68, 0.5);
       }
       .identity-after {
-        color: var(--text-primary);
+        color: #ffffff;
+        background-color: #261548;
         background: rgba(139, 92, 246, 0.15);
         border: 1px solid rgba(139, 92, 246, 0.3);
         font-weight: 600;
@@ -539,22 +567,34 @@
         text-align: center;
       }
       .lang-grid {
-        display: flex;
-        justify-content: center;
-        flex-wrap: wrap;
-        gap: 20px;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
         margin-top: 32px;
+        max-width: 560px;
+        margin-left: auto;
+        margin-right: auto;
       }
       .lang-item {
         display: flex;
-        flex-direction: column;
         align-items: center;
         gap: 10px;
-        width: 120px;
       }
-      .lang-flag {
-        font-size: 2.8rem;
-        line-height: 1;
+      .lang-code {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background-color: var(--bg-card-solid);
+        background: var(--bg-card);
+        border: 1px solid var(--border-card);
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--accent-hover);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
       }
       .lang-name {
         font-size: 0.85rem;
@@ -628,6 +668,9 @@
         }
         .science-grid {
           grid-template-columns: 1fr;
+        }
+        .lang-grid {
+          grid-template-columns: repeat(2, 1fr);
         }
         .transformation-inner {
           padding: 40px 24px;
@@ -849,32 +892,36 @@
           </p>
           <div class="lang-grid">
             <div class="lang-item">
-              <span class="lang-flag">&#127468;&#127463;</span>
+              <span class="lang-code">EN</span>
               <span class="lang-name">English</span>
             </div>
             <div class="lang-item">
-              <span class="lang-flag">&#127467;&#127479;</span>
+              <span class="lang-code">FR</span>
               <span class="lang-name">Fran&ccedil;ais</span>
             </div>
             <div class="lang-item">
-              <span class="lang-flag">&#127466;&#127480;</span>
+              <span class="lang-code">ES</span>
               <span class="lang-name">Espa&ntilde;ol</span>
             </div>
             <div class="lang-item">
-              <span class="lang-flag">&#127465;&#127466;</span>
+              <span class="lang-code">DE</span>
               <span class="lang-name">Deutsch</span>
             </div>
             <div class="lang-item">
-              <span class="lang-flag">&#127463;&#127479;</span>
+              <span class="lang-code">PT</span>
               <span class="lang-name">Portugu&ecirc;s</span>
             </div>
             <div class="lang-item">
-              <span class="lang-flag">&#127474;&#127462;</span>
+              <span class="lang-code">AR</span>
               <span class="lang-name">&#1575;&#1604;&#1593;&#1585;&#1576;&#1610;&#1577;</span>
             </div>
             <div class="lang-item">
-              <span class="lang-flag">&#127471;&#127477;</span>
+              <span class="lang-code">JA</span>
               <span class="lang-name">&#26085;&#26412;&#35486;</span>
+            </div>
+            <div class="lang-item">
+              <span class="lang-code">HI</span>
+              <span class="lang-name">&#2361;&#2367;&#2344;&#2381;&#2342;&#2368;</span>
             </div>
           </div>
         </div>

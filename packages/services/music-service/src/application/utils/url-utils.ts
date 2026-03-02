@@ -8,48 +8,15 @@ import { getLogger, getServiceUrl } from '../../config/service-urls';
 const logger = getLogger('music-service-url-utils');
 
 /**
- * Detect Replit external domain from environment variables
- * Matches frontend detection logic for consistency
- */
-function detectReplitDomain(): string | null {
-  // Priority 1: REPLIT_DOMAINS (most reliable in production)
-  if (process.env.REPLIT_DOMAINS) {
-    return process.env.REPLIT_DOMAINS;
-  }
-
-  // Priority 2: REPLIT_DEV_DOMAIN (fallback)
-  if (process.env.REPLIT_DEV_DOMAIN) {
-    return process.env.REPLIT_DEV_DOMAIN;
-  }
-
-  return null;
-}
-
-/**
- * Get API Gateway URL with Replit domain detection for mobile device access
- * When running in Replit, returns external domain instead of localhost
+ * Get API Gateway URL for constructing absolute media URLs
  */
 function getExternalApiGatewayUrl(): string {
-  // Try to get Replit external domain
-  const replitDomain = detectReplitDomain();
-
-  if (replitDomain) {
-    // Use HTTPS for external Replit domains
-    const gatewayUrl = `https://${replitDomain}`;
-    logger.debug('Using Replit external domain for URLs: {}', { data0: gatewayUrl });
-    return gatewayUrl;
-  }
-
-  // Fallback to local service URL config for local development
   return getServiceUrl('api-gateway');
 }
 
 /**
  * Convert relative URL to absolute URL using API Gateway
  * Returns absolute URL if already absolute, or prepends API Gateway URL if relative
- *
- * When running in Replit, uses the external domain for mobile device access.
- * Otherwise, uses localhost for local development.
  */
 export function toAbsoluteUrl(relativeUrl: string | null | undefined): string | undefined {
   if (!relativeUrl) return undefined;

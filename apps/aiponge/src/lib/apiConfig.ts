@@ -16,29 +16,12 @@ let cachedApiUrl: string | null = null;
 let hasLoggedApiUrl = false;
 
 /**
- * Detect Replit public URL from environment variables
- * Replit exposes REPL_SLUG and REPL_OWNER which can be used to construct the public URL
- */
-const detectReplitUrl = (): string | null => {
-  if (typeof process !== 'undefined' && process.env) {
-    const replSlug = process.env.REPL_SLUG;
-    const replOwner = process.env.REPL_OWNER;
-
-    if (replSlug && replOwner) {
-      return `https://${replSlug}.${replOwner}.repl.co`;
-    }
-  }
-  return null;
-};
-
-/**
  * Get API Gateway URL based on environment
  *
  * Priority order:
  * 1. EXPO_PUBLIC_API_URL environment variable (production override)
- * 2. Auto-detect based on current hostname (Replit dev URLs)
- * 3. Detect from Replit environment variables (REPL_SLUG + REPL_OWNER)
- * 4. Fallback to localhost for local development
+ * 2. Auto-detect based on current hostname (browser)
+ * 3. Fallback to localhost for local development
  */
 export const getApiGatewayUrl = (): string => {
   // Return cached URL if available
@@ -58,13 +41,8 @@ export const getApiGatewayUrl = (): string => {
   else if (typeof window !== 'undefined' && window.location) {
     const hostname = window.location.hostname;
 
-    // Replit preview URL pattern
-    if (hostname.includes('.repl.co') || hostname.includes('.replit.dev')) {
-      detectedUrl = window.location.origin;
-      source = 'Browser (Replit)';
-    }
     // Production domain
-    else if (hostname.includes('aiponge.com') || hostname.includes('aiponge.app')) {
+    if (hostname.includes('aiponge.com') || hostname.includes('aiponge.app')) {
       detectedUrl = window.location.origin;
       source = 'Browser (Production)';
     }
@@ -79,16 +57,10 @@ export const getApiGatewayUrl = (): string => {
       source = 'Browser (Fallback)';
     }
   }
-  // 3. React Native / Expo - Detect from Replit environment
+  // 3. React Native / Expo - fallback to localhost
   else {
-    const replitUrl = detectReplitUrl();
-    if (replitUrl) {
-      detectedUrl = replitUrl;
-      source = 'Replit Env Vars';
-    } else {
-      detectedUrl = 'http://localhost:8080';
-      source = 'Fallback';
-    }
+    detectedUrl = 'http://localhost:8080';
+    source = 'Fallback';
   }
 
   // Cache the result

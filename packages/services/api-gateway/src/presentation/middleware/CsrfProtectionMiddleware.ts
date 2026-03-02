@@ -33,16 +33,6 @@ function getAllowedOrigins(): string[] {
   origins.push(frontendUrl);
   origins.push(frontendUrl.replace('http://', 'https://'));
 
-  if (process.env.REPLIT_DOMAINS) {
-    process.env.REPLIT_DOMAINS.split(',').forEach(domain => {
-      origins.push(`https://${domain.trim()}`);
-    });
-  }
-
-  if (process.env.REPLIT_DEV_DOMAIN) {
-    origins.push(`https://${process.env.REPLIT_DEV_DOMAIN}`);
-  }
-
   return origins;
 }
 

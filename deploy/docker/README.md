@@ -8,7 +8,6 @@ This directory contains Docker infrastructure files that integrate with Aiponge'
 | --------------------------- | ---------------------------------------------------------------------------------- |
 | `docker-compose.common.yml` | Shared base: infrastructure services, common env anchors, base service definitions |
 | `docker-compose.yml`        | Development overlay: build-from-source, source volumes, Jaeger tracing             |
-| `docker-compose.prod.yml`   | Production overlay: pre-built images, resource limits, secrets                     |
 | `Dockerfile.service`        | Generic Dockerfile for all microservices                                           |
 
 ## Quick Start

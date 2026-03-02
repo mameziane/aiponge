@@ -18,51 +18,22 @@ interface ResendCredentials {
   fromEmail: string;
 }
 
-async function getCredentials(): Promise<ResendCredentials> {
-  const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME;
-  const xReplitToken = process.env.REPL_IDENTITY
-    ? 'repl ' + process.env.REPL_IDENTITY
-    : process.env.WEB_REPL_RENEWAL
-      ? 'depl ' + process.env.WEB_REPL_RENEWAL
-      : null;
-
-  if (!xReplitToken || !hostname) {
-    throw AuthError.internalError('Replit connector token not available');
-  }
-
-  const response = await fetch(
-    'https://' + hostname + '/api/v2/connection?include_secrets=true&connector_names=resend',
-    {
-      headers: {
-        Accept: 'application/json',
-        X_REPLIT_TOKEN: xReplitToken,
-      },
-      signal: AbortSignal.timeout(10000),
-    }
-  );
-
-  const data = await response.json();
-  const connectionSettings = data.items?.[0];
-
-  if (!connectionSettings) {
-    throw AuthError.internalError('Resend not connected');
-  }
-
-  const settings = connectionSettings.settings;
-  if (!settings?.api_key) {
-    throw AuthError.internalError('Resend API key not configured');
+function getCredentials(): ResendCredentials {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    throw AuthError.internalError('RESEND_API_KEY environment variable is not configured');
   }
 
   return {
-    apiKey: settings.api_key,
-    fromEmail: settings.from_email || 'onboarding@resend.dev',
+    apiKey,
+    fromEmail: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
   };
 }
 
 class EmailService {
-  async isConfigured(): Promise<boolean> {
+  isConfigured(): boolean {
     try {
-      await getCredentials();
+      getCredentials();
       return true;
     } catch {
       return false;
@@ -260,7 +231,7 @@ Open the aiponge app and claim your gift to start creating!
 
   private async send(options: EmailOptions): Promise<{ success: boolean; error?: string }> {
     try {
-      const { apiKey, fromEmail } = await getCredentials();
+      const { apiKey, fromEmail } = getCredentials();
 
       const response = await fetch(RESEND_API_URL, {
         method: 'POST',

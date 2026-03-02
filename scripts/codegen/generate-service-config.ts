@@ -44,10 +44,7 @@ function generateServiceConfig(): ExpoServiceConfig {
   const environment = process.env.NODE_ENV === 'production' ? 'production' : 'development';
   const apiGatewayPort = extractApiGatewayPort();
 
-  // Detect Replit environment and use external dev URL for mobile compatibility
-  // IMPORTANT: Replit dev domains handle port routing internally - don't append port to HTTPS URLs
-  const replitDevDomain = process.env.REPLIT_DEV_DOMAIN;
-  const apiGatewayUrl = replitDevDomain ? `https://${replitDevDomain}` : `http://localhost:${apiGatewayPort}`;
+  const apiGatewayUrl = process.env.EXPO_PUBLIC_API_URL || `http://localhost:${apiGatewayPort}`;
 
   return {
     apiGatewayUrl,
@@ -138,9 +135,9 @@ export function getApiGatewayUrl(): string {
     return process.env.EXPO_PUBLIC_API_URL;
   }
   
-  // 2. Browser/Frontend: use Replit dev URL (browsers can't access localhost from Replit preview)
+  // 2. Browser/Frontend: use configured gateway URL
   if (typeof window !== 'undefined') {
-    return endpoints.apiGateway.url; // https://xxx.replit.dev:8080
+    return endpoints.apiGateway.url;
   }
   
   // 3. Server/Node: use localhost for internal calls

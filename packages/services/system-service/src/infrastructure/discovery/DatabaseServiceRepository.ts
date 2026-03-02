@@ -85,9 +85,8 @@ export class DatabaseServiceRepository {
     }
     this.healthCheckingStarted = true;
     const healthConfig = getHealthCheckConfig();
-    const interval = process.env.REPLIT_DEPLOYMENT
-      ? healthConfig.interval.production
-      : healthConfig.interval.development;
+    const interval =
+      process.env.NODE_ENV === 'production' ? healthConfig.interval.production : healthConfig.interval.development;
     this.healthCheckScheduler = createIntervalScheduler({
       name: 'db-service-health-check',
       serviceName: 'system-service',

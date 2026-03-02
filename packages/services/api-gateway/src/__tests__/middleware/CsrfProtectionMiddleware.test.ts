@@ -83,8 +83,6 @@ function createMockRes() {
 describe('CsrfProtectionMiddleware', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    delete process.env.REPLIT_DOMAINS;
-    delete process.env.REPLIT_DEV_DOMAIN;
   });
 
   describe('csrfProtectionMiddleware', () => {
