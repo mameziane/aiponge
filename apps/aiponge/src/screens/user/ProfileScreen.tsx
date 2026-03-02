@@ -53,9 +53,9 @@ export const ProfileScreen: React.FC = () => {
 
   const PROFILE_TABS: TabConfig[] = useMemo(
     () => [
-      { id: 'basics', label: t('profile.personalInfo'), icon: 'person-outline' },
-      { id: 'preferences', label: t('profile.songPreferences'), icon: 'musical-notes-outline' },
-      { id: 'privacy', label: t('profile.privacyData'), icon: 'shield-outline' },
+      { id: 'basics', label: t('profile.personalInfo') },
+      { id: 'preferences', label: t('profile.songPreferences') },
+      { id: 'privacy', label: t('profile.privacyData') },
     ],
     [t]
   );
@@ -88,26 +88,29 @@ export const ProfileScreen: React.FC = () => {
         <View style={styles.tabContainer}>
           <TabBar tabs={PROFILE_TABS} activeTab={activeTab} onTabChange={handleTabChange} testIDPrefix="profile-tab" />
 
-          {activeTab === 'basics' && profileData && (
-            <ProfileBasicsTab
-              profileData={profileData}
-              profileForm={profileForm}
-              setProfileForm={setProfileForm}
-              onNameSave={handleNameSave}
-              avatarUrl={currentAvatarUrl}
-              birthdate={currentBirthdate}
-              email={currentEmail}
-              onAvatarChange={handleAvatarChange}
-              onBirthdateChange={handleBirthdateChange}
-              isSavingAvatar={isSavingAvatar}
-              isSavingBirthdate={isSavingBirthdate}
-              onSaveComplete={() => router.back()}
-            />
-          )}
+          {activeTab === 'basics' &&
+            (profileData ? (
+              <ProfileBasicsTab
+                profileData={profileData}
+                profileForm={profileForm}
+                setProfileForm={setProfileForm}
+                onNameSave={handleNameSave}
+                avatarUrl={currentAvatarUrl}
+                birthdate={currentBirthdate}
+                email={currentEmail}
+                onAvatarChange={handleAvatarChange}
+                onBirthdateChange={handleBirthdateChange}
+                isSavingAvatar={isSavingAvatar}
+                isSavingBirthdate={isSavingBirthdate}
+                onSaveComplete={() => router.back()}
+              />
+            ) : (
+              <LoadingState />
+            ))}
 
           {activeTab === 'preferences' && <SongPreferencesTab />}
 
-          {activeTab === 'privacy' && userId && <PrivacyDataTab userId={userId} />}
+          {activeTab === 'privacy' && (userId ? <PrivacyDataTab userId={userId} /> : <LoadingState />)}
         </View>
       </ScrollView>
     </View>

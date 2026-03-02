@@ -12,7 +12,7 @@ import { BORDER_RADIUS } from '../../theme/constants';
 export interface TabConfig {
   id: string;
   label: string;
-  icon: keyof typeof Ionicons.glyphMap;
+  icon?: keyof typeof Ionicons.glyphMap;
 }
 
 interface TabBarProps {
@@ -24,7 +24,8 @@ interface TabBarProps {
 
 export function TabBar({ tabs, activeTab, onTabChange, testIDPrefix = 'tab' }: TabBarProps) {
   const colors = useThemeColors();
-  const styles = useMemo(() => createStyles(colors), [colors]);
+  const hasIcons = tabs.some(tab => tab.icon);
+  const styles = useMemo(() => createStyles(colors, hasIcons), [colors, hasIcons]);
 
   return (
     <View style={styles.tabsList}>
@@ -38,7 +39,9 @@ export function TabBar({ tabs, activeTab, onTabChange, testIDPrefix = 'tab' }: T
             testID={`${testIDPrefix}-${tab.id}`}
             data-testid={`${testIDPrefix}-${tab.id}`}
           >
-            <Ionicons name={tab.icon} size={16} color={isActive ? colors.absolute.white : colors.text.secondary} />
+            {tab.icon && (
+              <Ionicons name={tab.icon} size={16} color={isActive ? colors.absolute.white : colors.text.secondary} />
+            )}
             <Text style={[styles.tabTriggerText, isActive && styles.tabTriggerTextActive]} numberOfLines={1}>
               {tab.label}
             </Text>
@@ -49,31 +52,31 @@ export function TabBar({ tabs, activeTab, onTabChange, testIDPrefix = 'tab' }: T
   );
 }
 
-const createStyles = (colors: ColorScheme) =>
+const createStyles = (colors: ColorScheme, hasIcons: boolean) =>
   StyleSheet.create({
     tabsList: {
       flexDirection: 'row',
       backgroundColor: colors.background.secondary,
-      borderRadius: BORDER_RADIUS.sm,
+      borderRadius: hasIcons ? BORDER_RADIUS.sm : BORDER_RADIUS.xl,
       padding: 4,
       marginBottom: 16,
-      gap: 2,
+      gap: hasIcons ? 2 : 8,
     },
     tabTrigger: {
       flex: 1,
       flexDirection: 'column',
       alignItems: 'center',
       paddingVertical: 10,
-      paddingHorizontal: 4,
-      borderRadius: 6,
-      gap: 4,
+      paddingHorizontal: hasIcons ? 4 : 12,
+      borderRadius: hasIcons ? 6 : BORDER_RADIUS.xl,
+      gap: hasIcons ? 4 : 0,
       minWidth: 0,
     },
     tabTriggerActive: {
       backgroundColor: colors.brand.primary,
     },
     tabTriggerText: {
-      fontSize: 11,
+      fontSize: hasIcons ? 11 : 13,
       color: colors.text.secondary,
       fontWeight: '500',
       textAlign: 'center',

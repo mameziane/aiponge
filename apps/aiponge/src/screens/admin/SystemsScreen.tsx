@@ -6,15 +6,13 @@ import { useTranslation } from 'react-i18next';
 import { useThemeColors, commonStyles, BORDER_RADIUS, type ColorScheme } from '../../theme';
 import { AdminSubTabBar } from '../../components/admin/AdminDashboard/AdminSubTabBar';
 import { AdminPromptsSection } from '../../components/admin/AdminDashboard/AdminPromptsSection';
-import { AdminTemplatesSection } from '../../components/admin/AdminDashboard/AdminTemplatesSection';
 import { AdminFrameworksSection } from '../../components/admin/AdminDashboard/AdminFrameworksSection';
 import { AdminProvidersSection } from '../../components/admin/AdminDashboard/AdminProvidersSection';
 
-type SubTab = 'prompts' | 'templates' | 'frameworks' | 'settings' | 'providers';
+type SubTab = 'prompts' | 'frameworks' | 'settings' | 'providers';
 
 const SUB_TABS = [
   { id: 'prompts', label: 'admin.tabs.prompts' },
-  { id: 'templates', label: 'admin.tabs.templates' },
   { id: 'frameworks', label: 'admin.tabs.frameworks' },
   { id: 'settings', label: 'admin.tabs.settings' },
   { id: 'providers', label: 'admin.tabs.providers' },
@@ -68,7 +66,6 @@ export default function SystemsScreen() {
         }
       >
         {activeTab === 'prompts' && <AdminPromptsSection key={`prompts-${refreshKey}`} />}
-        {activeTab === 'templates' && <AdminTemplatesSection key={`templates-${refreshKey}`} />}
         {activeTab === 'frameworks' && <AdminFrameworksSection key={`frameworks-${refreshKey}`} />}
         {activeTab === 'settings' && (
           <View style={styles.comingSoon}>

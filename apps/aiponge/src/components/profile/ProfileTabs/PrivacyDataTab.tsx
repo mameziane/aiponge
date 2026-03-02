@@ -27,8 +27,27 @@ export const PrivacyDataTab: React.FC<PrivacyDataTabProps> = ({ userId }) => {
   const handleExportData = async () => {
     setIsExporting(true);
     try {
-      const data = await apiRequest('/api/v1/app/privacy/export');
+      // Step 1: Fetch user data from API
+      let data: unknown;
+      try {
+        data = await apiRequest('/api/v1/app/privacy/export');
+      } catch (apiError) {
+        const err = apiError as Error & { response?: { status?: number } };
+        logger.error('Data export API call failed', { userId, status: err.response?.status, error: err.message });
+        if (err.response?.status === 429) {
+          Alert.alert(
+            t('common.error'),
+            t('privacy.exportRateLimited', {
+              defaultValue: 'Export is limited to once per hour. Please try again later.',
+            })
+          );
+        } else {
+          Alert.alert(t('common.error'), t('privacy.exportFailed'));
+        }
+        return;
+      }
 
+      // Step 2: Write to file and share
       const jsonString = JSON.stringify(data, null, 2);
       const fileName = `aiponge-data-export-${new Date().toISOString().split('T')[0]}.json`;
 
@@ -49,7 +68,7 @@ export const PrivacyDataTab: React.FC<PrivacyDataTabProps> = ({ userId }) => {
 
       logger.info('Data export completed successfully', { userId });
     } catch (error) {
-      logger.error('Data export failed', { userId, error });
+      logger.error('Data export file write/share failed', { userId, error });
       Alert.alert(t('common.error'), t('privacy.exportFailed'));
     } finally {
       setIsExporting(false);

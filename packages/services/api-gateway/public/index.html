@@ -369,8 +369,8 @@
         background: var(--bg-card);
         border: 1px solid var(--border-card);
         border-radius: 20px;
-        padding: 32px 24px;
-        text-align: center;
+        padding: 28px 24px;
+        text-align: left;
         position: relative;
         transition:
           transform 0.25s,
@@ -380,28 +380,34 @@
         transform: translateY(-4px);
         border-color: rgba(139, 92, 246, 0.4);
       }
+      .step-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
       .step-number {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 44px;
-        height: 44px;
+        width: 36px;
+        height: 36px;
         border-radius: 50%;
         background: linear-gradient(135deg, var(--accent), var(--accent-pink));
         color: white;
         font-weight: 700;
-        font-size: 1.1rem;
-        margin-bottom: 18px;
-      }
-      .step-icon {
-        font-size: 2rem;
-        margin-bottom: 14px;
+        font-size: 1rem;
+        flex-shrink: 0;
       }
       .process-step h3 {
         font-size: 1.1rem;
         font-weight: 600;
-        margin-bottom: 10px;
         color: var(--text-primary);
+        flex: 1;
+      }
+      .step-icon {
+        font-size: 1.6rem;
+        flex-shrink: 0;
       }
       .process-step p {
         color: var(--text-secondary);
@@ -742,27 +748,35 @@
           </p>
           <div class="process-grid">
             <div class="process-step">
-              <div class="step-number">1</div>
-              <div class="step-icon">&#9997;&#65039;</div>
-              <h3>Write</h3>
+              <div class="step-header">
+                <div class="step-number">1</div>
+                <h3>Write</h3>
+                <div class="step-icon">&#9997;&#65039;</div>
+              </div>
               <p>Express your narrative in your own words. Voice or text &mdash; in any of 7 languages.</p>
             </div>
             <div class="process-step">
-              <div class="step-number">2</div>
-              <div class="step-icon">&#128269;</div>
-              <h3>Identify</h3>
+              <div class="step-header">
+                <div class="step-number">2</div>
+                <h3>Identify</h3>
+                <div class="step-icon">&#128269;</div>
+              </div>
               <p>AI separates the difficulty from your identity. Your struggle is not who you are.</p>
             </div>
             <div class="process-step">
-              <div class="step-number">3</div>
-              <div class="step-icon">&#10024;</div>
-              <h3>Rewrite</h3>
+              <div class="step-header">
+                <div class="step-number">3</div>
+                <h3>Rewrite</h3>
+                <div class="step-icon">&#10024;</div>
+              </div>
               <p>Discover your moments of strength. AI helps craft a new narrative around them.</p>
             </div>
             <div class="process-step">
-              <div class="step-number">4</div>
-              <div class="step-icon">&#127925;</div>
-              <h3>Encode</h3>
+              <div class="step-header">
+                <div class="step-number">4</div>
+                <h3>Encode</h3>
+                <div class="step-icon">&#127925;</div>
+              </div>
               <p>Your new story becomes personalized music. Listen daily &mdash; the change anchors in your body.</p>
             </div>
           </div>

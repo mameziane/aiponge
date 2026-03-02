@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { useFocusEffect } from 'expo-router';
 import {
   View,
@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
   RefreshControl,
   Modal,
+  TextInput,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useThemeColors, type ColorScheme, commonStyles, BORDER_RADIUS } from '../../theme';
@@ -41,6 +42,9 @@ export function BookListScreen({ embedded = false, externalCreateTrigger, onStud
   const [cloneTarget, setCloneTarget] = useState<BookCardData | null>(null);
   const [actionTarget, setActionTarget] = useState<BookCardData | null>(null);
   const [showLanguagePicker, setShowLanguagePicker] = useState(false);
+  const [isSearchActive, setIsSearchActive] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const searchInputRef = useRef<TextInput>(null);
 
   useEffect(() => {
     if (externalCreateTrigger && externalCreateTrigger > 0) {
@@ -110,15 +114,65 @@ export function BookListScreen({ embedded = false, externalCreateTrigger, onStud
   const selectedLanguageLabel =
     languageOptions.find(o => o.value === data.selectedLanguage)?.label || languageOptions[0].label;
 
+  const filteredBooks = useMemo(() => {
+    if (!searchQuery.trim()) return data.unifiedBooks;
+    const q = searchQuery.toLowerCase().trim();
+    return data.unifiedBooks.filter(
+      book =>
+        book.title.toLowerCase().includes(q) ||
+        book.author?.toLowerCase().includes(q) ||
+        book.description?.toLowerCase().includes(q)
+    );
+  }, [data.unifiedBooks, searchQuery]);
+
+  const handleSearchToggle = useCallback(() => {
+    if (isSearchActive) {
+      setSearchQuery('');
+      setIsSearchActive(false);
+    } else {
+      setIsSearchActive(true);
+      setTimeout(() => searchInputRef.current?.focus(), 100);
+    }
+  }, [isSearchActive]);
+
   return (
     <View style={[styles.container, embedded && styles.containerEmbedded]}>
       {!embedded && (
         <View style={styles.header}>
-          <TouchableOpacity style={styles.backButton} onPress={mutations.handleBack}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={isSearchActive ? handleSearchToggle : mutations.handleBack}
+          >
             <Ionicons name="arrow-back" size={24} color={colors.text.primary} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>{t('library.title') || 'Books'}</Text>
-          <View style={styles.headerSpacer} />
+          {isSearchActive ? (
+            <View style={styles.searchInputRow}>
+              <TextInput
+                ref={searchInputRef}
+                style={styles.searchInput}
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                placeholder={t('library.searchPlaceholder', { defaultValue: 'Search books...' })}
+                placeholderTextColor={colors.text.tertiary}
+                autoCapitalize="none"
+                autoCorrect={false}
+                returnKeyType="search"
+                testID="input-book-search"
+              />
+              {searchQuery.length > 0 && (
+                <TouchableOpacity onPress={() => setSearchQuery('')} hitSlop={8}>
+                  <Ionicons name="close-circle" size={20} color={colors.text.tertiary} />
+                </TouchableOpacity>
+              )}
+            </View>
+          ) : (
+            <>
+              <Text style={styles.headerTitle}>{t('library.title') || 'Books'}</Text>
+              <TouchableOpacity style={styles.searchButton} onPress={handleSearchToggle} testID="button-book-search">
+                <Ionicons name="search" size={22} color={colors.text.primary} />
+              </TouchableOpacity>
+            </>
+          )}
         </View>
       )}
 
@@ -215,15 +269,23 @@ export function BookListScreen({ embedded = false, externalCreateTrigger, onStud
 
       {data.isLoading ? (
         <LoadingState message={t('library.loadingBooks') || 'Loading books...'} />
-      ) : data.unifiedBooks.length === 0 ? (
+      ) : filteredBooks.length === 0 ? (
         <EmptyState
           icon="book-outline"
-          title={t('library.noBooks') || 'No books found'}
-          description={t('library.checkBackSoon') || 'Check back soon for new content'}
+          title={
+            searchQuery
+              ? t('library.noSearchResults', { defaultValue: 'No matching books' })
+              : t('library.noBooks') || 'No books found'
+          }
+          description={
+            searchQuery
+              ? t('library.tryDifferentSearch', { defaultValue: 'Try a different search term' })
+              : t('library.checkBackSoon') || 'Check back soon for new content'
+          }
         />
       ) : (
         <FlatList
-          data={data.unifiedBooks}
+          data={filteredBooks}
           renderItem={renderGridItem}
           keyExtractor={(item, index) => item.id || `fallback-${index}`}
           numColumns={3}
@@ -368,8 +430,24 @@ const createStyles = (colors: ColorScheme) =>
       fontFamily: fontFamilies.body.bold,
       color: colors.text.primary,
     },
-    headerSpacer: {
-      width: 40,
+    searchButton: {
+      padding: 8,
+    },
+    searchInputRow: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.background.secondary,
+      borderRadius: BORDER_RADIUS.md,
+      paddingHorizontal: 12,
+      gap: 8,
+      height: 40,
+    },
+    searchInput: {
+      flex: 1,
+      fontSize: 16,
+      color: colors.text.primary,
+      paddingVertical: 0,
     },
     typeTabContainer: {
       borderBottomWidth: 1,

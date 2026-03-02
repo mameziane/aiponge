@@ -31,6 +31,7 @@ export interface PsychologicalFramework {
   triggerPatterns: string[];
   enabled: boolean;
   songStructureHint?: string;
+  sortOrder?: number;
 }
 
 export const FRAMEWORK_CATEGORIES = [
@@ -61,6 +62,7 @@ interface RawFramework {
   isEnabled?: boolean;
   enabled?: boolean;
   songStructureHint?: string;
+  sortOrder?: number;
 }
 
 interface UseFrameworksResult {
@@ -93,6 +95,7 @@ export function useFrameworks(): UseFrameworksResult {
           triggerPatterns: f.triggerPatterns || [],
           enabled: f.isEnabled ?? f.enabled ?? true,
           songStructureHint: f.songStructureHint || undefined,
+          sortOrder: f.sortOrder,
         })
       ),
     staleTime: QUERY_STALE_TIME.long,

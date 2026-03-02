@@ -43,10 +43,10 @@ const DAY_LABELS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 const createReminderTypeConfig = (
   colors: ColorScheme
 ): Record<ReminderType, { label: string; icon: IconName; color: string }> => ({
-  [REMINDER_TYPES.BOOK]: { label: 'Book', icon: 'book-outline', color: colors.brand.primary },
+  [REMINDER_TYPES.BOOK]: { label: 'Reading', icon: 'book-outline', color: colors.reminder.reading },
   [REMINDER_TYPES.READING]: { label: 'Reading', icon: 'book-outline', color: colors.reminder.reading },
   [REMINDER_TYPES.LISTENING]: { label: 'Listening', icon: 'headset-outline', color: colors.reminder.listening },
-  [REMINDER_TYPES.MEDITATION]: { label: 'Meditation', icon: 'leaf-outline', color: colors.reminder.meditation },
+  [REMINDER_TYPES.MEDITATION]: { label: 'Listening', icon: 'headset-outline', color: colors.reminder.listening },
 });
 
 interface FilterOption {
@@ -56,10 +56,8 @@ interface FilterOption {
 
 const FILTER_OPTIONS: FilterOption[] = [
   { value: 'all', label: 'All Reminders' },
-  { value: REMINDER_TYPES.BOOK, label: 'Book' },
   { value: REMINDER_TYPES.READING, label: 'Reading' },
   { value: REMINDER_TYPES.LISTENING, label: 'Listening' },
-  { value: REMINDER_TYPES.MEDITATION, label: 'Meditation' },
 ];
 
 export function RemindersScreen() {
@@ -211,7 +209,7 @@ export function RemindersScreen() {
   };
 
   const getTypeConfig = (type: ReminderType) => {
-    return REMINDER_TYPE_CONFIG[type] || REMINDER_TYPE_CONFIG.book;
+    return REMINDER_TYPE_CONFIG[type] || REMINDER_TYPE_CONFIG.reading;
   };
 
   const renderReminder = ({ item: reminder }: { item: Reminder }) => {
@@ -299,10 +297,6 @@ export function RemindersScreen() {
       <Ionicons name="notifications-off-outline" size={64} color={colors.text.tertiary} />
       <Text style={styles.emptyTitle}>{t('reminders.noReminders')}</Text>
       <Text style={styles.emptySubtitle}>{t('reminders.noRemindersDesc')}</Text>
-      <Pressable style={styles.emptyButton} onPress={handleAddReminder} testID="button-add-first-reminder">
-        <Ionicons name="add" size={20} color={colors.text.primary} />
-        <Text style={styles.emptyButtonText}>{t('reminders.addReminder')}</Text>
-      </Pressable>
     </View>
   );
 
@@ -312,9 +306,6 @@ export function RemindersScreen() {
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>{t('reminders.title')}</Text>
-        <Pressable style={styles.addButton} onPress={handleAddReminder} testID="button-add-reminder">
-          <Ionicons name="add" size={24} color={colors.text.primary} />
-        </Pressable>
       </View>
 
       <Text style={styles.headerSubtitle}>{t('reminders.subtitle')}</Text>
@@ -374,6 +365,16 @@ export function RemindersScreen() {
         />
       )}
 
+      {/* Footer bar with centered + Reminder button */}
+      <View style={styles.footerBar}>
+        <Pressable style={styles.footerAddButton} onPress={handleAddReminder} testID="button-add-reminder">
+          <View style={styles.footerAddIcon}>
+            <Ionicons name="add" size={28} color={colors.absolute.white} />
+          </View>
+          <Text style={styles.footerAddLabel}>{t('reminders.reminder', { defaultValue: 'Reminder' })}</Text>
+        </Pressable>
+      </View>
+
       <ReminderModal
         visible={showModal}
         onClose={handleModalClose}
@@ -409,14 +410,6 @@ const createStyles = (colors: ColorScheme) =>
       color: colors.text.secondary,
       paddingHorizontal: 20,
       marginBottom: 12,
-    },
-    addButton: {
-      width: 44,
-      height: 44,
-      borderRadius: 22,
-      backgroundColor: colors.brand.primary,
-      justifyContent: 'center',
-      alignItems: 'center',
     },
     filterContainer: {
       paddingHorizontal: 20,
@@ -474,14 +467,9 @@ const createStyles = (colors: ColorScheme) =>
       color: colors.brand.primary,
       fontWeight: '600',
     },
-    loadingState: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
     listContent: {
       padding: 16,
-      paddingBottom: 32,
+      paddingBottom: 100,
       flexGrow: 1,
     },
     reminderCard: {
@@ -607,19 +595,30 @@ const createStyles = (colors: ColorScheme) =>
       marginBottom: 24,
       lineHeight: 20,
     },
-    emptyButton: {
-      flexDirection: 'row',
+    footerBar: {
+      borderTopWidth: 1,
+      borderTopColor: colors.border.muted,
+      backgroundColor: colors.background.primary,
+      paddingVertical: 8,
+      paddingHorizontal: 20,
       alignItems: 'center',
-      gap: 8,
-      backgroundColor: colors.brand.primary,
-      paddingVertical: 14,
-      paddingHorizontal: 24,
-      borderRadius: BORDER_RADIUS.md,
     },
-    emptyButtonText: {
-      fontSize: 16,
-      fontWeight: '600',
-      color: colors.text.primary,
+    footerAddButton: {
+      alignItems: 'center',
+      gap: 4,
+    },
+    footerAddIcon: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      backgroundColor: colors.brand.primary,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    footerAddLabel: {
+      fontSize: 11,
+      fontWeight: '500',
+      color: colors.text.secondary,
     },
   });
 

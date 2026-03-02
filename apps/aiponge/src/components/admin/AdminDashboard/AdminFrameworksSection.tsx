@@ -282,6 +282,12 @@ export function AdminFrameworksSection() {
                           selectedFramework.category}
                       </Text>
                     </View>
+                    <View style={styles.categoryBadge}>
+                      <Ionicons name="swap-vertical-outline" size={14} color={colors.text.secondary} />
+                      <Text style={styles.categoryBadgeText}>
+                        {t('admin.frameworks.sortOrder')}: {selectedFramework.sortOrder ?? '—'}
+                      </Text>
+                    </View>
                   </View>
                 </View>
 
