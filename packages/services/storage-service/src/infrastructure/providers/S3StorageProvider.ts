@@ -203,6 +203,16 @@ export class S3StorageProvider implements IStorageProvider {
         error: 'No data received from S3',
       };
     } catch (error) {
+      // NoSuchKey is an expected "not found" — log at warn, not error
+      const errorName = error instanceof Error ? (error as Error & { name?: string }).name : undefined;
+      if (errorName === 'NoSuchKey') {
+        logger.warn('S3 key does not exist', { path, bucket: this.config.bucket });
+        return {
+          success: false,
+          error: `Key not found: ${path}`,
+        };
+      }
+
       const { error: wrappedError, correlationId } = logAndTrackError(
         error,
         'S3 file download operation failed',
