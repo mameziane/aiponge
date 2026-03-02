@@ -20,7 +20,7 @@ packages/services/
   ai-content-service/      → Content generation, prompt templates (port 3005)
   ai-analytics-service/    → Usage analytics, metrics (port 3006)
   music-service/           → Music generation, streaming (port 3007)
-deploy/                    → Docker, Terraform, docker-compose
+deploy/                    → Docker (local dev), dev scripts, db utilities
 ```
 
 ## Commands
@@ -154,7 +154,7 @@ Each service owns its tables with prefix: `usr_*`, `lib_*`, `mus_*`, `stg_*`, `s
 **Frontend:** Expo 54, React Native 0.81, React 19, Expo Router v6, NativeWind, Zustand, React Query, RevenueCat
 **AI:** OpenAI, Anthropic, Stability AI, ElevenLabs, MusicAPI.ai
 **Build:** Turborepo, esbuild, Metro
-**Deploy:** Docker (parametric multi-stage), Terraform, AWS ECS, GitHub Actions, EAS
+**Deploy:** Railway (Railpack), Docker (local dev), GitHub Actions, EAS
 **Testing:** Vitest, supertest, k6 load testing
 
 ## Database

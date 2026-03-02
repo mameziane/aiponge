@@ -1369,3 +1369,29 @@ export function resolveBookTypeColor(
   };
   return colorMap[colorKey];
 }
+
+/**
+ * Returns a distinct color for each book-type category.
+ * Used for both category card icons and as the shared icon color
+ * for all book types within that category.
+ */
+export function getCategoryColor(
+  categoryId: BookTypeCategory,
+  colors: {
+    brand: { primary: string; pink: string; cyan: string };
+    semantic: { info: string; success: string; warning: string; error: string };
+    social: { gold: string };
+  }
+): string {
+  const map: Record<BookTypeCategory, string> = {
+    [BOOK_TYPE_CATEGORIES.PERSONAL_REFLECTION]: colors.brand.primary,
+    [BOOK_TYPE_CATEGORIES.WELLNESS_MINDFULNESS]: colors.semantic.success,
+    [BOOK_TYPE_CATEGORIES.STORY_IDENTITY]: colors.semantic.info,
+    [BOOK_TYPE_CATEGORIES.THINKING_CHOICE]: colors.semantic.warning,
+    [BOOK_TYPE_CATEGORIES.EMOTION_REGULATION]: colors.brand.pink,
+    [BOOK_TYPE_CATEGORIES.MOTIVATION_ACTION]: colors.semantic.error,
+    [BOOK_TYPE_CATEGORIES.KNOWLEDGE_WISDOM]: colors.social.gold,
+    [BOOK_TYPE_CATEGORIES.CREATIVE_WRITING]: colors.brand.cyan,
+  };
+  return map[categoryId] ?? colors.brand.primary;
+}

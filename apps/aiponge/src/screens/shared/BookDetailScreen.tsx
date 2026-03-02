@@ -300,7 +300,7 @@ export function BookDetailScreen({ mode = 'view' }: BookDetailScreenProps) {
     return viewBookResult.book;
   }, [isManageMode, manageBookResult.book, manageBookResult.chapters, viewBookResult.book]);
 
-  const { generatePDF, printBook, isGenerating, isPrinting } = useBookPDF(book);
+  const { generatePDF, printBook, isGenerating, isPrinting, printAvailable } = useBookPDF(book);
 
   const isOwner = useMemo(() => {
     if (isManageMode) return true;
@@ -504,20 +504,32 @@ export function BookDetailScreen({ mode = 'view' }: BookDetailScreenProps) {
             {t('librarian.books.manageBook') || 'Manage Book'}
           </Text>
           <View style={styles.headerActions}>
-            <TouchableOpacity style={styles.headerIconBtn} onPress={printBook} disabled={isPrinting || isGenerating}>
-              {isPrinting ? (
-                <ActivityIndicator size="small" color={colors.text.secondary} />
-              ) : (
-                <Ionicons name="print-outline" size={20} color={colors.text.secondary} />
-              )}
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.headerIconBtn} onPress={generatePDF} disabled={isGenerating || isPrinting}>
-              {isGenerating ? (
-                <ActivityIndicator size="small" color={colors.text.secondary} />
-              ) : (
-                <Ionicons name="document-outline" size={20} color={colors.text.secondary} />
-              )}
-            </TouchableOpacity>
+            {printAvailable && (
+              <>
+                <TouchableOpacity
+                  style={styles.headerIconBtn}
+                  onPress={printBook}
+                  disabled={isPrinting || isGenerating}
+                >
+                  {isPrinting ? (
+                    <ActivityIndicator size="small" color={colors.text.secondary} />
+                  ) : (
+                    <Ionicons name="print-outline" size={20} color={colors.text.secondary} />
+                  )}
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.headerIconBtn}
+                  onPress={generatePDF}
+                  disabled={isGenerating || isPrinting}
+                >
+                  {isGenerating ? (
+                    <ActivityIndicator size="small" color={colors.text.secondary} />
+                  ) : (
+                    <Ionicons name="document-outline" size={20} color={colors.text.secondary} />
+                  )}
+                </TouchableOpacity>
+              </>
+            )}
             {book.status !== 'active' && (
               <TouchableOpacity
                 onPress={handlePublish}
@@ -547,20 +559,24 @@ export function BookDetailScreen({ mode = 'view' }: BookDetailScreenProps) {
                 <Ionicons name="copy-outline" size={22} color={colors.text.primary} />
               </TouchableOpacity>
             )}
-            <TouchableOpacity style={styles.saveButton} onPress={printBook} disabled={isPrinting || isGenerating}>
-              {isPrinting ? (
-                <ActivityIndicator size="small" color={colors.text.primary} />
-              ) : (
-                <Ionicons name="print-outline" size={22} color={colors.text.primary} />
-              )}
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.saveButton} onPress={generatePDF} disabled={isGenerating || isPrinting}>
-              {isGenerating ? (
-                <ActivityIndicator size="small" color={colors.text.primary} />
-              ) : (
-                <Ionicons name="document-outline" size={22} color={colors.text.primary} />
-              )}
-            </TouchableOpacity>
+            {printAvailable && (
+              <>
+                <TouchableOpacity style={styles.saveButton} onPress={printBook} disabled={isPrinting || isGenerating}>
+                  {isPrinting ? (
+                    <ActivityIndicator size="small" color={colors.text.primary} />
+                  ) : (
+                    <Ionicons name="print-outline" size={22} color={colors.text.primary} />
+                  )}
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.saveButton} onPress={generatePDF} disabled={isGenerating || isPrinting}>
+                  {isGenerating ? (
+                    <ActivityIndicator size="small" color={colors.text.primary} />
+                  ) : (
+                    <Ionicons name="document-outline" size={22} color={colors.text.primary} />
+                  )}
+                </TouchableOpacity>
+              </>
+            )}
             <TouchableOpacity
               style={styles.saveButton}
               onPress={handleToggleSave}

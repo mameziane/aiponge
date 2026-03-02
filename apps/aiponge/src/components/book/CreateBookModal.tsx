@@ -12,7 +12,7 @@ import {
   BOOK_TYPES_SORTED,
   BOOK_TYPE_CATEGORY_CONFIGS,
   getBookTypesForCategory,
-  resolveBookTypeColor,
+  getCategoryColor,
   type BookTypeId,
   type BookTypeConfig,
   type BookTypeCategoryConfig,
@@ -38,13 +38,46 @@ interface CreateBookModalProps {
 
 type ModalStep = 'pick-category' | 'pick-type' | 'create';
 
-function CategoryTile({
+function CategoryRow({ config, onPress }: { config: BookTypeCategoryConfig; onPress: () => void }) {
+  const { t } = useTranslation();
+  const colors = useThemeColors();
+  const typePickerStyles = useMemo(() => createTypePickerStyles(colors), [colors]);
+  const categoryColor = getCategoryColor(config.id, colors);
+
+  return (
+    <TouchableOpacity
+      style={typePickerStyles.categoryRow}
+      onPress={onPress}
+      activeOpacity={0.7}
+      testID={`book-category-tile-${config.id}`}
+    >
+      <View style={[typePickerStyles.tileIconWrap, { backgroundColor: categoryColor, marginBottom: 0 }]}>
+        <Ionicons
+          name={config.icon as ComponentProps<typeof Ionicons>['name']}
+          size={22}
+          color={colors.absolute.white}
+        />
+      </View>
+      <View style={typePickerStyles.categoryRowText}>
+        <Text style={typePickerStyles.tileName} numberOfLines={1}>
+          {t(config.nameKey)}
+        </Text>
+        <Text style={typePickerStyles.tileDesc} numberOfLines={2}>
+          {t(config.descriptionKey)}
+        </Text>
+      </View>
+      <Ionicons name="chevron-forward" size={18} color={colors.text.tertiary} />
+    </TouchableOpacity>
+  );
+}
+
+function BookTypeTile({
   config,
-  typeCount,
+  categoryColor,
   onPress,
 }: {
-  config: BookTypeCategoryConfig;
-  typeCount: number;
+  config: BookTypeConfig;
+  categoryColor: string;
   onPress: () => void;
 }) {
   const { t } = useTranslation();
@@ -56,43 +89,14 @@ function CategoryTile({
       style={typePickerStyles.tile}
       onPress={onPress}
       activeOpacity={0.7}
-      testID={`book-category-tile-${config.id}`}
-    >
-      <View style={[typePickerStyles.tileIconWrap, { backgroundColor: colors.brand.primary + '15' }]}>
-        <Ionicons
-          name={config.icon as ComponentProps<typeof Ionicons>['name']}
-          size={24}
-          color={colors.brand.primary}
-        />
-      </View>
-      <Text style={typePickerStyles.tileName} numberOfLines={1}>
-        {t(config.nameKey)}
-      </Text>
-      <Text style={typePickerStyles.tileDesc} numberOfLines={2}>
-        {t(config.descriptionKey)}
-      </Text>
-      <Text style={typePickerStyles.tileCount}>
-        {typeCount} {typeCount === 1 ? t('common.type', 'type') : t('common.types', 'types')}
-      </Text>
-    </TouchableOpacity>
-  );
-}
-
-function BookTypeTile({ config, onPress }: { config: BookTypeConfig; onPress: () => void }) {
-  const { t } = useTranslation();
-  const colors = useThemeColors();
-  const typePickerStyles = useMemo(() => createTypePickerStyles(colors), [colors]);
-  const accentColor = resolveBookTypeColor(config.colorKey, colors);
-
-  return (
-    <TouchableOpacity
-      style={typePickerStyles.tile}
-      onPress={onPress}
-      activeOpacity={0.7}
       testID={`book-type-tile-${config.id}`}
     >
-      <View style={[typePickerStyles.tileIconWrap, { backgroundColor: accentColor + '20' }]}>
-        <Ionicons name={config.icon as ComponentProps<typeof Ionicons>['name']} size={24} color={accentColor} />
+      <View style={[typePickerStyles.tileIconWrap, { backgroundColor: categoryColor }]}>
+        <Ionicons
+          name={config.icon as ComponentProps<typeof Ionicons>['name']}
+          size={22}
+          color={colors.absolute.white}
+        />
       </View>
       <Text style={typePickerStyles.tileName} numberOfLines={1}>
         {t(config.nameKey)}
@@ -219,16 +223,9 @@ export function CreateBookModal({
               <>
                 <Text style={typePickerStyles.title}>{t('books.chooseCategory', 'Choose a category')}</Text>
                 <ScrollView style={typePickerStyles.grid} showsVerticalScrollIndicator={false}>
-                  <View style={typePickerStyles.gridInner}>
-                    {BOOK_TYPE_CATEGORY_CONFIGS.map(cat => (
-                      <CategoryTile
-                        key={cat.id}
-                        config={cat}
-                        typeCount={getBookTypesForCategory(cat.id).length}
-                        onPress={() => handleSelectCategory(cat.id)}
-                      />
-                    ))}
-                  </View>
+                  {BOOK_TYPE_CATEGORY_CONFIGS.map(cat => (
+                    <CategoryRow key={cat.id} config={cat} onPress={() => handleSelectCategory(cat.id)} />
+                  ))}
                 </ScrollView>
                 <TouchableOpacity style={styles.cancelButton} onPress={onClose} testID="button-cancel-category-picker">
                   <Text style={styles.cancelButtonText}>{t('common.cancel')}</Text>
@@ -254,7 +251,14 @@ export function CreateBookModal({
                 <ScrollView style={typePickerStyles.grid} showsVerticalScrollIndicator={false}>
                   <View style={typePickerStyles.gridInner}>
                     {filteredBookTypes.map(config => (
-                      <BookTypeTile key={config.id} config={config} onPress={() => handleSelectType(config.id)} />
+                      <BookTypeTile
+                        key={config.id}
+                        config={config}
+                        categoryColor={
+                          selectedCategory ? getCategoryColor(selectedCategory, colors) : colors.brand.primary
+                        }
+                        onPress={() => handleSelectType(config.id)}
+                      />
                     ))}
                   </View>
                 </ScrollView>
@@ -394,6 +398,20 @@ const createTypePickerStyles = (colors: ColorScheme) =>
       justifyContent: 'space-between',
       gap: 10,
     },
+    categoryRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.background.subtle,
+      borderRadius: BORDER_RADIUS.md,
+      padding: 12,
+      marginBottom: 8,
+      borderWidth: 1,
+      borderColor: colors.border.muted,
+      gap: 12,
+    },
+    categoryRowText: {
+      flex: 1,
+    },
     tile: {
       width: '48%',
       backgroundColor: colors.background.subtle,
@@ -403,9 +421,9 @@ const createTypePickerStyles = (colors: ColorScheme) =>
       borderColor: colors.border.muted,
     },
     tileIconWrap: {
-      width: 44,
-      height: 44,
-      borderRadius: BORDER_RADIUS.md,
+      width: 40,
+      height: 40,
+      borderRadius: 12,
       alignItems: 'center',
       justifyContent: 'center',
       marginBottom: 10,
@@ -414,18 +432,12 @@ const createTypePickerStyles = (colors: ColorScheme) =>
       fontSize: 14,
       fontWeight: '600',
       color: colors.text.primary,
-      marginBottom: 4,
+      marginBottom: 2,
     },
     tileDesc: {
       fontSize: 11,
       color: colors.text.tertiary,
       lineHeight: 15,
-    },
-    tileCount: {
-      fontSize: 10,
-      color: colors.text.tertiary,
-      marginTop: 6,
-      fontWeight: '500',
     },
     createHeader: {
       flexDirection: 'row',

@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system/legacy';
+import { Alert, NativeModules } from 'react-native';
 
 // expo-print is imported lazily inside each function that uses it.
 // A top-level import causes 'Cannot find native module ExpoPrint' to throw
@@ -8,7 +9,33 @@ import * as FileSystem from 'expo-file-system/legacy';
 // cascades into an Expo Router ErrorBoundary failure.
 // Lazy require means the error only surfaces when the user taps Print/Export,
 // where it can be caught and shown as an Alert rather than a route crash.
+//
+// IMPORTANT: We must also verify the native module is linked before calling
+// any expo-print API. On the New Architecture (TurboModules), calling an
+// unlinked native module causes a fatal crash that JS try/catch cannot catch.
+
+/** Check whether the ExpoPrint native module is linked into the binary. */
+function isPrintAvailable(): boolean {
+  // expo-modules-core registers modules on globalThis.__expo_module_registry__ (new arch)
+  // or via NativeModules (old arch). Check both paths.
+  const hasNewArch =
+    typeof globalThis !== 'undefined' && (globalThis as Record<string, unknown>).__expo_module_registry__ != null;
+  if (hasNewArch) {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const mod = require('expo-print');
+      // If the module loaded but the native side is missing, printAsync will be undefined
+      return typeof mod?.printAsync === 'function';
+    } catch {
+      return false;
+    }
+  }
+  // Old architecture fallback
+  return NativeModules.ExpoPrint != null;
+}
+
 function getPrint() {
+  if (!isPrintAvailable()) return null;
   try {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     return require('expo-print') as typeof import('expo-print');
@@ -16,7 +43,6 @@ function getPrint() {
     return null;
   }
 }
-import { Alert } from 'react-native';
 import { apiClient } from '../../lib/axiosApiClient';
 import { normalizeMediaUrl } from '../../lib/apiConfig';
 import { parseContentBlocks } from '../../components/book/richTextParser';
@@ -573,5 +599,7 @@ export function useBookPDF(book: BookDisplay | null) {
     }
   }, [book, collectData]);
 
-  return { generatePDF, printBook, isGenerating, isPrinting };
+  const printAvailable = isPrintAvailable();
+
+  return { generatePDF, printBook, isGenerating, isPrinting, printAvailable };
 }
