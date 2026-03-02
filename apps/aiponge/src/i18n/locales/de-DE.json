@@ -492,7 +492,8 @@
       "title": "Abrechnungszeitraum",
       "weekly": "Wöchentlich",
       "monthly": "Monatlich",
-      "annual": "Jährlich"
+      "annual": "Jährlich",
+      "yearly": "Jährlich"
     },
     "savings": {
       "savePercent": "{{percent}}% sparen",

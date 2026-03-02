@@ -464,7 +464,8 @@
       "title": "فترة الفوترة",
       "weekly": "أسبوعي",
       "monthly": "شهري",
-      "annual": "سنوي"
+      "annual": "سنوي",
+      "yearly": "سنوي"
     },
     "savings": {
       "savePercent": "وفر {{percent}}%",

@@ -277,16 +277,25 @@ export class SubscriptionRepository implements ISubscriptionRepository {
       return false;
     }
 
-    // Check if entitlement matches (case-insensitive)
+    // Check if entitlement matches exactly (case-insensitive)
     if (subscription.entitlementId?.toLowerCase() === entitlement.toLowerCase()) {
       return true;
     }
 
+    // Hierarchical entitlement check: studio ⊇ practice ⊇ personal
+    // A higher tier grants access to all lower-tier entitlements, but NOT vice versa
+    const TIER_LEVELS: Record<string, number> = {
+      [TIER_IDS.PERSONAL]: 1,
+      [TIER_IDS.PRACTICE]: 2,
+      [TIER_IDS.STUDIO]: 3,
+    };
+
     const normalizedTier = normalizeTier(subscription.subscriptionTier);
-    if (
-      ([TIER_IDS.PERSONAL, TIER_IDS.PRACTICE, TIER_IDS.STUDIO] as string[]).includes(entitlement.toLowerCase()) &&
-      isPaidTier(normalizedTier)
-    ) {
+    const userTierLevel = TIER_LEVELS[normalizedTier] ?? 0;
+    const requiredLevel = TIER_LEVELS[entitlement.toLowerCase()] ?? 0;
+
+    // Only grant if the user's tier level is >= the required entitlement level
+    if (requiredLevel > 0 && userTierLevel >= requiredLevel) {
       return true;
     }
 
@@ -334,8 +343,27 @@ export class SubscriptionRepository implements ISubscriptionRepository {
       subscription = await this.getSubscriptionByUserId(app_user_id);
 
       if (!subscription) {
-        logger.warn('Subscription not found for webhook', { app_user_id });
-        return;
+        // For INITIAL_PURCHASE, auto-create the subscription so we don't lose the event.
+        // For other event types, log an error — the subscription should already exist.
+        if (type === 'INITIAL_PURCHASE') {
+          logger.info('Auto-creating subscription from webhook for new user', { app_user_id, product_id });
+          const determinedTier = normalizeTier(this.determineTierFromProduct(product_id, entitlement_ids));
+          subscription = await this.createSubscription({
+            userId: app_user_id,
+            revenueCatCustomerId: app_user_id,
+            subscriptionTier: determinedTier,
+            platform: store || null,
+            productId: product_id,
+            entitlementId: entitlement_ids?.[0] || null,
+          });
+        } else {
+          logger.error('Subscription not found for webhook — event will be lost', {
+            app_user_id,
+            eventType: type,
+            product_id,
+          });
+          throw BillingError.notFound('Subscription', app_user_id);
+        }
       }
     }
 
@@ -415,7 +443,7 @@ export class SubscriptionRepository implements ISubscriptionRepository {
    * Creates subscription record + initial usage tracking
    */
   async initializeUserSubscription(userId: string): Promise<Subscription> {
-    logger.info('Initializing explorer tier subscription', { userId });
+    logger.info('Initializing explorer tier subscription for registered user', { userId });
 
     const existingSubscription = await this.getSubscriptionByUserId(userId);
     if (existingSubscription) {
@@ -423,9 +451,11 @@ export class SubscriptionRepository implements ISubscriptionRepository {
       return existingSubscription;
     }
 
+    // Registered users start as EXPLORER (free with account).
+    // GUEST is reserved for anonymous/unregistered users on the client.
     const subscription = await this.createSubscription({
       userId,
-      subscriptionTier: TIER_IDS.GUEST,
+      subscriptionTier: TIER_IDS.EXPLORER,
     });
 
     await this.getCurrentUsage(userId);

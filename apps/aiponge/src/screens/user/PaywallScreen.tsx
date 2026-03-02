@@ -52,7 +52,7 @@ function parsePeriod(
 
       if (unit === 'Y' || (unit === 'M' && num >= 12)) {
         return {
-          billingPeriod: 'annual',
+          billingPeriod: 'yearly',
           displayPeriod: num === 1 || (unit === 'M' && num === 12) ? 'year' : `${num} years`,
         };
       }
@@ -63,7 +63,7 @@ function parsePeriod(
   if (productId) {
     const id = productId.toLowerCase();
     if (id.includes('yearly') || id.includes('annual')) {
-      return { billingPeriod: 'annual', displayPeriod: 'year' };
+      return { billingPeriod: 'yearly', displayPeriod: 'year' };
     }
   }
 
@@ -129,7 +129,7 @@ export function PaywallScreen() {
       }
     });
 
-    const sortOrder: BillingPeriod[] = ['monthly', 'annual'];
+    const sortOrder: BillingPeriod[] = ['monthly', 'yearly'];
     const sortFn = (a: PackageInfo, b: PackageInfo) =>
       sortOrder.indexOf(a.billingPeriod) - sortOrder.indexOf(b.billingPeriod);
 
@@ -220,13 +220,13 @@ export function PaywallScreen() {
     switch (period) {
       case 'monthly':
         return t('subscription.perMonth');
-      case 'annual':
+      case 'yearly':
         return t('subscription.perYear');
     }
   };
 
   const getPeriodBadge = (period: BillingPeriod) => {
-    if (period === 'annual') return t('subscription.savings.bestValue');
+    if (period === 'yearly') return t('subscription.savings.bestValue');
     return t('subscription.savings.mostPopular');
   };
 
@@ -322,7 +322,7 @@ export function PaywallScreen() {
                   </Text>
                   <Text
                     style={[
-                      period === 'annual' ? styles.periodBadgeSavings : styles.periodBadge,
+                      period === 'yearly' ? styles.periodBadgeSavings : styles.periodBadge,
                       selectedBillingPeriod === period && styles.periodBadgeActive,
                     ]}
                   >
@@ -343,7 +343,7 @@ export function PaywallScreen() {
                   <Ionicons name={getTierDisplay(selectedTier).icon} size={24} color={colors.brand.purple[400]} />
                   <Text style={styles.tierName}>{t(`subscription.tiers.${selectedTier}.name`)}</Text>
                 </View>
-                {getTierDisplay(selectedTier).showRecommendedBadge && selectedBillingPeriod === 'annual' && (
+                {getTierDisplay(selectedTier).showRecommendedBadge && selectedBillingPeriod === 'yearly' && (
                   <View style={styles.recommendedBadge}>
                     <Text style={styles.recommendedText}>{t('paywall.recommended')}</Text>
                   </View>
@@ -364,7 +364,7 @@ export function PaywallScreen() {
                 )}
               </View>
 
-              {selectedPackage?.billingPeriod === 'annual' && (
+              {selectedPackage?.billingPeriod === 'yearly' && (
                 <Text style={styles.savingsText}>{t('subscription.savings.savePercent', { percent: '37' })}</Text>
               )}
 

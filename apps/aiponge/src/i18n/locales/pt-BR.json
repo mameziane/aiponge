@@ -492,7 +492,8 @@
       "title": "Período de Cobrança",
       "weekly": "Semanal",
       "monthly": "Mensal",
-      "annual": "Anual"
+      "annual": "Anual",
+      "yearly": "Anual"
     },
     "savings": {
       "savePercent": "Economize {{percent}}%",

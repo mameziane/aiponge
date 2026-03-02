@@ -170,6 +170,27 @@ router.get(
   })
 );
 
+// Mount RevenueCat webhook proxy BEFORE JWT middleware (uses its own Bearer token auth)
+router.post(
+  '/subscriptions/webhook/revenuecat',
+  wrapAsync(async (req, res) => {
+    const requestId = (req.headers['x-request-id'] as string) || 'unknown';
+    const userServiceUrl = ServiceLocator.getServiceUrl('user-service');
+    const response = await gatewayFetch(`${userServiceUrl}/api/subscriptions/webhook/revenuecat`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-request-id': requestId,
+        // Forward the Authorization header for webhook secret verification
+        ...(req.headers.authorization ? { Authorization: req.headers.authorization } : {}),
+      },
+      body: JSON.stringify(req.body),
+    });
+    const data = (await response.json()) as Record<string, unknown>;
+    res.status(response.status).json(data);
+  })
+);
+
 // Apply JWT authentication to all member routes
 // This verifies JWT tokens and sets x-user-id header for downstream services
 router.use(jwtAuthMiddleware);

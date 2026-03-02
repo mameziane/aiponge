@@ -492,7 +492,8 @@
       "title": "Période de Facturation",
       "weekly": "Hebdomadaire",
       "monthly": "Mensuel",
-      "annual": "Annuel"
+      "annual": "Annuel",
+      "yearly": "Annuel"
     },
     "savings": {
       "savePercent": "Économisez {{percent}}%",

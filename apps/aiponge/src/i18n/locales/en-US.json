@@ -491,7 +491,8 @@
       "title": "Billing Period",
       "weekly": "Weekly",
       "monthly": "Monthly",
-      "annual": "Annual"
+      "annual": "Annual",
+      "yearly": "Annual"
     },
     "savings": {
       "savePercent": "Save {{percent}}%",

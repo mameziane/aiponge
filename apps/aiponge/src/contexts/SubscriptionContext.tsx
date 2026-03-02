@@ -309,17 +309,42 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
 
         try {
           const availableOfferings = await Purchases.getOfferings();
-          if (availableOfferings.current) {
+
+          // Strategy: merge packages from named tier offerings (personal, practice, studio)
+          // into a single unified offering so the paywall can display all tiers.
+          // Falls back to the "current" offering if named offerings don't exist.
+          const namedTierOfferings = ['personal', 'practice', 'studio']
+            .map(name => availableOfferings.all[name])
+            .filter(Boolean);
+
+          if (namedTierOfferings.length > 0) {
+            // Merge all tier packages into a synthetic offering
+            const mergedPackages = namedTierOfferings.flatMap(o => o!.availablePackages);
+            const syntheticOffering = {
+              ...namedTierOfferings[0]!,
+              identifier: 'merged_subscriptions',
+              availablePackages: mergedPackages,
+            } as PurchasesOffering;
+            setOfferings(syntheticOffering);
+            logger.info('RevenueCat: Loaded offerings from named tier offerings', {
+              tiers: namedTierOfferings.map(o => o!.identifier),
+              packageCount: mergedPackages.length,
+            });
+          } else if (availableOfferings.current) {
+            // Fallback: single "current" offering contains all products
             setOfferings(availableOfferings.current);
+            logger.info('RevenueCat: Loaded offerings from current offering', {
+              packageCount: availableOfferings.current.availablePackages.length,
+            });
           } else {
-            logger.warn('RevenueCat: No current offering found');
+            logger.warn('RevenueCat: No offerings found (neither named tiers nor current)');
           }
 
           // Fetch credits offering for consumable purchases
           if (availableOfferings.all['credits']) {
             setCreditsOffering(availableOfferings.all['credits']);
           } else {
-            logger.warn('RevenueCat: No credits offering found');
+            logger.debug('RevenueCat: No credits offering found');
           }
         } catch (offeringsError) {
           logger.warn('RevenueCat: getOfferings failed', { error: String(offeringsError) });
@@ -391,6 +416,9 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
 
         logger.info('Syncing subscription to backend...', { tier, productId, entitlementId });
 
+        // In production, subscription state is managed via RevenueCat webhooks.
+        // The /sync endpoint is only available in sandbox/dev for immediate feedback.
+        // Sync failure is non-critical — the webhook will reconcile state server-side.
         try {
           const syncResult = await apiRequest('/api/v1/app/subscriptions/sync', {
             method: 'POST',
@@ -402,15 +430,28 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
           });
           logger.info('Subscription synced to backend successfully', { tier, productId, syncResult });
         } catch (syncError: unknown) {
-          const syncErr = syncError as { message?: string; response?: { data?: { message?: string } } };
+          const syncErr = syncError as {
+            message?: string;
+            response?: { status?: number; data?: { message?: string } };
+          };
+          const status = syncErr?.response?.status;
           const errorMessage = syncErr?.message || syncErr?.response?.data?.message || String(syncError);
-          logger.error('Failed to sync subscription to backend', {
-            error: errorMessage,
-            tier,
-            productId,
-          });
-          if (__DEV__) {
-            Alert.alert('Sync Debug', `Sync failed: ${errorMessage}`);
+
+          if (status === 403) {
+            // Expected in production — sync is disabled, webhooks handle it
+            logger.info('Client sync disabled (production mode) — webhook will reconcile', {
+              tier,
+              productId,
+            });
+          } else {
+            logger.error('Failed to sync subscription to backend', {
+              error: errorMessage,
+              tier,
+              productId,
+            });
+            if (__DEV__) {
+              Alert.alert('Sync Debug', `Sync failed: ${errorMessage}`);
+            }
           }
         }
 
@@ -498,6 +539,35 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
       const isPaidNow = hasStudio || hasPractice || hasPersonal;
 
       if (isPaidNow) {
+        // Sync restored subscription to backend (mirrors purchasePackage behavior)
+        const tier = hasStudio ? TIER_IDS.STUDIO : hasPractice ? TIER_IDS.PRACTICE : TIER_IDS.PERSONAL;
+        const activeEntitlement =
+          info.entitlements.active[REVENUECAT_ENTITLEMENTS.STUDIO] ||
+          info.entitlements.active[REVENUECAT_ENTITLEMENTS.PRACTICE] ||
+          info.entitlements.active[REVENUECAT_ENTITLEMENTS.PERSONAL];
+        const productId = activeEntitlement?.productIdentifier || '';
+        const entitlementId = hasStudio
+          ? REVENUECAT_ENTITLEMENTS.STUDIO
+          : hasPractice
+            ? REVENUECAT_ENTITLEMENTS.PRACTICE
+            : REVENUECAT_ENTITLEMENTS.PERSONAL;
+
+        try {
+          await apiRequest('/api/v1/app/subscriptions/sync', {
+            method: 'POST',
+            data: { tier, productId, entitlementId },
+          });
+          logger.info('Restored subscription synced to backend', { tier, productId });
+        } catch (syncError: unknown) {
+          // Non-critical: in production, webhooks handle sync; in sandbox, this is a convenience
+          const syncErr = syncError as { response?: { status?: number } };
+          if (syncErr?.response?.status !== 403) {
+            logger.warn('Failed to sync restored subscription to backend (webhook will reconcile)', {
+              error: String(syncError),
+            });
+          }
+        }
+
         return true;
       } else {
         Alert.alert(
@@ -516,7 +586,10 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const showPaywall = useCallback(() => {}, []);
+  const showPaywall = useCallback(() => {
+    // Dynamic import to avoid circular dependency with expo-router
+    import('expo-router').then(({ router }) => router.push('/paywall')).catch(() => {});
+  }, []);
 
   const showCustomerCenter = useCallback(async () => {
     const { presentCustomerCenter } = await import('../components/commerce/CustomerCenter');

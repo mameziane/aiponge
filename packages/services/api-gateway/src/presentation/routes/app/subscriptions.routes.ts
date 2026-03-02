@@ -121,11 +121,25 @@ router.post(
  * Body: { tier, productId?, entitlementId? }
  * Tier validation is handled by user-service
  *
- * SECURITY NOTE: This endpoint is for SANDBOX/DEV testing only!
+ * SECURITY: This endpoint is restricted to non-production environments.
+ * In production, subscription state is managed exclusively via RevenueCat webhooks.
  */
 router.post(
   '/sync',
   injectAuthenticatedUserId,
+  (req, res, next) => {
+    if (process.env.NODE_ENV === 'production') {
+      res.status(403).json({
+        success: false,
+        error: {
+          code: 'SYNC_DISABLED_IN_PRODUCTION',
+          message: 'Client-side sync is disabled in production. Subscriptions are managed via webhooks.',
+        },
+      });
+      return;
+    }
+    next();
+  },
   createProxyHandler({
     service: SERVICE,
     path: req => `/api/subscriptions/${extractAuthContext(req).userId}`,
