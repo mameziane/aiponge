@@ -22,9 +22,8 @@ export function ShareScreen() {
             {
               id: 'invite',
               label: t('sharing.inviteFriends', { defaultValue: 'Invite Friends' }),
-              icon: 'gift-outline',
             },
-            { id: 'following', label: t('settingsPage.following'), icon: 'people-outline' },
+            { id: 'following', label: t('settingsPage.following') },
           ]}
           activeTab={activeTab}
           onTabChange={id => setActiveTab(id as ShareTab)}

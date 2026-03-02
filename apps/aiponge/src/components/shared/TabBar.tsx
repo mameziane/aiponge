@@ -1,19 +1,17 @@
 /**
  * Shared TabBar Component
  * Reusable horizontal tab navigation used across all screens.
- * Supports optional icons and auto-grid layout for >3 tabs.
+ * Pill-shaped segmented control style with auto-grid layout for >3 tabs.
  */
 
 import { useMemo } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useThemeColors, type ColorScheme } from '../../theme';
 import { BORDER_RADIUS } from '../../theme/constants';
 
 export interface TabConfig {
   id: string;
   label: string;
-  icon?: keyof typeof Ionicons.glyphMap;
   badge?: number;
 }
 
@@ -26,9 +24,8 @@ interface TabBarProps {
 
 export function TabBar({ tabs, activeTab, onTabChange, testIDPrefix = 'tab' }: TabBarProps) {
   const colors = useThemeColors();
-  const hasIcons = tabs.some(tab => tab.icon);
   const useGrid = tabs.length > 3;
-  const styles = useMemo(() => createStyles(colors, hasIcons), [colors, hasIcons]);
+  const styles = useMemo(() => createStyles(colors), [colors]);
 
   const renderTab = (tab: TabConfig) => {
     const isActive = activeTab === tab.id;
@@ -39,9 +36,6 @@ export function TabBar({ tabs, activeTab, onTabChange, testIDPrefix = 'tab' }: T
         onPress={() => onTabChange(tab.id)}
         testID={`${testIDPrefix}-${tab.id}`}
       >
-        {tab.icon && (
-          <Ionicons name={tab.icon} size={16} color={isActive ? colors.absolute.white : colors.text.secondary} />
-        )}
         <Text style={[styles.tabTriggerText, isActive && styles.tabTriggerTextActive]} numberOfLines={1}>
           {tab.label}
         </Text>
@@ -78,19 +72,19 @@ export function TabBar({ tabs, activeTab, onTabChange, testIDPrefix = 'tab' }: T
   return <View style={styles.tabsList}>{tabs.map(renderTab)}</View>;
 }
 
-const createStyles = (colors: ColorScheme, hasIcons: boolean) =>
+const createStyles = (colors: ColorScheme) =>
   StyleSheet.create({
     tabsList: {
       flexDirection: 'row',
       backgroundColor: colors.background.secondary,
-      borderRadius: hasIcons ? BORDER_RADIUS.sm : BORDER_RADIUS.xl,
+      borderRadius: BORDER_RADIUS.xl,
       padding: 4,
       marginBottom: 16,
-      gap: hasIcons ? 2 : 8,
+      gap: 8,
     },
     gridContainer: {
       backgroundColor: colors.background.secondary,
-      borderRadius: BORDER_RADIUS.sm,
+      borderRadius: BORDER_RADIUS.xl,
       padding: 4,
       marginBottom: 16,
       gap: 4,
@@ -104,19 +98,19 @@ const createStyles = (colors: ColorScheme, hasIcons: boolean) =>
     },
     tabTrigger: {
       flex: 1,
-      flexDirection: 'column',
+      flexDirection: 'row',
       alignItems: 'center',
+      justifyContent: 'center',
       paddingVertical: 10,
-      paddingHorizontal: hasIcons ? 4 : 12,
-      borderRadius: hasIcons ? 6 : BORDER_RADIUS.xl,
-      gap: hasIcons ? 4 : 0,
+      paddingHorizontal: 12,
+      borderRadius: BORDER_RADIUS.xl,
       minWidth: 0,
     },
     tabTriggerActive: {
       backgroundColor: colors.brand.primary,
     },
     tabTriggerText: {
-      fontSize: hasIcons ? 11 : 13,
+      fontSize: 13,
       color: colors.text.secondary,
       fontWeight: '500',
       textAlign: 'center',

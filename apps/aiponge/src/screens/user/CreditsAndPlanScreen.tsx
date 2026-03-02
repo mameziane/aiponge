@@ -29,9 +29,9 @@ export default function CreditsAndPlanScreen() {
 
   const TABS: TabConfig[] = useMemo(
     () => [
-      { id: 'plan', label: t('creditsAndPlan.myPlan'), icon: 'star-outline' },
-      { id: 'store', label: t('creditsAndPlan.getCredits'), icon: 'add-circle-outline' },
-      { id: 'history', label: t('creditsAndPlan.history'), icon: 'time-outline' },
+      { id: 'plan', label: t('creditsAndPlan.myPlan') },
+      { id: 'store', label: t('creditsAndPlan.getCredits') },
+      { id: 'history', label: t('creditsAndPlan.history') },
     ],
     [t]
   );

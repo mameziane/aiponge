@@ -95,6 +95,11 @@ export function AlbumsScreen() {
               <Text style={styles.albumTitle} numberOfLines={2}>
                 {album.title}
               </Text>
+              {!!album.displayName && (
+                <Text style={styles.albumAuthor} numberOfLines={1}>
+                  {album.displayName}
+                </Text>
+              )}
               {album.mood && (
                 <View style={styles.moodBadge}>
                   <Text style={styles.moodText}>{album.mood}</Text>
@@ -246,6 +251,11 @@ const createStyles = (colors: ColorScheme) =>
       fontSize: 16,
       fontWeight: '600',
       color: colors.text.primary,
+      marginBottom: 2,
+    },
+    albumAuthor: {
+      fontSize: 13,
+      color: colors.text.secondary,
       marginBottom: 2,
     },
     moodBadge: {

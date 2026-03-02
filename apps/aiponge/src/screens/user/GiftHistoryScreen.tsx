@@ -173,11 +173,10 @@ export default function GiftHistoryScreen() {
       <View style={styles.tabBarWrapper}>
         <TabBar
           tabs={[
-            { id: 'sent', label: t('credits.gifts.sentGifts'), icon: 'arrow-up-circle-outline' },
+            { id: 'sent', label: t('credits.gifts.sentGifts') },
             {
               id: 'received',
               label: t('credits.gifts.receivedGifts'),
-              icon: 'arrow-down-circle-outline',
               badge: pendingReceivedGifts.length || undefined,
             },
           ]}

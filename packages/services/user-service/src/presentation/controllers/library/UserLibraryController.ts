@@ -25,7 +25,7 @@ export class UserLibraryController {
   async addToLibrary(req: Request, res: Response): Promise<void> {
     try {
       const { userId } = extractAuthContext(req);
-      const { bookId } = req.body;
+      const bookId = req.params.bookId as string;
 
       if (!userId || !bookId) {
         ServiceErrors.badRequest(res, 'User ID and Book ID required', req);

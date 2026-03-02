@@ -131,11 +131,11 @@ export const ReflectScreen: React.FC = () => {
 
   const REFLECT_TABS: TabConfig[] = useMemo(
     () => [
-      { id: 'summary', label: t('profile.summary'), icon: 'stats-chart-outline' },
-      { id: 'insights', label: t('profile.insights'), icon: 'bar-chart-outline' },
-      { id: 'wellness', label: t('profile.wellness'), icon: 'heart-outline' },
-      { id: 'story', label: 'Your Story', icon: 'book-outline' },
-      { id: 'schedule', label: t('profile.schedule'), icon: 'calendar-outline' },
+      { id: 'summary', label: t('profile.summary') },
+      { id: 'insights', label: t('profile.insights') },
+      { id: 'wellness', label: t('profile.wellness') },
+      { id: 'story', label: 'Your Story' },
+      { id: 'schedule', label: t('profile.schedule') },
     ],
     [t]
   );

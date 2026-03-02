@@ -9,6 +9,7 @@ export interface UserAlbum {
   chapterId: string;
   title: string;
   description?: string;
+  displayName?: string;
   coverArtworkUrl?: string;
   totalTracks: number;
   totalDurationSeconds: number;

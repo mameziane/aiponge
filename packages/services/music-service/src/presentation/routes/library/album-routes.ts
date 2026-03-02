@@ -128,11 +128,12 @@ router.get('/albums', serviceAuthMiddleware({ required: false }), async (req, re
     }
 
     const result = await db.execute(sql`
-      SELECT 
-        a.id, a.user_id, a.chapter_id, a.title, a.description, 
+      SELECT
+        a.id, a.user_id, a.chapter_id, a.title, a.description,
+        COALESCE(NULLIF(NULLIF(a.metadata->>'displayName', ''), 'aiponge'), '') as display_name,
         COALESCE(a.artwork_url, (
-          SELECT t.artwork_url 
-          FROM mus_tracks t 
+          SELECT t.artwork_url
+          FROM mus_tracks t
           WHERE t.album_id = a.id AND t.artwork_url IS NOT NULL
             AND (COALESCE(t.track_number, 0), t.generation_number) IN (
               SELECT COALESCE(track_number, 0), MAX(generation_number)
@@ -140,7 +141,7 @@ router.get('/albums', serviceAuthMiddleware({ required: false }), async (req, re
               WHERE album_id = a.id
               GROUP BY COALESCE(track_number, 0)
             )
-          ORDER BY t.track_number ASC, t.created_at ASC 
+          ORDER BY t.track_number ASC, t.created_at ASC
           LIMIT 1
         )) as artwork_url,
         a.total_tracks, a.total_duration, a.status, a.metadata, a.created_at, a.updated_at
@@ -156,6 +157,7 @@ router.get('/albums', serviceAuthMiddleware({ required: false }), async (req, re
       chapterId: row.chapter_id,
       title: row.title,
       description: row.description,
+      displayName: row.display_name || '',
       coverArtworkUrl: row.artwork_url,
       totalTracks: row.total_tracks,
       totalDuration: row.total_duration,
