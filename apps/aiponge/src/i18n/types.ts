@@ -2,7 +2,7 @@ import type en from './locales/en-US.json';
 
 export type TranslationResources = typeof en;
 
-export type SupportedLanguage = 'en-US' | 'es-ES' | 'pt-BR' | 'de-DE' | 'fr-FR' | 'ar' | 'ja-JP';
+export type SupportedLanguage = 'en-US' | 'es-ES' | 'pt-BR' | 'de-DE' | 'fr-FR' | 'ar' | 'ja-JP' | 'hi-IN';
 
 export interface LanguageOption {
   code: SupportedLanguage;
@@ -20,6 +20,7 @@ export const SUPPORTED_LANGUAGES: LanguageOption[] = [
   { code: 'fr-FR', label: 'French', nativeLabel: 'Français', isRTL: false, hasTranslations: true },
   { code: 'ar', label: 'Arabic', nativeLabel: 'العربية', isRTL: true, hasTranslations: true },
   { code: 'ja-JP', label: 'Japanese', nativeLabel: '日本語', isRTL: false, hasTranslations: true },
+  { code: 'hi-IN', label: 'Hindi', nativeLabel: 'हिन्दी', isRTL: false, hasTranslations: true },
 ];
 
 export const UPCOMING_LANGUAGES: LanguageOption[] = [];

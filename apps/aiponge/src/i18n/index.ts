@@ -13,6 +13,7 @@ import deDE from './locales/de-DE.json';
 import frFR from './locales/fr-FR.json';
 import ar from './locales/ar.json';
 import jaJP from './locales/ja-JP.json';
+import hiIN from './locales/hi-IN.json';
 import { SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE, LANGUAGE_STORAGE_KEY, type SupportedLanguage } from './types';
 
 const resources = {
@@ -23,6 +24,7 @@ const resources = {
   'fr-FR': { translation: frFR },
   ar: { translation: ar },
   'ja-JP': { translation: jaJP },
+  'hi-IN': { translation: hiIN },
 } as const;
 
 // Initialize i18n with react-i18next plugin
