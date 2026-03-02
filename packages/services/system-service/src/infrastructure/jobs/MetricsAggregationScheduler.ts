@@ -78,8 +78,8 @@ export class MetricsAggregationScheduler extends BaseScheduler {
     const expiresAt = new Date(computedAt.getTime() + EXPIRES_IN_MS);
 
     const [userMetrics, musicMetrics] = await Promise.all([
-      fetchServiceMetrics('user-service', '/api/admin/metrics'),
-      fetchServiceMetrics('music-service', '/api/admin/metrics'),
+      fetchServiceMetrics('user-service', '/api/admin/product-metrics'),
+      fetchServiceMetrics('music-service', '/admin/product-metrics'),
     ]);
 
     const mergedPayload = {
