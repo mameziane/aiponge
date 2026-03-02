@@ -52,6 +52,22 @@ function stripBracketedContent(text: string): string {
   return text.replace(/\[.*?\]/g, '').trim();
 }
 
+/** Minimum character count before punctuation-based line breaks are applied. */
+const PUNCTUATION_BREAK_THRESHOLD = 40;
+
+/** Checks whether a word ends with clause-ending punctuation. */
+function endsWithBreakPunctuation(word: string): boolean {
+  const trimmed = word.trimEnd();
+  if (trimmed.length === 0) return false;
+  return /[,.!?;]$/.test(trimmed);
+}
+
+/** Inserts line breaks after punctuation in plain text lyrics that exceed the threshold. */
+function formatPlainTextWithBreaks(text: string): string {
+  if (text.length < PUNCTUATION_BREAK_THRESHOLD) return text;
+  return text.replace(/([,.!?;])\s+(?=\S)/g, '$1\n');
+}
+
 interface CleanedLine {
   startTime: number;
   endTime: number;
@@ -310,20 +326,31 @@ function KaraokeLyricsDisplayInner({
                   style={[lineStyles.lineContainer, isActiveLine && lineStyles.activeLine]}
                 >
                   {hasWordData ? (
-                    <Text
-                      style={[
-                        lineStyles.lineText,
-                        isActiveLine && lineStyles.activeLineText,
-                        lineIndex < currentLineIndex && lineStyles.playedLineText,
-                      ]}
-                    >
-                      {line.words!.map((word, wordIndex) => (
-                        <Text key={wordIndex} style={getWordStyle(lineIndex, wordIndex, line.words!.length)}>
-                          {wordIndex > 0 && !word.word.startsWith(' ') ? ' ' : ''}
-                          {word.word}
+                    (() => {
+                      const words = line.words!;
+                      const applyBreaks = line.text.length >= PUNCTUATION_BREAK_THRESHOLD;
+                      return (
+                        <Text
+                          style={[
+                            lineStyles.lineText,
+                            isActiveLine && lineStyles.activeLineText,
+                            lineIndex < currentLineIndex && lineStyles.playedLineText,
+                          ]}
+                        >
+                          {words.map((word, wordIndex) => {
+                            const isLastWord = wordIndex === words.length - 1;
+                            const shouldBreak = applyBreaks && !isLastWord && endsWithBreakPunctuation(word.word);
+                            return (
+                              <Text key={wordIndex} style={getWordStyle(lineIndex, wordIndex, words.length)}>
+                                {wordIndex > 0 && !word.word.startsWith(' ') ? ' ' : ''}
+                                {word.word}
+                                {shouldBreak ? '\n' : ''}
+                              </Text>
+                            );
+                          })}
                         </Text>
-                      ))}
-                    </Text>
+                      );
+                    })()
                   ) : (
                     <Text
                       style={[
@@ -332,7 +359,7 @@ function KaraokeLyricsDisplayInner({
                         lineIndex < currentLineIndex && lineStyles.playedLineText,
                       ]}
                     >
-                      {line.text.trim()}
+                      {formatPlainTextWithBreaks(line.text.trim())}
                     </Text>
                   )}
                 </View>

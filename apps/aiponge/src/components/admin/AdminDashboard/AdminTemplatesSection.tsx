@@ -14,14 +14,20 @@ import { apiClient } from '@/lib/axiosApiClient';
 import { SectionHeader, LoadingSection } from './shared';
 import { ErrorState } from '../../shared/ErrorState';
 
-interface LifeAreaTemplate {
+interface TemplateVariable {
+  name: string;
+  type: string;
+  required?: boolean;
+}
+
+interface ContentTemplate {
   id: string;
-  lifeAreaKey: string;
-  chapterName: string;
-  chapterType: string;
-  entryQuestions: string[];
-  playlistName: string;
-  sortOrder: number;
+  name: string;
+  description?: string;
+  contentType: string;
+  category?: string;
+  variables?: TemplateVariable[];
+  sortOrder?: number;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -31,13 +37,13 @@ interface TemplateTranslation {
   id: string;
   templateId: string;
   locale: string;
-  chapterName: string;
-  entryQuestions: string[];
-  playlistName: string;
+  name: string;
+  description?: string;
+  variables?: TemplateVariable[];
 }
 
-interface LifeAreaSummary {
-  lifeAreaKey: string;
+interface CategorySummary {
+  categoryKey: string;
   templateCount: number;
   activeCount: number;
   translationCoverage: Record<string, number>;
@@ -91,20 +97,20 @@ export function AdminTemplatesSection() {
   const styles = useMemo(() => createStyles(colors), [colors]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [summary, setSummary] = useState<LifeAreaSummary[]>([]);
-  const [templates, setTemplates] = useState<LifeAreaTemplate[]>([]);
-  const [selectedLifeArea, setSelectedLifeArea] = useState<string | null>(null);
-  const [selectedTemplate, setSelectedTemplate] = useState<LifeAreaTemplate | null>(null);
+  const [summary, setSummary] = useState<CategorySummary[]>([]);
+  const [templates, setTemplates] = useState<ContentTemplate[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<ContentTemplate | null>(null);
   const [translations, setTranslations] = useState<TemplateTranslation[]>([]);
   const [editingLocale, setEditingLocale] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({
-    chapterName: '',
-    entryQuestions: ['', '', ''],
-    playlistName: '',
+    name: '',
+    description: '',
+    variables: ['', '', ''],
   });
   const [saving, setSaving] = useState(false);
 
-  const [allTemplates, setAllTemplates] = useState<LifeAreaTemplate[]>([]);
+  const [allTemplates, setAllTemplates] = useState<ContentTemplate[]>([]);
 
   const loadAllTemplates = useCallback(async () => {
     try {
@@ -112,26 +118,23 @@ export function AdminTemplatesSection() {
       setError(null);
       const response = await apiClient.get<{
         success: boolean;
-        data: { templates: LifeAreaTemplate[]; total: number } | LifeAreaTemplate[];
+        data: { templates: ContentTemplate[]; total: number } | ContentTemplate[];
       }>('/api/v1/librarian/templates');
-      // Backend returns { templates: [...], total, offset, limit } under .data
-      // Extract the array whether it's wrapped or directly an array
-      const templates: LifeAreaTemplate[] = Array.isArray(response?.data)
+      const loaded: ContentTemplate[] = Array.isArray(response?.data)
         ? response.data
         : Array.isArray((response?.data as { templates?: unknown })?.templates)
-          ? (response.data as { templates: LifeAreaTemplate[] }).templates
+          ? (response.data as { templates: ContentTemplate[] }).templates
           : [];
-      if (templates.length > 0) {
-        setAllTemplates(templates);
-        const grouped: Record<string, LifeAreaTemplate[]> = {};
-        for (const tpl of templates) {
-          // Group by lifeAreaKey if present, otherwise by contentType
-          const key = tpl.lifeAreaKey || (tpl as unknown as { contentType?: string }).contentType || 'unknown';
+      if (loaded.length > 0) {
+        setAllTemplates(loaded);
+        const grouped: Record<string, ContentTemplate[]> = {};
+        for (const tpl of loaded) {
+          const key = tpl.category || tpl.contentType || 'unknown';
           if (!grouped[key]) grouped[key] = [];
           grouped[key].push(tpl);
         }
-        const derived: LifeAreaSummary[] = Object.entries(grouped).map(([key, items]) => ({
-          lifeAreaKey: key,
+        const derived: CategorySummary[] = Object.entries(grouped).map(([key, items]) => ({
+          categoryKey: key,
           templateCount: items.length,
           activeCount: items.filter(i => i.isActive !== false).length,
           translationCoverage: {},
@@ -146,12 +149,9 @@ export function AdminTemplatesSection() {
     }
   }, []);
 
-  const loadTemplatesForArea = useCallback(
-    (lifeAreaKey: string) => {
-      const filtered = allTemplates.filter(
-        tpl =>
-          tpl.lifeAreaKey === lifeAreaKey || (tpl as unknown as { contentType?: string }).contentType === lifeAreaKey
-      );
+  const loadTemplatesForCategory = useCallback(
+    (categoryKey: string) => {
+      const filtered = allTemplates.filter(tpl => tpl.category === categoryKey || tpl.contentType === categoryKey);
       setTemplates(filtered);
     },
     [allTemplates]
@@ -175,10 +175,10 @@ export function AdminTemplatesSection() {
   }, [loadAllTemplates]);
 
   useEffect(() => {
-    if (selectedLifeArea) {
-      loadTemplatesForArea(selectedLifeArea);
+    if (selectedCategory) {
+      loadTemplatesForCategory(selectedCategory);
     }
-  }, [selectedLifeArea, loadTemplatesForArea]);
+  }, [selectedCategory, loadTemplatesForCategory]);
 
   useEffect(() => {
     if (selectedTemplate) {
@@ -190,15 +190,15 @@ export function AdminTemplatesSection() {
     const existing = translations.find(t => t.locale === locale);
     if (existing) {
       setEditForm({
-        chapterName: existing.chapterName,
-        entryQuestions: [...existing.entryQuestions],
-        playlistName: existing.playlistName,
+        name: existing.name,
+        description: existing.description || '',
+        variables: existing.variables?.map(v => v.name) || [''],
       });
     } else if (selectedTemplate) {
       setEditForm({
-        chapterName: selectedTemplate.chapterName,
-        entryQuestions: [...selectedTemplate.entryQuestions],
-        playlistName: selectedTemplate.playlistName,
+        name: selectedTemplate.name,
+        description: selectedTemplate.description || '',
+        variables: selectedTemplate.variables?.map(v => v.name) || [''],
       });
     }
     setEditingLocale(locale);
@@ -211,9 +211,9 @@ export function AdminTemplatesSection() {
       setSaving(true);
       await apiClient.put(`/api/v1/librarian/templates/${selectedTemplate.id}/translations`, {
         locale: editingLocale,
-        chapterName: editForm.chapterName,
-        entryQuestions: editForm.entryQuestions.filter(q => q.trim() !== ''),
-        playlistName: editForm.playlistName,
+        name: editForm.name,
+        description: editForm.description,
+        variables: editForm.variables.filter(v => v.trim() !== '').map(v => ({ name: v, type: 'string' })),
       });
 
       await loadTranslations(selectedTemplate.id);
@@ -254,7 +254,7 @@ export function AdminTemplatesSection() {
   const [showAreaPicker, setShowAreaPicker] = useState(false);
 
   const renderAreaPicker = () => {
-    const selectedArea = summary.find(a => a.lifeAreaKey === selectedLifeArea);
+    const selected = summary.find(a => a.categoryKey === selectedCategory);
 
     return (
       <View style={styles.pickerContainer}>
@@ -265,10 +265,10 @@ export function AdminTemplatesSection() {
           testID="dropdown-life-area"
         >
           <Text style={styles.pickerButtonText}>
-            {selectedArea
-              ? LIFE_AREA_LABELS[selectedArea.lifeAreaKey] ||
-                CONTENT_TYPE_LABELS[selectedArea.lifeAreaKey] ||
-                selectedArea.lifeAreaKey
+            {selected
+              ? LIFE_AREA_LABELS[selected.categoryKey] ||
+                CONTENT_TYPE_LABELS[selected.categoryKey] ||
+                selected.categoryKey
               : t('admin.templatesMgmt.selectLifeFocusArea')}
           </Text>
           <Ionicons name="chevron-down" size={20} color={colors.text.secondary} />
@@ -285,23 +285,23 @@ export function AdminTemplatesSection() {
               <Text style={styles.pickerDropdownTitle}>{t('admin.templatesMgmt.selectLifeFocusArea')}</Text>
               {summary.map(area => (
                 <TouchableOpacity
-                  key={area.lifeAreaKey}
-                  style={[styles.pickerOption, selectedLifeArea === area.lifeAreaKey && styles.pickerOptionSelected]}
+                  key={area.categoryKey}
+                  style={[styles.pickerOption, selectedCategory === area.categoryKey && styles.pickerOptionSelected]}
                   onPress={() => {
-                    setSelectedLifeArea(area.lifeAreaKey);
+                    setSelectedCategory(area.categoryKey);
                     setSelectedTemplate(null);
                     setTranslations([]);
                     setShowAreaPicker(false);
                   }}
-                  testID={`option-area-${area.lifeAreaKey}`}
+                  testID={`option-area-${area.categoryKey}`}
                 >
                   <Text
                     style={[
                       styles.pickerOptionText,
-                      selectedLifeArea === area.lifeAreaKey && styles.pickerOptionTextSelected,
+                      selectedCategory === area.categoryKey && styles.pickerOptionTextSelected,
                     ]}
                   >
-                    {LIFE_AREA_LABELS[area.lifeAreaKey] || CONTENT_TYPE_LABELS[area.lifeAreaKey] || area.lifeAreaKey}
+                    {LIFE_AREA_LABELS[area.categoryKey] || CONTENT_TYPE_LABELS[area.categoryKey] || area.categoryKey}
                   </Text>
                   <Text style={styles.pickerOptionStats}>
                     {area.activeCount}/{area.templateCount} active
@@ -316,7 +316,7 @@ export function AdminTemplatesSection() {
   };
 
   const renderTemplates = () => {
-    if (!selectedLifeArea) return null;
+    if (!selectedCategory) return null;
 
     return (
       <View style={styles.templatesContainer}>
@@ -329,13 +329,13 @@ export function AdminTemplatesSection() {
             testID={`card-template-${template.id}`}
           >
             <View style={styles.templateHeader}>
-              <Text style={styles.templateName}>{template.chapterName}</Text>
+              <Text style={styles.templateName}>{template.name}</Text>
               <View style={[styles.statusBadge, template.isActive ? styles.activeBadge : styles.inactiveBadge]}>
                 <Text style={styles.statusBadgeText}>{template.isActive ? 'Active' : 'Inactive'}</Text>
               </View>
             </View>
-            <Text style={styles.templateType}>{template.chapterType}</Text>
-            <Text style={styles.templateQuestions}>{template.entryQuestions.length} questions</Text>
+            <Text style={styles.templateType}>{template.contentType}</Text>
+            <Text style={styles.templateQuestions}>{template.variables?.length ?? 0} variables</Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -350,11 +350,14 @@ export function AdminTemplatesSection() {
         <SectionHeader title={t('admin.templatesMgmt.translations')} icon="language-outline" />
         <View style={styles.templatePreview}>
           <Text style={styles.previewLabel}>Original (English)</Text>
-          <Text style={styles.previewChapter}>{selectedTemplate.chapterName}</Text>
-          <Text style={styles.previewPlaylist}>Playlist: {selectedTemplate.playlistName}</Text>
-          {selectedTemplate.entryQuestions.map((q, i) => (
+          <Text style={styles.previewChapter}>{selectedTemplate.name}</Text>
+          {selectedTemplate.description ? (
+            <Text style={styles.previewPlaylist}>{selectedTemplate.description}</Text>
+          ) : null}
+          {selectedTemplate.variables?.map((v, i) => (
             <Text key={i} style={styles.previewQuestion}>
-              {i + 1}. {q}
+              {i + 1}. {v.name} ({v.type}
+              {v.required ? ', required' : ''})
             </Text>
           ))}
         </View>
@@ -413,50 +416,50 @@ export function AdminTemplatesSection() {
           </View>
 
           <ScrollView style={styles.modalForm}>
-            <Text style={styles.inputLabel}>{t('admin.templatesMgmt.chapterNameLabel')}</Text>
+            <Text style={styles.inputLabel}>Name</Text>
             <TextInput
               style={styles.input}
-              value={editForm.chapterName}
-              onChangeText={text => setEditForm(prev => ({ ...prev, chapterName: text }))}
-              placeholder={t('admin.templatesMgmt.chapterName')}
+              value={editForm.name}
+              onChangeText={text => setEditForm(prev => ({ ...prev, name: text }))}
+              placeholder="Template name"
               placeholderTextColor={colors.text.tertiary}
-              testID="input-chapter-name"
+              testID="input-template-name"
             />
 
-            <Text style={styles.inputLabel}>{t('admin.templatesMgmt.playlistNameLabel')}</Text>
+            <Text style={styles.inputLabel}>Description</Text>
             <TextInput
               style={styles.input}
-              value={editForm.playlistName}
-              onChangeText={text => setEditForm(prev => ({ ...prev, playlistName: text }))}
-              placeholder={t('admin.templatesMgmt.playlistName')}
+              value={editForm.description}
+              onChangeText={text => setEditForm(prev => ({ ...prev, description: text }))}
+              placeholder="Template description"
               placeholderTextColor={colors.text.tertiary}
-              testID="input-playlist-name"
+              testID="input-description"
             />
 
-            <Text style={styles.inputLabel}>{t('admin.templatesMgmt.entryQuestions')}</Text>
-            {editForm.entryQuestions.map((question, index) => (
+            <Text style={styles.inputLabel}>Variables</Text>
+            {editForm.variables.map((variable, index) => (
               <TextInput
                 key={index}
                 style={[styles.input, styles.questionInput]}
-                value={question}
+                value={variable}
                 onChangeText={text => {
-                  const updated = [...editForm.entryQuestions];
+                  const updated = [...editForm.variables];
                   updated[index] = text;
-                  setEditForm(prev => ({ ...prev, entryQuestions: updated }));
+                  setEditForm(prev => ({ ...prev, variables: updated }));
                 }}
-                placeholder={`Question ${index + 1}`}
+                placeholder={`Variable ${index + 1}`}
                 placeholderTextColor={colors.text.tertiary}
                 multiline
-                testID={`input-question-${index}`}
+                testID={`input-variable-${index}`}
               />
             ))}
             <TouchableOpacity
               style={styles.addQuestionButton}
-              onPress={() => setEditForm(prev => ({ ...prev, entryQuestions: [...prev.entryQuestions, ''] }))}
-              testID="button-add-question"
+              onPress={() => setEditForm(prev => ({ ...prev, variables: [...prev.variables, ''] }))}
+              testID="button-add-variable"
             >
               <Ionicons name="add-circle-outline" size={20} color={colors.brand.primary} />
-              <Text style={styles.addQuestionText}>{t('admin.templatesMgmt.addQuestion')}</Text>
+              <Text style={styles.addQuestionText}>Add variable</Text>
             </TouchableOpacity>
           </ScrollView>
 

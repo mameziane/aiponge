@@ -35,26 +35,44 @@ export function LibrarianAlbumsSection() {
       });
     },
     onMutate: async deletedAlbumId => {
-      await queryClient.cancelQueries({ queryKey: queryKeys.albums.public() });
+      // Cancel ALL album queries to prevent any in-flight refetch from overwriting
+      await queryClient.cancelQueries({ queryKey: queryKeys.albums.all });
       const previousData = queryClient.getQueryData(queryKeys.albums.public());
-      queryClient.setQueryData(
-        queryKeys.albums.public(),
-        (old: { data?: { albums: Array<{ id: string }>; total: number } } | undefined) => {
-          if (!old?.data?.albums) return old;
-          return {
-            ...old,
-            data: {
-              ...old.data,
-              albums: old.data.albums.filter((album: { id: string }) => album.id !== deletedAlbumId),
-              total: old.data.total - 1,
-            },
-          };
+
+      // Optimistic: remove from all album list caches (public, shared, list)
+      const filterAlbumOut = (old: unknown): unknown => {
+        if (!old || typeof old !== 'object') return old;
+        const d = old as Record<string, unknown>;
+        if (d.data && typeof d.data === 'object') {
+          const data = d.data as Record<string, unknown>;
+          if (Array.isArray(data.albums)) {
+            return {
+              ...d,
+              data: {
+                ...data,
+                albums: data.albums.filter((a: { id: string }) => a.id !== deletedAlbumId),
+                total: Math.max(0, ((data.total as number) || 0) - 1),
+              },
+            };
+          }
         }
-      );
+        return old;
+      };
+      queryClient.setQueriesData({ queryKey: queryKeys.albums.all }, filterAlbumOut);
+
       return { previousData };
     },
     onSuccess: (_data, deletedAlbumId) => {
-      invalidateOnEvent(queryClient, { type: 'ALBUM_DELETED', albumId: deletedAlbumId });
+      // Remove detail caches immediately
+      queryClient.removeQueries({ queryKey: queryKeys.albums.detail(deletedAlbumId) });
+      queryClient.removeQueries({ queryKey: queryKeys.albums.publicDetail(deletedAlbumId) });
+
+      // Delayed invalidation for broader cleanup (tracks, shared library).
+      // Follows the applyTrackDeletionToCache pattern: avoid immediate refetch that
+      // could return stale gateway-cached data and overwrite our optimistic removal.
+      setTimeout(() => {
+        invalidateOnEvent(queryClient, { type: 'ALBUM_DELETED', albumId: deletedAlbumId });
+      }, 1500);
     },
     onError: (err, _deletedAlbumId, context) => {
       if (context?.previousData) {

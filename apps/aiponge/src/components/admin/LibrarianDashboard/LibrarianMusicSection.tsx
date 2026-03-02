@@ -94,14 +94,11 @@ export function LibrarianMusicSection({ externalCreateTrigger }: LibrarianMusicS
 
       let successCount = 0;
       let albumIndex = 0;
-      const multipleLanguages = params.targetLanguages.length > 1;
-
       for (const { chapterData, chunk, chunkIdx, totalChunks } of chapterChunks) {
         const partSuffix = totalChunks > 1 ? ` (${chunkIdx + 1}/${totalChunks})` : '';
 
         for (let langIdx = 0; langIdx < params.targetLanguages.length; langIdx++) {
           const targetLang = params.targetLanguages[langIdx];
-          const langSuffix = multipleLanguages ? ` [${targetLang.toUpperCase()}]` : '';
           albumIndex++;
           setBatchProgress({ current: albumIndex, total: totalAlbums });
 
@@ -120,7 +117,7 @@ export function LibrarianMusicSection({ externalCreateTrigger }: LibrarianMusicS
               timeout: 180000,
               data: {
                 chapterId: chapterData.chapter.id,
-                chapterTitle: chapterData.chapter.title + partSuffix + langSuffix,
+                chapterTitle: chapterData.chapter.title + partSuffix,
                 bookId: chapterData.chapter.bookId || 'unknown',
                 bookTitle: 'Book',
                 bookType: params.bookType || null,

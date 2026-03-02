@@ -127,7 +127,7 @@ const FormattedEntryText = memo(function FormattedEntryText({ text, colors }: { 
 
         if (block.type === 'numbered') {
           return (
-            <View key={idx} style={{ flexDirection: 'row', marginBottom: 6, paddingLeft: 4 }}>
+            <View key={idx} style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: 4, paddingLeft: 4 }}>
               <Text style={[baseTextStyle, { color: colors.text.tertiary, fontWeight: '600', width: 24 }]}>
                 {block.number}.
               </Text>

@@ -229,7 +229,10 @@ const INVALIDATION_RULES: InvalidationMap = {
 
   ALBUM_UPDATED: e => [t(queryKeys.albums.all), t(queryKeys.albums.detail(e.albumId))],
 
-  ALBUM_DELETED: [t(queryKeys.albums.all, true), t(queryKeys.tracks.myMusic()), t(queryKeys.sharedLibrary.all)],
+  // NOTE: No refetchAll — album deletions use optimistic updates that would be
+  // overwritten by an immediate aggressive refetch of potentially stale gateway data.
+  // The optimistic update in onMutate handles the active UI; this marks the rest stale.
+  ALBUM_DELETED: [t(queryKeys.albums.all), t(queryKeys.tracks.myMusic()), t(queryKeys.sharedLibrary.all)],
 
   ALBUM_LIKED: albumLikeToggle,
   ALBUM_UNLIKED: albumLikeToggle,

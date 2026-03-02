@@ -96,17 +96,6 @@ export const isRTLLanguage = (language: SupportedLanguage): boolean => {
 
 const RTL_APPLIED_KEY = 'aiponge_rtl_applied';
 
-const getAppliedRTL = async (): Promise<boolean | null> => {
-  try {
-    const stored = await SecureStore.getItemAsync(RTL_APPLIED_KEY);
-    if (stored === 'true') return true;
-    if (stored === 'false') return false;
-    return null;
-  } catch {
-    return null;
-  }
-};
-
 const setAppliedRTL = async (isRTL: boolean): Promise<void> => {
   try {
     await SecureStore.setItemAsync(RTL_APPLIED_KEY, isRTL ? 'true' : 'false');
@@ -118,22 +107,21 @@ const setAppliedRTL = async (isRTL: boolean): Promise<void> => {
 export const applyRTL = async (language: SupportedLanguage): Promise<boolean> => {
   const shouldBeRTL = isRTLLanguage(language);
   const currentIsRTL = I18nManager.isRTL;
-  const appliedRTL = await getAppliedRTL();
 
-  if (appliedRTL === shouldBeRTL) {
-    return false;
-  }
-
-  const needsReload = currentIsRTL !== shouldBeRTL;
-
-  if (needsReload) {
-    logger.debug('i18n RTL mismatch', { currentIsRTL, shouldBeRTL });
+  // Always compare against I18nManager.isRTL (the actual native state).
+  // Do NOT rely on the stored appliedRTL flag alone — it can drift out of sync
+  // with the native state when users switch languages multiple times without
+  // restarting (e.g. Arabic → English with "Later" on both reload prompts),
+  // or when the app is killed before native persistence flushes.
+  if (currentIsRTL !== shouldBeRTL) {
+    logger.debug('i18n RTL mismatch — forcing direction change', { currentIsRTL, shouldBeRTL });
     I18nManager.allowRTL(shouldBeRTL);
     I18nManager.forceRTL(shouldBeRTL);
     await setAppliedRTL(shouldBeRTL);
-    return true;
+    return true; // requires reload for layout to update
   }
 
+  // Already correct — just sync stored tracking state
   await setAppliedRTL(shouldBeRTL);
   return false;
 };

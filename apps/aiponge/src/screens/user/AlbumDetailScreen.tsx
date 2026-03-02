@@ -88,8 +88,14 @@ export function AlbumDetailScreen() {
       if (!albumId) throw new Error('Missing albumId');
       await apiRequest(`/api/v1/app/library/albums/${albumId}`, { method: 'DELETE' });
     },
+    onMutate: async () => {
+      if (!albumId) return;
+      // Cancel all album queries to prevent in-flight refetches overwriting the optimistic update
+      await queryClient.cancelQueries({ queryKey: queryKeys.albums.all });
+    },
     onSuccess: () => {
       if (albumId) {
+        // Optimistic: remove from all album list caches
         const filterAlbumOut = (old: unknown): unknown => {
           if (!old || typeof old !== 'object') return old;
           const d = old as Record<string, unknown>;
@@ -108,14 +114,17 @@ export function AlbumDetailScreen() {
           }
           return old;
         };
+        queryClient.setQueriesData({ queryKey: queryKeys.albums.all }, filterAlbumOut);
 
-        queryClient.setQueriesData({ queryKey: queryKeys.albums.list() }, filterAlbumOut);
-        queryClient.setQueriesData({ queryKey: queryKeys.albums.public() }, filterAlbumOut);
-
+        // Remove detail caches immediately
         queryClient.removeQueries({ queryKey: queryKeys.albums.detail(albumId) });
         queryClient.removeQueries({ queryKey: queryKeys.albums.publicDetail(albumId) });
 
-        invalidateOnEvent(queryClient, { type: 'ALBUM_DELETED', albumId });
+        // Delayed invalidation for broader cleanup (tracks, shared library).
+        // Avoids immediate refetch that could return stale gateway-cached data.
+        setTimeout(() => {
+          invalidateOnEvent(queryClient, { type: 'ALBUM_DELETED', albumId });
+        }, 1500);
       }
       router.back();
     },

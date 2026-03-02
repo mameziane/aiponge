@@ -247,7 +247,8 @@ const createStyles = (colors: ColorScheme, fontSize: number) =>
     },
     numberedBlock: {
       flexDirection: 'row',
-      marginBottom: 10,
+      alignItems: 'flex-start',
+      marginBottom: 4,
       paddingLeft: 4,
     },
     numberLabel: {

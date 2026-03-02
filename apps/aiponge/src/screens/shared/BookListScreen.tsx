@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useEffect, type ComponentProps } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useFocusEffect } from 'expo-router';
 import {
   View,
@@ -22,7 +22,7 @@ import { EmptyState } from '../../components/shared/EmptyState';
 import { LoadingState } from '../../components/shared/LoadingState';
 import { BookCard, type BookCardData } from '../../components/book/BookCard';
 import { CreateBookModal, CloneBookModal } from '../../components/book';
-import { BOOK_TYPES, type BookTypeId } from '../../constants/bookTypes';
+import { BOOK_TYPE_CATEGORY_CONFIGS } from '../../constants/bookTypes';
 
 import type { BookListScreenProps } from './book-list/types';
 import { useBookListData } from './book-list/useBookListData';
@@ -125,41 +125,34 @@ export function BookListScreen({ embedded = false, externalCreateTrigger, onStud
       <View style={styles.typeTabContainer}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.typeTabContent}>
           <TouchableOpacity
-            style={[styles.typeTab, !data.selectedTypeId && styles.typeTabActive]}
-            onPress={() => data.setSelectedTypeId(null)}
+            style={[styles.typeTab, !data.selectedCategory && styles.typeTabActive]}
+            onPress={() => data.setSelectedCategory(null)}
             activeOpacity={0.7}
           >
             <Ionicons
               name="apps-outline"
               size={16}
-              color={!data.selectedTypeId ? colors.absolute.white : colors.text.secondary}
+              color={!data.selectedCategory ? colors.absolute.white : colors.text.secondary}
             />
-            <Text style={[styles.typeTabText, !data.selectedTypeId && styles.typeTabTextActive]}>
+            <Text style={[styles.typeTabText, !data.selectedCategory && styles.typeTabTextActive]}>
               {t('common.all') || 'All'}
             </Text>
           </TouchableOpacity>
-          {data.browsableBookTypes.map(bookType => {
-            const isActive = data.selectedTypeId === bookType.id;
-            const uiConfig = BOOK_TYPES[bookType.id as BookTypeId];
-            const iconName = uiConfig
-              ? isActive
-                ? uiConfig.iconFilled
-                : uiConfig.icon
-              : bookType.iconName || 'book-outline';
-            const label = uiConfig ? t(uiConfig.nameKey) || bookType.name : bookType.name;
+          {BOOK_TYPE_CATEGORY_CONFIGS.map(config => {
+            const isActive = data.selectedCategory === config.id;
             return (
               <TouchableOpacity
-                key={bookType.id}
+                key={config.id}
                 style={[styles.typeTab, isActive && styles.typeTabActive]}
-                onPress={() => data.setSelectedTypeId(isActive ? null : bookType.id)}
+                onPress={() => data.setSelectedCategory(isActive ? null : config.id)}
                 activeOpacity={0.7}
               >
                 <Ionicons
-                  name={iconName as ComponentProps<typeof Ionicons>['name']}
+                  name={config.icon}
                   size={16}
                   color={isActive ? colors.absolute.white : colors.text.secondary}
                 />
-                <Text style={[styles.typeTabText, isActive && styles.typeTabTextActive]}>{label}</Text>
+                <Text style={[styles.typeTabText, isActive && styles.typeTabTextActive]}>{t(config.nameKey)}</Text>
               </TouchableOpacity>
             );
           })}

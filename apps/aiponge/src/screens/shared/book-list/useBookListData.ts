@@ -8,7 +8,7 @@ import { queryKeys } from '../../../lib/queryKeys';
 import { useBooks, useMyLibrary, useBookTypes } from '../../../hooks/book';
 import type { BookCardData } from '../../../components/book/BookCard';
 import type { LibBook, LibChapter } from '../../../types/profile.types';
-import type { BookTypeId } from '../../../constants/bookTypes';
+import { getBookTypesForCategory, type BookTypeCategory } from '../../../constants/bookTypes';
 
 const OWN_BOOKS_PAGE_SIZE = 100;
 
@@ -20,7 +20,7 @@ export interface BookListDataOptions {
 export function useBookListData({ userDisplayName, t }: BookListDataOptions) {
   const token = useAuthStore(selectToken);
   const user = useAuthStore(selectUser);
-  const [selectedTypeId, setSelectedTypeId] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<BookTypeCategory | null>(null);
   const [selectedLanguage, setSelectedLanguage] = useState<string>(() => {
     const locale = i18n.language || 'en';
     return locale.split('-')[0];
@@ -34,9 +34,14 @@ export function useBookListData({ userDisplayName, t }: BookListDataOptions) {
     hasNextPage: hasNextBrowsePage,
     isFetchingNextPage: isFetchingNextBrowsePage,
   } = useBooks({
-    typeId: selectedTypeId as BookTypeId | undefined,
+    typeId: undefined,
     language: selectedLanguage || undefined,
   });
+
+  const selectedCategoryTypeIds = useMemo(() => {
+    if (!selectedCategory) return null;
+    return new Set<string>(getBookTypesForCategory(selectedCategory).map(bt => bt.id));
+  }, [selectedCategory]);
 
   const { data: libraryData, refetch: refetchLibrary } = useMyLibrary();
   const { data: bookTypesData } = useBookTypes();
@@ -131,7 +136,7 @@ export function useBookListData({ userDisplayName, t }: BookListDataOptions) {
   const ownBooksData = useMemo((): BookCardData[] => {
     return ownBooksRaw
       .filter(book => {
-        if (selectedTypeId && book.typeId !== selectedTypeId) return false;
+        if (selectedCategoryTypeIds && (!book.typeId || !selectedCategoryTypeIds.has(book.typeId))) return false;
         if (selectedLanguage) {
           const bookLang = book.language;
           if (bookLang && !bookLang.toLowerCase().startsWith(activeLang.toLowerCase())) return false;
@@ -160,7 +165,7 @@ export function useBookListData({ userDisplayName, t }: BookListDataOptions) {
           themes: (book as unknown as { themes?: string[] }).themes || [],
         })
       );
-  }, [ownBooksRaw, selectedTypeId, selectedLanguage, activeLang, userDisplayName, user?.id]);
+  }, [ownBooksRaw, selectedCategoryTypeIds, selectedLanguage, activeLang, userDisplayName, user?.id]);
 
   const mapBookToCard = (
     book: LibBook & { coverIllustrationUrl?: string; chapters?: LibChapter[]; userId?: string }
@@ -186,6 +191,8 @@ export function useBookListData({ userDisplayName, t }: BookListDataOptions) {
     return browseBooks
       .filter(book => {
         if (ownBookIds.has((book as LibBook).id)) return false;
+        const typeId = (book as LibBook & { typeId?: string }).typeId;
+        if (selectedCategoryTypeIds && (!typeId || !selectedCategoryTypeIds.has(typeId))) return false;
         if (selectedLanguage) {
           const bookLang = (book as LibBook).language;
           if (bookLang && !bookLang.toLowerCase().startsWith(activeLang.toLowerCase())) return false;
@@ -195,7 +202,7 @@ export function useBookListData({ userDisplayName, t }: BookListDataOptions) {
       .map(book =>
         mapBookToCard(book as LibBook & { coverIllustrationUrl?: string; chapters?: LibChapter[]; userId?: string })
       );
-  }, [browseBooks, ownBookIds, selectedLanguage, activeLang]);
+  }, [browseBooks, ownBookIds, selectedCategoryTypeIds, selectedLanguage, activeLang]);
 
   const unifiedBooks = useMemo((): BookCardData[] => {
     return [...ownBooksData, ...publicBooksData];
@@ -208,8 +215,8 @@ export function useBookListData({ userDisplayName, t }: BookListDataOptions) {
   const isLoading = browseLoading || manageLoading;
 
   return {
-    selectedTypeId,
-    setSelectedTypeId,
+    selectedCategory,
+    setSelectedCategory,
     selectedLanguage,
     setSelectedLanguage,
     browsableBookTypes,

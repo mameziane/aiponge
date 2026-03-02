@@ -8,7 +8,7 @@ import { CONTENT_VISIBILITY, isContentPubliclyAccessible, type ContentVisibility
 import { logger } from '../lib/logger';
 import { queryClient } from '../lib/reactQueryClient';
 import { invalidateOnEvent } from '../lib/cacheManager';
-import { forceRefreshExplore } from '../auth/cacheUtils';
+import { forceRefreshExplore, forceRefreshPublicAlbums } from '../auth/cacheUtils';
 import { createGenerationStore, type BaseGenerationProgress, type GenerationStore } from './createGenerationStore';
 
 export interface AlbumGenerationProgress extends BaseGenerationProgress {
@@ -89,12 +89,18 @@ const { store } = createGenerationStore<AlbumGenerationProgress>({
     });
     invalidateOnEvent(queryClient, { type: 'ALBUM_GENERATION_COMPLETED' });
     invalidateOnEvent(queryClient, { type: 'CREDITS_CHANGED' });
-    forceRefreshExplore();
-    logger.debug('[AlbumGeneration] Invalidated album + credits caches and refreshed explore');
 
+    // Bypass API gateway cache with direct fetches — invalidateOnEvent alone may
+    // return stale gateway-cached data that doesn't include the newly created album.
+    forceRefreshExplore();
+    forceRefreshPublicAlbums();
+    logger.debug('[AlbumGeneration] Invalidated album + credits caches and refreshed explore + albums');
+
+    // Follow-up invalidation: gateway cache may still be warm after the first pass.
     setTimeout(() => {
       logger.debug('[AlbumGeneration] Delayed follow-up cache invalidation');
       invalidateOnEvent(queryClient, { type: 'ALBUM_GENERATION_COMPLETED' });
+      forceRefreshPublicAlbums();
     }, 3000);
   },
 });

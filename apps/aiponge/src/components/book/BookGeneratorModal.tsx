@@ -173,7 +173,7 @@ export function BookGeneratorModal({
   const [step, setStep] = useState<'input' | 'loading'>('input');
   const [depthLevel, setDepthLevel] = useState<DepthLevel>('standard');
   const [selectedLanguage, setSelectedLanguage] = useState<SupportedLanguage>(i18n.language as SupportedLanguage);
-  const [languageExpanded, setLanguageExpanded] = useState(false);
+  const [showLanguagePicker, setShowLanguagePicker] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const creationInitiatedRef = useRef(false);
   const onCreateBookRef = useRef(onCreateBook);
@@ -205,7 +205,7 @@ export function BookGeneratorModal({
       setStep('input');
       setDepthLevel('standard');
       setSelectedLanguage(i18n.language as SupportedLanguage);
-      setLanguageExpanded(false);
+      setShowLanguagePicker(false);
       setIsCreating(false);
       creationInitiatedRef.current = false;
       reset();
@@ -343,7 +343,7 @@ export function BookGeneratorModal({
             <View style={styles.languageContainer}>
               <TouchableOpacity
                 style={styles.languageHeader}
-                onPress={() => setLanguageExpanded(prev => !prev)}
+                onPress={() => setShowLanguagePicker(true)}
                 activeOpacity={0.7}
               >
                 <View style={styles.languageHeaderLeft}>
@@ -354,41 +354,49 @@ export function BookGeneratorModal({
                   <Text style={styles.languageHeaderValue}>
                     {SUPPORTED_LANGUAGES.find(l => l.code === selectedLanguage)?.nativeLabel || selectedLanguage}
                   </Text>
-                  <Ionicons
-                    name={languageExpanded ? 'chevron-up' : 'chevron-down'}
-                    size={16}
-                    color={colors.text.tertiary}
-                  />
+                  <Ionicons name="chevron-down" size={16} color={colors.text.tertiary} />
                 </View>
               </TouchableOpacity>
-              {languageExpanded && (
-                <View style={styles.languageChips}>
-                  {SUPPORTED_LANGUAGES.map(lang => {
-                    const isSelected = lang.code === selectedLanguage;
-                    return (
-                      <TouchableOpacity
-                        key={lang.code}
-                        style={[
-                          styles.languageChip,
-                          isSelected && { borderColor: typeColor, backgroundColor: typeColor + '15' },
-                        ]}
-                        onPress={() => {
-                          setSelectedLanguage(lang.code);
-                          setLanguageExpanded(false);
-                        }}
-                        activeOpacity={0.7}
-                      >
-                        {isSelected && (
-                          <Ionicons name="checkmark" size={14} color={typeColor} style={{ marginRight: 4 }} />
-                        )}
-                        <Text style={[styles.languageChipText, isSelected && { color: typeColor, fontWeight: '600' }]}>
-                          {lang.nativeLabel}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </View>
-              )}
+
+              <Modal
+                visible={showLanguagePicker}
+                animationType="fade"
+                transparent
+                onRequestClose={() => setShowLanguagePicker(false)}
+              >
+                <TouchableOpacity
+                  style={styles.languagePickerOverlay}
+                  activeOpacity={1}
+                  onPress={() => setShowLanguagePicker(false)}
+                >
+                  <View style={styles.languagePickerDropdown}>
+                    <Text style={styles.languagePickerTitle}>{t('books.generator.language')}</Text>
+                    {SUPPORTED_LANGUAGES.map(lang => {
+                      const isSelected = lang.code === selectedLanguage;
+                      return (
+                        <TouchableOpacity
+                          key={lang.code}
+                          style={[styles.languagePickerOption, isSelected && styles.languagePickerOptionSelected]}
+                          onPress={() => {
+                            setSelectedLanguage(lang.code);
+                            setShowLanguagePicker(false);
+                          }}
+                        >
+                          <Text
+                            style={[
+                              styles.languagePickerOptionText,
+                              isSelected && { color: typeColor, fontWeight: '600' },
+                            ]}
+                          >
+                            {lang.nativeLabel}
+                          </Text>
+                          {isSelected && <Ionicons name="checkmark" size={18} color={typeColor} />}
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                </TouchableOpacity>
+              </Modal>
             </View>
 
             {bookTypeConfig.hasDepthSelection && bookTypeConfig.generatorDepthLabelKey && (
@@ -621,27 +629,41 @@ const createStyles = (colors: ColorScheme) =>
       fontSize: 13,
       color: colors.text.secondary,
     },
-    languageChips: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      gap: 8,
-      paddingHorizontal: 14,
-      paddingBottom: 14,
-    },
-    languageChip: {
-      flexDirection: 'row',
+    languagePickerOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.6)',
+      justifyContent: 'center',
       alignItems: 'center',
-      paddingHorizontal: 12,
-      paddingVertical: 8,
-      borderRadius: 20,
-      borderWidth: 1,
-      borderColor: colors.border.primary,
-      backgroundColor: colors.background.primary,
+      padding: 20,
     },
-    languageChipText: {
-      fontSize: 13,
-      color: colors.text.secondary,
-      fontWeight: '500',
+    languagePickerDropdown: {
+      backgroundColor: colors.background.dark,
+      borderRadius: BORDER_RADIUS.md,
+      padding: 16,
+      width: '100%',
+      maxWidth: 340,
+    },
+    languagePickerTitle: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: colors.text.primary,
+      marginBottom: 12,
+      textAlign: 'center',
+    },
+    languagePickerOption: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: 14,
+      borderRadius: BORDER_RADIUS.sm,
+      marginBottom: 4,
+    },
+    languagePickerOptionSelected: {
+      backgroundColor: colors.brand.primary + '15',
+    },
+    languagePickerOptionText: {
+      fontSize: 15,
+      color: colors.text.primary,
     },
     depthContainer: {
       marginBottom: 16,

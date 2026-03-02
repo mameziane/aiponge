@@ -137,12 +137,10 @@ export default function LibrarianMusicScreen({
 
       let successCount = 0;
       let albumIndex = 0;
-      const multipleLanguages = params.targetLanguages.length > 1;
       const multipleChunks = entryChunks.length > 1;
 
       for (let langIdx = 0; langIdx < params.targetLanguages.length; langIdx++) {
         const targetLang = params.targetLanguages[langIdx];
-        const langSuffix = multipleLanguages ? ` [${targetLang.toUpperCase()}]` : '';
 
         for (let chunkIdx = 0; chunkIdx < entryChunks.length; chunkIdx++) {
           albumIndex++;
@@ -165,7 +163,7 @@ export default function LibrarianMusicScreen({
               timeout: 180000,
               data: {
                 bookId: params.bookId,
-                bookTitle: params.bookTitle + partSuffix + langSuffix,
+                bookTitle: params.bookTitle + partSuffix,
                 bookType: params.bookType || null,
                 bookDescription: params.bookDescription || null,
                 entries: chunk,

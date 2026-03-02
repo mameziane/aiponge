@@ -173,6 +173,26 @@ export async function forceRefreshExplore(): Promise<void> {
 }
 
 /**
+ * Force refresh public albums list bypassing API Gateway cache
+ * Uses x-cache-revalidate header to bypass the gateway's response cache
+ *
+ * Call this after album generation completes to ensure newly created albums
+ * appear immediately — invalidateQueries alone may fetch stale gateway-cached data.
+ */
+export async function forceRefreshPublicAlbums(): Promise<void> {
+  try {
+    const freshData = await apiClient.get('/api/v1/app/library/public-albums', {
+      headers: {
+        'x-cache-revalidate': 'true',
+      },
+    });
+    queryClient.setQueryData(queryKeys.albums.public(), freshData);
+  } catch {
+    // Silent fail - albums will update on next natural refresh
+  }
+}
+
+/**
  * Invalidate all authentication-related caches
  * Called after login, registration, or guest auth
  *
