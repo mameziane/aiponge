@@ -32,6 +32,7 @@ import { getDatabase } from '../../../infrastructure/database/DatabaseConnection
 import { sql, eq } from 'drizzle-orm';
 import { albums } from '../../../schema/music-schema';
 import { v4 as uuidv4 } from 'uuid';
+import { markFileAsOrphaned } from '@aiponge/shared-contracts/storage';
 import { getServiceRegistry } from '../../../infrastructure/ServiceFactory';
 
 const logger = getLogger('music-service-library-album-routes');
@@ -408,6 +409,19 @@ router.patch('/albums/:albumId', serviceAuthMiddleware({ required: true }), asyn
     }
 
     if (artworkUrl !== undefined) {
+      // Mark old artwork as orphaned before replacing (best-effort, non-blocking)
+      const oldAlbum = await db.execute(sql`SELECT artwork_url FROM mus_albums WHERE id = ${albumId} LIMIT 1`);
+      const oldArtworkUrl = (oldAlbum.rows?.[0] as { artwork_url?: string } | undefined)?.artwork_url;
+      if (oldArtworkUrl && String(oldArtworkUrl).includes('/uploads/') && oldArtworkUrl !== artworkUrl) {
+        markFileAsOrphaned(String(oldArtworkUrl)).catch(err => {
+          logger.warn('Failed to mark old album artwork as orphaned', {
+            albumId,
+            oldArtworkUrl,
+            error: err instanceof Error ? err.message : String(err),
+          });
+        });
+      }
+
       await db.execute(sql`
         UPDATE mus_albums SET artwork_url = ${artworkUrl || null}, updated_at = NOW() WHERE id = ${albumId}
       `);
@@ -534,6 +548,19 @@ router.patch('/albums/:albumId/artwork', serviceAuthMiddleware({ required: true 
     if (!canEditContent({ ownerId: album.user_id, visibility: album.visibility }, accessCtx)) {
       ServiceErrors.forbidden(res, 'Access denied', req);
       return;
+    }
+
+    // Mark old artwork as orphaned before replacing (best-effort, non-blocking)
+    const oldAlbumArt = await db.execute(sql`SELECT artwork_url FROM mus_albums WHERE id = ${albumId} LIMIT 1`);
+    const oldArtUrl = (oldAlbumArt.rows?.[0] as { artwork_url?: string } | undefined)?.artwork_url;
+    if (oldArtUrl && String(oldArtUrl).includes('/uploads/') && oldArtUrl !== artworkUrl) {
+      markFileAsOrphaned(String(oldArtUrl)).catch(err => {
+        logger.warn('Failed to mark old album artwork as orphaned', {
+          albumId,
+          oldArtworkUrl: oldArtUrl,
+          error: err instanceof Error ? err.message : String(err),
+        });
+      });
     }
 
     await db.execute(sql`

@@ -75,7 +75,8 @@ export const StorageEventPublisher = {
     path: string,
     correlationId: string = generateCorrelationId(),
     userId?: string,
-    reason?: string
+    reason?: string,
+    publicUrl?: string
   ): void {
     safePublish(
       'storage.asset.deleted',
@@ -83,6 +84,7 @@ export const StorageEventPublisher = {
         assetId,
         userId,
         path,
+        publicUrl,
         reason,
       },
       correlationId

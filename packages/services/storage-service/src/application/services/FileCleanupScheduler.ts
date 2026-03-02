@@ -19,10 +19,10 @@ export class FileCleanupScheduler extends BaseScheduler {
   declare protected initLogger: () => void;
   declare triggerNow: () => Promise<SchedulerExecutionResult>;
   private cleanupConfig: CleanupSchedulerConfig = {
-    enableDetection: false,
-    detectionBatchSize: 500,
-    cleanupBatchSize: 100,
-    gracePeriodHours: 24,
+    enableDetection: process.env.STORAGE_ENABLE_FILE_DETECTION === 'true',
+    detectionBatchSize: parseInt(process.env.STORAGE_DETECTION_BATCH_SIZE || '500', 10),
+    cleanupBatchSize: parseInt(process.env.STORAGE_CLEANUP_BATCH_SIZE || '100', 10),
+    gracePeriodHours: parseInt(process.env.STORAGE_GRACE_PERIOD_HOURS || '24', 10),
   };
 
   get name(): string {

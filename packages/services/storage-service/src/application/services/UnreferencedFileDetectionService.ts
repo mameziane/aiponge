@@ -40,11 +40,12 @@ export interface DetectionResult {
  *
  * Reference sources:
  * - User avatars (usr_accounts.profile->>'avatarUrl')
- * - Album covers (mus_albums.cover_image_url)
- * - Track files and artwork (mus_tracks.file_url, artwork_url) - consolidated table includes all tracks
- * - Playlist covers (mus_playlists.cover_image_url)
+ * - Album artwork (mus_albums.artwork_url)
+ * - Track files and artwork (mus_tracks.file_url, artwork_url)
+ * - Playlist artwork (mus_playlists.artwork_url)
+ * - Library entry illustrations (lib_entries.illustration_url)
+ * - Library illustrations (lib_illustrations.url, thumbnail_url)
  * - File versions (stg_versions.storage_path, public_url)
- *
  */
 const REFERENCED_URLS_QUERY = sql`
   SELECT DISTINCT url FROM (
@@ -52,19 +53,28 @@ const REFERENCED_URLS_QUERY = sql`
     SELECT profile->>'avatarUrl' as url FROM usr_accounts
       WHERE profile->>'avatarUrl' IS NOT NULL AND profile->>'avatarUrl' != ''
     UNION ALL
-    -- Album cover images
-    SELECT cover_image_url as url FROM mus_albums WHERE cover_image_url IS NOT NULL AND cover_image_url != ''
+    -- Album artwork
+    SELECT artwork_url as url FROM mus_albums WHERE artwork_url IS NOT NULL AND artwork_url != ''
     UNION ALL
-    -- Track audio files (includes both shared and personal tracks via visibility)
+    -- Track audio files
     SELECT file_url as url FROM mus_tracks WHERE file_url IS NOT NULL AND file_url != ''
     UNION ALL
-    -- Track artwork (includes both shared and personal tracks via visibility)
+    -- Track artwork
     SELECT artwork_url as url FROM mus_tracks WHERE artwork_url IS NOT NULL AND artwork_url != ''
     UNION ALL
-    -- Playlist cover images
-    SELECT cover_image_url as url FROM mus_playlists WHERE cover_image_url IS NOT NULL AND cover_image_url != ''
+    -- Playlist artwork
+    SELECT artwork_url as url FROM mus_playlists WHERE artwork_url IS NOT NULL AND artwork_url != ''
     UNION ALL
-    -- File versions storage paths (these are related files that should be kept)
+    -- Library entry illustrations
+    SELECT illustration_url as url FROM lib_entries WHERE illustration_url IS NOT NULL AND illustration_url != ''
+    UNION ALL
+    -- Library illustration images
+    SELECT url FROM lib_illustrations WHERE url IS NOT NULL AND url != ''
+    UNION ALL
+    -- Library illustration thumbnails (Drizzle field: artworkUrl, actual column: thumbnail_url)
+    SELECT thumbnail_url as url FROM lib_illustrations WHERE thumbnail_url IS NOT NULL AND thumbnail_url != ''
+    UNION ALL
+    -- File versions storage paths
     SELECT storage_path as url FROM stg_versions WHERE storage_path IS NOT NULL AND storage_path != ''
     UNION ALL
     -- File versions public URLs

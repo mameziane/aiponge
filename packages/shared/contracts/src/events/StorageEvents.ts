@@ -33,6 +33,7 @@ export const storageAssetDeletedEventSchema = baseEventSchema.extend({
     assetId: z.string(),
     userId: z.string().uuid().optional(),
     path: z.string(),
+    publicUrl: z.string().optional(),
     reason: z.string().optional(),
   }),
 });

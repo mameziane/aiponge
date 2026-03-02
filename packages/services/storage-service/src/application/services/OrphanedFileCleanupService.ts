@@ -8,8 +8,10 @@ import { eq, and, lt, sql } from 'drizzle-orm';
 import type { DatabaseConnection } from '../../infrastructure/database/DatabaseConnectionFactory';
 import * as schema from '../../schema/storage-schema';
 import { getLogger } from '../../config/service-urls';
+import { generateCorrelationId } from '@aiponge/platform-core';
 import { IStorageProvider } from '../interfaces/IStorageProvider';
 import { STORAGE_FILE_LIFECYCLE } from '@aiponge/shared-contracts';
+import { StorageEventPublisher } from '../../infrastructure/events/StorageEventPublisher';
 
 const logger = getLogger('orphaned-file-cleanup');
 
@@ -117,6 +119,16 @@ export class OrphanedFileCleanupService {
               .update(schema.files)
               .set({ status: STORAGE_FILE_LIFECYCLE.DELETED, updatedAt: new Date() })
               .where(eq(schema.files.id, file.id));
+
+            // Notify downstream services so they can nullify stale URL references
+            StorageEventPublisher.assetDeleted(
+              file.id,
+              file.storagePath,
+              generateCorrelationId(),
+              undefined,
+              'orphan_cleanup',
+              file.publicUrl ?? undefined
+            );
 
             result.deletedCount++;
             logger.info('Deleted orphaned file', { id: file.id, path: file.storagePath });

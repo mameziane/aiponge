@@ -5,7 +5,9 @@
  */
 
 import { createEventSubscriber, type StandardEvent, type EventHandler } from '@aiponge/platform-core';
+import { sql } from 'drizzle-orm';
 import { getLogger } from '../../config/service-urls';
+import { getDatabase } from '../database/DatabaseConnectionFactory';
 
 const logger = getLogger('music-storage-subscriber');
 
@@ -23,6 +25,7 @@ interface AssetDeletedData {
   assetId: string;
   userId?: string;
   path: string;
+  publicUrl?: string;
   reason?: string;
 }
 
@@ -73,6 +76,31 @@ async function handleAssetDeleted(_event: StandardEvent, data: AssetDeletedData)
     data1: data.reason || 'not specified',
   });
   pendingAssets.delete(data.assetId);
+
+  // Nullify stale URL references in music-service tables
+  const storagePath = data.path;
+  if (!storagePath) return;
+
+  try {
+    const db = getDatabase();
+    const pattern = `%${storagePath}`;
+
+    await Promise.all([
+      db.execute(sql`UPDATE mus_tracks SET file_url = NULL, updated_at = NOW() WHERE file_url LIKE ${pattern}`),
+      db.execute(sql`UPDATE mus_tracks SET artwork_url = NULL, updated_at = NOW() WHERE artwork_url LIKE ${pattern}`),
+      db.execute(sql`UPDATE mus_albums SET artwork_url = NULL, updated_at = NOW() WHERE artwork_url LIKE ${pattern}`),
+      db.execute(
+        sql`UPDATE mus_playlists SET artwork_url = NULL, updated_at = NOW() WHERE artwork_url LIKE ${pattern}`
+      ),
+    ]);
+
+    logger.info('Nullified stale music URL references for deleted asset', { storagePath });
+  } catch (error) {
+    logger.warn('Failed to nullify stale music URL references (non-critical)', {
+      storagePath,
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
 }
 
 async function handleAssetMoved(_event: StandardEvent, data: AssetMovedData): Promise<void> {

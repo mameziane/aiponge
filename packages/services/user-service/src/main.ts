@@ -39,6 +39,10 @@ import * as userSchema from './infrastructure/database/schemas/user-schema';
 import * as profileSchema from './infrastructure/database/schemas/profile-schema';
 import * as creatorMemberSchema from './infrastructure/database/schemas/creator-member-schema';
 import { BookGenerationRepository } from './infrastructure/repositories/BookGenerationRepository';
+import {
+  startStorageEventSubscriber,
+  stopStorageEventSubscriber,
+} from './infrastructure/events/StorageEventSubscriber';
 
 const logger = createLogger('user-service');
 
@@ -247,8 +251,16 @@ async function startServer() {
       schedulerCount: SchedulerRegistry.getAllInfo().length,
     });
 
+    // Start event subscribers (fire-and-forget, non-blocking)
+    startStorageEventSubscriber().catch(err => {
+      logger.warn('Failed to start storage event subscriber (non-critical)', {
+        error: err instanceof Error ? err.message : String(err),
+      });
+    });
+
     setupGracefulShutdown(server);
     registerShutdownHook(async () => {
+      await stopStorageEventSubscriber();
       SchedulerRegistry.stopAll();
       const { DatabaseConnectionFactory } = await import('./infrastructure/database/DatabaseConnectionFactory');
       await DatabaseConnectionFactory.close();
