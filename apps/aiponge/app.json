@@ -21,14 +21,14 @@
     "primaryColor": "#1a0b2e",
     "backgroundColor": "#1a0b2e",
     "splash": {
-      "image": "./assets/icon.png",
-      "resizeMode": "contain",
+      "image": "./assets/splash.png",
+      "resizeMode": "cover",
       "backgroundColor": "#1a0b2e"
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.mameziane.aiponge",
+      "bundleIdentifier": "com.aiponge",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "UIBackgroundModes": ["audio"],
@@ -42,7 +42,7 @@
         "NSBonjourServices": ["_googlecast._tcp", "_CC1AD845._googlecast._tcp"]
       },
       "entitlements": {
-        "com.apple.security.application-groups": ["group.com.mameziane.aiponge"]
+        "com.apple.security.application-groups": ["group.com.aiponge"]
       },
       "associatedDomains": ["applinks:aiponge.com", "webcredentials:aiponge.com"]
     },

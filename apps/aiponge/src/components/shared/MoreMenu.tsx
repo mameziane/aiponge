@@ -6,7 +6,7 @@ import { MenuItem, MenuModal, MenuTrigger } from './MenuComponents';
 import { logger } from '../../lib/logger';
 
 const APPLE_APP_STORE_ID = '6450000000';
-const ANDROID_PACKAGE_NAME = 'com.mameziane.aiponge';
+const ANDROID_PACKAGE_NAME = 'com.aiponge';
 
 interface MoreMenuProps {
   onClose?: () => void;
