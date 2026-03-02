@@ -17,7 +17,7 @@ function loadBackup(): Record<string, unknown>[] {
 
 export const bookTypesSeed: SeedModule = {
   name: 'book-types',
-  description: 'Seed lib_book_types with all 14 book type definitions',
+  description: 'Seed lib_book_types with all 32 book type definitions (8 categories × 4 types)',
   priority: 15,
   dependencies: [],
   version: '1.0.0',
@@ -33,7 +33,7 @@ export const bookTypesSeed: SeedModule = {
         typeof bt.default_settings === 'string' ? bt.default_settings : JSON.stringify(bt.default_settings);
 
       await db.execute(
-        `INSERT INTO lib_book_types (id, name, description, prompt_template_id, default_settings, icon_name, is_user_creatable, is_editable, sort_order, created_at, updated_at)
+        `INSERT INTO lib_book_types (id, name, description, prompt_template_id, default_settings, icon_name, is_user_creatable, is_editable, sort_order, category, created_at, updated_at)
          VALUES (
            '${escSql(bt.id as string)}',
            '${escSql(bt.name as string)}',
@@ -44,6 +44,7 @@ export const bookTypesSeed: SeedModule = {
            ${bt.is_user_creatable ?? true},
            ${bt.is_editable ?? true},
            ${bt.sort_order ?? 0},
+           ${bt.category ? `'${escSql(bt.category as string)}'` : 'NULL'},
            NOW(),
            NOW()
          )
@@ -56,6 +57,7 @@ export const bookTypesSeed: SeedModule = {
            is_user_creatable = EXCLUDED.is_user_creatable,
            is_editable = EXCLUDED.is_editable,
            sort_order = EXCLUDED.sort_order,
+           category = EXCLUDED.category,
            updated_at = NOW()`
       );
 
