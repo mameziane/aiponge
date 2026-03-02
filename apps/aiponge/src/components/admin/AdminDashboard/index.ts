@@ -13,7 +13,6 @@ export * from './AdminRevenueSection';
 export * from './AdminSafetySection';
 export * from './AdminScalabilitySection';
 export * from './AdminServicesSection';
-export * from './AdminSubTabBar';
 export * from './AdminSystemSection';
 export * from './AdminTemplatesSection';
 export * from './AdminUsersSection';

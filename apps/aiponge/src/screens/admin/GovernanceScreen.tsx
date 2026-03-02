@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useThemeColors, commonStyles, BORDER_RADIUS, type ColorScheme } from '../../theme';
-import { AdminSubTabBar } from '../../components/admin/AdminDashboard/AdminSubTabBar';
+import { TabBar } from '../../components/shared/TabBar';
 import { apiClient } from '../../lib/axiosApiClient';
 import { useIsAdmin } from '../../hooks/admin';
 import { ADMIN_QUERY } from '../../constants/appConfig';
@@ -390,10 +390,11 @@ export default function GovernanceScreen() {
 
   return (
     <View style={styles.container}>
-      <AdminSubTabBar
+      <TabBar
         tabs={SUB_TABS.map(tab => ({ ...tab, label: t(tab.label) }))}
         activeTab={activeTab}
         onTabChange={handleTabChange}
+        testIDPrefix="admin-subtab"
       />
 
       <ScrollView

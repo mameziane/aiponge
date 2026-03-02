@@ -11,7 +11,7 @@ import {
 } from '../../components/music/MusicGeneration/BatchAlbumCreationModal';
 import { LiquidGlassCard } from '../../components/ui';
 import { LoadingState } from '../../components/shared/LoadingState';
-import { LibrarianSubTabBar } from '../../components/admin/LibrarianDashboard/LibrarianSubTabBar';
+import { TabBar } from '../../components/shared/TabBar';
 import { LibrarianPlaylistsSection } from '../../components/admin/LibrarianDashboard/LibrarianPlaylistsSection';
 import { useCredits } from '../../hooks/commerce/useCredits';
 import { useAlbumGenerationStore } from '../../stores';
@@ -252,7 +252,7 @@ export default function LibrarianMusicScreen({
 
   return (
     <View style={styles.container}>
-      <LibrarianSubTabBar tabs={subTabs} activeTab={activeTab} onTabChange={handleTabChange} />
+      <TabBar tabs={subTabs} activeTab={activeTab} onTabChange={handleTabChange} testIDPrefix="librarian-subtab" />
 
       {activeTab === 'playlists' ? (
         <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>

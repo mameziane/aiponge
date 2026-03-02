@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { useThemeColors, commonStyles, type ColorScheme } from '../../theme';
 import { AdminDashboardSection } from '../../components/admin/AdminDashboard/AdminDashboardSection';
 import { AdminProvidersSection } from '../../components/admin/AdminDashboard/AdminProvidersSection';
-import { AdminSubTabBar } from '../../components/admin/AdminDashboard/AdminSubTabBar';
+import { TabBar } from '../../components/shared/TabBar';
 import { CONFIG } from '../../constants/appConfig';
 import { useAdminCreateAction } from '../../contexts/AdminCreateContext';
 import { CreateProviderModal } from '../../components/admin/CreateProviderModal';
@@ -59,10 +59,11 @@ export default function DashboardScreen() {
 
   return (
     <View style={styles.container}>
-      <AdminSubTabBar
+      <TabBar
         tabs={SUB_TABS.map(tab => ({ ...tab, label: t(tab.label) }))}
         activeTab={activeSubTab}
         onTabChange={handleSubTabChange}
+        testIDPrefix="admin-subtab"
       />
 
       <ScrollView

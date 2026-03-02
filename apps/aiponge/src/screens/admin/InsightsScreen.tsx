@@ -3,7 +3,7 @@ import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useRouter, useLocalSearchParams, type Href } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useThemeColors, commonStyles, type ColorScheme } from '../../theme';
-import { AdminSubTabBar } from '../../components/admin/AdminDashboard/AdminSubTabBar';
+import { TabBar } from '../../components/shared/TabBar';
 import { AdminMetricsSection } from '../../components/admin/AdminDashboard/AdminMetricsSection';
 import { AdminRevenueSection } from '../../components/admin/AdminDashboard/AdminRevenueSection';
 import { useAdminProductMetrics } from '../../hooks/admin';
@@ -167,10 +167,11 @@ export default function InsightsScreen() {
 
   return (
     <View style={styles.container}>
-      <AdminSubTabBar
+      <TabBar
         tabs={SUB_TABS.map(tab => ({ ...tab, label: t(tab.label) }))}
         activeTab={activeTab}
         onTabChange={handleTabChange}
+        testIDPrefix="admin-subtab"
       />
 
       <ScrollView

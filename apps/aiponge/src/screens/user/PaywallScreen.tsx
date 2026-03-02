@@ -27,10 +27,10 @@ import { useThemeColors, type ColorScheme, commonStyles, Z_INDEX, BORDER_RADIUS 
 import { fontFamilies } from '../../theme/typography';
 import { LiquidGlassCard } from '../../components/ui';
 import type { PurchasesPackage } from 'react-native-purchases';
-import { TIER_IDS, isPaidTier as isPaidTierCheck } from '@aiponge/shared-contracts';
+import { TIER_IDS } from '@aiponge/shared-contracts';
 import { getTierDisplay, PAID_TIERS, type TierId } from '../../constants/tierDisplayConfig';
+import type { BillingPeriod } from '../../contexts/SubscriptionContext';
 
-type BillingPeriod = 'monthly' | 'annual';
 type SelectedTier = typeof TIER_IDS.PERSONAL | typeof TIER_IDS.PRACTICE | typeof TIER_IDS.STUDIO;
 
 interface PackageInfo {
@@ -89,12 +89,17 @@ export function PaywallScreen() {
   const colors = useThemeColors();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const { t } = useTranslation();
-  const { offerings, isPaidTier, currentTier, isLoading } = useSubscriptionData();
+  const { offerings, currentTier, isLoading } = useSubscriptionData();
   const { purchasePackage, restorePurchases } = useSubscriptionActions();
   const user = useAuthStore(selectUser);
   const isGuest = !user || user.isGuest;
   const [purchaseLoading, setPurchaseLoading] = useState(false);
-  const [selectedTier, setSelectedTier] = useState<SelectedTier>(TIER_IDS.PERSONAL);
+  const [selectedTier, setSelectedTier] = useState<SelectedTier>(() => {
+    // Pre-select the next tier up for existing paid users
+    if (currentTier === TIER_IDS.PERSONAL) return TIER_IDS.PRACTICE;
+    if (currentTier === TIER_IDS.PRACTICE) return TIER_IDS.STUDIO;
+    return TIER_IDS.PERSONAL;
+  });
   const [selectedBillingPeriod, setSelectedBillingPeriod] = useState<BillingPeriod>('monthly');
 
   const { personalPackages, practicePackages, studioPackages } = useMemo(() => {
@@ -225,7 +230,9 @@ export function PaywallScreen() {
     return t('subscription.savings.mostPopular');
   };
 
-  if (isPaidTier || isPaidTierCheck(currentTier)) {
+  // Only show "already subscribed" for the highest tier (Studio).
+  // Personal and Practice users should still see the paywall to upgrade.
+  if (currentTier === TIER_IDS.STUDIO) {
     const tierName = t(`subscription.tiers.${currentTier}.name`);
 
     return (

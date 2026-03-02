@@ -4,7 +4,7 @@ import { useRouter, useLocalSearchParams, type Href } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useThemeColors, commonStyles, BORDER_RADIUS, type ColorScheme } from '../../theme';
-import { AdminSubTabBar } from '../../components/admin/AdminDashboard/AdminSubTabBar';
+import { TabBar } from '../../components/shared/TabBar';
 import { AdminPromptsSection } from '../../components/admin/AdminDashboard/AdminPromptsSection';
 import { AdminFrameworksSection } from '../../components/admin/AdminDashboard/AdminFrameworksSection';
 import { AdminProvidersSection } from '../../components/admin/AdminDashboard/AdminProvidersSection';
@@ -52,10 +52,11 @@ export default function SystemsScreen() {
 
   return (
     <View style={styles.container}>
-      <AdminSubTabBar
+      <TabBar
         tabs={SUB_TABS.map(tab => ({ ...tab, label: t(tab.label) }))}
         activeTab={activeTab}
         onTabChange={handleTabChange}
+        testIDPrefix="admin-subtab"
       />
 
       <ScrollView

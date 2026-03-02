@@ -2,7 +2,7 @@ import { View, ScrollView, StyleSheet, RefreshControl } from 'react-native';
 import { useState, useCallback, useMemo } from 'react';
 import { useThemeColors, commonStyles, type ColorScheme } from '../../theme';
 import { useTranslation } from '../../i18n';
-import { LibrarianSubTabBar } from '../../components/admin/LibrarianDashboard/LibrarianSubTabBar';
+import { TabBar } from '../../components/shared/TabBar';
 import { LibrarianAlbumsSection } from '../../components/admin/LibrarianDashboard/LibrarianAlbumsSection';
 import { LibrarianTracksSection } from '../../components/admin/LibrarianDashboard/LibrarianTracksSection';
 
@@ -36,7 +36,7 @@ export default function LibrarianLibraryScreen() {
 
   return (
     <View style={styles.container}>
-      <LibrarianSubTabBar tabs={subTabs} activeTab={activeTab} onTabChange={handleTabChange} />
+      <TabBar tabs={subTabs} activeTab={activeTab} onTabChange={handleTabChange} testIDPrefix="librarian-subtab" />
 
       <ScrollView
         style={styles.content}

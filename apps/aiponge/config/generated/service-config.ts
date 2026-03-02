@@ -3,7 +3,7 @@
 // Run 'npm run generate:config' to regenerate
 
 export const CONFIG_METADATA = {
-  generated: "2026-03-02T15:36:29.296Z",
+  generated: "2026-03-02T18:11:30.588Z",
   sourceHash: "9095217d",
   version: "1.0.0"
 } as const;
@@ -41,9 +41,9 @@ export function getApiGatewayUrl(): string {
     return process.env.EXPO_PUBLIC_API_URL;
   }
   
-  // 2. Browser/Frontend: use Replit dev URL (browsers can't access localhost from Replit preview)
+  // 2. Browser/Frontend: use configured gateway URL
   if (typeof window !== 'undefined') {
-    return endpoints.apiGateway.url; // https://xxx.replit.dev:8080
+    return endpoints.apiGateway.url;
   }
   
   // 3. Server/Node: use localhost for internal calls

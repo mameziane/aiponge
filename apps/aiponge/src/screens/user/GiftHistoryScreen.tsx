@@ -14,6 +14,7 @@ import { SendGiftModal } from '../../components/commerce/SendGiftModal';
 import { LiquidGlassCard, LiquidGlassView } from '../../components/ui';
 import { LoadingState } from '../../components/shared/LoadingState';
 import { EmptyState } from '../../components/shared/EmptyState';
+import { TabBar } from '../../components/shared/TabBar';
 
 type TabType = 'sent' | 'received';
 
@@ -169,40 +170,21 @@ export default function GiftHistoryScreen() {
         </LiquidGlassView>
       ) : null}
 
-      <View style={styles.tabContainer}>
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'sent' && styles.tabActive]}
-          onPress={() => setActiveTab('sent')}
-          testID="tab-sent"
-        >
-          <Ionicons
-            name="arrow-up-circle-outline"
-            size={18}
-            color={activeTab === 'sent' ? colors.brand.primary : colors.text.tertiary}
-          />
-          <Text style={[styles.tabText, activeTab === 'sent' && styles.tabTextActive]}>
-            {t('credits.gifts.sentGifts')}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'received' && styles.tabActive]}
-          onPress={() => setActiveTab('received')}
-          testID="tab-received"
-        >
-          <Ionicons
-            name="arrow-down-circle-outline"
-            size={18}
-            color={activeTab === 'received' ? colors.brand.primary : colors.text.tertiary}
-          />
-          <Text style={[styles.tabText, activeTab === 'received' && styles.tabTextActive]}>
-            {t('credits.gifts.receivedGifts')}
-          </Text>
-          {pendingReceivedGifts.length > 0 ? (
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>{pendingReceivedGifts.length}</Text>
-            </View>
-          ) : null}
-        </TouchableOpacity>
+      <View style={styles.tabBarWrapper}>
+        <TabBar
+          tabs={[
+            { id: 'sent', label: t('credits.gifts.sentGifts'), icon: 'arrow-up-circle-outline' },
+            {
+              id: 'received',
+              label: t('credits.gifts.receivedGifts'),
+              icon: 'arrow-down-circle-outline',
+              badge: pendingReceivedGifts.length || undefined,
+            },
+          ]}
+          activeTab={activeTab}
+          onTabChange={id => setActiveTab(id as TabType)}
+          testIDPrefix="tab"
+        />
       </View>
 
       {isLoading ? (
@@ -264,48 +246,8 @@ const createStyles = (colors: ColorScheme) =>
       fontWeight: '600',
       color: colors.brand.primary,
     },
-    tabContainer: {
-      flexDirection: 'row',
+    tabBarWrapper: {
       marginHorizontal: 16,
-      marginBottom: 16,
-      backgroundColor: colors.background.tertiary,
-      borderRadius: BORDER_RADIUS.md,
-      padding: 4,
-    },
-    tab: {
-      flex: 1,
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: 6,
-      paddingVertical: 10,
-      borderRadius: 10,
-    },
-    tabActive: {
-      backgroundColor: colors.background.secondary,
-    },
-    tabText: {
-      fontSize: 14,
-      fontWeight: '500',
-      color: colors.text.tertiary,
-    },
-    tabTextActive: {
-      color: colors.brand.primary,
-      fontWeight: '600',
-    },
-    badge: {
-      backgroundColor: colors.brand.primary,
-      borderRadius: 10,
-      minWidth: 20,
-      height: 20,
-      alignItems: 'center',
-      justifyContent: 'center',
-      paddingHorizontal: 6,
-    },
-    badgeText: {
-      fontSize: 12,
-      fontWeight: '700',
-      color: colors.absolute.white,
     },
     listContent: {
       paddingHorizontal: 16,

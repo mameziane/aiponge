@@ -62,7 +62,7 @@ const REMINDER_TYPE_PRESETS: TypePreset[] = [
     type: 'reading',
     icon: 'book-outline',
     label: 'Reading',
-    color: themeColors.reminder.reading,
+    color: themeColors.brand.primary,
     defaultTitle: 'Reading Time',
     defaultPrompt: 'Continue your reading journey',
     defaultTime: [20, 0],
@@ -71,7 +71,7 @@ const REMINDER_TYPE_PRESETS: TypePreset[] = [
     type: 'listening',
     icon: 'headset-outline',
     label: 'Listening',
-    color: themeColors.reminder.listening,
+    color: themeColors.brand.primary,
     defaultTitle: 'Listening Session',
     defaultPrompt: 'Listen to your personalized tracks',
     defaultTime: [8, 0],
@@ -336,371 +336,370 @@ export function ReminderModal({ visible, onClose, reminder, onSave, defaultType,
 
   const currentPreset = getCurrentTypePreset();
 
+  const pickerView = showBookPicker ? 'book' : showAlbumPicker ? 'album' : null;
+
   return (
-    <>
-      <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-        <Pressable style={styles.overlay} onPress={onClose}>
-          <Pressable onPress={e => e.stopPropagation()}>
-            <LiquidGlassView intensity="strong" borderRadius={24} showBorder={true} style={styles.modalContainer}>
-              <View style={styles.header}>
-                <Ionicons name="notifications-outline" size={28} color={currentPreset.color} />
-                <Text style={styles.headerTitle}>
-                  {isEditing ? t('reminders.editReminder') : t('reminders.newReminder')}
-                </Text>
-              </View>
-
-              <View style={styles.divider} />
-
-              <ScrollView
-                style={styles.content}
-                showsVerticalScrollIndicator={false}
-                keyboardShouldPersistTaps="handled"
-              >
-                {isTrackMode && track && (
-                  <View style={styles.trackInfoCard}>
-                    <View style={styles.trackIconContainer}>
-                      <Ionicons name="musical-notes" size={24} color={colors.reminder.listening} />
-                    </View>
-                    <View style={styles.trackInfoText}>
-                      <Text style={styles.trackTitle} numberOfLines={1}>
-                        {track.title}
-                      </Text>
-                      {track.displayName && (
-                        <Text style={styles.trackArtist} numberOfLines={1}>
-                          {track.displayName}
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+      <Pressable style={styles.overlay} onPress={pickerView ? undefined : onClose}>
+        <Pressable onPress={e => e.stopPropagation()}>
+          <LiquidGlassView intensity="strong" borderRadius={24} showBorder={true} style={styles.modalContainer}>
+            {/* Inline Book Picker */}
+            {pickerView === 'book' && (
+              <>
+                <View style={styles.pickerHeader}>
+                  <Text style={styles.pickerHeaderTitle}>
+                    {t('reminders.selectBook', { defaultValue: 'Select a Book' })}
+                  </Text>
+                  <Pressable onPress={() => setShowBookPicker(false)} hitSlop={12}>
+                    <Ionicons name="close" size={24} color={colors.text.secondary} />
+                  </Pressable>
+                </View>
+                <ScrollView style={styles.pickerList} showsVerticalScrollIndicator={false}>
+                  <Pressable
+                    style={[styles.pickerItem, !selectedBookId && styles.pickerItemSelected]}
+                    onPress={() => {
+                      setSelectedBookId(null);
+                      setShowBookPicker(false);
+                    }}
+                  >
+                    <Ionicons name="remove-circle-outline" size={20} color={colors.text.tertiary} />
+                    <Text style={styles.pickerItemText}>{t('common.none', { defaultValue: 'None' })}</Text>
+                  </Pressable>
+                  {books.map(book => (
+                    <Pressable
+                      key={book.id}
+                      style={[styles.pickerItem, selectedBookId === book.id && styles.pickerItemSelected]}
+                      onPress={() => {
+                        setSelectedBookId(book.id);
+                        setShowBookPicker(false);
+                      }}
+                    >
+                      <Ionicons name="book" size={20} color={themeColors.brand.primary} />
+                      <View style={styles.pickerItemInfo}>
+                        <Text style={styles.pickerItemText} numberOfLines={1}>
+                          {book.title}
                         </Text>
+                        {book.author && (
+                          <Text style={styles.pickerItemSubtext} numberOfLines={1}>
+                            {book.author}
+                          </Text>
+                        )}
+                      </View>
+                      {selectedBookId === book.id && (
+                        <Ionicons name="checkmark" size={20} color={themeColors.brand.primary} />
                       )}
-                    </View>
-                  </View>
-                )}
+                    </Pressable>
+                  ))}
+                  {books.length === 0 && (
+                    <Text style={styles.pickerEmpty}>
+                      {t('reminders.noBooksYet', { defaultValue: 'No books yet' })}
+                    </Text>
+                  )}
+                </ScrollView>
+              </>
+            )}
 
-                {!isEditing && !isTrackMode && (
-                  <View style={styles.typesSection}>
-                    <Text style={styles.sectionLabel}>{t('reminders.reminderType')}</Text>
-                    <View style={styles.typesGrid}>
-                      {REMINDER_TYPE_PRESETS.map(preset => (
+            {/* Inline Album Picker */}
+            {pickerView === 'album' && (
+              <>
+                <View style={styles.pickerHeader}>
+                  <Text style={styles.pickerHeaderTitle}>
+                    {t('reminders.selectAlbum', { defaultValue: 'Select an Album' })}
+                  </Text>
+                  <Pressable onPress={() => setShowAlbumPicker(false)} hitSlop={12}>
+                    <Ionicons name="close" size={24} color={colors.text.secondary} />
+                  </Pressable>
+                </View>
+                <ScrollView style={styles.pickerList} showsVerticalScrollIndicator={false}>
+                  <Pressable
+                    style={[styles.pickerItem, !selectedAlbumId && styles.pickerItemSelected]}
+                    onPress={() => {
+                      setSelectedAlbumId(null);
+                      setShowAlbumPicker(false);
+                    }}
+                  >
+                    <Ionicons name="remove-circle-outline" size={20} color={colors.text.tertiary} />
+                    <Text style={styles.pickerItemText}>{t('common.none', { defaultValue: 'None' })}</Text>
+                  </Pressable>
+                  {albums.map(album => (
+                    <Pressable
+                      key={album.id}
+                      style={[styles.pickerItem, selectedAlbumId === album.id && styles.pickerItemSelected]}
+                      onPress={() => {
+                        setSelectedAlbumId(album.id);
+                        setShowAlbumPicker(false);
+                      }}
+                    >
+                      <Ionicons name="disc" size={20} color={themeColors.brand.primary} />
+                      <View style={styles.pickerItemInfo}>
+                        <Text style={styles.pickerItemText} numberOfLines={1}>
+                          {album.title}
+                        </Text>
+                        {album.totalTracks > 0 && (
+                          <Text style={styles.pickerItemSubtext}>
+                            {t('reminders.trackCount', {
+                              count: album.totalTracks,
+                              defaultValue: `${album.totalTracks} tracks`,
+                            })}
+                          </Text>
+                        )}
+                      </View>
+                      {selectedAlbumId === album.id && (
+                        <Ionicons name="checkmark" size={20} color={themeColors.brand.primary} />
+                      )}
+                    </Pressable>
+                  ))}
+                  {albums.length === 0 && (
+                    <Text style={styles.pickerEmpty}>
+                      {t('reminders.noAlbumsYet', { defaultValue: 'No albums yet' })}
+                    </Text>
+                  )}
+                </ScrollView>
+              </>
+            )}
+
+            {/* Main Form */}
+            {!pickerView && (
+              <>
+                <View style={styles.header}>
+                  <Ionicons name="notifications-outline" size={28} color={currentPreset.color} />
+                  <Text style={styles.headerTitle}>
+                    {isEditing ? t('reminders.editReminder') : t('reminders.newReminder')}
+                  </Text>
+                </View>
+
+                <View style={styles.divider} />
+
+                <ScrollView
+                  style={styles.content}
+                  showsVerticalScrollIndicator={false}
+                  keyboardShouldPersistTaps="handled"
+                >
+                  {isTrackMode && track && (
+                    <View style={styles.trackInfoCard}>
+                      <View style={styles.trackIconContainer}>
+                        <Ionicons name="musical-notes" size={24} color={currentPreset.color} />
+                      </View>
+                      <View style={styles.trackInfoText}>
+                        <Text style={styles.trackTitle} numberOfLines={1}>
+                          {track.title}
+                        </Text>
+                        {track.displayName && (
+                          <Text style={styles.trackArtist} numberOfLines={1}>
+                            {track.displayName}
+                          </Text>
+                        )}
+                      </View>
+                    </View>
+                  )}
+
+                  {!isEditing && !isTrackMode && (
+                    <View style={styles.typesSection}>
+                      <Text style={styles.sectionLabel}>{t('reminders.reminderType')}</Text>
+                      <View style={styles.typesGrid}>
+                        {REMINDER_TYPE_PRESETS.map(preset => (
+                          <Pressable
+                            key={preset.type}
+                            style={[
+                              styles.typeButton,
+                              config.reminderType === preset.type && {
+                                borderColor: preset.color,
+                                backgroundColor: preset.color + '15',
+                              },
+                            ]}
+                            onPress={() => selectType(preset)}
+                            testID={`button-type-${preset.type}`}
+                          >
+                            <View style={[styles.typeIconContainer, { backgroundColor: preset.color + '20' }]}>
+                              <Ionicons
+                                name={preset.icon}
+                                size={22}
+                                color={config.reminderType === preset.type ? preset.color : colors.text.tertiary}
+                              />
+                            </View>
+                            <Text
+                              style={[
+                                styles.typeButtonText,
+                                config.reminderType === preset.type && { color: preset.color },
+                              ]}
+                            >
+                              {preset.label}
+                            </Text>
+                          </Pressable>
+                        ))}
+                      </View>
+                    </View>
+                  )}
+
+                  {/* Book picker for Reading type */}
+                  {config.reminderType === 'reading' && !isTrackMode && (
+                    <View style={styles.inputSection}>
+                      <Text style={styles.sectionLabel}>{t('reminders.selectBook', { defaultValue: 'Book' })}</Text>
+                      <Pressable
+                        style={styles.pickerButton}
+                        onPress={() => setShowBookPicker(true)}
+                        testID="button-select-book"
+                      >
+                        <Ionicons name="book-outline" size={20} color={currentPreset.color} />
+                        <Text
+                          style={[styles.pickerButtonText, !selectedBook && styles.pickerButtonPlaceholder]}
+                          numberOfLines={1}
+                        >
+                          {selectedBook?.title ||
+                            t('reminders.chooseBook', { defaultValue: 'Choose a book (optional)' })}
+                        </Text>
+                        <Ionicons name="chevron-down" size={18} color={colors.text.tertiary} />
+                      </Pressable>
+                    </View>
+                  )}
+
+                  {/* Album picker for Listening type */}
+                  {config.reminderType === 'listening' && !isTrackMode && (
+                    <View style={styles.inputSection}>
+                      <Text style={styles.sectionLabel}>{t('reminders.selectAlbum', { defaultValue: 'Album' })}</Text>
+                      <Pressable
+                        style={styles.pickerButton}
+                        onPress={() => setShowAlbumPicker(true)}
+                        testID="button-select-album"
+                      >
+                        <Ionicons name="musical-notes-outline" size={20} color={currentPreset.color} />
+                        <Text
+                          style={[styles.pickerButtonText, !selectedAlbum && styles.pickerButtonPlaceholder]}
+                          numberOfLines={1}
+                        >
+                          {selectedAlbum?.title ||
+                            t('reminders.chooseAlbum', { defaultValue: 'Choose an album (optional)' })}
+                        </Text>
+                        <Ionicons name="chevron-down" size={18} color={colors.text.tertiary} />
+                      </Pressable>
+                    </View>
+                  )}
+
+                  <View style={styles.inputSection}>
+                    <Text style={styles.sectionLabel}>{t('reminders.reminderTitle')}</Text>
+                    <TextInput
+                      style={styles.textInput}
+                      value={config.title}
+                      onChangeText={text => setConfig({ ...config, title: text })}
+                      placeholder={t('reminders.titlePlaceholder')}
+                      placeholderTextColor={colors.text.tertiary}
+                      testID="input-reminder-title"
+                    />
+                  </View>
+
+                  <View style={styles.inputSection}>
+                    <Text style={styles.sectionLabel}>{t('reminders.reminderPrompt')}</Text>
+                    <TextInput
+                      style={[styles.textInput, styles.textInputMultiline]}
+                      value={config.prompt}
+                      onChangeText={text => setConfig({ ...config, prompt: text })}
+                      placeholder={t('reminders.promptPlaceholder')}
+                      placeholderTextColor={colors.text.tertiary}
+                      multiline
+                      numberOfLines={3}
+                      testID="input-reminder-prompt"
+                    />
+                  </View>
+
+                  <View style={styles.inputSection}>
+                    <Text style={styles.sectionLabel}>{t('reminders.time')}</Text>
+                    <Pressable
+                      style={styles.timeButton}
+                      onPress={() => setShowTimePicker(true)}
+                      testID="button-select-time"
+                    >
+                      <Ionicons name="time-outline" size={22} color={currentPreset.color} />
+                      <Text style={styles.timeButtonText}>{formatTime(config.time)}</Text>
+                      <Ionicons name="chevron-forward" size={18} color={colors.text.tertiary} />
+                    </Pressable>
+                  </View>
+
+                  {showTimePicker && (
+                    <DateTimePicker
+                      value={config.time}
+                      mode="time"
+                      is24Hour={false}
+                      display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                      onChange={handleTimeChange}
+                      textColor={colors.text.primary}
+                    />
+                  )}
+
+                  <View style={styles.inputSection}>
+                    <Text style={styles.sectionLabel}>{t('reminders.repeatDays')}</Text>
+                    <Text style={styles.selectedDaysLabel}>{getSelectedDaysLabel()}</Text>
+                    <View style={styles.daysRow}>
+                      {DAY_LABELS.map((day, index) => (
                         <Pressable
-                          key={preset.type}
+                          key={index}
                           style={[
-                            styles.typeButton,
-                            config.reminderType === preset.type && {
-                              borderColor: preset.color,
-                              backgroundColor: preset.color + '15',
+                            styles.dayButton,
+                            config.days[index] && {
+                              backgroundColor: currentPreset.color,
+                              borderColor: currentPreset.color,
                             },
                           ]}
-                          onPress={() => selectType(preset)}
-                          testID={`button-type-${preset.type}`}
+                          onPress={() => toggleDay(index)}
+                          testID={`button-day-${index}`}
                         >
-                          <View style={[styles.typeIconContainer, { backgroundColor: preset.color + '20' }]}>
-                            <Ionicons
-                              name={preset.icon}
-                              size={22}
-                              color={config.reminderType === preset.type ? preset.color : colors.text.tertiary}
-                            />
-                          </View>
-                          <Text
-                            style={[
-                              styles.typeButtonText,
-                              config.reminderType === preset.type && { color: preset.color },
-                            ]}
-                          >
-                            {preset.label}
+                          <Text style={[styles.dayButtonText, config.days[index] && styles.dayButtonTextActive]}>
+                            {day.charAt(0)}
                           </Text>
                         </Pressable>
                       ))}
                     </View>
                   </View>
-                )}
 
-                {/* Book picker for Reading type */}
-                {config.reminderType === 'reading' && !isTrackMode && (
-                  <View style={styles.inputSection}>
-                    <Text style={styles.sectionLabel}>{t('reminders.selectBook', { defaultValue: 'Book' })}</Text>
-                    <Pressable
-                      style={styles.pickerButton}
-                      onPress={() => setShowBookPicker(true)}
-                      testID="button-select-book"
-                    >
-                      <Ionicons name="book-outline" size={20} color={currentPreset.color} />
-                      <Text
-                        style={[styles.pickerButtonText, !selectedBook && styles.pickerButtonPlaceholder]}
-                        numberOfLines={1}
-                      >
-                        {selectedBook?.title || t('reminders.chooseBook', { defaultValue: 'Choose a book (optional)' })}
-                      </Text>
-                      <Ionicons name="chevron-down" size={18} color={colors.text.tertiary} />
-                    </Pressable>
-                  </View>
-                )}
-
-                {/* Album picker for Listening type */}
-                {config.reminderType === 'listening' && !isTrackMode && (
-                  <View style={styles.inputSection}>
-                    <Text style={styles.sectionLabel}>{t('reminders.selectAlbum', { defaultValue: 'Album' })}</Text>
-                    <Pressable
-                      style={styles.pickerButton}
-                      onPress={() => setShowAlbumPicker(true)}
-                      testID="button-select-album"
-                    >
-                      <Ionicons name="musical-notes-outline" size={20} color={currentPreset.color} />
-                      <Text
-                        style={[styles.pickerButtonText, !selectedAlbum && styles.pickerButtonPlaceholder]}
-                        numberOfLines={1}
-                      >
-                        {selectedAlbum?.title ||
-                          t('reminders.chooseAlbum', { defaultValue: 'Choose an album (optional)' })}
-                      </Text>
-                      <Ionicons name="chevron-down" size={18} color={colors.text.tertiary} />
-                    </Pressable>
-                  </View>
-                )}
-
-                <View style={styles.inputSection}>
-                  <Text style={styles.sectionLabel}>{t('reminders.reminderTitle')}</Text>
-                  <TextInput
-                    style={styles.textInput}
-                    value={config.title}
-                    onChangeText={text => setConfig({ ...config, title: text })}
-                    placeholder={t('reminders.titlePlaceholder')}
-                    placeholderTextColor={colors.text.tertiary}
-                    testID="input-reminder-title"
-                  />
-                </View>
-
-                <View style={styles.inputSection}>
-                  <Text style={styles.sectionLabel}>{t('reminders.reminderPrompt')}</Text>
-                  <TextInput
-                    style={[styles.textInput, styles.textInputMultiline]}
-                    value={config.prompt}
-                    onChangeText={text => setConfig({ ...config, prompt: text })}
-                    placeholder={t('reminders.promptPlaceholder')}
-                    placeholderTextColor={colors.text.tertiary}
-                    multiline
-                    numberOfLines={3}
-                    testID="input-reminder-prompt"
-                  />
-                </View>
-
-                <View style={styles.inputSection}>
-                  <Text style={styles.sectionLabel}>{t('reminders.time')}</Text>
-                  <Pressable
-                    style={styles.timeButton}
-                    onPress={() => setShowTimePicker(true)}
-                    testID="button-select-time"
-                  >
-                    <Ionicons name="time-outline" size={22} color={currentPreset.color} />
-                    <Text style={styles.timeButtonText}>{formatTime(config.time)}</Text>
-                    <Ionicons name="chevron-forward" size={18} color={colors.text.tertiary} />
-                  </Pressable>
-                </View>
-
-                {showTimePicker && (
-                  <DateTimePicker
-                    value={config.time}
-                    mode="time"
-                    is24Hour={false}
-                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                    onChange={handleTimeChange}
-                    textColor={colors.text.primary}
-                  />
-                )}
-
-                <View style={styles.inputSection}>
-                  <Text style={styles.sectionLabel}>{t('reminders.repeatDays')}</Text>
-                  <Text style={styles.selectedDaysLabel}>{getSelectedDaysLabel()}</Text>
-                  <View style={styles.daysRow}>
-                    {DAY_LABELS.map((day, index) => (
-                      <Pressable
-                        key={index}
-                        style={[
-                          styles.dayButton,
-                          config.days[index] && {
-                            backgroundColor: currentPreset.color,
-                            borderColor: currentPreset.color,
-                          },
-                        ]}
-                        onPress={() => toggleDay(index)}
-                        testID={`button-day-${index}`}
-                      >
-                        <Text style={[styles.dayButtonText, config.days[index] && styles.dayButtonTextActive]}>
-                          {day.charAt(0)}
-                        </Text>
-                      </Pressable>
-                    ))}
-                  </View>
-                </View>
-
-                <View style={styles.switchSection}>
-                  <View style={styles.switchRow}>
-                    <View style={styles.switchInfo}>
-                      <Ionicons name="notifications-outline" size={20} color={colors.text.secondary} />
-                      <Text style={styles.switchLabel}>{t('reminders.pushNotifications')}</Text>
-                    </View>
-                    <Switch
-                      value={config.notifyEnabled}
-                      onValueChange={value => setConfig({ ...config, notifyEnabled: value })}
-                      trackColor={{ false: colors.background.subtle, true: currentPreset.color + '60' }}
-                      thumbColor={config.notifyEnabled ? currentPreset.color : colors.text.tertiary}
-                    />
-                  </View>
-
-                  {config.reminderType === 'listening' && (
+                  <View style={styles.switchSection}>
                     <View style={styles.switchRow}>
                       <View style={styles.switchInfo}>
-                        <Ionicons name="play-circle-outline" size={20} color={colors.text.secondary} />
-                        <Text style={styles.switchLabel}>{t('reminders.autoPlay')}</Text>
+                        <Ionicons name="notifications-outline" size={20} color={colors.text.secondary} />
+                        <Text style={styles.switchLabel}>{t('reminders.pushNotifications')}</Text>
                       </View>
                       <Switch
-                        value={config.autoPlayEnabled}
-                        onValueChange={value => setConfig({ ...config, autoPlayEnabled: value })}
+                        value={config.notifyEnabled}
+                        onValueChange={value => setConfig({ ...config, notifyEnabled: value })}
                         trackColor={{ false: colors.background.subtle, true: currentPreset.color + '60' }}
-                        thumbColor={config.autoPlayEnabled ? currentPreset.color : colors.text.tertiary}
+                        thumbColor={config.notifyEnabled ? currentPreset.color : colors.text.tertiary}
                       />
                     </View>
-                  )}
+
+                    {config.reminderType === 'listening' && (
+                      <View style={styles.switchRow}>
+                        <View style={styles.switchInfo}>
+                          <Ionicons name="play-circle-outline" size={20} color={colors.text.secondary} />
+                          <Text style={styles.switchLabel}>{t('reminders.autoPlay')}</Text>
+                        </View>
+                        <Switch
+                          value={config.autoPlayEnabled}
+                          onValueChange={value => setConfig({ ...config, autoPlayEnabled: value })}
+                          trackColor={{ false: colors.background.subtle, true: currentPreset.color + '60' }}
+                          thumbColor={config.autoPlayEnabled ? currentPreset.color : colors.text.tertiary}
+                        />
+                      </View>
+                    )}
+                  </View>
+                </ScrollView>
+
+                <View style={styles.footer}>
+                  <Pressable style={styles.cancelButton} onPress={onClose} testID="button-cancel">
+                    <Text style={styles.cancelButtonText}>{t('common.cancel')}</Text>
+                  </Pressable>
+                  <Pressable
+                    style={[styles.saveButton, { backgroundColor: currentPreset.color }]}
+                    onPress={handleSave}
+                    disabled={isSaving}
+                    testID="button-save"
+                  >
+                    <Text style={styles.saveButtonText}>{isSaving ? t('common.saving') : t('common.save')}</Text>
+                  </Pressable>
                 </View>
-              </ScrollView>
-
-              <View style={styles.footer}>
-                <Pressable style={styles.cancelButton} onPress={onClose} testID="button-cancel">
-                  <Text style={styles.cancelButtonText}>{t('common.cancel')}</Text>
-                </Pressable>
-                <Pressable
-                  style={[styles.saveButton, { backgroundColor: currentPreset.color }]}
-                  onPress={handleSave}
-                  disabled={isSaving}
-                  testID="button-save"
-                >
-                  <Text style={styles.saveButtonText}>{isSaving ? t('common.saving') : t('common.save')}</Text>
-                </Pressable>
-              </View>
-            </LiquidGlassView>
-          </Pressable>
+              </>
+            )}
+          </LiquidGlassView>
         </Pressable>
-      </Modal>
-
-      {/* Book Picker Modal */}
-      <Modal visible={showBookPicker} transparent animationType="slide" onRequestClose={() => setShowBookPicker(false)}>
-        <Pressable style={styles.pickerOverlay} onPress={() => setShowBookPicker(false)}>
-          <Pressable style={styles.pickerContainer} onPress={e => e.stopPropagation()}>
-            <View style={styles.pickerHeader}>
-              <Text style={styles.pickerHeaderTitle}>
-                {t('reminders.selectBook', { defaultValue: 'Select a Book' })}
-              </Text>
-              <Pressable onPress={() => setShowBookPicker(false)} hitSlop={12}>
-                <Ionicons name="close" size={24} color={colors.text.secondary} />
-              </Pressable>
-            </View>
-            <ScrollView style={styles.pickerList} showsVerticalScrollIndicator={false}>
-              {/* Clear selection option */}
-              <Pressable
-                style={[styles.pickerItem, !selectedBookId && styles.pickerItemSelected]}
-                onPress={() => {
-                  setSelectedBookId(null);
-                  setShowBookPicker(false);
-                }}
-              >
-                <Ionicons name="remove-circle-outline" size={20} color={colors.text.tertiary} />
-                <Text style={styles.pickerItemText}>{t('common.none', { defaultValue: 'None' })}</Text>
-              </Pressable>
-              {books.map(book => (
-                <Pressable
-                  key={book.id}
-                  style={[styles.pickerItem, selectedBookId === book.id && styles.pickerItemSelected]}
-                  onPress={() => {
-                    setSelectedBookId(book.id);
-                    setShowBookPicker(false);
-                  }}
-                >
-                  <Ionicons name="book" size={20} color={themeColors.reminder.reading} />
-                  <View style={styles.pickerItemInfo}>
-                    <Text style={styles.pickerItemText} numberOfLines={1}>
-                      {book.title}
-                    </Text>
-                    {book.author && (
-                      <Text style={styles.pickerItemSubtext} numberOfLines={1}>
-                        {book.author}
-                      </Text>
-                    )}
-                  </View>
-                  {selectedBookId === book.id && (
-                    <Ionicons name="checkmark" size={20} color={themeColors.reminder.reading} />
-                  )}
-                </Pressable>
-              ))}
-              {books.length === 0 && (
-                <Text style={styles.pickerEmpty}>{t('reminders.noBooksYet', { defaultValue: 'No books yet' })}</Text>
-              )}
-            </ScrollView>
-          </Pressable>
-        </Pressable>
-      </Modal>
-
-      {/* Album Picker Modal */}
-      <Modal
-        visible={showAlbumPicker}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setShowAlbumPicker(false)}
-      >
-        <Pressable style={styles.pickerOverlay} onPress={() => setShowAlbumPicker(false)}>
-          <Pressable style={styles.pickerContainer} onPress={e => e.stopPropagation()}>
-            <View style={styles.pickerHeader}>
-              <Text style={styles.pickerHeaderTitle}>
-                {t('reminders.selectAlbum', { defaultValue: 'Select an Album' })}
-              </Text>
-              <Pressable onPress={() => setShowAlbumPicker(false)} hitSlop={12}>
-                <Ionicons name="close" size={24} color={colors.text.secondary} />
-              </Pressable>
-            </View>
-            <ScrollView style={styles.pickerList} showsVerticalScrollIndicator={false}>
-              {/* Clear selection option */}
-              <Pressable
-                style={[styles.pickerItem, !selectedAlbumId && styles.pickerItemSelected]}
-                onPress={() => {
-                  setSelectedAlbumId(null);
-                  setShowAlbumPicker(false);
-                }}
-              >
-                <Ionicons name="remove-circle-outline" size={20} color={colors.text.tertiary} />
-                <Text style={styles.pickerItemText}>{t('common.none', { defaultValue: 'None' })}</Text>
-              </Pressable>
-              {albums.map(album => (
-                <Pressable
-                  key={album.id}
-                  style={[styles.pickerItem, selectedAlbumId === album.id && styles.pickerItemSelected]}
-                  onPress={() => {
-                    setSelectedAlbumId(album.id);
-                    setShowAlbumPicker(false);
-                  }}
-                >
-                  <Ionicons name="disc" size={20} color={themeColors.reminder.listening} />
-                  <View style={styles.pickerItemInfo}>
-                    <Text style={styles.pickerItemText} numberOfLines={1}>
-                      {album.title}
-                    </Text>
-                    {album.totalTracks > 0 && (
-                      <Text style={styles.pickerItemSubtext}>
-                        {t('reminders.trackCount', {
-                          count: album.totalTracks,
-                          defaultValue: `${album.totalTracks} tracks`,
-                        })}
-                      </Text>
-                    )}
-                  </View>
-                  {selectedAlbumId === album.id && (
-                    <Ionicons name="checkmark" size={20} color={themeColors.reminder.listening} />
-                  )}
-                </Pressable>
-              ))}
-              {albums.length === 0 && (
-                <Text style={styles.pickerEmpty}>{t('reminders.noAlbumsYet', { defaultValue: 'No albums yet' })}</Text>
-              )}
-            </ScrollView>
-          </Pressable>
-        </Pressable>
-      </Modal>
-    </>
+      </Pressable>
+    </Modal>
   );
 }
 
@@ -940,19 +939,7 @@ const createStyles = (colors: ColorScheme) =>
     pickerButtonPlaceholder: {
       color: colors.text.tertiary,
     },
-    // Picker modal styles
-    pickerOverlay: {
-      flex: 1,
-      backgroundColor: colors.overlay.black[50],
-      justifyContent: 'flex-end',
-    },
-    pickerContainer: {
-      backgroundColor: colors.background.primary,
-      borderTopLeftRadius: 20,
-      borderTopRightRadius: 20,
-      maxHeight: '60%',
-      paddingBottom: 34,
-    },
+    // Content picker styles (rendered inline inside the main modal)
     pickerHeader: {
       flexDirection: 'row',
       justifyContent: 'space-between',
@@ -969,6 +956,7 @@ const createStyles = (colors: ColorScheme) =>
     },
     pickerList: {
       paddingHorizontal: 16,
+      paddingBottom: 20,
     },
     pickerItem: {
       flexDirection: 'row',
