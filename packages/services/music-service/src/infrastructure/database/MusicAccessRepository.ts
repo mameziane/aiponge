@@ -440,7 +440,12 @@ export class MusicAccessRepository {
         a.release_date,
         a.created_at,
         a.updated_at,
-        COALESCE(NULLIF(NULLIF(a.metadata->>'displayName', ''), 'aiponge'), '') as display_name,
+        COALESCE(
+          NULLIF(a.metadata->>'displayName', ''),
+          (SELECT COALESCE(NULLIF(u.profile->>'displayName', ''), split_part(u.email, '@', 1))
+           FROM usr_accounts u WHERE u.id = a.user_id LIMIT 1),
+          ''
+        ) as display_name,
         COALESCE(a.artwork_url, (
           SELECT t.artwork_url
           FROM mus_tracks t
@@ -520,7 +525,12 @@ export class MusicAccessRepository {
         a.release_date,
         a.created_at,
         a.updated_at,
-        COALESCE(NULLIF(NULLIF(a.metadata->>'displayName', ''), 'aiponge'), '') as display_name,
+        COALESCE(
+          NULLIF(a.metadata->>'displayName', ''),
+          (SELECT COALESCE(NULLIF(u.profile->>'displayName', ''), split_part(u.email, '@', 1))
+           FROM usr_accounts u WHERE u.id = a.user_id LIMIT 1),
+          ''
+        ) as display_name,
         (SELECT COUNT(*)::int FROM mus_tracks t WHERE t.album_id = a.id AND t.status = ${TRACK_LIFECYCLE.PUBLISHED}
           AND (COALESCE(t.track_number, 0), t.generation_number) IN (
             SELECT COALESCE(track_number, 0), MAX(generation_number)

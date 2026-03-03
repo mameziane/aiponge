@@ -9,7 +9,8 @@
  */
 
 import React, { useState, useCallback, useMemo } from 'react';
-import { View, ScrollView, RefreshControl } from 'react-native';
+import { View, ScrollView, RefreshControl, Text, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from '../../i18n';
 import { ProfileBasicsTab, PrivacyDataTab, SongPreferencesTab } from '../../components/profile/ProfileTabs';
@@ -105,7 +106,14 @@ export const ProfileScreen: React.FC = () => {
                 onSaveComplete={() => router.back()}
               />
             ) : (
-              <LoadingState />
+              <View style={profileEmptyStyles.container}>
+                <Ionicons name="person-outline" size={48} color={colors.text.tertiary} />
+                <Text style={[profileEmptyStyles.text, { color: colors.text.secondary }]}>
+                  {t('profile.noProfileData', {
+                    defaultValue: 'Profile information is not available for this account.',
+                  })}
+                </Text>
+              </View>
             ))}
 
           {activeTab === 'preferences' && <SongPreferencesTab />}
@@ -116,3 +124,17 @@ export const ProfileScreen: React.FC = () => {
     </View>
   );
 };
+
+const profileEmptyStyles = StyleSheet.create({
+  container: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 48,
+    paddingHorizontal: 24,
+    gap: 12,
+  },
+  text: {
+    fontSize: 15,
+    textAlign: 'center',
+  },
+});

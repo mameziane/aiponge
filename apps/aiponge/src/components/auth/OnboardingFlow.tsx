@@ -83,7 +83,6 @@ interface UserPreferences {
 export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const colors = useThemeColors();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const GENRE_COLORS: Record<string, string> = colors.genre;
   const { t, i18n } = useTranslation();
   const user = useAuthStore(selectUser);
   const queryClient = useQueryClient();
@@ -314,120 +313,6 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
         </View>
 
         <View style={styles.preferenceSection}>
-          <Text style={styles.sectionLabel}>{t('onboardingFlow.vocalLabel', { defaultValue: 'Preferred Voice' })}</Text>
-          <View style={styles.optionRow}>
-            {VOCAL_GENDER_KEYS.map(option => (
-              <TouchableOpacity
-                key={option.value}
-                style={[styles.optionButton, preferences.vocalGender === option.value && styles.optionButtonSelected]}
-                onPress={() => setPreferences(prev => ({ ...prev, vocalGender: option.value }))}
-              >
-                <Ionicons
-                  name={option.icon}
-                  size={24}
-                  color={preferences.vocalGender === option.value ? colors.absolute.white : colors.text.secondary}
-                />
-                <Text
-                  style={[styles.optionText, preferences.vocalGender === option.value && styles.optionTextSelected]}
-                >
-                  {t(`createScreen.vocalGenders.${option.labelKey}`, { defaultValue: option.labelKey })}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-
-        <View style={styles.preferenceSection}>
-          <Text style={styles.sectionLabel}>{t('create.genre', { defaultValue: 'Genre' })}</Text>
-          <View style={styles.genreGridContainer}>
-            {genreOptions.map(option => {
-              const isSelected = preferences.genre === option.value;
-              const genreColor = GENRE_COLORS[option.value] || colors.brand.primary;
-              return (
-                <TouchableOpacity
-                  key={option.value}
-                  style={[
-                    styles.genreChip,
-                    { backgroundColor: colors.background.subtle, borderColor: colors.border.primary },
-                    isSelected && { backgroundColor: genreColor, borderColor: genreColor },
-                  ]}
-                  onPress={() =>
-                    setPreferences(prev => ({
-                      ...prev,
-                      genre: prev.genre === option.value ? '' : (option.value as GenreKey),
-                    }))
-                  }
-                  accessibilityRole="button"
-                  accessibilityLabel={option.label}
-                  accessibilityState={{ selected: isSelected }}
-                >
-                  <Text
-                    style={[
-                      styles.genreChipText,
-                      { color: isSelected ? colors.absolute.white : colors.text.secondary },
-                    ]}
-                  >
-                    {option.label}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-
-          <TouchableOpacity
-            style={styles.moreGenresToggle}
-            onPress={() => setMoreGenresExpanded(prev => !prev)}
-            accessibilityRole="button"
-            accessibilityLabel={t('onboardingFlow.moreGenres', { defaultValue: 'More Genres' })}
-          >
-            <Text style={styles.otherGenresLabel}>
-              {t('onboardingFlow.moreGenres', { defaultValue: 'More Genres' })}
-            </Text>
-            <Ionicons
-              name={moreGenresExpanded ? 'chevron-up' : 'chevron-down'}
-              size={18}
-              color={colors.text.tertiary}
-            />
-          </TouchableOpacity>
-          {moreGenresExpanded && (
-            <View style={styles.otherGenreGridContainer}>
-              {otherGenreOptions.map(option => {
-                const isSelected = preferences.genre === option.value;
-                const genreColor = GENRE_COLORS[option.value] || colors.brand.primary;
-                return (
-                  <TouchableOpacity
-                    key={option.value}
-                    style={[
-                      styles.otherGenreChip,
-                      { backgroundColor: colors.background.subtle, borderColor: colors.border.primary },
-                      isSelected && { backgroundColor: genreColor, borderColor: genreColor },
-                    ]}
-                    onPress={() =>
-                      setPreferences(prev => ({
-                        ...prev,
-                        genre: prev.genre === option.value ? '' : (option.value as GenreKey),
-                      }))
-                    }
-                    accessibilityRole="button"
-                    accessibilityLabel={option.label}
-                    accessibilityState={{ selected: isSelected }}
-                  >
-                    <Text
-                      style={[
-                        styles.otherGenreChipText,
-                        { color: isSelected ? colors.absolute.white : colors.text.secondary },
-                      ]}
-                    >
-                      {option.label}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          )}
-        </View>
-
-        <View style={styles.preferenceSection}>
           <TouchableOpacity
             style={styles.moreGenresToggle}
             onPress={() => setLanguageSectionExpanded(prev => !prev)}
@@ -471,6 +356,118 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                   )}
                 </TouchableOpacity>
               ))}
+            </View>
+          )}
+        </View>
+
+        <View style={styles.preferenceSection}>
+          <Text style={styles.sectionLabel}>{t('onboardingFlow.vocalLabel', { defaultValue: 'Preferred Voice' })}</Text>
+          <View style={styles.optionRow}>
+            {VOCAL_GENDER_KEYS.map(option => (
+              <TouchableOpacity
+                key={option.value}
+                style={[styles.optionButton, preferences.vocalGender === option.value && styles.optionButtonSelected]}
+                onPress={() => setPreferences(prev => ({ ...prev, vocalGender: option.value }))}
+              >
+                <Ionicons
+                  name={option.icon}
+                  size={24}
+                  color={preferences.vocalGender === option.value ? colors.absolute.white : colors.text.secondary}
+                />
+                <Text
+                  style={[styles.optionText, preferences.vocalGender === option.value && styles.optionTextSelected]}
+                >
+                  {t(`createScreen.vocalGenders.${option.labelKey}`, { defaultValue: option.labelKey })}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        <View style={styles.preferenceSection}>
+          <Text style={styles.sectionLabel}>{t('create.genre', { defaultValue: 'Genre' })}</Text>
+          <View style={styles.genreGridContainer}>
+            {genreOptions.map(option => {
+              const isSelected = preferences.genre === option.value;
+              return (
+                <TouchableOpacity
+                  key={option.value}
+                  style={[
+                    styles.genreChip,
+                    { backgroundColor: colors.background.subtle, borderColor: colors.border.primary },
+                    isSelected && styles.genreChipSelected,
+                  ]}
+                  onPress={() =>
+                    setPreferences(prev => ({
+                      ...prev,
+                      genre: prev.genre === option.value ? '' : (option.value as GenreKey),
+                    }))
+                  }
+                  accessibilityRole="button"
+                  accessibilityLabel={option.label}
+                  accessibilityState={{ selected: isSelected }}
+                >
+                  <Text
+                    style={[
+                      styles.genreChipText,
+                      { color: isSelected ? colors.absolute.white : colors.text.secondary },
+                    ]}
+                  >
+                    {option.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+
+          <TouchableOpacity
+            style={styles.moreGenresToggle}
+            onPress={() => setMoreGenresExpanded(prev => !prev)}
+            accessibilityRole="button"
+            accessibilityLabel={t('onboardingFlow.moreGenres', { defaultValue: 'More Genres' })}
+          >
+            <Text style={styles.otherGenresLabel}>
+              {t('onboardingFlow.moreGenres', { defaultValue: 'More Genres' })}
+            </Text>
+            <Ionicons
+              name={moreGenresExpanded ? 'chevron-up' : 'chevron-down'}
+              size={18}
+              color={colors.text.tertiary}
+            />
+          </TouchableOpacity>
+          {moreGenresExpanded && (
+            <View style={styles.otherGenreGridContainer}>
+              {otherGenreOptions.map(option => {
+                const isSelected = preferences.genre === option.value;
+                return (
+                  <TouchableOpacity
+                    key={option.value}
+                    style={[
+                      styles.otherGenreChip,
+                      { backgroundColor: colors.background.subtle, borderColor: colors.border.primary },
+                      isSelected && styles.genreChipSelected,
+                    ]}
+                    onPress={() =>
+                      setPreferences(prev => ({
+                        ...prev,
+                        genre: prev.genre === option.value ? '' : (option.value as GenreKey),
+                      }))
+                    }
+                    accessibilityRole="button"
+                    accessibilityLabel={option.label}
+                    accessibilityState={{ selected: isSelected }}
+                  >
+                    <Text
+                      style={[
+                        styles.otherGenreChipText,
+                        { color: isSelected ? colors.absolute.white : colors.text.secondary },
+                      ]}
+                    >
+                      {option.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
             </View>
           )}
         </View>
@@ -780,6 +777,10 @@ const createStyles = (colors: ColorScheme) =>
       width: GENRE_CHIP_WIDTH,
       alignItems: 'center',
       justifyContent: 'center',
+    },
+    genreChipSelected: {
+      backgroundColor: colors.brand.primary,
+      borderColor: colors.brand.primary,
     },
     genreChipText: {
       fontSize: fontSizes.footnote,
