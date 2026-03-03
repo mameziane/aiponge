@@ -94,10 +94,21 @@ export function MembersScreen() {
   });
 
   // Active invitations that can still accept new members
-  const pendingInvitations = useMemo(
-    () => allInvitations?.filter(inv => !inv.isExpired && !inv.isMaxedOut) || [],
-    [allInvitations]
-  );
+  // Exclude invitations already redeemed by joined members (unlimited invitations
+  // have maxUses=null so isMaxedOut is always false — cross-reference with members instead)
+  const pendingInvitations = useMemo(() => {
+    if (!allInvitations) return [];
+
+    // Tokens that have been redeemed by joined members
+    const redeemedTokens = new Set((members || []).map(m => m.invitationToken).filter(Boolean));
+
+    return allInvitations.filter(inv => {
+      if (inv.isExpired || inv.isMaxedOut) return false;
+      // Unlimited invitations redeemed by a member are no longer "pending"
+      if (inv.maxUses === null && redeemedTokens.has(inv.token)) return false;
+      return true;
+    });
+  }, [allInvitations, members]);
 
   const removeMemberMutation = useMutation({
     mutationFn: async (memberId: string) => {

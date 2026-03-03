@@ -26,13 +26,40 @@ import {
   type TierId,
   type TierFeatureItem,
 } from '../../constants/tierDisplayConfig';
+import type { PurchasesOffering } from 'react-native-purchases';
+
+/**
+ * Extract a monthly price string per tier from RevenueCat offerings.
+ * Returns a map like { personal: "$4.99", practice: "$29.99", studio: "$99.99" }
+ */
+function useTierPriceMap(offerings: PurchasesOffering | null): Record<string, string> {
+  return useMemo(() => {
+    const map: Record<string, string> = {};
+    if (!offerings?.availablePackages) return map;
+
+    offerings.availablePackages.forEach(pkg => {
+      const productId = pkg.product.identifier.toLowerCase();
+      // Only extract monthly prices for the plan comparison cards
+      if (!productId.includes('monthly')) return;
+
+      for (const tierId of PAID_TIERS) {
+        if (productId.includes(tierId)) {
+          map[tierId] = pkg.product.priceString;
+          break;
+        }
+      }
+    });
+    return map;
+  }, [offerings]);
+}
 
 export function SubscriptionTab() {
   const colors = useThemeColors();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const { currentTier, tierConfig, isLoading } = useSubscriptionData();
+  const { currentTier, tierConfig, offerings, isLoading } = useSubscriptionData();
   const { usage, loading: usageLoading } = useUsageTracking();
   const { t } = useTranslation();
+  const tierPriceMap = useTierPriceMap(offerings);
 
   if (isLoading || usageLoading) {
     return (
@@ -44,10 +71,10 @@ export function SubscriptionTab() {
   }
 
   if (isPaidTierCheck(currentTier)) {
-    return <ActiveTierView tier={currentTier} usage={usage} />;
+    return <ActiveTierView tier={currentTier} usage={usage} tierPriceMap={tierPriceMap} />;
   }
 
-  return <GuestTierView usage={usage} currentTier={currentTier} />;
+  return <GuestTierView usage={usage} currentTier={currentTier} tierPriceMap={tierPriceMap} />;
 }
 
 interface UsageData {
@@ -57,7 +84,15 @@ interface UsageData {
   };
 }
 
-function ActiveTierView({ tier, usage }: { tier: TierId; usage: UsageData | null }) {
+function ActiveTierView({
+  tier,
+  usage,
+  tierPriceMap,
+}: {
+  tier: TierId;
+  usage: UsageData | null;
+  tierPriceMap: Record<string, string>;
+}) {
   const colors = useThemeColors();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const { t } = useTranslation();
@@ -112,7 +147,9 @@ function ActiveTierView({ tier, usage }: { tier: TierId; usage: UsageData | null
           <View style={styles.premiumInfo}>
             <View style={styles.premiumInfoRow}>
               <Text style={styles.premiumInfoLabel}>{t('subscription.price')}</Text>
-              <Text style={styles.premiumInfoValue}>{t(config.priceI18nKey)}</Text>
+              <Text style={styles.premiumInfoValue}>
+                {tierPriceMap[tier] ? `${tierPriceMap[tier]}/${t('subscription.perMonth')}` : t(config.priceI18nKey)}
+              </Text>
             </View>
             <View style={styles.premiumInfoRow}>
               <Text style={styles.premiumInfoLabel}>{t('subscription.status')}</Text>
@@ -162,7 +199,15 @@ function ActiveTierView({ tier, usage }: { tier: TierId; usage: UsageData | null
   );
 }
 
-function GuestTierView({ usage, currentTier }: { usage: UsageData | null; currentTier: TierId }) {
+function GuestTierView({
+  usage,
+  currentTier,
+  tierPriceMap,
+}: {
+  usage: UsageData | null;
+  currentTier: TierId;
+  tierPriceMap: Record<string, string>;
+}) {
   const colors = useThemeColors();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const { t } = useTranslation();
@@ -200,7 +245,10 @@ function GuestTierView({ usage, currentTier }: { usage: UsageData | null; curren
               <Text style={styles.tierDescription}>{t(`subscription.tiers.${tierId}.tagline`)}</Text>
 
               <View style={styles.priceRow}>
-                <Text style={styles.price}>{t(`subscription.tiers.${tierId}.monthlyPrice`)}</Text>
+                <Text style={styles.price}>
+                  {tierPriceMap[tierId] || t(`subscription.tiers.${tierId}.monthlyPrice`)}
+                </Text>
+                {tierPriceMap[tierId] && <Text style={styles.period}>/{t('subscription.perMonth')}</Text>}
               </View>
 
               <View style={styles.divider} />
