@@ -10,27 +10,14 @@ import { SyncedLyricsDisplay } from './SyncedLyricsDisplay';
 import { KaraokeLyricsDisplay } from './KaraokeLyricsDisplay';
 import { useTranslation } from '../../i18n';
 import { BaseModal, LoadingState } from '../shared';
+import type { SyncedLine } from '@aiponge/shared-contracts';
+import { filterSectionHeadersFromContent } from '@aiponge/shared-contracts';
 
 interface LyricsModalProps {
   visible: boolean;
   onClose: () => void;
   lyricsId?: string;
   trackTitle?: string;
-}
-
-interface SyncedWord {
-  word: string;
-  startTime: number;
-  endTime: number;
-  confidence?: number;
-}
-
-interface SyncedLine {
-  startTime: number;
-  endTime: number;
-  text: string;
-  type?: 'line' | 'section' | 'backing' | 'instrumental';
-  words?: SyncedWord[];
 }
 
 function hasWordLevelData(syncedLines?: SyncedLine[]): boolean {
@@ -46,14 +33,6 @@ interface LyricsData {
   style?: string;
   mood?: string;
   themes?: string[];
-}
-
-function filterSectionHeaders(content: string): string {
-  return content
-    .split('\n')
-    .map(line => line.replace(/\[.*?\]/g, '').trim())
-    .filter(line => line.length > 0)
-    .join('\n');
 }
 
 export function LyricsModal({ visible, onClose, lyricsId, trackTitle }: LyricsModalProps) {
@@ -139,7 +118,7 @@ export function LyricsModal({ visible, onClose, lyricsId, trackTitle }: LyricsMo
               />
             )
           ) : (
-            <Text style={styles.lyricsText}>{filterSectionHeaders(lyrics.content)}</Text>
+            <Text style={styles.lyricsText}>{filterSectionHeadersFromContent(lyrics.content)}</Text>
           )}
 
           {lyrics.themes && lyrics.themes.length > 0 && (

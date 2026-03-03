@@ -8,28 +8,8 @@ import { useGlobalAudioPlayer } from '../../contexts/AudioPlayerContext';
 import { useTranslation } from '../../i18n';
 import { LiquidGlassCard } from '../ui';
 import { LyricsErrorBoundary } from './LyricsErrorBoundary';
-
-interface SyncedLine {
-  startTime?: number; // in seconds
-  endTime?: number; // in seconds
-  startMs?: number; // in milliseconds (alternative format)
-  endMs?: number; // in milliseconds (alternative format)
-  text: string;
-  type?: string;
-}
-
-// Helper to normalize time to seconds (handles both formats)
-function getStartTimeSeconds(line: SyncedLine): number {
-  if (line.startTime !== undefined) return line.startTime;
-  if (line.startMs !== undefined) return line.startMs / 1000;
-  return 0;
-}
-
-function getEndTimeSeconds(line: SyncedLine): number {
-  if (line.endTime !== undefined) return line.endTime;
-  if (line.endMs !== undefined) return line.endMs / 1000;
-  return 0;
-}
+import type { SyncedLine } from '@aiponge/shared-contracts';
+import { isDisplayableLyricsLine, stripBracketedContent, findActiveLineByTime } from '@aiponge/shared-contracts';
 
 interface SyncedLyricsDisplayProps {
   syncedLines: SyncedLine[];
@@ -41,26 +21,10 @@ interface SyncedLyricsDisplayProps {
 }
 
 /**
- * SyncedLyricsDisplay - Shared component for displaying time-synchronized lyrics
+ * SyncedLyricsDisplay - Line-level time-synchronized lyrics display.
  *
- * Uses OpenAI Whisper audio-analyzed timestamps for accurate lyrics-to-vocal sync.
- *
- * **Props:**
- * - `syncedLines`: Array of lyrics with startTime/endTime timestamps from Whisper analysis
- * - `variant`: Display style ('modal' | 'fullscreen') - affects styling and scroll offset
- * - `containerStyle`: Optional custom styles for the container
- * - `onActiveLineChange`: Optional callback when active line changes
- * - `showTimingBadge`: Whether to show timing method badge
- * - `timingMethod`: Source of timestamps ('whisper-audio-analysis' for accurate timing)
- *
- * @example
- * ```tsx
- * <SyncedLyricsDisplay
- *   syncedLines={lyrics.syncedLines}
- *   variant="fullscreen"
- *   timingMethod="whisper-audio-analysis"
- * />
- * ```
+ * Uses shared binary search and filtering utilities from @aiponge/shared-contracts.
+ * Filters and searches directly on the filtered array — no index remapping needed.
  */
 
 export function SyncedLyricsDisplay(props: SyncedLyricsDisplayProps) {
@@ -85,7 +49,6 @@ function SyncedLyricsDisplayInner({
   const modalLineStyles = useMemo(() => createModalLineStyles(colors), [colors]);
   const { t } = useTranslation();
   const player = useGlobalAudioPlayer();
-  // useAudioPlayerStatus provides reactive updates to currentTime
   const playerStatus = useAudioPlayerStatus(player);
 
   const [currentLineIndex, setCurrentLineIndex] = useState<number>(-1);
@@ -94,95 +57,29 @@ function SyncedLyricsDisplayInner({
   const lyricsContainerOffset = useRef<number>(0);
   const lastIndexRef = useRef<number>(-1);
 
-  // Binary search to find the active line - O(log n) instead of O(n)
-  const findActiveLineIndex = useCallback(
-    (adjustedTime: number): number => {
-      if (!syncedLines || syncedLines.length === 0) return -1;
-
-      let left = 0;
-      let right = syncedLines.length - 1;
-      let result = -1;
-
-      while (left <= right) {
-        const mid = Math.floor((left + right) / 2);
-        const line = syncedLines[mid];
-        const lineStart = getStartTimeSeconds(line);
-        const lineEnd = getEndTimeSeconds(line);
-
-        if (adjustedTime >= lineStart && adjustedTime < lineEnd) {
-          return mid;
-        } else if (adjustedTime < lineStart) {
-          right = mid - 1;
-        } else {
-          result = mid;
-          left = mid + 1;
-        }
-      }
-
-      // Check if we're past the last line but still within its end time
-      const resultLine = syncedLines[result];
-      if (
-        result >= 0 &&
-        resultLine &&
-        adjustedTime >= getStartTimeSeconds(resultLine) &&
-        adjustedTime < getEndTimeSeconds(resultLine)
-      ) {
-        return result;
-      }
-
-      return -1;
-    },
-    [syncedLines]
-  );
-
   const lineStyles = variant === 'modal' ? modalLineStyles : fullscreenLineStyles;
 
-  // Filter out section headers and instrumental markers, strip inline bracket content
-  // Backend marks these with type='section' or type='instrumental', with regex fallback for data without type field
+  // Filter upfront — search and render both use this same array (single index space)
   const filteredLines = useMemo(() => {
-    return syncedLines
-      .filter(line => {
-        if (line.type === 'section' || line.type === 'instrumental') return false;
-        const trimmedText = line.text.trim();
-        if (/^\[.*\]$/.test(trimmedText)) return false;
-        const cleaned = trimmedText.replace(/\[.*?\]/g, '').trim();
-        return cleaned.length > 0;
-      })
-      .map(line => {
-        const cleaned = line.text.replace(/\[.*?\]/g, '').trim();
-        return cleaned !== line.text.trim() ? { ...line, text: cleaned } : line;
-      });
+    return syncedLines.filter(isDisplayableLyricsLine).map(line => {
+      const cleaned = stripBracketedContent(line.text);
+      return cleaned !== line.text.trim() ? { ...line, text: cleaned } : line;
+    });
   }, [syncedLines]);
 
-  // Check if a line should be filtered out (must match filteredLines logic exactly)
-  const shouldFilterLine = useCallback((line: SyncedLine) => {
-    if (line.type === 'section' || line.type === 'instrumental') return true;
-    const trimmedText = line.text.trim();
-    if (/^\[.*\]$/.test(trimmedText)) return true;
-    const cleaned = trimmedText.replace(/\[.*?\]/g, '').trim();
-    return cleaned.length === 0;
-  }, []);
-
-  // Find the current line index in filtered lines
-  const getFilteredIndex = useCallback(
-    (originalIndex: number) => {
-      if (originalIndex < 0) return -1;
-      let filteredIdx = 0;
-      for (let i = 0; i < syncedLines.length && i <= originalIndex; i++) {
-        if (shouldFilterLine(syncedLines[i])) continue;
-        if (i === originalIndex) return filteredIdx;
-        filteredIdx++;
-      }
-      return -1;
+  // Binary search directly on filteredLines — no index remapping needed
+  const findActiveIndex = useCallback(
+    (currentTime: number): number => {
+      return findActiveLineByTime(filteredLines, currentTime);
     },
-    [syncedLines, shouldFilterLine]
+    [filteredLines]
   );
 
-  // Scroll to active line with smooth animation (using cached positions from onLayout)
+  // Scroll to active line with smooth animation
   const scrollToLine = useCallback(
-    (filteredIndex: number) => {
-      const yPosition = linePositions.current[filteredIndex];
-      if (filteredIndex >= 0 && yPosition !== undefined && scrollViewRef.current) {
+    (lineIndex: number) => {
+      const yPosition = linePositions.current[lineIndex];
+      if (lineIndex >= 0 && yPosition !== undefined && scrollViewRef.current) {
         const scrollOffset = variant === 'modal' ? 80 : 120;
         const absoluteY = yPosition + lyricsContainerOffset.current;
         scrollViewRef.current.scrollTo({
@@ -199,41 +96,27 @@ function SyncedLyricsDisplayInner({
     linePositions.current = {};
   }, [syncedLines]);
 
-  // Sync lyrics to current playback position using reactive playerStatus
+  // Sync lyrics to current playback position
   useEffect(() => {
-    if (!syncedLines || syncedLines.length === 0) {
-      return;
-    }
+    if (!filteredLines || filteredLines.length === 0) return;
 
-    // Get currentTime from reactive playerStatus (in seconds)
-    // Note: On web platform, expo-audio may return milliseconds instead of seconds (bug)
-    let currentTime = playerStatus.currentTime || 0;
-    // Auto-detect and convert if in milliseconds (times > 1000 are likely ms, not seconds)
-    if (currentTime > 1000) {
-      currentTime = currentTime / 1000;
-    }
+    // playerStatus.currentTime is in seconds per expo-audio spec
+    const currentTime = playerStatus.currentTime || 0;
+    const activeIndex = findActiveIndex(currentTime);
 
-    // Whisper timestamps are audio-accurate, no offset needed
-    const activeIndex = findActiveLineIndex(currentTime);
-
-    // Only update state if index changed (prevents unnecessary re-renders)
     if (activeIndex !== lastIndexRef.current) {
       lastIndexRef.current = activeIndex;
       setCurrentLineIndex(activeIndex);
       onActiveLineChange?.(activeIndex);
-      // Convert to filtered index for scrolling
-      const filteredIdx = getFilteredIndex(activeIndex);
-      scrollToLine(filteredIdx);
+      scrollToLine(activeIndex);
     }
-  }, [syncedLines, playerStatus.currentTime, findActiveLineIndex, scrollToLine, getFilteredIndex, onActiveLineChange]);
-
-  const currentFilteredIndex = getFilteredIndex(currentLineIndex);
+  }, [filteredLines, playerStatus.currentTime, findActiveIndex, scrollToLine, onActiveLineChange]);
 
   const getLineStyle = (index: number) => {
-    if (index === currentFilteredIndex) {
+    if (index === currentLineIndex) {
       return lineStyles.activeLineText;
     }
-    if (index < currentFilteredIndex) {
+    if (index < currentLineIndex) {
       return lineStyles.playedLineText;
     }
     return lineStyles.lineText;
@@ -271,7 +154,7 @@ function SyncedLyricsDisplayInner({
                 onLayout={e => {
                   linePositions.current[index] = e.nativeEvent.layout.y;
                 }}
-                style={[lineStyles.lineContainer, index === currentFilteredIndex && lineStyles.activeLine]}
+                style={[lineStyles.lineContainer, index === currentLineIndex && lineStyles.activeLine]}
               >
                 <Text style={getLineStyle(index)}>{line.text.trim()}</Text>
               </View>

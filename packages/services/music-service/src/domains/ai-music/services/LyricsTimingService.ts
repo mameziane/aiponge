@@ -26,11 +26,19 @@ const logger = getLogger('music-service-lyricstiming');
 let cachedAudioModel: { model: string; fetchedAt: number } | null = null;
 const MODEL_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
+export interface SyncedWord {
+  word: string;
+  startTime: number;
+  endTime: number;
+  confidence: number;
+}
+
 export interface SyncedLine {
   startTime: number;
   endTime: number;
   text: string;
   type?: string;
+  words?: SyncedWord[];
 }
 
 export type TimingMethod = 'musicapi-timeline' | 'whisper-audio-analysis';
@@ -150,6 +158,7 @@ export class LyricsTimingService {
           endTime: line.endTime,
           text: line.text,
           type: line.type,
+          words: line.words,
         }));
 
         logger.info('🎵 MusicAPI.ai lyrics timeline success', {

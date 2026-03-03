@@ -23,31 +23,10 @@ import { useAuthStore, selectUser } from '../../auth/store';
 import { PlaybackControls } from '../../components/music/PlaybackControls';
 import { ShortsStyleReactions } from '../../components/music/ShortsStyleReactions';
 import { useFavorites } from '../../hooks/playlists/useFavorites';
+import type { SyncedLine } from '@aiponge/shared-contracts';
+import { filterSectionHeadersFromContent } from '@aiponge/shared-contracts';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-
-function filterSectionHeaders(content: string): string {
-  return content
-    .split('\n')
-    .map(line => line.replace(/\[.*?\]/g, '').trim())
-    .filter(line => line.length > 0)
-    .join('\n');
-}
-
-interface SyncedWord {
-  word: string;
-  startTime: number;
-  endTime: number;
-  confidence?: number;
-}
-
-interface SyncedLine {
-  startTime: number;
-  endTime: number;
-  text: string;
-  type?: 'line' | 'section' | 'backing' | 'instrumental';
-  words?: SyncedWord[];
-}
 
 interface LyricsData {
   id: string;
@@ -623,7 +602,7 @@ export default function TrackDetailsScreen() {
               />
             )
           ) : lyrics.content ? (
-            <Text style={styles.lyricsText}>{filterSectionHeaders(lyrics.content)}</Text>
+            <Text style={styles.lyricsText}>{filterSectionHeadersFromContent(lyrics.content)}</Text>
           ) : (
             <Text style={styles.noLyricsText}>{t('components.trackDetails.noLyrics')}</Text>
           )}

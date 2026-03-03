@@ -95,6 +95,7 @@ export const LYRICS_FORMAT = {
   MAX_CHARS_PER_LINE: 42,
   MIN_WORDS_PER_LINE: 2,
   MAX_INTRO_SCAN_SECONDS: 30,
+  TIMING_GAP_THRESHOLD_MS: 500,
 } as const;
 
 // =============================================================================

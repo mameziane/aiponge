@@ -18,6 +18,8 @@ import { fontFamilies } from '../../theme/typography';
 import { logger } from '../../lib/logger';
 import { LiquidGlassCard } from '../ui';
 import { i18n } from '../../i18n';
+import type { SyncedLine } from '@aiponge/shared-contracts';
+import { isDisplayableLyricsLine, stripBracketedContent } from '@aiponge/shared-contracts';
 
 interface LyricsLine {
   text: string;
@@ -54,12 +56,7 @@ export class LyricsErrorBoundary extends Component<LyricsErrorBoundaryProps, Lyr
 
     // Static fallback — shows lyrics as plain text without time-sync
     const { lyricsLines, containerStyle } = this.props;
-    const filteredLines = lyricsLines.filter(line => {
-      if (line.type === 'section' || line.type === 'instrumental') return false;
-      const trimmed = line.text.trim();
-      if (/^\[.*\]$/.test(trimmed)) return false;
-      return trimmed.replace(/\[.*?\]/g, '').trim().length > 0;
-    });
+    const filteredLines = lyricsLines.filter(line => isDisplayableLyricsLine(line as SyncedLine));
 
     const title = (() => {
       try {
@@ -83,7 +80,7 @@ export class LyricsErrorBoundary extends Component<LyricsErrorBoundaryProps, Lyr
           >
             {filteredLines.map((line, index) => (
               <View key={index} style={styles.lineContainer}>
-                <Text style={styles.lineText}>{line.text.replace(/\[.*?\]/g, '').trim()}</Text>
+                <Text style={styles.lineText}>{stripBracketedContent(line.text)}</Text>
               </View>
             ))}
           </ScrollView>

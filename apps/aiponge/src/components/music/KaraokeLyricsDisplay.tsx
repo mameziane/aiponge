@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { View, Text, ScrollView, StyleSheet, ViewStyle, Animated } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAudioPlayerStatus } from 'expo-audio';
 import { useThemeColors, type ColorScheme } from '../../theme';
@@ -9,21 +9,18 @@ import { useGlobalAudioPlayer } from '../../contexts/AudioPlayerContext';
 import { useTranslation } from '../../i18n';
 import { LiquidGlassCard } from '../ui';
 import { LyricsErrorBoundary } from './LyricsErrorBoundary';
-
-interface SyncedWord {
-  word: string;
-  startTime: number;
-  endTime: number;
-  confidence?: number;
-}
-
-interface SyncedLine {
-  startTime: number;
-  endTime: number;
-  text: string;
-  type?: 'line' | 'section' | 'backing' | 'instrumental';
-  words?: SyncedWord[];
-}
+import type { SyncedLine, SyncedWord } from '@aiponge/shared-contracts';
+import {
+  getLineStartSeconds,
+  getLineEndSeconds,
+  getWordStartSeconds,
+  getWordEndSeconds,
+  isDisplayableLyricsLine,
+  isSectionHeader,
+  containsSectionHeader,
+  stripBracketedContent,
+  findActiveLineByTime,
+} from '@aiponge/shared-contracts';
 
 interface KaraokeLyricsDisplayProps {
   syncedLines: SyncedLine[];
@@ -34,39 +31,9 @@ interface KaraokeLyricsDisplayProps {
   timingMethod?: 'whisper-audio-analysis' | 'estimated' | 'unknown';
 }
 
-function getTimeSeconds(time: number | undefined, fallback: number = 0): number {
-  if (time === undefined) return fallback;
-  if (time > 1000) return time / 1000;
-  return time;
-}
-
-function isSectionHeader(text: string): boolean {
-  return /^\[.*\]$/.test(text.trim());
-}
-
-function containsSectionHeader(text: string): boolean {
-  return /\[.*?\]/.test(text);
-}
-
-function stripBracketedContent(text: string): string {
-  return text.replace(/\[.*?\]/g, '').trim();
-}
-
-/** Minimum character count before punctuation-based line breaks are applied. */
-const PUNCTUATION_BREAK_THRESHOLD = 40;
-
-/** Checks whether a word ends with clause-ending punctuation. */
-function endsWithBreakPunctuation(word: string): boolean {
-  const trimmed = word.trimEnd();
-  if (trimmed.length === 0) return false;
-  return /[,.!?;]$/.test(trimmed);
-}
-
-/** Inserts line breaks after punctuation in plain text lyrics that exceed the threshold. */
-function formatPlainTextWithBreaks(text: string): string {
-  if (text.length < PUNCTUATION_BREAK_THRESHOLD) return text;
-  return text.replace(/([,.!?;])\s+(?=\S)/g, '$1\n');
-}
+// =============================================================================
+// LINE CLEANING — preserves word-level timing while stripping section markers
+// =============================================================================
 
 interface CleanedLine {
   startTime: number;
@@ -79,8 +46,7 @@ function cleanLinesPreservingStructure(lines: SyncedLine[]): CleanedLine[] {
   const result: CleanedLine[] = [];
 
   for (const line of lines) {
-    if (line.type === 'section' || line.type === 'instrumental') continue;
-    if (isSectionHeader(line.text)) continue;
+    if (!isDisplayableLyricsLine(line)) continue;
 
     if (line.words && line.words.length > 0) {
       const cleanedWords: SyncedWord[] = [];
@@ -88,7 +54,6 @@ function cleanLinesPreservingStructure(lines: SyncedLine[]): CleanedLine[] {
       for (const word of line.words) {
         const trimmed = word.word.trim();
         if (!trimmed) continue;
-
         if (isSectionHeader(trimmed)) continue;
 
         if (containsSectionHeader(trimmed)) {
@@ -105,8 +70,8 @@ function cleanLinesPreservingStructure(lines: SyncedLine[]): CleanedLine[] {
       if (cleanedWords.length === 0) continue;
 
       result.push({
-        startTime: cleanedWords[0].startTime,
-        endTime: cleanedWords[cleanedWords.length - 1].endTime,
+        startTime: getWordStartSeconds(cleanedWords[0]),
+        endTime: getWordEndSeconds(cleanedWords[cleanedWords.length - 1]),
         text: cleanedWords.map(w => w.word.trim()).join(' '),
         words: cleanedWords,
       });
@@ -115,8 +80,8 @@ function cleanLinesPreservingStructure(lines: SyncedLine[]): CleanedLine[] {
       if (!cleanedText) continue;
 
       result.push({
-        startTime: line.startTime,
-        endTime: line.endTime,
+        startTime: getLineStartSeconds(line),
+        endTime: getLineEndSeconds(line),
         text: cleanedText,
         words: [],
       });
@@ -125,6 +90,10 @@ function cleanLinesPreservingStructure(lines: SyncedLine[]): CleanedLine[] {
 
   return result;
 }
+
+// =============================================================================
+// COMPONENT
+// =============================================================================
 
 export function KaraokeLyricsDisplay(props: KaraokeLyricsDisplayProps) {
   return (
@@ -162,59 +131,58 @@ function KaraokeLyricsDisplayInner({
     return syncedLines.some(line => line.words && line.words.length > 0);
   }, [syncedLines]);
 
+  // Filter and clean lines — backend already provides correct line structure,
+  // we only strip section markers and sort by time
   const filteredLines = useMemo((): (SyncedLine | CleanedLine)[] => {
     if (hasAnyWordData) {
       const cleaned = cleanLinesPreservingStructure(syncedLines);
-      cleaned.sort((a, b) => getTimeSeconds(a.startTime) - getTimeSeconds(b.startTime));
+      cleaned.sort((a, b) => a.startTime - b.startTime);
       return cleaned;
     }
-    return syncedLines.filter(line => {
-      if (line.type === 'section' || line.type === 'instrumental') return false;
-      const trimmedText = line.text.trim();
-      if (/^\[.*\]$/.test(trimmedText)) return false;
-      return stripBracketedContent(trimmedText).length > 0;
-    });
+    return syncedLines.filter(isDisplayableLyricsLine);
   }, [syncedLines, hasAnyWordData]);
 
+  // Binary search for line, then linear scan within active line's words
   const findActiveLineAndWord = useCallback(
     (currentTime: number): { lineIndex: number; wordIndex: number } => {
       if (!filteredLines || filteredLines.length === 0) {
         return { lineIndex: -1, wordIndex: -1 };
       }
 
-      for (let lineIdx = 0; lineIdx < filteredLines.length; lineIdx++) {
-        const line = filteredLines[lineIdx];
-        const lineStart = getTimeSeconds(line.startTime);
-        const lineEnd = getTimeSeconds(line.endTime);
+      const lineIndex = findActiveLineByTime(filteredLines as SyncedLine[], currentTime);
 
-        if (currentTime >= lineStart && currentTime < lineEnd) {
-          if (line.words && line.words.length > 0) {
-            for (let wordIdx = 0; wordIdx < line.words.length; wordIdx++) {
-              const word = line.words[wordIdx];
-              const wordStart = getTimeSeconds(word.startTime);
-              const wordEnd = getTimeSeconds(word.endTime);
-
-              if (currentTime >= wordStart && currentTime < wordEnd) {
-                return { lineIndex: lineIdx, wordIndex: wordIdx };
-              }
-            }
-            const lastWord = line.words[line.words.length - 1];
-            if (currentTime >= getTimeSeconds(lastWord.endTime)) {
-              return { lineIndex: lineIdx, wordIndex: line.words.length - 1 };
-            }
+      if (lineIndex < 0) {
+        // Check if we're past the last line (for "played" styling)
+        for (let i = filteredLines.length - 1; i >= 0; i--) {
+          const line = filteredLines[i];
+          const words = line.words;
+          const endTime =
+            words && words.length > 0
+              ? getWordEndSeconds(words[words.length - 1])
+              : getLineEndSeconds(line as SyncedLine);
+          if (currentTime >= endTime) {
+            return { lineIndex: i, wordIndex: words ? words.length - 1 : -1 };
           }
-          return { lineIndex: lineIdx, wordIndex: -1 };
         }
+        return { lineIndex: -1, wordIndex: -1 };
       }
 
-      for (let lineIdx = filteredLines.length - 1; lineIdx >= 0; lineIdx--) {
-        const line = filteredLines[lineIdx];
-        if (currentTime >= getTimeSeconds(line.endTime)) {
-          return { lineIndex: lineIdx, wordIndex: line.words ? line.words.length - 1 : -1 };
+      const line = filteredLines[lineIndex];
+      if (line.words && line.words.length > 0) {
+        for (let wordIdx = 0; wordIdx < line.words.length; wordIdx++) {
+          const wordStart = getWordStartSeconds(line.words[wordIdx]);
+          const wordEnd = getWordEndSeconds(line.words[wordIdx]);
+          if (currentTime >= wordStart && currentTime < wordEnd) {
+            return { lineIndex, wordIndex: wordIdx };
+          }
+        }
+        // Past all words in this line — highlight last word
+        const lastWord = line.words[line.words.length - 1];
+        if (currentTime >= getWordEndSeconds(lastWord)) {
+          return { lineIndex, wordIndex: line.words.length - 1 };
         }
       }
-
-      return { lineIndex: -1, wordIndex: -1 };
+      return { lineIndex, wordIndex: -1 };
     },
     [filteredLines]
   );
@@ -238,13 +206,12 @@ function KaraokeLyricsDisplayInner({
     linePositions.current = {};
   }, [syncedLines]);
 
+  // Sync lyrics to current playback position
   useEffect(() => {
     if (!filteredLines || filteredLines.length === 0) return;
 
-    let currentTime = playerStatus.currentTime || 0;
-    if (currentTime > 1000) {
-      currentTime = currentTime / 1000;
-    }
+    // playerStatus.currentTime is in seconds per expo-audio spec
+    const currentTime = playerStatus.currentTime || 0;
 
     const { lineIndex, wordIndex } = findActiveLineAndWord(currentTime);
 
@@ -263,7 +230,7 @@ function KaraokeLyricsDisplayInner({
 
   const lineStyles = variant === 'modal' ? modalLineStyles : fullscreenLineStyles;
 
-  const getWordStyle = (lineIndex: number, wordIndex: number, totalWords: number) => {
+  const getWordStyle = (lineIndex: number, wordIndex: number) => {
     const isActiveLine = lineIndex === currentLineIndex;
     const isPastLine = lineIndex < currentLineIndex;
     const isActiveWord = isActiveLine && wordIndex === currentWordIndex;
@@ -326,31 +293,20 @@ function KaraokeLyricsDisplayInner({
                   style={[lineStyles.lineContainer, isActiveLine && lineStyles.activeLine]}
                 >
                   {hasWordData ? (
-                    (() => {
-                      const words = line.words!;
-                      const applyBreaks = line.text.length >= PUNCTUATION_BREAK_THRESHOLD;
-                      return (
-                        <Text
-                          style={[
-                            lineStyles.lineText,
-                            isActiveLine && lineStyles.activeLineText,
-                            lineIndex < currentLineIndex && lineStyles.playedLineText,
-                          ]}
-                        >
-                          {words.map((word, wordIndex) => {
-                            const isLastWord = wordIndex === words.length - 1;
-                            const shouldBreak = applyBreaks && !isLastWord && endsWithBreakPunctuation(word.word);
-                            return (
-                              <Text key={wordIndex} style={getWordStyle(lineIndex, wordIndex, words.length)}>
-                                {wordIndex > 0 && !word.word.startsWith(' ') ? ' ' : ''}
-                                {word.word}
-                                {shouldBreak ? '\n' : ''}
-                              </Text>
-                            );
-                          })}
+                    <Text
+                      style={[
+                        lineStyles.lineText,
+                        isActiveLine && lineStyles.activeLineText,
+                        lineIndex < currentLineIndex && lineStyles.playedLineText,
+                      ]}
+                    >
+                      {line.words!.map((word, wordIndex) => (
+                        <Text key={wordIndex} style={getWordStyle(lineIndex, wordIndex)}>
+                          {wordIndex > 0 && !word.word.startsWith(' ') ? ' ' : ''}
+                          {word.word}
                         </Text>
-                      );
-                    })()
+                      ))}
+                    </Text>
                   ) : (
                     <Text
                       style={[
@@ -359,7 +315,7 @@ function KaraokeLyricsDisplayInner({
                         lineIndex < currentLineIndex && lineStyles.playedLineText,
                       ]}
                     >
-                      {formatPlainTextWithBreaks(line.text.trim())}
+                      {line.text.trim()}
                     </Text>
                   )}
                 </View>
