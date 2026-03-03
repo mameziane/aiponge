@@ -6,7 +6,7 @@ import {
   EntryRepository,
   IllustrationRepository,
 } from '@infrastructure/repositories';
-import { Book, Chapter, Entry, Illustration, BOOK_TYPE_IDS } from '@infrastructure/database/schemas/library-schema';
+import { Book, Chapter, Entry, Illustration } from '@infrastructure/database/schemas/library-schema';
 import { BookEntity } from '@domains/library/entities';
 import { CONTENT_VISIBILITY, ContentVisibilitySchema, toShortLanguageCode } from '@aiponge/shared-contracts';
 import type { ContentAccessContext } from '@aiponge/shared-contracts';
@@ -276,22 +276,6 @@ export class BookService {
         hasMore = result.hasMore;
       } else {
         books = await this.bookRepo.getBooksByUserAndType(context.userId, filter?.typeId);
-
-        if (books.length === 0 && (!filter?.typeId || filter.typeId === BOOK_TYPE_IDS.PERSONAL)) {
-          try {
-            const defaultBook = await this.bookRepo.getOrCreateDefaultPersonalBook(context.userId);
-            books = [defaultBook];
-            logger.info('Auto-created default personal book for user', {
-              userId: context.userId,
-              bookId: defaultBook.id,
-            });
-          } catch (autoCreateError) {
-            logger.warn('Failed to auto-create default personal book', {
-              userId: context.userId,
-              error: autoCreateError instanceof Error ? autoCreateError.message : String(autoCreateError),
-            });
-          }
-        }
       }
 
       const coverMap = await this.illustrationRepo.getBookCoversBatch(books.map(b => b.id));

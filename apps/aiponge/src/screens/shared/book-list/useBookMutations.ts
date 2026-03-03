@@ -48,23 +48,27 @@ export function useBookMutations({ refetchManageBooks, t, userId }: BookMutation
     router.back();
   }, [router]);
 
-  const handleCreateFromBlueprint = async (blueprint: GeneratedBookBlueprint, bookTypeId?: string): Promise<void> => {
+  const handleCreateFromBlueprint = async (
+    blueprint: GeneratedBookBlueprint,
+    bookTypeId?: string,
+    options?: { skipNavigation?: boolean; visibility?: string }
+  ): Promise<void> => {
     try {
-      const typeId = bookTypeId;
+      const vis = options?.visibility || CONTENT_VISIBILITY.SHARED;
       const response = (await apiRequest('/api/v1/app/library/books', {
         method: 'POST',
         data: {
           ...blueprint,
           // AI can return null for optional string fields; send undefined so the schema accepts them
           subtitle: blueprint.subtitle ?? undefined,
-          typeId,
-          scope: 'shared',
-          visibility: CONTENT_VISIBILITY.SHARED,
+          typeId: bookTypeId,
+          scope: vis === CONTENT_VISIBILITY.PERSONAL ? 'personal' : 'shared',
+          visibility: vis,
         },
       })) as { data?: { book?: { id: string }; id?: string }; book?: { id: string }; id?: string };
       invalidateOnEvent(queryClient, { type: 'LIBRARY_BOOK_CREATED' });
       const bookId = response?.data?.book?.id || response?.data?.id || response?.book?.id || response?.id;
-      if (bookId) {
+      if (bookId && !options?.skipNavigation) {
         router.push(`/book-detail?bookId=${bookId}` as Href);
       }
     } catch {

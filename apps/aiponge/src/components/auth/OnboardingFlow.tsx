@@ -7,26 +7,20 @@ import {
   ActivityIndicator,
   ScrollView,
   TextInput,
-  Dimensions,
+  Modal,
   Platform,
 } from 'react-native';
 
 const iosVersionMajor = Platform.OS === 'ios' ? parseInt(String(Platform.Version).split('.')[0], 10) : 0;
 const isIOS26OrLater = iosVersionMajor >= 26;
 
-const SCREEN_WIDTH = Dimensions.get('window').width;
-const CONTAINER_PADDING = 48;
-const CATEGORY_GAP = 8;
-const CATEGORY_COLS = 2;
-const CATEGORY_CHIP_WIDTH = Math.floor(
-  (SCREEN_WIDTH - CONTAINER_PADDING - CATEGORY_GAP * (CATEGORY_COLS - 1)) / CATEGORY_COLS
-);
-
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+import { useRouter } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from '../../i18n';
+import { SUPPORTED_LANGUAGES } from '../../i18n/types';
 import { useThemeColors, type ColorScheme } from '../../theme';
 import { BORDER_RADIUS } from '../../theme/constants';
 import { fontFamilies, fontSizes, lineHeights } from '../../theme/typography';
@@ -36,19 +30,16 @@ import { useAuthStore, selectUser } from '../../auth/store';
 import { apiClient } from '../../lib/axiosApiClient';
 import { logger } from '../../lib/logger';
 import { prefetchBooks } from '../../hooks/book/useUnifiedLibrary';
-import { useBookGenerator } from '../../hooks/book/useBookGenerator';
+import { useBookGenerator, type DepthLevel } from '../../hooks/book/useBookGenerator';
 import {
   BOOK_TYPE_CATEGORY_CONFIGS,
   getBookTypesForCategory,
   getBookTypeConfig,
   getCategoryColor,
-  type BookTypeCategoryConfig,
-  type BookTypeConfig,
 } from '../../constants/bookTypes';
 import type { BookTypeCategory, BookTypeId } from '@aiponge/shared-contracts';
 
 import { PROFILE_QUERY_KEY } from '../../hooks/profile/useProfile';
-import { queryKeys } from '../../lib/queryKeys';
 import { invalidateOnEvent } from '../../lib/cacheManager';
 
 interface OnboardingFlowProps {
@@ -63,6 +54,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const { t, i18n } = useTranslation();
   const user = useAuthStore(selectUser);
   const queryClient = useQueryClient();
+  const router = useRouter();
   const { generateBook } = useBookGenerator({ bypassTierCheck: true });
 
   const [step, setStep] = useState<OnboardingStep>('welcome');
@@ -70,15 +62,19 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const [selectedBookTypeId, setSelectedBookTypeId] = useState<BookTypeId | null>(null);
   const [bookDescription, setBookDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState(i18n.language || 'en-US');
+  const [showLanguagePicker, setShowLanguagePicker] = useState(false);
+  const [depthLevel, setDepthLevel] = useState<DepthLevel>('brief');
 
   const selectedBookTypeConfig = useMemo(
     () => (selectedBookTypeId ? getBookTypeConfig(selectedBookTypeId) : null),
     [selectedBookTypeId]
   );
 
-  const categoryTypes = useMemo(
-    () => (selectedCategory ? getBookTypesForCategory(selectedCategory) : []),
-    [selectedCategory]
+  // Only show categories that have book types defined
+  const categoriesWithTypes = useMemo(
+    () => BOOK_TYPE_CATEGORY_CONFIGS.filter(c => getBookTypesForCategory(c.id).length > 0),
+    []
   );
 
   const typeColor = useMemo(() => {
@@ -87,8 +83,8 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     return colors.brand.primary;
   }, [selectedBookTypeConfig, selectedCategory, colors]);
 
-  const handleSelectCategory = useCallback((categoryId: BookTypeCategory) => {
-    setSelectedCategory(categoryId);
+  const handleToggleCategory = useCallback((categoryId: BookTypeCategory) => {
+    setSelectedCategory(prev => (prev === categoryId ? null : categoryId));
   }, []);
 
   const handleSelectType = useCallback((typeId: BookTypeId) => {
@@ -96,24 +92,32 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     setStep('describeBook');
   }, []);
 
-  const handleBackFromTypes = useCallback(() => {
-    setSelectedCategory(null);
-  }, []);
-
   const handleBackFromDescribe = useCallback(() => {
     setSelectedBookTypeId(null);
     setStep('chooseBookType');
   }, []);
+
+  const handleDepthPress = useCallback(
+    (depth: DepthLevel) => {
+      if (depth === 'brief') {
+        setDepthLevel(depth);
+      } else {
+        // Locked depth — open paywall
+        router.push('/paywall' as any);
+      }
+    },
+    [router]
+  );
 
   const handleGenerate = useCallback(async () => {
     if (isSubmitting || bookDescription.trim().length < 10) return;
     setIsSubmitting(true);
 
     try {
-      const language = i18n.language?.split('-')[0] || 'en';
+      const language = selectedLanguage.split('-')[0] || 'en';
       const requestId = await generateBook({
         primaryGoal: bookDescription.trim(),
-        depthLevel: 'brief',
+        depthLevel,
         bookTypeId: selectedBookTypeId || undefined,
         language,
         isOnboarding: true,
@@ -170,12 +174,13 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     isSubmitting,
     bookDescription,
     selectedBookTypeId,
-    i18n.language,
+    selectedLanguage,
+    depthLevel,
     generateBook,
     queryClient,
     user?.id,
     onComplete,
-    t,
+    i18n.language,
   ]);
 
   // ─── Step 1: Welcome ─────────────────────────────────────────────────────────
@@ -241,9 +246,9 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     </Animated.View>
   );
 
-  // ─── Step 2: Choose Book Type (category → type) ──────────────────────────────
+  // ─── Step 2: Choose Book Type (accordion) ─────────────────────────────────────
 
-  const renderCategoryGrid = () => (
+  const renderAccordionList = () => (
     <>
       <View style={styles.preferencesHeader}>
         <Ionicons name="library-outline" size={40} color={colors.text.primary} />
@@ -255,62 +260,66 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
         </Text>
       </View>
 
-      <View style={styles.categoryGrid}>
-        {BOOK_TYPE_CATEGORY_CONFIGS.map(config => {
+      <View style={styles.accordionList}>
+        {categoriesWithTypes.map(config => {
           const catColor = getCategoryColor(config.id, colors);
+          const isExpanded = selectedCategory === config.id;
+          const types = isExpanded ? getBookTypesForCategory(config.id) : [];
+
           return (
-            <TouchableOpacity
-              key={config.id}
-              style={styles.categoryChip}
-              onPress={() => handleSelectCategory(config.id)}
-              accessibilityRole="button"
-            >
-              <Ionicons name={config.icon as ComponentProps<typeof Ionicons>['name']} size={20} color={catColor} />
-              <Text style={styles.categoryChipText}>{t(config.nameKey)}</Text>
-            </TouchableOpacity>
+            <View key={config.id}>
+              <TouchableOpacity
+                style={[styles.categoryRow, isExpanded && styles.categoryRowExpanded]}
+                onPress={() => handleToggleCategory(config.id)}
+                accessibilityRole="button"
+                accessibilityState={{ expanded: isExpanded }}
+              >
+                <View style={[styles.categoryIconCircle, { backgroundColor: catColor + '20' }]}>
+                  <Ionicons name={config.icon as ComponentProps<typeof Ionicons>['name']} size={22} color={catColor} />
+                </View>
+                <Text style={[styles.categoryRowText, isExpanded && { color: catColor }]}>{t(config.nameKey)}</Text>
+                <Ionicons
+                  name={isExpanded ? 'chevron-down' : 'chevron-forward'}
+                  size={18}
+                  color={isExpanded ? catColor : colors.text.tertiary}
+                />
+              </TouchableOpacity>
+
+              {isExpanded &&
+                types.map(typeConfig => (
+                  <TouchableOpacity
+                    key={typeConfig.id}
+                    style={styles.typeRow}
+                    onPress={() => handleSelectType(typeConfig.id)}
+                    accessibilityRole="button"
+                  >
+                    <View style={[styles.typeIconCircle, { backgroundColor: catColor + '15' }]}>
+                      <Ionicons
+                        name={typeConfig.icon as ComponentProps<typeof Ionicons>['name']}
+                        size={20}
+                        color={catColor}
+                      />
+                    </View>
+                    <View style={styles.typeTextContainer}>
+                      <Text style={styles.typeRowTitle}>{t(typeConfig.nameKey)}</Text>
+                      <Text style={styles.typeRowDesc} numberOfLines={2}>
+                        {t(typeConfig.descriptionKey)}
+                      </Text>
+                    </View>
+                    <Ionicons name="chevron-forward" size={16} color={colors.text.tertiary} />
+                  </TouchableOpacity>
+                ))}
+            </View>
           );
         })}
       </View>
     </>
   );
 
-  const renderTypeList = () => (
-    <>
-      <View style={styles.typeListHeader}>
-        <TouchableOpacity onPress={handleBackFromTypes} style={styles.typeBackButton}>
-          <Ionicons name="arrow-back" size={22} color={colors.text.primary} />
-        </TouchableOpacity>
-        <Text style={styles.typeListTitle}>
-          {selectedCategory ? t(BOOK_TYPE_CATEGORY_CONFIGS.find(c => c.id === selectedCategory)?.nameKey || '') : ''}
-        </Text>
-      </View>
-
-      {categoryTypes.map(typeConfig => (
-        <TouchableOpacity
-          key={typeConfig.id}
-          style={styles.typeRow}
-          onPress={() => handleSelectType(typeConfig.id)}
-          accessibilityRole="button"
-        >
-          <View style={[styles.typeIconCircle, { backgroundColor: typeColor + '20' }]}>
-            <Ionicons name={typeConfig.icon as ComponentProps<typeof Ionicons>['name']} size={22} color={typeColor} />
-          </View>
-          <View style={styles.typeTextContainer}>
-            <Text style={styles.typeRowTitle}>{t(typeConfig.nameKey)}</Text>
-            <Text style={styles.typeRowDesc} numberOfLines={2}>
-              {t(typeConfig.descriptionKey)}
-            </Text>
-          </View>
-          <Ionicons name="chevron-forward" size={18} color={colors.text.tertiary} />
-        </TouchableOpacity>
-      ))}
-    </>
-  );
-
   const renderChooseBookTypeStep = () => (
     <Animated.View entering={isIOS26OrLater ? undefined : FadeIn.duration(500)} style={styles.stepContainer}>
       <ScrollView style={styles.scrollContent} contentContainerStyle={styles.scrollContentContainer}>
-        {selectedCategory === null ? renderCategoryGrid() : renderTypeList()}
+        {renderAccordionList()}
       </ScrollView>
     </Animated.View>
   );
@@ -320,6 +329,31 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const renderDescribeBookStep = () => {
     const canGenerate = bookDescription.trim().length >= 10;
     const placeholderKey = selectedBookTypeConfig?.generatorPlaceholderKey || 'books.generator.placeholder';
+
+    // Use the book-type-specific depth label or fall back to a generic one
+    const depthLabelKey = selectedBookTypeConfig?.generatorDepthLabelKey || 'books.generator.depth.label';
+
+    // Build depth options from the book type config or use generic keys
+    const depthOptions: { value: DepthLevel; labelKey: string; descriptionKey: string }[] = [
+      {
+        value: 'brief',
+        labelKey: selectedBookTypeConfig?.generatorDepthBriefLabelKey || 'books.generator.depth.brief',
+        descriptionKey: selectedBookTypeConfig?.generatorDepthBriefDescKey || 'books.generator.depth.briefDesc',
+      },
+      {
+        value: 'standard',
+        labelKey: selectedBookTypeConfig?.generatorDepthStandardLabelKey || 'books.generator.depth.standard',
+        descriptionKey: selectedBookTypeConfig?.generatorDepthStandardDescKey || 'books.generator.depth.standardDesc',
+      },
+      {
+        value: 'deep',
+        labelKey: selectedBookTypeConfig?.generatorDepthDeepLabelKey || 'books.generator.depth.deep',
+        descriptionKey: selectedBookTypeConfig?.generatorDepthDeepDescKey || 'books.generator.depth.deepDesc',
+      },
+    ];
+
+    const currentLangLabel =
+      SUPPORTED_LANGUAGES.find(l => l.code === selectedLanguage)?.nativeLabel || selectedLanguage;
 
     return (
       <Animated.View entering={isIOS26OrLater ? undefined : FadeIn.duration(500)} style={styles.stepContainer}>
@@ -361,6 +395,64 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
           <Text style={[styles.describeHint, canGenerate && { color: colors.semantic.success }]}>
             {t('onboardingFlow.describeHint', { defaultValue: 'At least 10 characters' })}
           </Text>
+
+          {/* Language selector */}
+          <View style={styles.languageContainer}>
+            <TouchableOpacity
+              style={styles.languageSelector}
+              onPress={() => setShowLanguagePicker(true)}
+              activeOpacity={0.7}
+            >
+              <View style={styles.languageSelectorLeft}>
+                <Ionicons name="language-outline" size={18} color={typeColor} />
+                <Text style={styles.languageSelectorLabel}>
+                  {t('books.generator.language', { defaultValue: 'Language' })}
+                </Text>
+              </View>
+              <View style={styles.languageSelectorRight}>
+                <Text style={styles.languageSelectorValue}>{currentLangLabel}</Text>
+                <Ionicons name="chevron-down" size={16} color={colors.text.tertiary} />
+              </View>
+            </TouchableOpacity>
+          </View>
+
+          {/* Depth selector */}
+          <View style={styles.depthContainer}>
+            <Text style={styles.depthLabel}>{t(depthLabelKey, { defaultValue: 'Choose depth' })}</Text>
+            <View style={styles.depthOptions}>
+              {depthOptions.map(option => {
+                const isLocked = option.value !== 'brief';
+                const isActive = depthLevel === option.value;
+                return (
+                  <TouchableOpacity
+                    key={option.value}
+                    style={[
+                      styles.depthOption,
+                      isActive && !isLocked && { borderColor: typeColor, backgroundColor: typeColor + '15' },
+                      isLocked && styles.depthOptionLocked,
+                    ]}
+                    onPress={() => handleDepthPress(option.value)}
+                  >
+                    <View style={styles.depthOptionHeader}>
+                      <Text
+                        style={[
+                          styles.depthOptionLabel,
+                          isActive && !isLocked && { color: typeColor },
+                          isLocked && { color: colors.text.tertiary },
+                        ]}
+                      >
+                        {t(option.labelKey)}
+                      </Text>
+                      {isLocked && <Ionicons name="lock-closed" size={14} color={colors.text.tertiary} />}
+                    </View>
+                    <Text style={[styles.depthOptionDesc, isLocked && { color: colors.text.tertiary }]}>
+                      {t(option.descriptionKey)}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
         </ScrollView>
 
         <View style={styles.footer}>
@@ -388,6 +480,46 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
             </LinearGradient>
           </TouchableOpacity>
         </View>
+
+        {/* Language picker modal */}
+        <Modal
+          visible={showLanguagePicker}
+          animationType="fade"
+          transparent
+          onRequestClose={() => setShowLanguagePicker(false)}
+        >
+          <TouchableOpacity
+            style={styles.languagePickerOverlay}
+            activeOpacity={1}
+            onPress={() => setShowLanguagePicker(false)}
+          >
+            <View style={styles.languagePickerSheet}>
+              <Text style={styles.languagePickerTitle}>
+                {t('books.generator.language', { defaultValue: 'Language' })}
+              </Text>
+              {SUPPORTED_LANGUAGES.map(lang => {
+                const isSelected = lang.code === selectedLanguage;
+                return (
+                  <TouchableOpacity
+                    key={lang.code}
+                    style={[styles.languagePickerOption, isSelected && styles.languagePickerOptionActive]}
+                    onPress={() => {
+                      setSelectedLanguage(lang.code);
+                      setShowLanguagePicker(false);
+                    }}
+                  >
+                    <Text
+                      style={[styles.languagePickerOptionText, isSelected && { color: typeColor, fontWeight: '600' }]}
+                    >
+                      {lang.nativeLabel}
+                    </Text>
+                    {isSelected && <Ionicons name="checkmark" size={18} color={typeColor} />}
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </TouchableOpacity>
+        </Modal>
       </Animated.View>
     );
   };
@@ -503,7 +635,7 @@ const createStyles = (colors: ColorScheme) =>
       color: colors.absolute.white,
     },
 
-    // ─── Step 2: Choose Book Type ────────────────────────────────
+    // ─── Step 2: Accordion categories ──────────────────────────────
     preferencesHeader: {
       alignItems: 'center',
       marginBottom: 32,
@@ -521,58 +653,58 @@ const createStyles = (colors: ColorScheme) =>
       color: colors.text.secondary,
       textAlign: 'center',
     },
-    categoryGrid: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      gap: CATEGORY_GAP,
+    accordionList: {
+      gap: 4,
     },
-    categoryChip: {
+    categoryRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 8,
-      width: CATEGORY_CHIP_WIDTH,
-      paddingVertical: 14,
+      gap: 14,
+      paddingVertical: 16,
       paddingHorizontal: 14,
       borderRadius: BORDER_RADIUS.md,
       backgroundColor: colors.background.subtle,
       borderWidth: 1,
       borderColor: colors.border.primary,
     },
-    categoryChipText: {
-      fontFamily: fontFamilies.body.medium,
-      fontSize: fontSizes.footnote,
+    categoryRowExpanded: {
+      backgroundColor: colors.background.secondary,
+      borderBottomLeftRadius: 0,
+      borderBottomRightRadius: 0,
+      borderBottomWidth: 0,
+    },
+    categoryIconCircle: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    categoryRowText: {
+      fontFamily: fontFamilies.body.semibold,
+      fontSize: fontSizes.callout,
       color: colors.text.primary,
       flex: 1,
     },
 
-    // ─── Type list (within category) ─────────────────────────────
-    typeListHeader: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 12,
-      marginBottom: 20,
-    },
-    typeBackButton: {
-      padding: 4,
-    },
-    typeListTitle: {
-      fontFamily: fontFamilies.body.bold,
-      fontSize: fontSizes.title3,
-      color: colors.text.primary,
-    },
+    // ─── Type rows (inside expanded category) ──────────────────────
     typeRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 14,
+      gap: 12,
       paddingVertical: 14,
-      paddingHorizontal: 4,
+      paddingHorizontal: 14,
+      paddingLeft: 28,
+      backgroundColor: colors.background.secondary,
+      borderLeftWidth: 1,
+      borderRightWidth: 1,
       borderBottomWidth: StyleSheet.hairlineWidth,
-      borderBottomColor: colors.border.primary,
+      borderColor: colors.border.primary,
     },
     typeIconCircle: {
-      width: 44,
-      height: 44,
-      borderRadius: 22,
+      width: 40,
+      height: 40,
+      borderRadius: 20,
       alignItems: 'center',
       justifyContent: 'center',
     },
@@ -581,15 +713,18 @@ const createStyles = (colors: ColorScheme) =>
     },
     typeRowTitle: {
       fontFamily: fontFamilies.body.semibold,
-      fontSize: fontSizes.callout,
+      fontSize: fontSizes.footnote,
       color: colors.text.primary,
       marginBottom: 2,
     },
     typeRowDesc: {
       fontFamily: fontFamilies.body.regular,
-      fontSize: fontSizes.footnote,
+      fontSize: fontSizes.caption1,
       color: colors.text.secondary,
-      lineHeight: 18,
+      lineHeight: 16,
+    },
+    typeBackButton: {
+      padding: 4,
     },
 
     // ─── Step 3: Describe & Generate ─────────────────────────────
@@ -634,5 +769,120 @@ const createStyles = (colors: ColorScheme) =>
       color: colors.text.tertiary,
       marginTop: 8,
       textAlign: 'center',
+    },
+
+    // ─── Language selector ────────────────────────────────────────
+    languageContainer: {
+      marginTop: 20,
+    },
+    languageSelector: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingVertical: 14,
+      paddingHorizontal: 16,
+      backgroundColor: colors.background.subtle,
+      borderWidth: 1,
+      borderColor: colors.border.primary,
+      borderRadius: BORDER_RADIUS.md,
+    },
+    languageSelectorLeft: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+    },
+    languageSelectorLabel: {
+      fontFamily: fontFamilies.body.medium,
+      fontSize: fontSizes.callout,
+      color: colors.text.primary,
+    },
+    languageSelectorRight: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+    },
+    languageSelectorValue: {
+      fontFamily: fontFamilies.body.regular,
+      fontSize: fontSizes.callout,
+      color: colors.text.secondary,
+    },
+
+    // Language picker modal
+    languagePickerOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0,0,0,0.5)',
+      justifyContent: 'center',
+      paddingHorizontal: 32,
+    },
+    languagePickerSheet: {
+      backgroundColor: colors.background.secondary,
+      borderRadius: BORDER_RADIUS.lg,
+      paddingHorizontal: 16,
+      paddingVertical: 20,
+    },
+    languagePickerTitle: {
+      fontFamily: fontFamilies.body.bold,
+      fontSize: fontSizes.headline,
+      color: colors.text.primary,
+      textAlign: 'center',
+      marginBottom: 12,
+    },
+    languagePickerOption: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingVertical: 14,
+      paddingHorizontal: 12,
+      borderRadius: BORDER_RADIUS.sm,
+    },
+    languagePickerOptionActive: {
+      backgroundColor: colors.brand.primary + '15',
+    },
+    languagePickerOptionText: {
+      fontFamily: fontFamilies.body.regular,
+      fontSize: fontSizes.callout,
+      color: colors.text.primary,
+    },
+
+    // ─── Depth selector ──────────────────────────────────────────
+    depthContainer: {
+      marginTop: 20,
+    },
+    depthLabel: {
+      fontFamily: fontFamilies.body.semibold,
+      fontSize: fontSizes.callout,
+      color: colors.text.primary,
+      marginBottom: 10,
+    },
+    depthOptions: {
+      gap: 8,
+    },
+    depthOption: {
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+      borderRadius: BORDER_RADIUS.md,
+      borderWidth: 1,
+      borderColor: colors.border.primary,
+      backgroundColor: colors.background.subtle,
+    },
+    depthOptionLocked: {
+      opacity: 0.6,
+    },
+    depthOptionHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: 4,
+    },
+    depthOptionLabel: {
+      fontFamily: fontFamilies.body.semibold,
+      fontSize: fontSizes.footnote,
+      color: colors.text.primary,
+    },
+    depthOptionDesc: {
+      fontFamily: fontFamilies.body.regular,
+      fontSize: fontSizes.caption1,
+      color: colors.text.secondary,
+      lineHeight: 16,
     },
   });

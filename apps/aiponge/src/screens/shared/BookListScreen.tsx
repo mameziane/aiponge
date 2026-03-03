@@ -23,6 +23,7 @@ import { EmptyState } from '../../components/shared/EmptyState';
 import { LoadingState } from '../../components/shared/LoadingState';
 import { BookCard, type BookCardData } from '../../components/book/BookCard';
 import { CreateBookModal, CloneBookModal } from '../../components/book';
+import { CONTENT_VISIBILITY } from '@aiponge/shared-contracts';
 import { BOOK_TYPE_CATEGORY_CONFIGS, getBookTypeConfig, resolveBookTypeColor } from '../../constants/bookTypes';
 import { GenerationProgressView } from '../../components/book/GenerationProgressView';
 import { usePendingBookGeneration } from '../../hooks/book/usePendingBookGeneration';
@@ -84,7 +85,10 @@ export function BookListScreen({ embedded = false, externalCreateTrigger, onStud
     if (pendingGen.status === 'completed' && pendingGen.blueprint && !pendingHandledRef.current) {
       pendingHandledRef.current = true;
       mutations
-        .handleCreateFromBlueprint(pendingGen.blueprint, pendingGen.bookTypeId || undefined)
+        .handleCreateFromBlueprint(pendingGen.blueprint, pendingGen.bookTypeId || undefined, {
+          skipNavigation: true,
+          visibility: CONTENT_VISIBILITY.PERSONAL,
+        })
         .then(() => {
           pendingGen.clear();
           data.refetchManageBooks();
