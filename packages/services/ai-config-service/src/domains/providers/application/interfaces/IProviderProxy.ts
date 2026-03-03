@@ -40,6 +40,15 @@ export interface ProviderResponse<T = unknown> {
     responseFormat?: string;
     /** True if response content is base64 encoded (for image providers like Stable Diffusion) */
     isBase64?: boolean;
+    /** Prompt caching metrics — provider-agnostic view of cache efficiency */
+    cacheMetrics?: {
+      /** Number of input tokens served from cache (reduced cost) */
+      cachedTokens: number;
+      /** Number of input tokens written to cache (Anthropic: 1.25x cost; OpenAI: no premium) */
+      cacheWriteTokens: number;
+      /** Cache hit rate as percentage (0-100) — cachedTokens / totalPromptTokens */
+      cacheHitRate: number;
+    };
   };
 }
 

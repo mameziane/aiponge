@@ -171,23 +171,36 @@
     "provider_id": "anthropic",
     "provider_name": "Anthropic Claude",
     "provider_type": "llm",
-    "description": "Anthropic Claude models for text generation and analysis",
+    "description": "Anthropic Claude models for text generation and analysis (with prompt caching)",
     "configuration": {
       "auth": {
-        "scheme": "ApiKey",
         "envVarName": "ANTHROPIC_API_KEY",
         "headerName": "x-api-key"
       },
       "method": "POST",
       "models": ["claude-sonnet-4-20250514", "claude-3-5-sonnet-20241022"],
       "headers": {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "anthropic-version": "2023-06-01"
       },
       "timeout": 180000,
       "endpoint": "https://api.anthropic.com/v1/messages",
       "requestTemplate": {
         "model": "claude-sonnet-4-20250514",
-        "max_tokens": 4096
+        "max_tokens": 4096,
+        "system": [
+          {
+            "type": "text",
+            "text": "${systemPrompt}",
+            "cache_control": { "type": "ephemeral" }
+          }
+        ],
+        "messages": [
+          {
+            "role": "user",
+            "content": "${userPrompt}"
+          }
+        ]
       },
       "responseMapping": {
         "content": "content[0].text"

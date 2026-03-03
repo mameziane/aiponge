@@ -42,12 +42,23 @@ export interface AIRequest {
   systemPrompt?: string;
 }
 
+export interface CacheMetrics {
+  /** Input tokens served from provider cache (reduced cost) */
+  cachedTokens: number;
+  /** Input tokens written to provider cache (Anthropic: 1.25x cost; OpenAI: no premium) */
+  cacheWriteTokens: number;
+  /** Cache hit rate as percentage (0-100) */
+  cacheHitRate: number;
+}
+
 export interface AIResponse {
   content: string;
   provider: string;
   cost: number;
   responseTime: number;
   metadata?: Record<string, unknown>;
+  /** Prompt caching metrics extracted from provider response */
+  cacheMetrics?: CacheMetrics;
 }
 
 const PROVIDER_TIMEOUT_DEFAULTS: Record<string, number> = {
@@ -91,7 +102,8 @@ export class UniversalHTTPProvider {
           authCredentials
         );
 
-        this.trackSuccessfulUsage(template, request, responseData, responseTime);
+        const cacheMetrics = this.extractCacheMetrics(responseData);
+        this.trackSuccessfulUsage(template, request, responseData, responseTime, cacheMetrics);
 
         const responseFormat = (template.responseMapping as Record<string, string>)?.format || 'text';
         const isBase64Response = responseFormat === 'base64';
@@ -107,6 +119,7 @@ export class UniversalHTTPProvider {
             responseFormat,
             isBase64: isBase64Response,
           },
+          cacheMetrics,
         };
       } catch (error) {
         const msg = errorMessage(error);
@@ -266,7 +279,8 @@ export class UniversalHTTPProvider {
     template: ProviderTemplate,
     request: AIRequest,
     responseData: Record<string, unknown>,
-    responseTime: number
+    responseTime: number,
+    cacheMetrics?: CacheMetrics
   ): void {
     // Track successful provider usage for analytics
     try {
@@ -280,6 +294,18 @@ export class UniversalHTTPProvider {
         tokensUsed: tokensUsed.total,
         cost: template.cost,
       });
+
+      // Log cache metrics when present (helps measure prompt caching effectiveness)
+      if (cacheMetrics && (cacheMetrics.cachedTokens > 0 || cacheMetrics.cacheWriteTokens > 0)) {
+        const logger = getLogger('ai-config-universal-http-provider');
+        logger.info('Prompt cache metrics', {
+          provider: template.name,
+          cachedTokens: cacheMetrics.cachedTokens,
+          cacheWriteTokens: cacheMetrics.cacheWriteTokens,
+          cacheHitRate: `${cacheMetrics.cacheHitRate.toFixed(1)}%`,
+          totalPromptTokens: tokensUsed.input,
+        });
+      }
     } catch (analyticsError) {
       // Non-blocking - don't fail request if analytics fails
     }
@@ -659,6 +685,47 @@ export class UniversalHTTPProvider {
     }
 
     return { input: 0, output: 0, total: 0 };
+  }
+
+  /**
+   * Extract prompt cache metrics from AI provider response.
+   * Handles both OpenAI and Anthropic response formats:
+   *
+   * OpenAI: usage.prompt_tokens_details.cached_tokens (automatic, no write premium)
+   * Anthropic: usage.cache_read_input_tokens / usage.cache_creation_input_tokens (explicit, 1.25x write)
+   */
+  private extractCacheMetrics(responseData: Record<string, unknown>): CacheMetrics | undefined {
+    const usage = responseData.usage as Record<string, unknown> | undefined;
+    if (!usage) return undefined;
+
+    // OpenAI format: usage.prompt_tokens_details.cached_tokens
+    const promptTokensDetails = usage.prompt_tokens_details as { cached_tokens?: number } | undefined;
+    if (promptTokensDetails?.cached_tokens !== undefined) {
+      const promptTokens = (usage.prompt_tokens as number) || 0;
+      const cachedTokens = promptTokensDetails.cached_tokens || 0;
+      return {
+        cachedTokens,
+        cacheWriteTokens: 0, // OpenAI has no explicit write — automatic caching
+        cacheHitRate: promptTokens > 0 ? (cachedTokens / promptTokens) * 100 : 0,
+      };
+    }
+
+    // Anthropic format: usage.cache_read_input_tokens / usage.cache_creation_input_tokens
+    const cacheReadTokens = usage.cache_read_input_tokens as number | undefined;
+    const cacheCreationTokens = usage.cache_creation_input_tokens as number | undefined;
+    if (cacheReadTokens !== undefined || cacheCreationTokens !== undefined) {
+      const inputTokens = (usage.input_tokens as number) || 0;
+      const cachedTokens = cacheReadTokens || 0;
+      const cacheWriteTokens = cacheCreationTokens || 0;
+      const totalPromptTokens = inputTokens + cachedTokens + cacheWriteTokens;
+      return {
+        cachedTokens,
+        cacheWriteTokens,
+        cacheHitRate: totalPromptTokens > 0 ? (cachedTokens / totalPromptTokens) * 100 : 0,
+      };
+    }
+
+    return undefined;
   }
 
   /**

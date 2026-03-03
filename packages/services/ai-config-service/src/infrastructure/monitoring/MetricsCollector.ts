@@ -123,6 +123,34 @@ export class MetricsCollector {
   }
 
   /**
+   * Record prompt cache metrics from AI provider responses.
+   * Tracks cached token counts and hit rates per provider for cost optimization monitoring.
+   */
+  recordCacheMetrics(
+    providerId: string,
+    cacheMetrics: { cachedTokens: number; cacheWriteTokens: number; cacheHitRate: number }
+  ): void {
+    const tags = { providerId };
+
+    if (cacheMetrics.cachedTokens > 0) {
+      this.recordMetric('provider.cache.read_tokens', cacheMetrics.cachedTokens, tags);
+    }
+    if (cacheMetrics.cacheWriteTokens > 0) {
+      this.recordMetric('provider.cache.write_tokens', cacheMetrics.cacheWriteTokens, tags);
+    }
+    this.recordMetric('provider.cache.hit_rate', cacheMetrics.cacheHitRate, tags);
+
+    if (cacheMetrics.cachedTokens > 0 || cacheMetrics.cacheWriteTokens > 0) {
+      logger.info('Cache: {} read={} write={} hit={}%', {
+        data0: providerId,
+        data1: cacheMetrics.cachedTokens,
+        data2: cacheMetrics.cacheWriteTokens,
+        data3: cacheMetrics.cacheHitRate.toFixed(1),
+      });
+    }
+  }
+
+  /**
    * Record error events
    */
   recordError(context: string, error: Error, tags?: Record<string, string>): void {
@@ -175,6 +203,38 @@ export class MetricsCollector {
       }
     }
     return sum;
+  }
+
+  /**
+   * Get prompt cache statistics for a provider
+   */
+  getCacheStats(
+    providerId: string,
+    timeRangeMs: number = 3600000
+  ): {
+    totalCachedTokens: number;
+    totalCacheWriteTokens: number;
+    avgCacheHitRate: number;
+    cacheEventCount: number;
+  } {
+    const cutoffTime = new Date(Date.now() - timeRangeMs);
+
+    const totalCachedTokens = this.sumMetricByProvider('provider.cache.read_tokens', providerId, cutoffTime);
+    const totalCacheWriteTokens = this.sumMetricByProvider('provider.cache.write_tokens', providerId, cutoffTime);
+
+    // Calculate average hit rate from recorded samples
+    const hitRateEntries = (this.metrics.get('provider.cache.hit_rate') || []).filter(
+      m => m.timestamp > cutoffTime && m.tags?.providerId === providerId
+    );
+    const avgCacheHitRate =
+      hitRateEntries.length > 0 ? hitRateEntries.reduce((sum, m) => sum + m.value, 0) / hitRateEntries.length : 0;
+
+    return {
+      totalCachedTokens,
+      totalCacheWriteTokens,
+      avgCacheHitRate,
+      cacheEventCount: hitRateEntries.length,
+    };
   }
 
   /**

@@ -150,8 +150,13 @@ export class ProviderProxy implements IProviderProxy {
         try {
           const result = await this.invokeProvider<T>(currentProviderId, request);
 
-          // Record success metrics
-          this.recordProviderSuccess(currentProviderId, Date.now() - startTime, result.metadata?.cost || 0);
+          // Record success metrics (including prompt cache data when available)
+          this.recordProviderSuccess(
+            currentProviderId,
+            Date.now() - startTime,
+            result.metadata?.cost || 0,
+            result.metadata?.cacheMetrics
+          );
 
           return result;
         } catch (error) {
@@ -242,6 +247,8 @@ export class ProviderProxy implements IProviderProxy {
           // Include response format for base64 handling (Stable Diffusion, etc.)
           responseFormat: response.metadata?.responseFormat as string | undefined,
           isBase64: response.metadata?.isBase64 as boolean | undefined,
+          // Pass through prompt cache metrics from provider response
+          cacheMetrics: response.cacheMetrics,
         },
       };
     } catch (error) {
@@ -765,8 +772,18 @@ export class ProviderProxy implements IProviderProxy {
     }
   }
 
-  private recordProviderSuccess(providerId: string, latencyMs: number, cost: number): void {
+  private recordProviderSuccess(
+    providerId: string,
+    latencyMs: number,
+    cost: number,
+    cacheMetrics?: { cachedTokens: number; cacheWriteTokens: number; cacheHitRate: number }
+  ): void {
     this.metrics.recordProviderRequest(providerId, 'invoke', true, latencyMs, cost);
+
+    // Record prompt cache metrics when available
+    if (cacheMetrics) {
+      this.metrics.recordCacheMetrics(providerId, cacheMetrics);
+    }
 
     // Reset circuit breaker on success
     const health = this.providerHealthMap.get(providerId);
