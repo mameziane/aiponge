@@ -739,7 +739,7 @@ export class GenerateBookUseCase {
     const language = request.language || 'en-US';
     const tone = request.tone || 'supportive';
 
-    const outlinePrompt = `${userPrompt}\n\nIMPORTANT: Generate ONLY the book outline structure. Return a JSON object with:\n- "title": the book title\n- "description": a 2-3 sentence book description\n- "category": a short category label (e.g. "growth", "anxiety", "relationships", "mindfulness", "purpose", "creativity")\n- "chapters": an array of chapter objects, each with "title", "description", and "order" (0-indexed). Do NOT include entries.\n\nTarget ${depthConfig.minEntries}-${depthConfig.maxEntries} entries total across all chapters. Create enough chapters to distribute that evenly (typically 3-6 chapters).`;
+    const outlinePrompt = `${userPrompt}\n\nIMPORTANT: Generate ONLY the book outline structure. Return a JSON object with:\n- "title": the book title\n- "subtitle": a short evocative subtitle (under 80 characters)\n- "description": a 2-3 sentence book description\n- "category": a short category label (e.g. "growth", "anxiety", "relationships", "mindfulness", "purpose", "creativity")\n- "chapters": an array of chapter objects, each with "title", "description", and "order" (0-indexed). Do NOT include entries.\n\nTarget ${depthConfig.minEntries}-${depthConfig.maxEntries} entries total across all chapters. Create enough chapters to distribute that evenly (typically 3-6 chapters).`;
 
     logger.info('Phase 1: Generating book outline', { requestId, depthLevel });
 
@@ -754,6 +754,7 @@ export class GenerateBookUseCase {
 
     interface BookOutline {
       title: string;
+      subtitle?: string;
       description: string;
       category?: string;
       chapters: Array<{ title: string; description: string; order: number }>;
@@ -933,6 +934,7 @@ export class GenerateBookUseCase {
 
     const assembledBook: GeneratedBookData = {
       title: outline.title,
+      subtitle: outline.subtitle,
       description: outline.description,
       category: outline.category,
       chapters: outline.chapters

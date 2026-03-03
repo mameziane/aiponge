@@ -448,6 +448,7 @@ export class BookRepository {
         description: 'Your saved entries from books',
         userId,
         isReadOnly: false,
+        category: 'personal',
         visibility: CONTENT_VISIBILITY.PERSONAL,
         status: BOOK_LIFECYCLE.ACTIVE,
         systemType: 'bookmarks',
@@ -479,9 +480,11 @@ export class BookRepository {
       const book = await this.create({
         typeId: BOOK_TYPE_IDS.PERSONAL,
         title: 'My Story',
+        subtitle: 'Your personal space for reflection and growth',
         description: 'Your personal space for reflection and growth',
         userId,
         isReadOnly: false,
+        category: 'personal',
         visibility: CONTENT_VISIBILITY.PERSONAL,
         status: BOOK_LIFECYCLE.ACTIVE,
         systemType: 'default',
@@ -495,6 +498,8 @@ export class BookRepository {
         description: 'Your personal entries',
         sortOrder: 0,
       });
+
+      await this.updateChapterCount(book.id);
 
       logger.info('Default chapter created for auto-created personal book', { userId, bookId: book.id });
 
@@ -544,6 +549,7 @@ export class BookRepository {
         description: 'Entries shared with your followers',
         userId,
         isReadOnly: false,
+        category: 'personal',
         visibility: CONTENT_VISIBILITY.SHARED,
         status: BOOK_LIFECYCLE.ACTIVE,
         systemType: SHARED_NOTES_SYSTEM_TYPE,
