@@ -4,7 +4,7 @@
  */
 
 // Re-export lifecycle analytics tables
-export * from './lifecycle-schema.js';
+export * from './lifecycle-schema';
 
 import {
   pgTable,
