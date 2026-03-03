@@ -216,6 +216,7 @@ export const LibBookSchema = z
     publishedAt: z.string().nullable().optional(),
     createdAt: z.string().optional(),
     updatedAt: z.string().optional(),
+    displayAuthor: z.string().nullable().optional(),
   })
   .passthrough();
 export type LibBook = z.infer<typeof LibBookSchema>;

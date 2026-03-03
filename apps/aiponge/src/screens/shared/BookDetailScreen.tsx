@@ -280,7 +280,7 @@ export function BookDetailScreen({ mode = 'view' }: BookDetailScreenProps) {
         title: mb.title,
         subtitle: mb.subtitle || undefined,
         coverIllustrationUrl: mb.coverIllustrationUrl || undefined,
-        author: mb.author || undefined,
+        author: mb.displayAuthor || mb.author || undefined,
         category: mb.category || 'general',
         description: mb.description || undefined,
         status: mb.status || undefined,

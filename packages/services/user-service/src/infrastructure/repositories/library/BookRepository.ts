@@ -7,7 +7,7 @@ import {
   BOOK_TYPE_IDS,
   CONTENT_VISIBILITY,
 } from '../../database/schemas/library-schema';
-import { eq, and, asc, desc, sql, ilike, or, inArray, isNull, type SQL } from 'drizzle-orm';
+import { eq, and, asc, desc, sql, ilike, or, inArray, isNull, getTableColumns, type SQL } from 'drizzle-orm';
 import { getLogger } from '../../../config/service-urls';
 import { BOOK_LIFECYCLE, encodeCursor, decodeCursor, type CursorPaginatedResponse } from '@aiponge/shared-contracts';
 import { ChapterRepository } from './ChapterRepository';
@@ -79,7 +79,25 @@ export interface BookWithCounts extends Book {
   chapterCount: number;
   entryCount: number;
   coverIllustrationUrl: string | null;
+  displayAuthor: string | null;
 }
+
+/**
+ * Resolve book author at query time: prefer explicit author override,
+ * fall back to the user's current display name from usr_accounts.profile.
+ * This ensures author stays current when users change their display name.
+ */
+const displayAuthorExpr = sql<string | null>`COALESCE(
+  NULLIF(${libBooks.author}, ''),
+  (SELECT u.profile->>'displayName' FROM usr_accounts u WHERE u.id = ${libBooks.userId} LIMIT 1),
+  ''
+)`.as('display_author');
+
+/** All lib_books columns + the computed displayAuthor field */
+const bookColumnsWithAuthor = {
+  ...getTableColumns(libBooks),
+  displayAuthor: displayAuthorExpr,
+};
 
 export class BookRepository {
   private readonly readDb: DatabaseConnection;
@@ -91,32 +109,32 @@ export class BookRepository {
     this.readDb = readDb || db;
   }
 
-  async getById(id: string): Promise<Book | null> {
+  async getById(id: string): Promise<(Book & { displayAuthor: string | null }) | null> {
     const results = await this.readDb
-      .select()
+      .select(bookColumnsWithAuthor)
       .from(libBooks)
       .where(and(eq(libBooks.id, id), isNull(libBooks.deletedAt)))
       .limit(1);
     return results[0] || null;
   }
 
-  async getBooksByUserAndType(userId: string, typeId?: string): Promise<Book[]> {
+  async getBooksByUserAndType(userId: string, typeId?: string): Promise<(Book & { displayAuthor: string | null })[]> {
     const conditions = [eq(libBooks.userId, userId), isNull(libBooks.deletedAt)];
     if (typeId) {
       conditions.push(eq(libBooks.typeId, typeId));
     }
 
     return this.readDb
-      .select()
+      .select(bookColumnsWithAuthor)
       .from(libBooks)
       .where(and(...conditions))
       .orderBy(desc(libBooks.createdAt))
       .limit(200);
   }
 
-  async getBooksByUser(userId: string): Promise<Book[]> {
+  async getBooksByUser(userId: string): Promise<(Book & { displayAuthor: string | null })[]> {
     return this.readDb
-      .select()
+      .select(bookColumnsWithAuthor)
       .from(libBooks)
       .where(and(eq(libBooks.userId, userId), isNull(libBooks.deletedAt)))
       .orderBy(desc(libBooks.createdAt))
@@ -204,7 +222,8 @@ export class BookRepository {
         or(
           ilike(libBooks.title, `%${filters.search}%`),
           ilike(libBooks.author, `%${filters.search}%`),
-          ilike(libBooks.description, `%${filters.search}%`)
+          ilike(libBooks.description, `%${filters.search}%`),
+          sql`(SELECT u.profile->>'displayName' FROM usr_accounts u WHERE u.id = ${libBooks.userId} LIMIT 1) ILIKE ${`%${filters.search}%`}`
         )!
       );
     }
@@ -224,7 +243,7 @@ export class BookRepository {
     }
 
     const rows = await this.readDb
-      .select()
+      .select(bookColumnsWithAuthor)
       .from(libBooks)
       .where(and(...conditions))
       .orderBy(desc(libBooks.createdAt), desc(libBooks.id))
@@ -269,7 +288,8 @@ export class BookRepository {
         or(
           ilike(libBooks.title, `%${filters.search}%`),
           ilike(libBooks.author, `%${filters.search}%`),
-          ilike(libBooks.description, `%${filters.search}%`)
+          ilike(libBooks.description, `%${filters.search}%`),
+          sql`(SELECT u.profile->>'displayName' FROM usr_accounts u WHERE u.id = ${libBooks.userId} LIMIT 1) ILIKE ${`%${filters.search}%`}`
         )!
       );
     }
@@ -319,6 +339,7 @@ export class BookRepository {
         chapterCount: libBooks.chapterCount,
         entryCount: libBooks.entryCount,
         cover_illustration_url: coverUrlSq,
+        displayAuthor: displayAuthorExpr,
       })
       .from(libBooks)
       .where(whereClause)
@@ -351,6 +372,7 @@ export class BookRepository {
       chapterCount: row.chapterCount,
       entryCount: row.entryCount,
       coverIllustrationUrl: row.cover_illustration_url,
+      displayAuthor: row.displayAuthor,
     })) as BookWithCounts[];
 
     return { items, nextCursor, hasMore };

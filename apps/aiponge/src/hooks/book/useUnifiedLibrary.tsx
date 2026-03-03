@@ -214,7 +214,7 @@ export function toBookDisplay(
     title: rawBook.title,
     subtitle: rawBook.subtitle || undefined,
     coverIllustrationUrl: rawBook.coverIllustrationUrl || undefined,
-    author: rawBook.author || undefined,
+    author: rawBook.displayAuthor || rawBook.author || undefined,
     category: rawBook.category || rawBook.tags?.[0] || rawBook.themes?.[0] || rawBook.typeId || 'general',
     description: rawBook.description || undefined,
     status: rawBook.status || undefined,

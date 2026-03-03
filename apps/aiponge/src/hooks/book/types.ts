@@ -41,6 +41,7 @@ export interface ManageBookData {
   subtitle?: string;
   description?: string;
   coverIllustrationUrl?: string;
+  displayAuthor?: string;
   author?: string;
   category?: string;
   status?: string;

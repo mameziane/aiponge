@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
-import { sql } from 'drizzle-orm';
+
 import { sendSuccess, sendCreated, ServiceErrors } from '../../utils/response-helpers';
 import { serializeError, extractAuthContext } from '@aiponge/platform-core';
 import { BOOK_TYPE_IDS, ENTRY_TYPES } from '@infrastructure/database/schemas/library-schema';
@@ -147,17 +147,9 @@ export class BookController {
 
     const { chapters, ...bookData } = parsed.data;
 
-    if (bookData.typeId !== BOOK_TYPE_IDS.PERSONAL && !bookData.author) {
-      try {
-        const [row] = await this.deps.db.execute<{ display_name: string | null }>(
-          sql`SELECT profile->>'displayName' as display_name FROM usr_accounts WHERE id = ${context.userId} LIMIT 1`
-        );
-        bookData.author = row?.display_name || '';
-      } catch (dbError) {
-        logger.warn('Failed to fetch user display name for book author', { userId: context.userId, error: dbError });
-        bookData.author = '';
-      }
-    }
+    // Author is now resolved at query time via displayAuthor COALESCE.
+    // If no explicit author is provided, the book's displayAuthor will
+    // fall back to the user's current display name from usr_accounts.
 
     const hasChapters = chapters && chapters.length > 0;
     const originalIsReadOnly = bookData.isReadOnly;

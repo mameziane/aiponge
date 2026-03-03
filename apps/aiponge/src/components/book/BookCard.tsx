@@ -60,6 +60,7 @@ export interface BookCardData {
   subtitle?: string;
   description?: string;
   coverIllustrationUrl?: string;
+  displayAuthor?: string;
   author?: string;
   category: string;
   language?: string;
