@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useRouter, usePathname } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { usePlaybackState } from '../../contexts/PlaybackContext';
 import { useUnifiedPlaybackControl } from '../../hooks/music/useUnifiedPlaybackControl';
@@ -10,15 +10,19 @@ import { AudioRoutePickerCompact } from './AudioRoutePicker';
 import { normalizeMediaUrl } from '../../lib/apiConfig';
 import { useThemeColors, type ColorScheme } from '../../theme';
 
+// Routes where the mini player should be hidden (full-screen experiences)
+const HIDDEN_ROUTES = ['/private-track-detail', '/book-reader'];
+
 export function MiniPlayer() {
   const colors = useThemeColors();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const { t } = useTranslation();
   const router = useRouter();
+  const pathname = usePathname();
   const { currentTrack } = usePlaybackState();
   const { togglePlayPause, isPlaying } = useUnifiedPlaybackControl();
 
-  if (!currentTrack) {
+  if (!currentTrack || HIDDEN_ROUTES.some(route => pathname.startsWith(route))) {
     return null;
   }
 

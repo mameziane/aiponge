@@ -3,10 +3,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const FEEDBACK_GIVEN_KEY = 'feedback_given_tracks';
 
-interface FeedbackTrackInfo {
-  id: string;
-  title: string;
-}
+/** Show the feedback modal every Nth completed track */
+const FEEDBACK_FREQUENCY = 3;
 
 interface UseFeedbackPromptReturn {
   showFeedbackModal: boolean;
@@ -23,6 +21,7 @@ export function useFeedbackPrompt(): UseFeedbackPromptReturn {
   const [feedbackTrackTitle, setFeedbackTrackTitle] = useState<string | null>(null);
   const feedbackGivenTracksRef = useRef<Set<string>>(new Set());
   const isInitializedRef = useRef(false);
+  const playCountRef = useRef(0);
 
   const loadFeedbackGivenTracks = useCallback(async () => {
     if (isInitializedRef.current) return;
@@ -50,6 +49,13 @@ export function useFeedbackPrompt(): UseFeedbackPromptReturn {
 
   const handleTrackFinished = useCallback(
     async (trackId: string, trackTitle?: string) => {
+      playCountRef.current += 1;
+
+      // Throttle: only show feedback every Nth completed track
+      if (playCountRef.current % FEEDBACK_FREQUENCY !== 0) {
+        return;
+      }
+
       await loadFeedbackGivenTracks();
 
       if (feedbackGivenTracksRef.current.has(trackId)) {

@@ -168,3 +168,6 @@ export * from './music-preferences.js';
 
 // Re-export AI provider pricing - Single Source of Truth for model costs
 export * from './ai-provider-pricing.js';
+
+// Re-export language utilities - Single Source of Truth for language code normalization
+export * from './language.js';

@@ -14,9 +14,7 @@ import { useAlbums } from '../../hooks/music/useAlbums';
 import { useSharedAlbums } from '../../hooks/playlists/useSharedAlbums';
 import { useFavorites } from '../../hooks/playlists/useFavorites';
 import { useLyricsModal } from '../../hooks/music/useLyricsModal';
-import { useFeedbackPrompt } from '../../hooks/ui/useFeedbackPrompt';
 import { LyricsModal } from '../../components/music/LyricsModal';
-import { FeedbackPromptModal } from '../../components/shared/FeedbackPromptModal';
 import { useAuthStore, selectUserId } from '../../auth/store';
 import { useToast } from '../../hooks/ui/use-toast';
 import { useResponsiveLayout } from '../../hooks/ui/useResponsiveLayout';
@@ -244,16 +242,6 @@ export function DiscoverScreen() {
   // Lyrics modal for viewing track lyrics
   const { lyricsModal, handleShowLyrics, handleCloseLyrics } = useLyricsModal();
 
-  // Feedback prompt for track helpfulness
-  const {
-    showFeedbackModal,
-    feedbackTrackId,
-    feedbackTrackTitle,
-    handleTrackFinished,
-    closeFeedbackModal,
-    markFeedbackGiven,
-  } = useFeedbackPrompt();
-
   // Guest conversion tracking
   const {
     showPrompt: showGuestPrompt,
@@ -337,7 +325,6 @@ export function DiscoverScreen() {
     repeatMode,
     availableTracks: trackIdentities,
     onNewTrackStarted: trackTrackPlayed,
-    onTrackFinished: handleTrackFinished,
   });
 
   const handleTrackPress = async (track: ExploreTrack | UserCreation) => {
@@ -720,17 +707,6 @@ export function DiscoverScreen() {
         lyricsId={lyricsModal.lyricsId}
         trackTitle={lyricsModal.trackTitle}
       />
-
-      {/* Feedback Prompt Modal - appears after track finishes first play */}
-      {feedbackTrackId && (
-        <FeedbackPromptModal
-          visible={showFeedbackModal}
-          trackId={feedbackTrackId}
-          trackTitle={feedbackTrackTitle}
-          onClose={closeFeedbackModal}
-          onFeedbackSubmitted={markFeedbackGiven}
-        />
-      )}
     </View>
   );
 }

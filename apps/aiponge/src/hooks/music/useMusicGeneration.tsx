@@ -538,7 +538,7 @@ export function useMusicGeneration() {
         language:
           selectedCulturalLanguages && selectedCulturalLanguages.length > 0
             ? selectedCulturalLanguages[0]
-            : i18n.language,
+            : i18n.language?.split('-')[0] || 'en',
         targetLanguages: selectedCulturalLanguages,
         isBilingual,
         pictureContext: params?.pictureContext,

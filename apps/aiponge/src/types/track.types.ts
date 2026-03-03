@@ -53,6 +53,7 @@ export interface MyMusicTrack extends BaseTrack {
 export interface SharedTrack extends BaseTrack {
   genres?: string[];
   tags?: string[];
+  language?: string;
   playCount: number;
   addedAt: string;
 }

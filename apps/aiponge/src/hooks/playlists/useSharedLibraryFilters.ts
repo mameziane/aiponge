@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useLocalSearchParams } from 'expo-router';
 import { useAuthStore, selectUserId } from '../../auth/store';
-import { SUPPORTED_LANGUAGES } from '../../i18n/types';
 
 export interface SharedLibraryFilters {
   searchQuery: string;
@@ -17,15 +16,9 @@ export interface SharedLibraryFiltersReturn {
   setSelectedGenre: (genre: string) => void;
   setSelectedLanguage: (language: string) => void;
   setSelectedPlaylistId: (id: string | null) => void;
-  tracksQueryKey: (string | { search: string; genreFilter: string; languageFilter: string })[];
+  tracksQueryKey: (string | { search: string })[];
   tracksEndpoint: string;
-  languageOptions: { code: string; name: string }[];
 }
-
-const LANGUAGE_OPTIONS = SUPPORTED_LANGUAGES.map(lang => ({
-  code: lang.code.split('-')[0],
-  name: lang.nativeLabel,
-}));
 
 export function useSharedLibraryFilters(): SharedLibraryFiltersReturn {
   const params = useLocalSearchParams<{ selectPlaylist?: string; smartKey?: string }>();
@@ -48,43 +41,29 @@ export function useSharedLibraryFilters(): SharedLibraryFiltersReturn {
     }
   }, [params.selectPlaylist, params.smartKey]);
 
+  // Genre and language filtering is done client-side in useSharedLibrary.
+  // Only search is sent server-side (it filters in the DB query for performance).
   const { queryKey, endpoint } = useMemo(() => {
     const queryParams = new URLSearchParams();
     if (searchQuery) queryParams.append('search', searchQuery);
-    if (selectedGenre) queryParams.append('genreFilter', selectedGenre);
-    if (selectedLanguage) queryParams.append('languageFilter', selectedLanguage);
     const queryString = queryParams.toString();
 
     if (smartKey && userId) {
       const ep = `/api/v1/app/playlists/smart/${userId}/${smartKey}/tracks`;
-      const qk = [
-        '/api/v1/app/playlists/smart',
-        userId,
-        smartKey,
-        'tracks',
-        { search: searchQuery, genreFilter: selectedGenre, languageFilter: selectedLanguage },
-      ];
+      const qk = ['/api/v1/app/playlists/smart', userId, smartKey, 'tracks', { search: searchQuery }];
       return { queryKey: qk, endpoint: ep };
     }
 
     if (selectedPlaylistId) {
       const ep = `/api/v1/app/playlists/${selectedPlaylistId}/tracks${queryString ? `?${queryString}` : ''}`;
-      const qk = [
-        '/api/v1/app/playlists',
-        selectedPlaylistId,
-        'tracks',
-        { search: searchQuery, genreFilter: selectedGenre, languageFilter: selectedLanguage },
-      ];
+      const qk = ['/api/v1/app/playlists', selectedPlaylistId, 'tracks', { search: searchQuery }];
       return { queryKey: qk, endpoint: ep };
     }
 
     const ep = `/api/v1/app/library/shared${queryString ? `?${queryString}` : ''}`;
-    const qk = [
-      '/api/v1/app/library/shared',
-      { search: searchQuery, genreFilter: selectedGenre, languageFilter: selectedLanguage },
-    ];
+    const qk = ['/api/v1/app/library/shared', { search: searchQuery }];
     return { queryKey: qk, endpoint: ep };
-  }, [smartKey, userId, selectedPlaylistId, searchQuery, selectedGenre, selectedLanguage]);
+  }, [smartKey, userId, selectedPlaylistId, searchQuery]);
 
   return {
     filters: {
@@ -100,6 +79,5 @@ export function useSharedLibraryFilters(): SharedLibraryFiltersReturn {
     setSelectedPlaylistId,
     tracksQueryKey: queryKey,
     tracksEndpoint: endpoint,
-    languageOptions: LANGUAGE_OPTIONS,
   };
 }

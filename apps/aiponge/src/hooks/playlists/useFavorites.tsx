@@ -99,7 +99,7 @@ export function useFavorites(userId: string) {
     ),
   });
 
-  // Add track to Favorites mutation
+  // Add track to Favorites mutation (onMutate pattern for instant UI)
   const addToFavoritesMutation = useMutation({
     mutationFn: async ({ playlistId, trackId }: { playlistId: string; trackId: string }) => {
       return apiRequest(`/api/v1/app/playlists/${playlistId}/tracks`, {
@@ -109,23 +109,27 @@ export function useFavorites(userId: string) {
         },
       });
     },
-    onSuccess: (_, variables) => {
-      // Use centralized cache invalidation
-      invalidateOnEvent(queryClient, { type: 'TRACK_FAVORITED', trackId: variables.trackId });
-      // Optimistically update the set
+    onMutate: async variables => {
+      // Snapshot previous state for rollback
+      const previousIds = new Set(trackIdsInFavorites);
       setTrackIdsInFavorites(prev => new Set([...prev, variables.trackId]));
+      return { previousIds };
     },
-    onError: (error, variables) => {
+    onSuccess: (_, variables) => {
+      // Sync server state via cache invalidation
+      invalidateOnEvent(queryClient, { type: 'TRACK_FAVORITED', trackId: variables.trackId });
+    },
+    onError: (error, variables, context) => {
       const errorMessage = error instanceof Error ? error.message : String(error);
       // Handle "Track already in/exists in playlist" as success — just sync the state.
       // Backend is now idempotent (returns 200), but keep this as a safety net.
       if (errorMessage.includes('already exists in playlist') || errorMessage.includes('already in playlist')) {
         logger.debug('Track already in favorites, syncing state', { trackId: variables.trackId });
-        setTrackIdsInFavorites(prev => new Set([...prev, variables.trackId]));
         invalidateOnEvent(queryClient, { type: 'TRACK_FAVORITED', trackId: variables.trackId });
         return;
       }
-      // For other errors, use the standard handler
+      // Rollback optimistic update
+      if (context?.previousIds) setTrackIdsInFavorites(context.previousIds);
       createMutationErrorHandler(
         toast,
         'Add to Favorites',
@@ -136,30 +140,38 @@ export function useFavorites(userId: string) {
     },
   });
 
-  // Remove track from Favorites mutation
+  // Remove track from Favorites mutation (onMutate pattern for instant UI)
   const removeFromFavoritesMutation = useMutation({
     mutationFn: async ({ playlistId, trackId }: { playlistId: string; trackId: string }) => {
       return apiRequest(`/api/v1/app/playlists/${playlistId}/tracks/${trackId}`, {
         method: 'DELETE',
       });
     },
-    onSuccess: (_, variables) => {
-      // Use centralized cache invalidation
-      invalidateOnEvent(queryClient, { type: 'TRACK_UNFAVORITED', trackId: variables.trackId });
-      // Optimistically update the set
+    onMutate: async variables => {
+      // Snapshot previous state for rollback
+      const previousIds = new Set(trackIdsInFavorites);
       setTrackIdsInFavorites(prev => {
         const newSet = new Set(prev);
         newSet.delete(variables.trackId);
         return newSet;
       });
+      return { previousIds };
     },
-    onError: createMutationErrorHandler(
-      toast,
-      'Remove from Favorites',
-      '/api/v1/playlists/*/tracks/*',
-      t('alerts.failedToRemoveFromFavorites'),
-      t
-    ),
+    onSuccess: (_, variables) => {
+      // Sync server state via cache invalidation
+      invalidateOnEvent(queryClient, { type: 'TRACK_UNFAVORITED', trackId: variables.trackId });
+    },
+    onError: (error, _variables, context) => {
+      // Rollback optimistic update
+      if (context?.previousIds) setTrackIdsInFavorites(context.previousIds);
+      createMutationErrorHandler(
+        toast,
+        'Remove from Favorites',
+        '/api/v1/playlists/*/tracks/*',
+        t('alerts.failedToRemoveFromFavorites'),
+        t
+      )(error);
+    },
   });
 
   const batchFavorites = useBatchFavorites();

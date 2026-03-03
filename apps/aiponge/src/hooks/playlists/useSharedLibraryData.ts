@@ -15,7 +15,7 @@ import type { SharedTrack, Playlist, PlaylistsResponse } from '../../types';
 export type SharedLibraryResponse = { success: boolean; data: TracksResponse<SharedTrack>; timestamp?: string };
 
 export interface UseSharedLibraryDataParams {
-  tracksQueryKey: (string | { search: string; genreFilter: string; languageFilter: string })[];
+  tracksQueryKey: (string | { search: string })[];
   tracksEndpoint: string;
   selectedPlaylistId: string | null;
   smartKey: string | null;
@@ -27,6 +27,7 @@ export interface UseSharedLibraryDataReturn {
   total: number;
   playlists: Playlist[];
   allGenres: string[];
+  allLanguages: string[];
   isLoading: boolean;
   isFetching: boolean;
   isError: boolean;
@@ -117,6 +118,18 @@ export function useSharedLibraryData({
     return Array.from(genres).filter(Boolean);
   }, [tracks]);
 
+  // Extract unique language codes from loaded tracks (mirrors allGenres pattern)
+  const allLanguages = useMemo(() => {
+    if (tracks.length === 0) return [];
+    const langs = new Set<string>();
+    tracks.forEach((track: SharedTrack) => {
+      if (track.language) {
+        langs.add(track.language.split('-')[0].toLowerCase());
+      }
+    });
+    return Array.from(langs).sort();
+  }, [tracks]);
+
   const playlists =
     playlistsResponse?.data?.playlists ||
     ('playlists' in (playlistsResponse ?? {})
@@ -129,6 +142,7 @@ export function useSharedLibraryData({
     total,
     playlists,
     allGenres,
+    allLanguages,
     isLoading: isLoading || isLoadingPlaylists,
     isFetching,
     isError: isError || isPlaylistsError,

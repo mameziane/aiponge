@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { logger } from '../../lib/logger';
+import { SUPPORTED_LANGUAGES } from '../../i18n/types';
 import { formatTrackDuration, getNextTrack, getPreviousTrack } from '../../utils/trackUtils';
 import { useTrackPlayback } from '../music/useTrackPlayback';
 import { usePlaybackControls } from '../music/usePlaybackControls';
@@ -34,10 +35,9 @@ export function useSharedLibrary() {
     setSelectedPlaylistId,
     tracksQueryKey,
     tracksEndpoint,
-    languageOptions,
   } = useSharedLibraryFilters();
 
-  const { tracks, total, playlists, allGenres, isLoading, isFetching, isError } = useSharedLibraryData({
+  const { tracks, total, playlists, allGenres, allLanguages, isLoading, isFetching, isError } = useSharedLibraryData({
     tracksQueryKey,
     tracksEndpoint,
     selectedPlaylistId: filters.selectedPlaylistId,
@@ -81,7 +81,32 @@ export function useSharedLibrary() {
     }
   };
 
-  const filteredTracks = tracks;
+  // Client-side filtering — works for all endpoint types (shared library, smart playlists, regular playlists)
+  const filteredTracks = useMemo(() => {
+    let result = tracks;
+    if (filters.selectedGenre) {
+      const genre = filters.selectedGenre.toLowerCase();
+      result = result.filter(t => Array.isArray(t.genres) && t.genres.some(g => g.toLowerCase() === genre));
+    }
+    if (filters.selectedLanguage) {
+      const langCode = filters.selectedLanguage.split('-')[0].toLowerCase();
+      result = result.filter(t => {
+        const trackLang = t.language;
+        return trackLang && trackLang.split('-')[0].toLowerCase() === langCode;
+      });
+    }
+    return result;
+  }, [tracks, filters.selectedGenre, filters.selectedLanguage]);
+
+  // Dynamic language options — only languages present in loaded tracks (mirrors allGenres)
+  const languageOptions = useMemo(() => {
+    return allLanguages
+      .map(code => {
+        const match = SUPPORTED_LANGUAGES.find(lang => lang.code.split('-')[0].toLowerCase() === code);
+        return { code, name: match?.nativeLabel || code.toUpperCase() };
+      })
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [allLanguages]);
 
   return {
     tracks,

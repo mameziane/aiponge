@@ -5,6 +5,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { ShareIntentProvider } from 'expo-share-intent';
 import { AudioPlayerProvider } from '../contexts/AudioPlayerContext';
 import { PlaybackProvider } from '../contexts/PlaybackContext';
+import { FeedbackProvider } from '../contexts/FeedbackContext';
 import { SubscriptionProvider } from '../contexts/SubscriptionContext';
 import { BackendStatusProvider } from '../contexts/BackendStatusContext';
 import { ThemeProvider } from '../theme/ThemeProvider';
@@ -27,7 +28,9 @@ export function AppProviders({ children }: AppProvidersProps) {
               <BackendStatusProvider>
                 <SubscriptionProvider>
                   <AudioPlayerProvider>
-                    <PlaybackProvider>{children}</PlaybackProvider>
+                    <PlaybackProvider>
+                      <FeedbackProvider>{children}</FeedbackProvider>
+                    </PlaybackProvider>
                   </AudioPlayerProvider>
                 </SubscriptionProvider>
               </BackendStatusProvider>

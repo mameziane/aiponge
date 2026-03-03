@@ -8,7 +8,7 @@ import {
 } from '@infrastructure/repositories';
 import { Book, Chapter, Entry, Illustration, BOOK_TYPE_IDS } from '@infrastructure/database/schemas/library-schema';
 import { BookEntity } from '@domains/library/entities';
-import { CONTENT_VISIBILITY, ContentVisibilitySchema } from '@aiponge/shared-contracts';
+import { CONTENT_VISIBILITY, ContentVisibilitySchema, toShortLanguageCode } from '@aiponge/shared-contracts';
 import type { ContentAccessContext } from '@aiponge/shared-contracts';
 import { contextIsPrivileged } from '@aiponge/shared-contracts';
 import {
@@ -142,7 +142,7 @@ export class BookService {
         description: parsed.data.description,
         author: parsed.data.author,
         category: parsed.data.category,
-        language: parsed.data.language,
+        language: toShortLanguageCode(parsed.data.language),
         visibility: resolvedVisibility,
         userId: context.userId,
         isReadOnly: resolvedIsReadOnly,

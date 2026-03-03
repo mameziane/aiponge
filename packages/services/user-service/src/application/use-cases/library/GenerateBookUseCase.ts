@@ -25,6 +25,7 @@ import {
   normalizeRole,
   BOOK_TYPE_IDS,
   SUBSCRIPTION_STATUS,
+  toShortLanguageCode,
   type UserRole,
   type BookDepthLevel,
 } from '@aiponge/shared-contracts';
@@ -226,7 +227,7 @@ export class GenerateBookUseCase {
       const bookRequest = await this.bookRepository.createRequest({
         userId,
         primaryGoal: primaryGoal.trim(),
-        language: language || 'en-US',
+        language: toShortLanguageCode(language),
         tone,
         generationMode: generationMode || (isGenerated ? 'book' : 'blueprint'),
         depthLevel,
