@@ -1,6 +1,9 @@
 import type { Job } from 'bullmq';
 import { createLogger, ServiceLocator } from '@aiponge/platform-core';
 import { ExpoPushNotificationProvider, ExpoPushMessage } from '../providers/ExpoPushNotificationProvider';
+import { getDatabase } from '../../database/DatabaseConnectionFactory';
+import { notifications } from '../../../schema/system-schema';
+import { sql } from 'drizzle-orm';
 
 const logger = createLogger('track-alarm-processor');
 
@@ -201,6 +204,7 @@ export async function processTrackAlarmJob(job: Job<TrackAlarmJobData>): Promise
   const tokensByUser = await fetchPushTokensForUsers(userIds);
 
   const messages: ExpoPushMessage[] = [];
+  const messageToAlarm: TrackSchedule[] = [];
 
   for (const alarm of dueAlarms) {
     const tokens = tokensByUser[alarm.userId];
@@ -226,6 +230,7 @@ export async function processTrackAlarmJob(job: Job<TrackAlarmJobData>): Promise
           action: 'play_track',
         },
       });
+      messageToAlarm.push(alarm);
     }
   }
 
@@ -238,6 +243,33 @@ export async function processTrackAlarmJob(job: Job<TrackAlarmJobData>): Promise
 
   const successCount = tickets.filter(t => t.status === 'ok').length;
   const errorCount = tickets.filter(t => t.status === 'error').length;
+
+  // Record sent notifications in sys_notifications
+  try {
+    const db = getDatabase('track-alarm-notifications');
+    const notifRows = messageToAlarm.map((alarm, i) => ({
+      id: sql`gen_random_uuid()`,
+      userId: alarm.userId,
+      type: 'push' as const,
+      channel: 'expo' as const,
+      title: 'Time to play your music!',
+      message: alarm.trackTitle,
+      status: tickets[i]?.status === 'ok' ? 'sent' : 'failed',
+      priority: 'normal' as const,
+      metadata: { scheduleId: alarm.id, trackId: alarm.userTrackId, jobId: job.id },
+      sentAt: tickets[i]?.status === 'ok' ? new Date() : null,
+      failedAt: tickets[i]?.status === 'ok' ? null : new Date(),
+      retryCount: 0,
+    }));
+
+    if (notifRows.length > 0) {
+      await db.insert(notifications).values(notifRows);
+    }
+  } catch (error) {
+    logger.warn('Failed to record notifications in sys_notifications', {
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
 
   logger.info('Track alarm job completed', {
     jobId: job.id,

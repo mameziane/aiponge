@@ -1,6 +1,9 @@
 import type { Job } from 'bullmq';
 import { createLogger, ServiceLocator } from '@aiponge/platform-core';
 import { ExpoPushNotificationProvider, ExpoPushMessage } from '../providers/ExpoPushNotificationProvider';
+import { getDatabase } from '../../database/DatabaseConnectionFactory';
+import { notifications } from '../../../schema/system-schema';
+import { sql } from 'drizzle-orm';
 
 const logger = createLogger('book-reminder-processor');
 
@@ -254,6 +257,35 @@ export async function processBookReminderJob(job: Job<BookReminderJobData>): Pro
 
   const successCount = tickets.filter(t => t.status === 'ok').length;
   const errorCount = tickets.filter(t => t.status === 'error').length;
+
+  // Record sent notifications in sys_notifications
+  try {
+    const db = getDatabase('book-reminder-notifications');
+    const notifRows = dueReminders
+      .filter(r => tokensByUserId.has(r.userId))
+      .map(r => ({
+        id: sql`gen_random_uuid()`,
+        userId: r.userId,
+        type: 'push' as const,
+        channel: 'expo' as const,
+        title: r.title,
+        message: r.prompt || getDefaultPrompt(r.type),
+        status: successfulReminderIds.has(r.id) ? 'sent' : 'failed',
+        priority: 'normal' as const,
+        metadata: { reminderId: r.id, reminderType: r.type, jobId: job.id },
+        sentAt: successfulReminderIds.has(r.id) ? new Date() : null,
+        failedAt: successfulReminderIds.has(r.id) ? null : new Date(),
+        retryCount: 0,
+      }));
+
+    if (notifRows.length > 0) {
+      await db.insert(notifications).values(notifRows);
+    }
+  } catch (error) {
+    logger.warn('Failed to record notifications in sys_notifications', {
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
 
   logger.info('Book reminder job completed', {
     jobId: job.id,

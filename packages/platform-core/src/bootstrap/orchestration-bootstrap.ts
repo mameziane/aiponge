@@ -83,6 +83,9 @@ export class OrchestrationAwareBootstrap extends ServiceBootstrap {
             this.healthManager.markStartupComplete();
           }
 
+          // Self-register with system-service discovery (fire-and-forget)
+          void this.registerWithDiscovery();
+
           if (options.afterStart) {
             await options.afterStart();
           }
@@ -141,6 +144,49 @@ export class OrchestrationAwareBootstrap extends ServiceBootstrap {
     }
 
     this.logger.info('✅ All dependencies are ready');
+  }
+
+  private async registerWithDiscovery(): Promise<void> {
+    const serviceName = this.registrationOptions?.serviceName;
+    if (!serviceName || serviceName === 'system-service') return;
+
+    try {
+      const systemServiceUrl = ServiceLocator.getServiceUrl('system-service');
+      const host = process.env.SERVICE_HOST || 'localhost';
+      const port = this.registrationOptions?.port;
+
+      const response = await fetch(`${systemServiceUrl}/api/discovery/services/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: serviceName,
+          host,
+          port,
+          healthEndpoint: '/health',
+          metadata: {
+            version: this.registrationOptions?.version || '1.0.0',
+            capabilities: this.registrationOptions?.capabilities,
+            endpoints: this.registrationOptions?.endpoints,
+            registeredAt: new Date().toISOString(),
+          },
+        }),
+        signal: AbortSignal.timeout(5000),
+      });
+
+      if (response.ok) {
+        this.logger.info('Registered with discovery service', { serviceName, host, port });
+      } else {
+        this.logger.warn('Discovery registration returned non-OK', {
+          serviceName,
+          status: response.status,
+        });
+      }
+    } catch (error) {
+      this.logger.debug('Discovery registration skipped (system-service may not be ready)', {
+        serviceName,
+        error: serializeError(error),
+      });
+    }
   }
 
   getHealthManager(): HealthManager | undefined {

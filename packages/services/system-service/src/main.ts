@@ -51,6 +51,7 @@ import {
 } from './infrastructure/notification/schedulers/BookReminderScheduler';
 import { DLQCleanupScheduler } from './infrastructure/queue/DLQCleanupScheduler';
 import { MetricsAggregationScheduler } from './infrastructure/jobs/MetricsAggregationScheduler.js';
+import { HealthCheckScheduler } from './infrastructure/jobs/HealthCheckScheduler';
 import { TrackAlarmScheduler, TRACK_ALARM_QUEUE } from './infrastructure/notification/schedulers/TrackAlarmScheduler';
 import { QueueManager } from '@aiponge/platform-core';
 import { processTrackAlarmJob } from './infrastructure/notification/jobs/trackAlarmProcessor';
@@ -68,10 +69,12 @@ const bookReminderScheduler = new BookReminderScheduler();
 const trackAlarmScheduler = new TrackAlarmScheduler();
 const dlqCleanupScheduler = new DLQCleanupScheduler();
 const metricsAggregationScheduler = new MetricsAggregationScheduler();
+const healthCheckScheduler = new HealthCheckScheduler();
 SchedulerRegistry.register(bookReminderScheduler);
 SchedulerRegistry.register(trackAlarmScheduler);
 SchedulerRegistry.register(dlqCleanupScheduler);
 SchedulerRegistry.register(metricsAggregationScheduler);
+SchedulerRegistry.register(healthCheckScheduler);
 
 /**
  * Start the System Service using shared bootstrap pattern

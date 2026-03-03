@@ -1,7 +1,7 @@
 import { BaseScheduler, SchedulerExecutionResult, createLogger, ServiceLocator } from '@aiponge/platform-core';
 import { getDatabase } from '../database/DatabaseConnectionFactory';
-import { platformMetrics } from '../../schema/system-schema';
-import { eq, desc } from 'drizzle-orm';
+import { platformMetrics, metricsAggregates } from '../../schema/system-schema';
+import { eq, desc, lt, sql } from 'drizzle-orm';
 
 const logger = createLogger('metrics-aggregation-scheduler');
 const db = getDatabase('metrics-aggregation');
@@ -111,6 +111,43 @@ export class MetricsAggregationScheduler extends BaseScheduler {
         payload: mergedPayload,
         computedAt,
         expiresAt,
+      });
+    }
+
+    // Also decompose fetched metrics into sys_metrics rows
+    try {
+      const metricRows: Array<{ service: string; name: string; value: number }> = [];
+
+      for (const [key, val] of Object.entries(userMetrics)) {
+        if (typeof val === 'number') metricRows.push({ service: 'user-service', name: key, value: val });
+      }
+      for (const [key, val] of Object.entries(musicMetrics)) {
+        if (typeof val === 'number') metricRows.push({ service: 'music-service', name: key, value: val });
+      }
+
+      if (metricRows.length > 0) {
+        await db.insert(metricsAggregates).values(
+          metricRows.map(m => ({
+            id: sql`gen_random_uuid()`,
+            serviceName: m.service,
+            metricName: m.name,
+            metricType: 'gauge' as const,
+            value: String(m.value),
+            labels: {},
+            aggregationWindow: '5m' as const,
+            timestamp: computedAt,
+          }))
+        );
+      }
+
+      // Retention: delete sys_metrics rows older than 30 days (~3% chance per cycle)
+      if (Math.random() < 0.03) {
+        const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+        await db.delete(metricsAggregates).where(lt(metricsAggregates.timestamp, cutoff));
+      }
+    } catch (error) {
+      logger.warn('Failed to write decomposed metrics to sys_metrics', {
+        error: error instanceof Error ? error.message : String(error),
       });
     }
 

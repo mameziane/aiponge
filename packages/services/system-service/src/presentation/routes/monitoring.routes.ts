@@ -4,14 +4,16 @@ import { sendSuccess, sendCreated, ServiceErrors } from '../utils/response-helpe
 import { getDatabase } from '../../infrastructure/database/DatabaseConnectionFactory';
 import { healthChecks, healthCheckResults, alerts, systemConfig, platformMetrics } from '../../schema/system-schema';
 import { eq, desc, gte, and, count } from 'drizzle-orm';
-import { SchedulerRegistry, serializeError, createIntervalScheduler } from '@aiponge/platform-core';
-import type { IntervalScheduler } from '@aiponge/platform-core';
+import { SchedulerRegistry, serializeError } from '@aiponge/platform-core';
+import { getCorrelationId } from '@aiponge/shared-contracts';
+import { getLatestHealthResults } from '../../infrastructure/jobs/HealthCheckScheduler';
 import {
   MetricsAggregateService,
   type MetricType,
   type AggregationWindow,
 } from '../../domains/monitoring/services/MetricsAggregateService';
 import { AlertRuleService } from '../../domains/monitoring/services/AlertRuleService';
+import { AuditLogService } from '../../domains/audit/AuditLogService';
 
 const db = getDatabase('monitoring-index');
 
@@ -19,13 +21,44 @@ const logger = getLogger('monitoring-index');
 
 const metricsService = new MetricsAggregateService(db);
 const alertRuleService = new AlertRuleService(db);
+const auditService = new AuditLogService(db);
+
+function getActorFromRequest(req: express.Request): { id: string; type: 'user' | 'admin' | 'system' | 'service' } {
+  const user = (req as express.Request & { user?: { id?: string; role?: string } }).user;
+  if (user?.id) {
+    const type = user.role === 'admin' ? ('admin' as const) : ('user' as const);
+    return { id: user.id, type };
+  }
+  const serviceAuth = req.headers['x-service-auth'] as string;
+  if (serviceAuth) return { id: serviceAuth, type: 'service' };
+  return { id: 'anonymous', type: 'system' };
+}
+
+function auditAsync(
+  req: express.Request,
+  action: string,
+  resourceType: string,
+  resourceId?: string,
+  metadata?: Record<string, unknown>
+): void {
+  const actor = getActorFromRequest(req);
+  auditService
+    .recordAudit({
+      actorId: actor.id,
+      actorType: actor.type,
+      action,
+      resourceType,
+      resourceId,
+      metadata,
+      correlationId: getCorrelationId(req),
+      severity: 'info',
+    })
+    .catch(err => logger.warn('Audit log failed', { action, error: serializeError(err) }));
+}
 
 const router: express.Router = express.Router();
 
 const SCHEDULER_CONFIG_KEY = 'monitoring_scheduler_enabled';
-
-let schedulerRunning = false;
-let schedulerInstance: IntervalScheduler | null = null;
 
 async function getSchedulerEnabled(): Promise<boolean> {
   try {
@@ -71,183 +104,11 @@ async function setSchedulerEnabled(enabled: boolean, userId?: string): Promise<v
   }
 }
 
-function resolveServiceHost(serviceName: string, defaultPort: number): { host: string; port: number } {
-  const envVar = `${serviceName.toUpperCase().replace(/-/g, '_')}_URL`;
-  const urlStr = process.env[envVar];
-  if (urlStr) {
-    try {
-      const url = new URL(urlStr);
-      return { host: url.hostname, port: parseInt(url.port) || defaultPort };
-    } catch {
-      /* fall through */
-    }
-  }
-  return { host: 'localhost', port: defaultPort };
-}
-
-const SERVICES_TO_CHECK = [
-  { name: 'system-service', ...resolveServiceHost('system-service', 3001), healthEndpoint: '/health' },
-  { name: 'storage-service', ...resolveServiceHost('storage-service', 3002), healthEndpoint: '/health' },
-  { name: 'user-service', ...resolveServiceHost('user-service', 3003), healthEndpoint: '/health' },
-  { name: 'ai-config-service', ...resolveServiceHost('ai-config-service', 3004), healthEndpoint: '/health' },
-  { name: 'ai-content-service', ...resolveServiceHost('ai-content-service', 3005), healthEndpoint: '/health' },
-  { name: 'ai-analytics-service', ...resolveServiceHost('ai-analytics-service', 3006), healthEndpoint: '/health' },
-  { name: 'music-service', ...resolveServiceHost('music-service', 3007), healthEndpoint: '/health' },
-  { name: 'api-gateway', ...resolveServiceHost('api-gateway', 8080), healthEndpoint: '/health' },
-];
-
-interface HealthCheckResult {
-  serviceName: string;
-  status: 'healthy' | 'unhealthy' | 'degraded' | 'unknown';
-  responseTimeMs: number;
-  statusCode: number | null;
-  message: string | null;
-  timestamp: Date;
-}
-
-let latestHealthResults: HealthCheckResult[] = [];
-let lastCheckTime: Date | null = null;
-
-function getLatestHealthResults() {
-  return { results: latestHealthResults, lastCheckTime };
-}
-
-async function checkServiceHealth(service: (typeof SERVICES_TO_CHECK)[0]): Promise<HealthCheckResult> {
-  const url = `http://${service.host}:${service.port}${service.healthEndpoint}`;
-  const startTime = Date.now();
-
-  try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5000);
-
-    const response = await fetch(url, {
-      method: 'GET',
-      signal: controller.signal,
-    });
-
-    clearTimeout(timeout);
-    const responseTimeMs = Date.now() - startTime;
-
-    if (response.ok) {
-      const data = (await response.json().catch((e: unknown) => {
-        logger.warn('[HEALTH CHECK] Failed to parse health response body', {
-          service: service.name,
-          error: e instanceof Error ? e.message : String(e),
-        });
-        return {};
-      })) as { status?: string };
-      const status = data.status === 'healthy' ? 'healthy' : data.status === 'degraded' ? 'degraded' : 'healthy';
-      return {
-        serviceName: service.name,
-        status,
-        responseTimeMs,
-        statusCode: response.status,
-        message: null,
-        timestamp: new Date(),
-      };
-    } else {
-      return {
-        serviceName: service.name,
-        status: 'unhealthy',
-        responseTimeMs,
-        statusCode: response.status,
-        message: `HTTP ${response.status}`,
-        timestamp: new Date(),
-      };
-    }
-  } catch (error) {
-    const responseTimeMs = Date.now() - startTime;
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-
-    return {
-      serviceName: service.name,
-      status: 'unhealthy',
-      responseTimeMs,
-      statusCode: null,
-      message: errorMessage.includes('abort') ? 'Timeout (5s)' : errorMessage,
-      timestamp: new Date(),
-    };
-  }
-}
-
-async function executeHealthChecks(): Promise<void> {
-  logger.debug('Executing scheduled health checks...');
-
-  const checkPromises = SERVICES_TO_CHECK.map(service => checkServiceHealth(service));
-  const results = await Promise.all(checkPromises);
-
-  latestHealthResults = results;
-  lastCheckTime = new Date();
-
-  const healthy = results.filter(r => r.status === 'healthy').length;
-  const unhealthy = results.filter(r => r.status === 'unhealthy').length;
-
-  for (const result of results) {
-    if (result.status === 'unhealthy') {
-      logger.warn(`Service ${result.serviceName} is unhealthy`, {
-        statusCode: result.statusCode,
-        message: result.message,
-        responseTimeMs: result.responseTimeMs,
-      });
-    }
-  }
-
-  const degraded = results.filter(r => r.status === 'degraded').length;
-  const hasIssues = unhealthy > 0 || degraded > 0;
-  logger[hasIssues ? 'info' : 'debug']('Health check cycle completed', {
-    total: results.length,
-    healthy,
-    unhealthy,
-    degraded,
-  });
-}
-
-export { getLatestHealthResults };
-
-function startScheduler(): void {
-  if (schedulerRunning) return;
-
-  schedulerInstance = createIntervalScheduler({
-    name: 'monitoring-health-check',
-    serviceName: 'system-service',
-    intervalMs: 30000,
-    handler: () => executeHealthChecks(),
-  });
-  schedulerInstance.start();
-
-  schedulerRunning = true;
-  logger.debug('Health check scheduler started');
-}
-
-function stopScheduler(): void {
-  if (schedulerInstance) {
-    schedulerInstance.stop();
-    schedulerInstance = null;
-  }
-  schedulerRunning = false;
-  logger.info('Health check scheduler stopped');
-}
-
-async function initializeScheduler(): Promise<void> {
-  try {
-    const isEnabled = await getSchedulerEnabled();
-    if (isEnabled) {
-      startScheduler();
-    } else {
-      logger.info('Health check scheduler is disabled, not starting');
-    }
-  } catch (error) {
-    logger.error('Failed to initialize scheduler', {
-      error: serializeError(error),
-    });
-  }
-}
-
-void initializeScheduler();
-
 router.get('/health', async (req, res) => {
   try {
     const isEnabled = await getSchedulerEnabled();
+    const healthCheckScheduler = SchedulerRegistry.getByName('health-check');
+    const isRunning = healthCheckScheduler?.getInfo().status === 'running';
 
     const health = {
       status: 'healthy',
@@ -260,8 +121,8 @@ router.get('/health', async (req, res) => {
       },
       schedulerStatus: {
         enabled: isEnabled,
-        running: schedulerRunning,
-        taskCount: schedulerRunning ? 1 : 0,
+        running: isRunning,
+        taskCount: isRunning ? 1 : 0,
       },
       uptime: process.uptime(),
       memory: process.memoryUsage(),
@@ -282,11 +143,14 @@ router.get('/config', async (req, res) => {
   try {
     const isEnabled = await getSchedulerEnabled();
 
+    const hcScheduler = SchedulerRegistry.getByName('health-check');
+    const hcRunning = hcScheduler?.getInfo().status === 'running';
+
     sendSuccess(res, {
       schedulerEnabled: isEnabled,
-      schedulerRunning,
-      taskCount: schedulerRunning ? 1 : 0,
-      intervalSeconds: 30,
+      schedulerRunning: hcRunning,
+      taskCount: hcRunning ? 1 : 0,
+      intervalSeconds: 60,
     });
   } catch (error: unknown) {
     logger.error('Failed to get monitoring config', { error: serializeError(error) });
@@ -307,18 +171,19 @@ router.post('/config', async (req, res) => {
     const userId = (req as express.Request & { user?: { id?: string } }).user?.id;
     await setSchedulerEnabled(schedulerEnabled, userId);
 
-    if (schedulerEnabled) {
-      startScheduler();
-      logger.info('Health check scheduler started via API');
-    } else {
-      stopScheduler();
-      logger.info('Health check scheduler stopped via API');
-    }
+    // The HealthCheckScheduler reads this config value on each execution
+    logger.info(`Health check scheduler config updated: ${schedulerEnabled ? 'enabled' : 'disabled'}`);
+    auditAsync(req, schedulerEnabled ? 'scheduler.enable' : 'scheduler.disable', 'config', SCHEDULER_CONFIG_KEY, {
+      schedulerEnabled,
+    });
+
+    const hcSch = SchedulerRegistry.getByName('health-check');
+    const hcRun = hcSch?.getInfo().status === 'running';
 
     sendSuccess(res, {
       schedulerEnabled,
-      schedulerRunning,
-      taskCount: schedulerRunning ? 1 : 0,
+      schedulerRunning: hcRun,
+      taskCount: hcRun ? 1 : 0,
     });
   } catch (error: unknown) {
     logger.error('Failed to update monitoring config', {
@@ -493,9 +358,9 @@ router.post('/scheduler/start', async (req, res) => {
   try {
     const userId = (req as express.Request & { user?: { id?: string } }).user?.id;
     await setSchedulerEnabled(true, userId);
-    startScheduler();
+    auditAsync(req, 'scheduler.start', 'scheduler', 'health-check');
 
-    sendSuccess(res, { message: 'Scheduler started', status: 'active' });
+    sendSuccess(res, { message: 'Scheduler enabled (takes effect on next cycle)', status: 'active' });
   } catch (error: unknown) {
     logger.error('Failed to start scheduler', { error: serializeError(error) });
     ServiceErrors.fromException(res, error, 'Failed to start scheduler', req);
@@ -507,9 +372,9 @@ router.post('/scheduler/stop', async (req, res) => {
   try {
     const userId = (req as express.Request & { user?: { id?: string } }).user?.id;
     await setSchedulerEnabled(false, userId);
-    stopScheduler();
+    auditAsync(req, 'scheduler.stop', 'scheduler', 'health-check');
 
-    sendSuccess(res, { message: 'Scheduler stopped', status: 'inactive' });
+    sendSuccess(res, { message: 'Scheduler disabled (takes effect on next cycle)', status: 'inactive' });
   } catch (error: unknown) {
     logger.error('Failed to stop scheduler', { error: serializeError(error) });
     ServiceErrors.fromException(res, error, 'Failed to stop scheduler', req);
@@ -519,8 +384,13 @@ router.post('/scheduler/stop', async (req, res) => {
 
 router.post('/scheduler/trigger', async (req, res) => {
   try {
-    await executeHealthChecks();
-    sendSuccess(res, { message: 'Health checks triggered manually', triggered: true });
+    const scheduler = SchedulerRegistry.getByName('health-check');
+    if (!scheduler) {
+      ServiceErrors.notFound(res, 'Health check scheduler', req);
+      return;
+    }
+    const result = await scheduler.triggerNow();
+    sendSuccess(res, { message: 'Health checks triggered manually', triggered: true, ...result.data });
   } catch (error: unknown) {
     logger.error('Failed to trigger health checks', { error: serializeError(error) });
     ServiceErrors.fromException(res, error, 'Failed to trigger health checks', req);
@@ -531,12 +401,15 @@ router.post('/scheduler/trigger', async (req, res) => {
 router.get('/scheduler/status', async (req, res) => {
   try {
     const isEnabled = await getSchedulerEnabled();
+    const scheduler = SchedulerRegistry.getByName('health-check');
+    const info = scheduler?.getInfo();
 
+    const isRunning = info?.status === 'running';
     sendSuccess(res, {
       enabled: isEnabled,
-      running: schedulerRunning,
-      taskCount: schedulerRunning ? 1 : 0,
-      lastCheck: new Date().toISOString(),
+      running: isRunning,
+      taskCount: isRunning ? 1 : 0,
+      lastCheck: info?.lastRunAt ?? null,
     });
   } catch (error: unknown) {
     logger.error('Failed to get scheduler status', { error: serializeError(error) });
@@ -751,6 +624,7 @@ router.post('/alert-rules', async (req, res) => {
       cooldownMinutes,
       metadata,
     });
+    auditAsync(req, 'alert_rule.create', 'alert_rule', rule.id, { name, severity, conditionType });
 
     sendCreated(res, rule);
   } catch (error: unknown) {
@@ -791,6 +665,7 @@ router.patch('/alert-rules/:id', async (req, res) => {
       ServiceErrors.notFound(res, 'Alert rule', req);
       return;
     }
+    auditAsync(req, 'alert_rule.update', 'alert_rule', req.params.id, { updatedFields: Object.keys(req.body) });
     sendSuccess(res, rule);
   } catch (error: unknown) {
     logger.error('Failed to update alert rule', { error: serializeError(error) });
@@ -805,6 +680,7 @@ router.delete('/alert-rules/:id', async (req, res) => {
       ServiceErrors.notFound(res, 'Alert rule', req);
       return;
     }
+    auditAsync(req, 'alert_rule.delete', 'alert_rule', req.params.id);
     sendSuccess(res, { message: 'Alert rule deleted' });
   } catch (error: unknown) {
     logger.error('Failed to delete alert rule', { error: serializeError(error) });
