@@ -38,7 +38,7 @@ interface CreditTransaction {
 }
 
 export function CreditHistoryTab() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const colors = useThemeColors();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const userId = useAuthStore(selectUserId);
@@ -57,7 +57,7 @@ export function CreditHistoryTab() {
 
   const formatSongCount = (credits: number): string => {
     const songs = creditsToSongs(credits);
-    return songs === 1 ? '1 song' : `${songs} songs`;
+    return t('credits.songCount', { count: songs });
   };
 
   const fetchData = async () => {
@@ -120,12 +120,14 @@ export function CreditHistoryTab() {
   const formatAmount = (amount: number, type: string) => {
     const sign = type === 'deduction' ? '-' : '+';
     const songs = creditsToSongs(Math.abs(amount));
-    return `${sign}${songs} ${songs === 1 ? 'song' : 'songs'}`;
+    return `${sign}${t('credits.songCount', { count: songs })}`;
   };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return new Intl.DateTimeFormat('en-US', {
+    // Use the user's current i18n language for locale-aware date formatting
+    const locale = i18n.language?.replace('_', '-') || 'en-US';
+    return new Intl.DateTimeFormat(locale, {
       month: 'short',
       day: 'numeric',
       hour: 'numeric',

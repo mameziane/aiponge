@@ -969,7 +969,8 @@
     "creditGrantFailed": "アカウントへのクレジット追加に失敗しました。サポートにお問い合わせください。",
     "loadingProducts": "商品を読み込み中...",
     "noProductsAvailable": "利用可能な商品がありません",
-    "pullToRefresh": "引っ張って更新"
+    "pullToRefresh": "引っ張って更新",
+    "songCount": "{{count}}曲"
   },
   "profile": {
     "insights": "洞察",
@@ -1094,6 +1095,7 @@
     "songsAvailable": "利用可能な曲",
     "purchased": "購入済み",
     "used": "使用済み",
+    "songCount": "{{count}}曲",
     "noSongsRemaining": "残りの曲がありません。音楽の作成を続けるにはもっと購入してください。",
     "lowSongsWarning": "曲が残りわずかです！作成を続けるにはもっと購入してください。",
     "testOpenaiPrompt": "「テスト」をタップして画像と歌詞生成のためのOpenAI APIクレジットを確認",

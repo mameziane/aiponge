@@ -977,7 +977,8 @@
     "creditGrantFailed": "Failed to add credits to your account. Please contact support.",
     "loadingProducts": "Loading products...",
     "noProductsAvailable": "No products available",
-    "pullToRefresh": "Pull to refresh"
+    "pullToRefresh": "Pull to refresh",
+    "songCount": "{{count}} songs"
   },
   "profile": {
     "insights": "Insights",
@@ -1124,6 +1125,7 @@
     "songsAvailable": "Songs Available",
     "purchased": "Purchased",
     "used": "Used",
+    "songCount": "{{count}} songs",
     "noSongsRemaining": "You have no songs remaining. Purchase more to continue creating music.",
     "lowSongsWarning": "Running low on songs! Purchase more to keep creating.",
     "testOpenaiPrompt": "Tap \"Test\" to verify OpenAI API credits for image and lyrics generation",

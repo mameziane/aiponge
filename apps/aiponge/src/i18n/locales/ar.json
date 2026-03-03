@@ -1015,6 +1015,7 @@
     "songsAvailable": "الأغاني المتاحة",
     "purchased": "المشتراة",
     "used": "المستخدمة",
+    "songCount": "{{count}} أغاني",
     "noSongsRemaining": "لا تملك أغانٍ متبقية. اشترِ المزيد لمتابعة إنشاء الموسيقى.",
     "lowSongsWarning": "أغانٍ قليلة متبقية! اشترِ المزيد لمتابعة الإنشاء.",
     "testOpenaiPrompt": "اضغط على \"اختبار\" للتحقق من رصيد واجهة برمجة OpenAI لإنشاء الصور والكلمات",
@@ -2111,7 +2112,8 @@
     "creditGrantFailed": "تعذر إضافة الرصيد إلى حسابك. يرجى الاتصال بالدعم.",
     "loadingProducts": "جاري تحميل المنتجات...",
     "noProductsAvailable": "لا توجد منتجات متاحة",
-    "pullToRefresh": "اسحب للتحديث"
+    "pullToRefresh": "اسحب للتحديث",
+    "songCount": "{{count}} أغاني"
   },
   "downloads": {
     "title": "التنزيلات",

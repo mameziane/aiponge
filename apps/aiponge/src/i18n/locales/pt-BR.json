@@ -970,7 +970,8 @@
     "creditGrantFailed": "Não foi possível adicionar créditos à sua conta. Por favor entre em contato com o suporte.",
     "loadingProducts": "Carregando produtos...",
     "noProductsAvailable": "Nenhum produto disponível",
-    "pullToRefresh": "Puxe para atualizar"
+    "pullToRefresh": "Puxe para atualizar",
+    "songCount": "{{count}} músicas"
   },
   "profile": {
     "insights": "Insights",
@@ -1094,6 +1095,7 @@
     "songsAvailable": "Músicas Disponíveis",
     "purchased": "Compradas",
     "used": "Usadas",
+    "songCount": "{{count}} músicas",
     "noSongsRemaining": "Você não tem mais músicas. Compre mais para continuar criando música.",
     "lowSongsWarning": "Poucas músicas restantes! Compre mais para continuar criando.",
     "testOpenaiPrompt": "Toque em \"Testar\" para verificar os créditos da API OpenAI para geração de imagens e letras",

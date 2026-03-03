@@ -970,7 +970,8 @@
     "creditGrantFailed": "आपके खाते में क्रेडिट जोड़ने में असमर्थ। कृपया सहायता से संपर्क करें।",
     "loadingProducts": "उत्पाद लोड हो रहे हैं...",
     "noProductsAvailable": "कोई उत्पाद उपलब्ध नहीं",
-    "pullToRefresh": "रिफ़्रेश करने के लिए खींचें"
+    "pullToRefresh": "रिफ़्रेश करने के लिए खींचें",
+    "songCount": "{{count}} गाने"
   },
   "profile": {
     "insights": "अंतर्दृष्टि",
@@ -1094,6 +1095,7 @@
     "songsAvailable": "उपलब्ध गाने",
     "purchased": "खरीदे गए",
     "used": "उपयोग किए गए",
+    "songCount": "{{count}} गाने",
     "noSongsRemaining": "आपके पास कोई गाना शेष नहीं है। संगीत बनाना जारी रखने के लिए और खरीदें।",
     "lowSongsWarning": "कम गाने शेष! बनाना जारी रखने के लिए और खरीदें।",
     "testOpenaiPrompt": "छवि और गीत जनरेशन के लिए OpenAI API क्रेडिट जाँचने हेतु \"परीक्षण\" दबाएँ",
