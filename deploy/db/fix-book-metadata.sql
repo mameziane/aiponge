@@ -27,7 +27,12 @@ WHERE b.chapter_count = 0
       WHERE c.book_id = b.id AND c.deleted_at IS NULL
   );
 
--- 4. Fix entry_count stuck at 0 on books that actually have entries
+-- 4. Normalize language codes to short ISO 639-1 format (e.g. 'en-US' → 'en')
+UPDATE lib_books
+SET language = LOWER(SPLIT_PART(language, '-', 1)), updated_at = NOW()
+WHERE language LIKE '%-%';
+
+-- 5. Fix entry_count stuck at 0 on books that actually have entries
 UPDATE lib_books b
 SET entry_count = (
       SELECT COUNT(*)
