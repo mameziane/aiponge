@@ -160,6 +160,18 @@ export function PaywallScreen() {
     return currentTierPackages.map(pkg => pkg.billingPeriod);
   }, [currentTierPackages]);
 
+  // Compute yearly savings percentage from actual prices
+  const yearlySavingsPercent = useMemo(() => {
+    const monthly = currentTierPackages.find(p => p.billingPeriod === 'monthly');
+    const yearly = currentTierPackages.find(p => p.billingPeriod === 'yearly');
+    if (!monthly || !yearly) return null;
+    const monthlyPrice = monthly.pkg.product.price;
+    const yearlyPrice = yearly.pkg.product.price;
+    if (monthlyPrice <= 0) return null;
+    const annualCostMonthly = monthlyPrice * 12;
+    return Math.round(((annualCostMonthly - yearlyPrice) / annualCostMonthly) * 100);
+  }, [currentTierPackages]);
+
   const handlePurchase = async () => {
     if (!selectedPackage) {
       Alert.alert(t('common.error'), t('paywall.noPackages'));
@@ -364,9 +376,13 @@ export function PaywallScreen() {
                 )}
               </View>
 
-              {selectedPackage?.billingPeriod === 'yearly' && (
-                <Text style={styles.savingsText}>{t('subscription.savings.savePercent', { percent: '37' })}</Text>
-              )}
+              {selectedPackage?.billingPeriod === 'yearly' &&
+                yearlySavingsPercent != null &&
+                yearlySavingsPercent > 0 && (
+                  <Text style={styles.savingsText}>
+                    {t('subscription.savings.savePercent', { percent: String(yearlySavingsPercent) })}
+                  </Text>
+                )}
 
               <View style={styles.featuresContainer}>
                 {getTierDisplay(selectedTier).features.map((feature, idx) => (
