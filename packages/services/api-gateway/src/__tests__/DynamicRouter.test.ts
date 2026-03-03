@@ -29,45 +29,41 @@ const mockHttpClient = vi.hoisted(() => ({
   deleteWithResponse: vi.fn(),
 }));
 
-vi.mock('@aiponge/platform-core', () => ({
-  createLogger: () => mockLogger,
-  getLogger: () => mockLogger,
-  serviceRegistrationClient: mockDiscoveryClient,
-  createHttpClient: () => mockHttpClient,
-  HttpClient: vi.fn(),
-  signUserIdHeader: vi.fn((userId: string, role?: string) => ({
-    'x-user-id': userId,
-    'x-user-role': role || 'user',
-    'x-user-id-signature': 'mock-sig',
-    'x-user-id-timestamp': '12345',
-  })),
-  ServiceLocator: {
-    getServicePort: vi.fn().mockReturnValue(3000),
-  },
-  serializeError: vi.fn((e: unknown) => ({ message: (e as Error)?.message || 'error' })),
-  DomainError: class DomainError extends Error {
-    public readonly statusCode: number;
-    constructor(message: string, statusCode: number = 500, cause?: Error) {
-      super(message);
-      this.statusCode = statusCode;
-      if (cause) this.cause = cause;
-    }
-  },
-  createHttpClient: () => mockHttpClient,
-}));
+vi.mock('@aiponge/platform-core', async importOriginal => {
+  const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
+  return {
+    ...actual,
+    createLogger: vi.fn(() => mockLogger),
+    getLogger: vi.fn(() => mockLogger),
+    serviceRegistrationClient: mockDiscoveryClient,
+    createHttpClient: () => mockHttpClient,
+    HttpClient: vi.fn(),
+    signUserIdHeader: vi.fn((userId: string, role?: string) => ({
+      'x-user-id': userId,
+      'x-user-role': role || 'user',
+      'x-user-id-signature': 'mock-sig',
+      'x-user-id-timestamp': '12345',
+    })),
+    ServiceLocator: {
+      getServicePort: vi.fn().mockReturnValue(3000),
+    },
+    serializeError: vi.fn((e: unknown) => ({ message: (e as Error)?.message || 'error' })),
+    ServiceRegistry: vi.fn(),
+    hasService: vi.fn(),
+    getServiceUrl: vi.fn(),
+    waitForService: vi.fn(),
+    listServices: vi.fn(),
+  };
+});
 
-vi.mock('@aiponge/platform-core', () => ({
-  ServiceRegistry: vi.fn(),
-  hasService: vi.fn(),
-  getServiceUrl: vi.fn(),
-  waitForService: vi.fn(),
-  listServices: vi.fn(),
-}));
-
-vi.mock('@aiponge/shared-contracts', () => ({
-  extractErrorInfo: vi.fn(),
-  getCorrelationId: vi.fn(),
-}));
+vi.mock('@aiponge/shared-contracts', async importOriginal => {
+  const actual = await importOriginal<Record<string, unknown>>();
+  return {
+    ...actual,
+    extractErrorInfo: vi.fn(),
+    getCorrelationId: vi.fn(),
+  };
+});
 
 vi.mock('../config/service-urls', () => ({
   getLogger: () => mockLogger,
@@ -87,6 +83,9 @@ vi.mock('../config/GatewayConfig', () => ({
 vi.mock('../presentation/utils/response-helpers', () => ({
   ServiceErrors: {
     fromException: vi.fn(),
+    serviceUnavailable: vi.fn((res: any, message: string, _req?: any) => {
+      res.status(503).json({ success: false, error: { code: 'SERVICE_UNAVAILABLE', message } });
+    }),
   },
 }));
 
@@ -107,15 +106,15 @@ describe('DynamicRouter', () => {
     });
 
     it('should log initialization message', () => {
-      expect(mockLogger.info).toHaveBeenCalledWith('DynamicRouter initialized with shared service discovery');
+      expect(mockLogger.debug).toHaveBeenCalledWith('DynamicRouter initialized with shared service discovery');
     });
 
     it('should have routes for known service paths', () => {
       const routePaths = router.getAllRoutes().map(r => r.path);
-      expect(routePaths).toContain('/api/providers/*');
-      expect(routePaths).toContain('/api/music/*');
-      expect(routePaths).toContain('/api/users/*');
-      expect(routePaths).toContain('/api/storage/*');
+      expect(routePaths).toContain('/api/v1/providers/*');
+      expect(routePaths).toContain('/api/v1/music/*');
+      expect(routePaths).toContain('/api/v1/users/*');
+      expect(routePaths).toContain('/api/v1/system/*');
     });
   });
 
@@ -225,19 +224,19 @@ describe('DynamicRouter', () => {
 
   describe('route matching', () => {
     it('should match exact paths', () => {
-      const result = router.getRouteConfig('/api/templates');
+      const result = router.getRouteConfig('/api/v1/templates');
       expect(result).not.toBeNull();
       expect(result!.serviceName).toBe('ai-config-service');
     });
 
     it('should match wildcard paths', () => {
-      const result = router.getRouteConfig('/api/providers/openai');
+      const result = router.getRouteConfig('/api/v1/providers/openai');
       expect(result).not.toBeNull();
       expect(result!.serviceName).toBe('ai-config-service');
     });
 
     it('should match deep wildcard paths', () => {
-      const result = router.getRouteConfig('/api/music/tracks/123/download');
+      const result = router.getRouteConfig('/api/v1/music/tracks/123/download');
       expect(result).not.toBeNull();
       expect(result!.serviceName).toBe('music-service');
     });
@@ -248,10 +247,10 @@ describe('DynamicRouter', () => {
     });
 
     it('should prioritize exact matches over wildcard matches', () => {
-      const result = router.getRouteConfig('/api/frameworks');
+      const result = router.getRouteConfig('/api/v1/frameworks');
       expect(result).not.toBeNull();
       expect(result!.serviceName).toBe('ai-config-service');
-      expect(result!.path).toBe('/api/frameworks');
+      expect(result!.path).toBe('/api/v1/frameworks');
     });
 
     it('should match parameterized routes', () => {
@@ -266,9 +265,9 @@ describe('DynamicRouter', () => {
     });
 
     it('should not match partial paths without wildcard', () => {
-      const result = router.getRouteConfig('/api/templates/extra/deep');
+      const result = router.getRouteConfig('/api/v1/templates/extra/deep');
       expect(result).not.toBeNull();
-      expect(result!.path).toBe('/api/templates/*');
+      expect(result!.path).toBe('/api/v1/templates/*');
     });
 
     it('should match version path', () => {
@@ -315,7 +314,7 @@ describe('DynamicRouter', () => {
         undefined as unknown as number
       );
 
-      const req = createMockReq('GET', '/api/music/tracks');
+      const req = createMockReq('GET', '/api/v1/music/tracks');
       const res = createMockRes();
       const next = vi.fn();
 
@@ -325,7 +324,10 @@ describe('DynamicRouter', () => {
       expect(res.status).toHaveBeenCalledWith(503);
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
-          error: 'Service Unavailable',
+          success: false,
+          error: expect.objectContaining({
+            code: 'SERVICE_UNAVAILABLE',
+          }),
         })
       );
     });
@@ -343,7 +345,7 @@ describe('DynamicRouter', () => {
         headers: {},
       });
 
-      const req = createMockReq('GET', '/api/music/tracks');
+      const req = createMockReq('GET', '/api/v1/music/tracks');
       const res = createMockRes();
       const next = vi.fn();
 
@@ -368,7 +370,7 @@ describe('DynamicRouter', () => {
         headers: {},
       });
 
-      const req = createMockReq('POST', '/api/users/register', {
+      const req = createMockReq('POST', '/api/v1/users/register', {
         email: 'test@test.com',
       });
       const res = createMockRes();
@@ -394,7 +396,7 @@ describe('DynamicRouter', () => {
         headers: {},
       });
 
-      const req = createMockReq('PUT', '/api/users/123', { name: 'Updated' });
+      const req = createMockReq('PUT', '/api/v1/users/123', { name: 'Updated' });
       const res = createMockRes();
       const next = vi.fn();
 
@@ -417,7 +419,7 @@ describe('DynamicRouter', () => {
         headers: {},
       });
 
-      const req = createMockReq('PATCH', '/api/users/123', { name: 'Patched' });
+      const req = createMockReq('PATCH', '/api/v1/users/123', { name: 'Patched' });
       const res = createMockRes();
       const next = vi.fn();
 
@@ -440,7 +442,7 @@ describe('DynamicRouter', () => {
         headers: {},
       });
 
-      const req = createMockReq('DELETE', '/api/users/123');
+      const req = createMockReq('DELETE', '/api/v1/users/123');
       const res = createMockRes();
       const next = vi.fn();
 
@@ -463,7 +465,7 @@ describe('DynamicRouter', () => {
         headers: {},
       });
 
-      const req = createMockReq('GET', '/api/music/tracks');
+      const req = createMockReq('GET', '/api/v1/music/tracks');
       const res = createMockRes();
       const next = vi.fn();
 
@@ -489,7 +491,7 @@ describe('DynamicRouter', () => {
         headers: {},
       });
 
-      const req = createMockReq('GET', '/api/users/me');
+      const req = createMockReq('GET', '/api/v1/users/me');
       const res = createMockRes();
       res.locals = { authenticated: true, userId: 'user-123', userRole: 'admin' };
       const next = vi.fn();
@@ -514,7 +516,7 @@ describe('DynamicRouter', () => {
         headers: {},
       });
 
-      const req = createMockReq('GET', '/api/users/me');
+      const req = createMockReq('GET', '/api/v1/users/me');
       const res = createMockRes();
       res.locals = {};
       const next = vi.fn();
@@ -538,7 +540,7 @@ describe('DynamicRouter', () => {
         headers: {},
       });
 
-      const req = createMockReq('GET', '/api/users/me');
+      const req = createMockReq('GET', '/api/v1/users/me');
       req.headers = {
         'x-user-id': 'spoofed-id',
         'x-user-role': 'admin',
@@ -571,7 +573,7 @@ describe('DynamicRouter', () => {
         headers: {},
       });
 
-      const req = createMockReq('GET', '/api/music/tracks');
+      const req = createMockReq('GET', '/api/v1/music/tracks');
       const res = createMockRes();
       const next = vi.fn();
 
@@ -597,7 +599,7 @@ describe('DynamicRouter', () => {
         message: 'Request failed',
       });
 
-      const req = createMockReq('POST', '/api/users/register', { email: 'test@test.com' });
+      const req = createMockReq('POST', '/api/v1/users/register', { email: 'test@test.com' });
       const res = createMockRes();
       const next = vi.fn();
 
@@ -623,7 +625,7 @@ describe('DynamicRouter', () => {
         headers: {},
       });
 
-      const req = createMockReq('GET', '/api/content/generate');
+      const req = createMockReq('GET', '/api/v1/content/generate');
       const res = createMockRes();
       const next = vi.fn();
 
@@ -647,7 +649,7 @@ describe('DynamicRouter', () => {
         headers: {},
       });
 
-      const req = createMockReq('GET', '/api/music/tracks');
+      const req = createMockReq('GET', '/api/v1/music/tracks');
       const res = createMockRes();
       const next = vi.fn();
 
@@ -681,7 +683,7 @@ describe('DynamicRouter', () => {
         headers: {},
       });
 
-      const req = createMockReq('GET', '/api/music/tracks');
+      const req = createMockReq('GET', '/api/v1/music/tracks');
       const res = createMockRes();
       const next = vi.fn();
 
@@ -700,7 +702,7 @@ describe('DynamicRouter', () => {
         undefined as unknown as number
       );
 
-      const req = createMockReq('GET', '/api/music/tracks');
+      const req = createMockReq('GET', '/api/v1/music/tracks');
       const res = createMockRes();
       const next = vi.fn();
 
@@ -736,12 +738,12 @@ describe('DynamicRouter', () => {
       const middleware = router.routeRequest();
 
       await middleware(
-        createMockReq('GET', '/api/music/tracks') as unknown as Request,
+        createMockReq('GET', '/api/v1/music/tracks') as unknown as Request,
         createMockRes() as unknown as Response,
         vi.fn()
       );
       await middleware(
-        createMockReq('GET', '/api/music/albums') as unknown as Request,
+        createMockReq('GET', '/api/v1/music/albums') as unknown as Request,
         createMockRes() as unknown as Response,
         vi.fn()
       );
@@ -835,7 +837,7 @@ describe('DynamicRouter', () => {
 
   describe('edge cases', () => {
     it('should handle very long paths', () => {
-      const longPath = '/api/music/' + 'segment/'.repeat(50) + 'final';
+      const longPath = '/api/v1/music/' + 'segment/'.repeat(50) + 'final';
       const result = router.getRouteConfig(longPath);
       expect(result).not.toBeNull();
       expect(result!.serviceName).toBe('music-service');
@@ -862,8 +864,8 @@ describe('DynamicRouter', () => {
     });
 
     it('should match the correct service for overlapping routes', () => {
-      const templatesExact = router.getRouteConfig('/api/templates');
-      const templatesWild = router.getRouteConfig('/api/templates/some-id');
+      const templatesExact = router.getRouteConfig('/api/v1/templates');
+      const templatesWild = router.getRouteConfig('/api/v1/templates/some-id');
 
       expect(templatesExact).not.toBeNull();
       expect(templatesWild).not.toBeNull();

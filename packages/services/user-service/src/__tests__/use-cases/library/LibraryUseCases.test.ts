@@ -1,4 +1,7 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi, beforeAll } from 'vitest';
+
+// Increase hook timeout for this file — dynamic imports are slow under concurrent Turborepo test runs
+vi.setConfig({ hookTimeout: 30000 });
 
 vi.mock('../../../config/service-urls', () => ({
   getLogger: () => ({
@@ -62,6 +65,10 @@ vi.mock('@aiponge/shared-contracts', async () => {
   return {
     CONTENT_VISIBILITY: { PUBLIC: 'public', PRIVATE: 'private', PERSONAL: 'personal', SHARED: 'shared' },
     ContentVisibilitySchema: z.enum(['public', 'private', 'personal', 'shared']),
+    toShortLanguageCode: vi.fn((input: string | null | undefined) => {
+      if (!input) return 'en';
+      return input.split('-')[0].toLowerCase().trim() || 'en';
+    }),
     contextIsPrivileged: vi.fn(() => false),
     contextIsAdmin: vi.fn(() => false),
     isContentPubliclyAccessible: vi.fn(() => false),
@@ -890,6 +897,7 @@ describe('Library Use Cases', () => {
           getByUser: vi.fn().mockResolvedValue([makeEntry()]),
           getByFilters: vi.fn().mockResolvedValue({ items: [makeEntry()], hasMore: false, nextCursor: null }),
           countByBook: vi.fn().mockResolvedValue(1),
+          countByUser: vi.fn().mockResolvedValue({ total: 1, processed: 0 }),
         };
         mockChapterRepo = {
           getById: vi.fn().mockResolvedValue(makeChapter()),
@@ -899,6 +907,7 @@ describe('Library Use Cases', () => {
         };
         mockIllustrationRepo = {
           getByEntry: vi.fn().mockResolvedValue([]),
+          getByEntries: vi.fn().mockResolvedValue(new Map()),
         };
 
         const { ListEntriesUseCase } = await import('../../../application/use-cases/library/entry/ListEntriesUseCase');
@@ -1564,6 +1573,7 @@ describe('Library Use Cases', () => {
             .mockResolvedValue(
               makeIllustration({ url: 'https://example.com/cover.jpg', artworkUrl: 'https://example.com/cover.jpg' })
             ),
+          delete: vi.fn().mockResolvedValue(undefined),
         };
         mockBookRepo = {
           getById: vi.fn().mockResolvedValue(makeBook()),
@@ -1588,15 +1598,13 @@ describe('Library Use Cases', () => {
         }
       });
 
-      it('should return existing cover if one exists', async () => {
+      it('should delete existing cover and regenerate when one exists', async () => {
         const existingCover = makeIllustration();
         mockIllustrationRepo.getBookCover.mockResolvedValue(existingCover);
         const result = await useCase.execute({ bookId: TEST_BOOK_ID, title: 'My Book' }, createContext());
         expect(result.success).toBe(true);
-        if (result.success) {
-          expect(result.data.illustration.id).toBe(existingCover.id);
-        }
-        expect(mockIllustrationRepo.create).not.toHaveBeenCalled();
+        expect(mockIllustrationRepo.delete).toHaveBeenCalledWith(existingCover.id);
+        expect(mockIllustrationRepo.create).toHaveBeenCalled();
       });
 
       it('should return not found for missing book', async () => {

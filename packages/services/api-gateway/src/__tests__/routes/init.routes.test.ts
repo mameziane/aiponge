@@ -12,19 +12,23 @@ const mockLogger = vi.hoisted(() => ({
 
 const mockGatewayFetch = vi.hoisted(() => vi.fn());
 
-vi.mock('@aiponge/platform-core', () => ({
-  createLogger: () => mockLogger,
-  getLogger: () => mockLogger,
-  ServiceLocator: {
-    getServiceUrl: vi.fn(() => 'http://localhost:3020'),
-    getServicePort: vi.fn(() => 3020),
-  },
-  serializeError: vi.fn((e: unknown) => String(e)),
-  getValidation: () => ({
-    validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(),
-    validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next(),
-  }),
-}));
+vi.mock('@aiponge/platform-core', async importOriginal => {
+  const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
+  return {
+    ...actual,
+    createLogger: vi.fn(() => mockLogger),
+    getLogger: vi.fn(() => mockLogger),
+    ServiceLocator: {
+      getServiceUrl: vi.fn(() => 'http://localhost:3020'),
+      getServicePort: vi.fn(() => 3020),
+    },
+    serializeError: vi.fn((e: unknown) => String(e)),
+    getValidation: () => ({
+      validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+      validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+    }),
+  };
+});
 
 vi.mock('@services/gatewayFetch', () => ({
   gatewayFetch: mockGatewayFetch,
@@ -35,6 +39,7 @@ vi.mock('../../config/service-urls', () => ({
 }));
 
 vi.mock('../../config/GatewayConfig', () => ({
+  HttpConfig: { defaults: { timeout: 5000, retries: 0 } },
   GatewayConfig: {
     rateLimit: { isRedisEnabled: false, redis: {} },
     http: { defaults: { timeout: 5000, retries: 0 } },
@@ -65,9 +70,36 @@ vi.mock('../../presentation/middleware/authorizationMiddleware', () => ({
 }));
 
 vi.mock('../../presentation/utils/response-helpers', () => ({
+  sendSuccess: vi.fn((res: Response, data: unknown) => {
+    res.json({ success: true, data });
+  }),
+  sendCreated: vi.fn((res: Response, data: unknown) => {
+    res.status(201).json({ success: true, data });
+  }),
+  forwardServiceError: vi.fn(),
+  extractErrorInfo: vi.fn(() => ({})),
+  getCorrelationId: vi.fn(() => 'test-correlation-id'),
   ServiceErrors: {
     fromException: vi.fn((res: Response, _error: unknown, message: string) => {
       res.status(502).json({ success: false, message });
+    }),
+    badRequest: vi.fn((res: Response, message: string) => {
+      res.status(400).json({ success: false, message });
+    }),
+    unauthorized: vi.fn((res: Response, message: string) => {
+      res.status(401).json({ success: false, message });
+    }),
+    forbidden: vi.fn((res: Response, message: string) => {
+      res.status(403).json({ success: false, message });
+    }),
+    notFound: vi.fn((res: Response, message: string) => {
+      res.status(404).json({ success: false, message });
+    }),
+    internal: vi.fn((res: Response, message: string) => {
+      res.status(500).json({ success: false, message });
+    }),
+    serviceUnavailable: vi.fn((res: Response, message: string) => {
+      res.status(503).json({ success: false, message });
     }),
   },
 }));
@@ -86,14 +118,18 @@ vi.mock('../../presentation/middleware/RateLimitMiddleware', () => ({
   rateLimitMiddleware: () => (_req: Request, _res: Response, next: NextFunction) => next(),
 }));
 
-vi.mock('@aiponge/shared-contracts', () => ({
-  MusicGenerateSchema: {},
-  GenerateLyricsSchema: {},
-  USER_ROLES: { MEMBER: 'member', ADMIN: 'admin', LIBRARIAN: 'librarian' },
-  isPrivilegedRole: (role: string) => role === 'admin' || role === 'librarian',
-  normalizeRole: (role: string) => (role || 'member').toLowerCase(),
-  CONTENT_LIMITS: { MAX_TRACKS_PER_ALBUM: 20 },
-}));
+vi.mock('@aiponge/shared-contracts', async importOriginal => {
+  const actual = await importOriginal<Record<string, unknown>>();
+  return {
+    ...actual,
+    MusicGenerateSchema: {},
+    GenerateLyricsSchema: {},
+    USER_ROLES: { MEMBER: 'member', ADMIN: 'admin', LIBRARIAN: 'librarian' },
+    isPrivilegedRole: (role: string) => role === 'admin' || role === 'librarian',
+    normalizeRole: (role: string) => (role || 'member').toLowerCase(),
+    CONTENT_LIMITS: { MAX_TRACKS_PER_ALBUM: 20 },
+  };
+});
 
 function mockResponse(data: Record<string, unknown>, status = 200) {
   return {
@@ -122,18 +158,16 @@ describe('Init Routes', () => {
     });
 
     it('should return 200 with composite startup data for authenticated user', async () => {
-      const profileResp = mockResponse({ success: true, data: { name: 'Test User' } });
-      const creditsBalanceResp = mockResponse({ success: true, data: { balance: 10 } });
-      const creditsPolicyResp = mockResponse({ success: true, data: { maxCredits: 100 } });
-      const guestConversionResp = mockResponse({ success: true, data: { canConvert: true } });
-      const recentEntriesResp = mockResponse({ success: true, data: { entries: [{ id: 'e1', content: 'test' }] } });
+      const initResp = mockResponse({
+        success: true,
+        data: {
+          profile: { name: 'Test User' },
+          credits: { balance: 10 },
+          recentEntries: [{ id: 'e1', content: 'test' }],
+        },
+      });
 
-      mockGatewayFetch
-        .mockResolvedValueOnce(profileResp)
-        .mockResolvedValueOnce(creditsBalanceResp)
-        .mockResolvedValueOnce(creditsPolicyResp)
-        .mockResolvedValueOnce(guestConversionResp)
-        .mockResolvedValueOnce(recentEntriesResp);
+      mockGatewayFetch.mockResolvedValueOnce(initResp);
 
       const res = await request(app).get('/api/app/init').set('x-user-id', 'user-123').set('x-request-id', 'req-123');
 
@@ -142,34 +176,26 @@ describe('Init Routes', () => {
       expect(res.body.data).toHaveProperty('profile');
       expect(res.body.data).toHaveProperty('credits');
       expect(res.body.data).toHaveProperty('recentEntries');
-      expect(res.body.timestamp).toBeDefined();
 
-      expect(mockGatewayFetch).toHaveBeenCalledTimes(5);
-      const urls = mockGatewayFetch.mock.calls.map((c: unknown[]) => c[0]);
-      expect(urls).toEqual(
-        expect.arrayContaining([
-          expect.stringContaining('/profiles/'),
-          expect.stringContaining('/credits/'),
-          expect.stringContaining('/entries/'),
-        ])
-      );
+      // Route now proxies to user-service /api/users/{userId}/init as a single request
+      expect(mockGatewayFetch).toHaveBeenCalledTimes(1);
+      const url = mockGatewayFetch.mock.calls[0][0] as string;
+      expect(url).toContain('/api/users/user-123/init');
     });
 
-    it('should handle partial failures gracefully', async () => {
-      const profileResp = mockResponse({ success: true, data: { name: 'Test User' } });
-      const failResp = { ok: false, status: 500, json: vi.fn().mockResolvedValue(null), headers: new Map() };
-
-      mockGatewayFetch
-        .mockResolvedValueOnce(profileResp)
-        .mockResolvedValueOnce(failResp)
-        .mockResolvedValueOnce(failResp)
-        .mockResolvedValueOnce(failResp)
-        .mockResolvedValueOnce(failResp);
+    it('should handle service failure gracefully', async () => {
+      const failResp = {
+        ok: false,
+        status: 500,
+        json: vi.fn().mockResolvedValue({ message: 'Internal error' }),
+        headers: new Map(),
+      };
+      mockGatewayFetch.mockResolvedValueOnce(failResp);
 
       const res = await request(app).get('/api/app/init').set('x-user-id', 'user-123');
 
-      expect(res.status).toBe(200);
-      expect(res.body.success).toBe(true);
+      expect(res.status).toBe(500);
+      expect(res.body.success).toBe(false);
     });
   });
 });

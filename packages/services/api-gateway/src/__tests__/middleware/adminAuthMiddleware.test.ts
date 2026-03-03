@@ -22,6 +22,62 @@ vi.mock('@aiponge/platform-core', async importOriginal => {
     ...actual,
     StandardAuthMiddleware: MockStandardAuthMiddleware,
     AuthenticatedRequest: {},
+    createSecureRoleGuard: (_serviceName: string, allowedRoles: string[]) => {
+      const auth = new (MockStandardAuthMiddleware as unknown as new (...args: unknown[]) => Record<string, unknown>)();
+      return (req: Request, res: Response, next: NextFunction) => {
+        // Replicate real createSecureRoleGuard behavior:
+        // 1. Strip x-user-* headers
+        delete req.headers['x-user-id'];
+        delete req.headers['x-user-role'];
+        delete req.headers['x-internal-service'];
+
+        // 2. Call authenticate
+        const handler = (auth.authenticate as ReturnType<typeof vi.fn>)();
+        handler(req, res, (err?: unknown) => {
+          if (err) return next(err);
+
+          const user = (req as Request & { user?: Record<string, unknown> }).user as
+            | (Record<string, unknown> & { id?: string; role?: string; roles?: string[] })
+            | undefined;
+          const userId = user?.id as string | undefined;
+          const rawRole = user?.role || (user?.roles as string[] | undefined)?.[0];
+          const role = rawRole ? String(rawRole).toLowerCase() : undefined;
+
+          if (!userId) {
+            res.status(401).json({
+              success: false,
+              error: {
+                type: 'AuthenticationError',
+                code: 'UNAUTHORIZED',
+                message: `Authentication required for ${allowedRoles.join('/')} access`,
+                service: _serviceName,
+              },
+              timestamp: new Date().toISOString(),
+            });
+            return;
+          }
+
+          if (!role || !allowedRoles.includes(role)) {
+            res.status(403).json({
+              success: false,
+              error: {
+                type: 'AuthorizationError',
+                code: 'FORBIDDEN',
+                message: `Requires one of: ${allowedRoles.join(', ')}`,
+                service: _serviceName,
+              },
+              timestamp: new Date().toISOString(),
+            });
+            return;
+          }
+
+          res.locals.userId = userId;
+          req.headers['x-user-id'] = userId;
+          req.headers['x-user-role'] = role;
+          next();
+        });
+      };
+    },
   };
 });
 
@@ -129,7 +185,6 @@ describe('adminAuthMiddleware', () => {
     expect(req.headers['x-user-id']).toBe('admin-user-1');
     expect(req.headers['x-user-role']).toBe('admin');
     expect(next).toHaveBeenCalled();
-    expect(mockLogger.debug).toHaveBeenCalledWith('Admin access granted', { userId: 'admin-user-1' });
   });
 
   it('should pass errors from StandardAuthMiddleware to next', () => {
@@ -156,15 +211,12 @@ describe('adminAuthMiddleware', () => {
     expect(res.status).toHaveBeenCalledWith(401);
     expect(res.json).toHaveBeenCalledWith(
       expect.objectContaining({
+        success: false,
         error: expect.objectContaining({
           code: 'UNAUTHORIZED',
-          details: expect.objectContaining({
-            code: 'ADMIN_AUTH_REQUIRED',
-          }),
         }),
       })
     );
-    expect(mockLogger.warn).toHaveBeenCalled();
   });
 
   it('should return 401 when no user at all', () => {
@@ -191,11 +243,9 @@ describe('adminAuthMiddleware', () => {
     expect(res.status).toHaveBeenCalledWith(403);
     expect(res.json).toHaveBeenCalledWith(
       expect.objectContaining({
+        success: false,
         error: expect.objectContaining({
           code: 'FORBIDDEN',
-          details: expect.objectContaining({
-            code: 'ADMIN_ROLE_REQUIRED',
-          }),
         }),
       })
     );
@@ -307,11 +357,9 @@ describe('librarianAuthMiddleware', () => {
     expect(res.status).toHaveBeenCalledWith(401);
     expect(res.json).toHaveBeenCalledWith(
       expect.objectContaining({
+        success: false,
         error: expect.objectContaining({
           code: 'UNAUTHORIZED',
-          details: expect.objectContaining({
-            code: 'LIBRARIAN_AUTH_REQUIRED',
-          }),
         }),
       })
     );
@@ -330,11 +378,9 @@ describe('librarianAuthMiddleware', () => {
     expect(res.status).toHaveBeenCalledWith(403);
     expect(res.json).toHaveBeenCalledWith(
       expect.objectContaining({
+        success: false,
         error: expect.objectContaining({
           code: 'FORBIDDEN',
-          details: expect.objectContaining({
-            code: 'LIBRARIAN_ROLE_REQUIRED',
-          }),
         }),
       })
     );

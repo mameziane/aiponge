@@ -8,27 +8,23 @@ const mockLogger = vi.hoisted(() => ({
   child: vi.fn(),
 }));
 
-vi.mock('@aiponge/platform-core', () => ({
-  createLogger: () => mockLogger,
-  getLogger: () => mockLogger,
-  DomainError: class DomainError extends Error {
-    public readonly statusCode: number;
-    constructor(message: string, statusCode: number = 500, cause?: Error) {
-      super(message);
-      this.statusCode = statusCode;
-      if (cause) this.cause = cause;
-    }
-  },
-  createIntervalScheduler: vi.fn(
-    ({ handler }: { handler: () => void; name?: string; serviceName?: string; intervalMs?: number }) => ({
-      start: vi.fn(),
-      stop: vi.fn(),
-      isRunning: vi.fn().mockReturnValue(false),
-    })
-  ),
-  createServiceUrlsConfig: vi.fn(() => ({ getServiceUrl: vi.fn() })),
-  errorMessage: vi.fn((err: unknown) => (err instanceof Error ? err.message : String(err))),
-}));
+vi.mock('@aiponge/platform-core', async importOriginal => {
+  const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
+  return {
+    ...actual,
+    createLogger: vi.fn(() => mockLogger),
+    getLogger: vi.fn(() => mockLogger),
+    createIntervalScheduler: vi.fn(
+      ({ handler }: { handler: () => void; name?: string; serviceName?: string; intervalMs?: number }) => ({
+        start: vi.fn(),
+        stop: vi.fn(),
+        isRunning: vi.fn().mockReturnValue(false),
+      })
+    ),
+    createServiceUrlsConfig: vi.fn(() => ({ getServiceUrl: vi.fn() })),
+    errorMessage: vi.fn((err: unknown) => (err instanceof Error ? err.message : String(err))),
+  };
+});
 
 vi.mock('../config/service-urls', () => ({
   getLogger: () => mockLogger,

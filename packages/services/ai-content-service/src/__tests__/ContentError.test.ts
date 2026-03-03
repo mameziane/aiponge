@@ -1,14 +1,11 @@
 import { describe, it, expect, vi } from 'vitest';
 
-vi.mock('@aiponge/platform-core', () => ({
-  DomainError: class DomainError extends Error {
-    public readonly statusCode: number;
-    constructor(message: string, statusCode: number = 500, cause?: Error) {
-      super(message, cause ? { cause } : undefined);
-      this.statusCode = statusCode;
-    }
-  },
-}));
+vi.mock('@aiponge/platform-core', async importOriginal => {
+  const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
+  return {
+    ...actual,
+  };
+});
 
 import { ContentError, ContentErrorCode } from '../application/errors/errors';
 

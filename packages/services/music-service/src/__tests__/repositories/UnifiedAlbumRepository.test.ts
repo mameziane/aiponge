@@ -8,41 +8,37 @@ const mockLogger = vi.hoisted(() => ({
   child: vi.fn(),
 }));
 
-const MockDomainError = vi.hoisted(() => {
-  return class DomainError extends Error {
-    code: string;
-    constructor(message: string, code?: string) {
-      super(message);
-      this.code = code || 'UNKNOWN';
-      this.name = 'DomainError';
-    }
+vi.mock('@aiponge/platform-core', async importOriginal => {
+  const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
+  return {
+    ...actual,
+    createLogger: vi.fn(() => mockLogger),
+    getLogger: vi.fn(() => mockLogger),
+    getAuditService: () => ({ log: vi.fn() }),
+    getCorrelationContext: () => ({ correlationId: 'test-corr-id' }),
+    createHttpClient: vi.fn().mockReturnValue({}),
+    ServiceRegistry: {},
+    hasService: vi.fn().mockReturnValue(false),
+    getServiceUrl: vi.fn(),
+    waitForService: vi.fn(),
+    listServices: vi.fn(),
+    createServiceUrlsConfig: vi.fn(() => ({ getServiceUrl: vi.fn() })),
+    errorMessage: vi.fn((err: unknown) => (err instanceof Error ? err.message : String(err))),
+    serializeError: vi.fn((err: unknown) => err),
   };
 });
 
-vi.mock('@aiponge/platform-core', () => ({
-  createLogger: () => mockLogger,
-  getLogger: () => mockLogger,
-  getAuditService: () => ({ log: vi.fn() }),
-  getCorrelationContext: () => ({ correlationId: 'test-corr-id' }),
-  DomainError: MockDomainError,
-  createHttpClient: vi.fn().mockReturnValue({}),
-  ServiceRegistry: {},
-  hasService: vi.fn().mockReturnValue(false),
-  getServiceUrl: vi.fn(),
-  waitForService: vi.fn(),
-  listServices: vi.fn(),
-  createServiceUrlsConfig: vi.fn(() => ({ getServiceUrl: vi.fn() })),
-  errorMessage: vi.fn((err: unknown) => (err instanceof Error ? err.message : String(err))),
-  serializeError: vi.fn((err: unknown) => err),
-}));
-
-vi.mock('@aiponge/shared-contracts', () => ({
-  CONTENT_VISIBILITY: { SHARED: 'shared', PERSONAL: 'personal', PUBLIC: 'public' },
-  VISIBILITY_FILTER: { USER: 'user', PERSONAL: 'personal', SHARED: 'shared', PUBLIC: 'public', ALL: 'all' },
-  ALBUM_LIFECYCLE: { ACTIVE: 'active', DRAFT: 'draft', DELETED: 'deleted' },
-  TRACK_LIFECYCLE: { PUBLISHED: 'published', ACTIVE: 'active', DRAFT: 'draft' },
-  APP: { DEFAULT_DISPLAY_NAME: 'Unknown Artist' },
-}));
+vi.mock('@aiponge/shared-contracts', async importOriginal => {
+  const actual = await importOriginal<typeof import('@aiponge/shared-contracts')>();
+  return {
+    ...actual,
+    CONTENT_VISIBILITY: { SHARED: 'shared', PERSONAL: 'personal', PUBLIC: 'public' },
+    VISIBILITY_FILTER: { USER: 'user', PERSONAL: 'personal', SHARED: 'shared', PUBLIC: 'public', ALL: 'all' },
+    ALBUM_LIFECYCLE: { ACTIVE: 'active', DRAFT: 'draft', DELETED: 'deleted' },
+    TRACK_LIFECYCLE: { PUBLISHED: 'published', ACTIVE: 'active', DRAFT: 'draft' },
+    APP: { DEFAULT_DISPLAY_NAME: 'Unknown Artist' },
+  };
+});
 
 vi.mock('../../domains/music-catalog/entities/Album', () => ({
   Album: {

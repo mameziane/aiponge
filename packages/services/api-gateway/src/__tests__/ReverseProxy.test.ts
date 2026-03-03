@@ -15,30 +15,22 @@ const mockHttpClient = vi.hoisted(() => ({
   delete: vi.fn(),
 }));
 
-vi.mock('@aiponge/platform-core', () => ({
-  createLogger: () => mockLogger,
-  getLogger: () => mockLogger,
-  serviceRegistrationClient: {},
-  createHttpClient: () => mockHttpClient,
-  serializeError: (e: unknown) => String(e),
-  DomainError: class DomainError extends Error {
-    public readonly statusCode: number;
-    constructor(message: string, statusCode: number = 500, cause?: Error) {
-      super(message);
-      this.statusCode = statusCode;
-      if (cause) this.cause = cause;
-    }
-  },
-  createHttpClient: () => mockHttpClient,
-}));
-
-vi.mock('@aiponge/platform-core', () => ({
-  ServiceRegistry: {},
-  hasService: vi.fn().mockReturnValue(false),
-  getServiceUrl: vi.fn(),
-  waitForService: vi.fn(),
-  listServices: vi.fn(),
-}));
+vi.mock('@aiponge/platform-core', async importOriginal => {
+  const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
+  return {
+    ...actual,
+    createLogger: () => mockLogger,
+    getLogger: () => mockLogger,
+    serviceRegistrationClient: {},
+    createHttpClient: () => mockHttpClient,
+    serializeError: (e: unknown) => String(e),
+    ServiceRegistry: {},
+    hasService: vi.fn().mockReturnValue(false),
+    getServiceUrl: vi.fn(),
+    waitForService: vi.fn(),
+    listServices: vi.fn(),
+  };
+});
 
 import { ReverseProxy, type ProxyRequest } from '../services/ReverseProxy';
 
@@ -193,7 +185,16 @@ describe('ReverseProxy', () => {
       );
 
       expect(result.status).toBe(503);
-      expect(result.body).toEqual(expect.objectContaining({ error: 'Service unavailable' }));
+      expect(result.body).toEqual(
+        expect.objectContaining({
+          success: false,
+          error: expect.objectContaining({
+            type: 'ServiceUnavailableError',
+            code: 'SERVICE_UNAVAILABLE',
+            message: expect.stringContaining('Unsupported HTTP method: PATCH'),
+          }),
+        })
+      );
     });
 
     it('should handle case-insensitive HTTP methods', async () => {
@@ -527,10 +528,12 @@ describe('ReverseProxy', () => {
       expect(result.status).toBe(503);
       expect(result.body).toEqual(
         expect.objectContaining({
-          error: 'Service unavailable',
-          message: 'ECONNREFUSED',
-          upstream: 'http://localhost:3000',
-          serviceName: 'user-service',
+          success: false,
+          error: expect.objectContaining({
+            type: 'ServiceUnavailableError',
+            code: 'SERVICE_UNAVAILABLE',
+            message: expect.stringContaining('ECONNREFUSED'),
+          }),
         })
       );
     });
@@ -543,8 +546,12 @@ describe('ReverseProxy', () => {
       expect(result.status).toBe(503);
       expect(result.body).toEqual(
         expect.objectContaining({
-          error: 'Service unavailable',
-          message: expect.stringContaining('ENOTFOUND'),
+          success: false,
+          error: expect.objectContaining({
+            type: 'ServiceUnavailableError',
+            code: 'SERVICE_UNAVAILABLE',
+            message: expect.stringContaining('ENOTFOUND'),
+          }),
         })
       );
     });
@@ -557,8 +564,12 @@ describe('ReverseProxy', () => {
       expect(result.status).toBe(503);
       expect(result.body).toEqual(
         expect.objectContaining({
-          error: 'Service unavailable',
-          message: expect.stringContaining('timed out'),
+          success: false,
+          error: expect.objectContaining({
+            type: 'ServiceUnavailableError',
+            code: 'SERVICE_UNAVAILABLE',
+            message: expect.stringContaining('timed out'),
+          }),
         })
       );
     });
@@ -583,30 +594,51 @@ describe('ReverseProxy', () => {
       expect(result.status).toBe(503);
       expect(result.body).toEqual(
         expect.objectContaining({
-          message: 'Unknown error',
+          success: false,
+          error: expect.objectContaining({
+            type: 'ServiceUnavailableError',
+            code: 'SERVICE_UNAVAILABLE',
+            message: 'Service unavailable: Unknown error',
+          }),
         })
       );
     });
 
-    it('should include serviceName in error response', async () => {
+    it('should include upstream URL in error response', async () => {
       mockHttpClient.get.mockRejectedValue(new Error('fail'));
 
       const result = await proxy.forward(makeRequest(), 'http://localhost:3000', 'my-service');
 
-      expect(result.body).toEqual(expect.objectContaining({ serviceName: 'my-service' }));
+      expect(result.upstream).toBe('http://localhost:3000');
+      expect(result.body).toEqual(
+        expect.objectContaining({
+          success: false,
+          error: expect.objectContaining({
+            type: 'ServiceUnavailableError',
+            code: 'SERVICE_UNAVAILABLE',
+            message: expect.stringContaining('fail'),
+          }),
+        })
+      );
     });
 
-    it('should use "unknown" for serviceName when not provided in error', async () => {
-      const headersObj = {
-        get: () => null,
-        entries: () => [],
-      };
+    it('should include structured error format when serviceName is not provided', async () => {
       vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('fetch failed')));
 
       const result = await proxy.forward(makeRequest(), 'http://external.com');
 
       expect(result.status).toBe(503);
-      expect(result.body).toEqual(expect.objectContaining({ serviceName: 'unknown' }));
+      expect(result.upstream).toBe('http://external.com');
+      expect(result.body).toEqual(
+        expect.objectContaining({
+          success: false,
+          error: expect.objectContaining({
+            type: 'ServiceUnavailableError',
+            code: 'SERVICE_UNAVAILABLE',
+            message: expect.stringContaining('fetch failed'),
+          }),
+        })
+      );
 
       vi.unstubAllGlobals();
     });

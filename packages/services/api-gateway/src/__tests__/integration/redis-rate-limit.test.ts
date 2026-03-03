@@ -446,13 +446,17 @@ describe('Redis Rate Limiting Integration Tests', () => {
 
       await new Promise(resolve => setTimeout(resolve, 100));
 
+      // Unsubscribe listener 1 and clear its history so we only test post-unsubscribe behavior
       unsubscribe1();
+      events1.length = 0;
 
       mockRedisInstance.emit('ready');
 
       await new Promise(resolve => setTimeout(resolve, 50));
 
+      // After unsubscription, events1 should NOT receive the new 'connected' event
       expect(events1.some(e => e.type === 'connected')).toBe(false);
+      // events2 should still receive it
       expect(events2.some(e => e.type === 'connected')).toBe(true);
 
       unsubscribe2();

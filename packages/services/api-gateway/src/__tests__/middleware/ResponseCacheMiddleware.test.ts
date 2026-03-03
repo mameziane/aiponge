@@ -8,12 +8,16 @@ const mockLogger = vi.hoisted(() => ({
   error: vi.fn(),
   child: vi.fn(),
 }));
-vi.mock('@aiponge/platform-core', () => ({
-  createLogger: () => mockLogger,
-  getLogger: () => mockLogger,
-  serializeError: (e: unknown) => ({ message: (e as Error)?.message }),
-  isFeatureEnabled: vi.fn().mockReturnValue(false),
-}));
+vi.mock('@aiponge/platform-core', async importOriginal => {
+  const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
+  return {
+    ...actual,
+    createLogger: vi.fn(() => mockLogger),
+    getLogger: vi.fn(() => mockLogger),
+    serializeError: (e: unknown) => ({ message: (e as Error)?.message }),
+    isFeatureEnabled: vi.fn().mockReturnValue(false),
+  };
+});
 vi.mock('../../config/service-urls', () => ({
   getLogger: () => mockLogger,
   createLogger: () => mockLogger,

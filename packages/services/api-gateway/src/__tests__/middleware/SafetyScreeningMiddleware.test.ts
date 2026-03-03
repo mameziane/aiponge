@@ -8,16 +8,20 @@ const mockLogger = vi.hoisted(() => ({
   error: vi.fn(),
   child: vi.fn(),
 }));
-vi.mock('@aiponge/platform-core', () => ({
-  createLogger: () => mockLogger,
-  getLogger: () => mockLogger,
-  ServiceLocator: {
-    getServiceUrl: vi.fn().mockReturnValue('http://localhost:4000'),
-  },
-  signUserIdHeader: vi.fn().mockReturnValue({ 'x-signed-user-id': 'signed' }),
-  serializeError: (e: unknown) => ({ message: (e as Error)?.message }),
-  extractAuthContext: (req: Request) => ({ userId: req?.headers?.['x-user-id'] || undefined }),
-}));
+vi.mock('@aiponge/platform-core', async importOriginal => {
+  const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
+  return {
+    ...actual,
+    createLogger: vi.fn(() => mockLogger),
+    getLogger: vi.fn(() => mockLogger),
+    ServiceLocator: {
+      getServiceUrl: vi.fn().mockReturnValue('http://localhost:4000'),
+    },
+    signUserIdHeader: vi.fn().mockReturnValue({ 'x-signed-user-id': 'signed' }),
+    serializeError: (e: unknown) => ({ message: (e as Error)?.message }),
+    extractAuthContext: (req: Request) => ({ userId: req?.headers?.['x-user-id'] || undefined }),
+  };
+});
 vi.mock('../../config/service-urls', () => ({
   getLogger: () => mockLogger,
   createLogger: () => mockLogger,

@@ -10,17 +10,14 @@ vi.mock('../../config/service-urls', () => ({
   }),
 }));
 
-vi.mock('@aiponge/platform-core', () => ({
-  serializeError: vi.fn((err: unknown) => err),
-  DomainError: class DomainError extends Error {
-    public readonly statusCode: number;
-    constructor(message: string, statusCode: number = 500) {
-      super(message);
-      this.statusCode = statusCode;
-    }
-  },
-  createServiceUrlsConfig: vi.fn(() => ({ getServiceUrl: vi.fn() })),
-}));
+vi.mock('@aiponge/platform-core', async importOriginal => {
+  const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
+  return {
+    ...actual,
+    serializeError: vi.fn((err: unknown) => err),
+    createServiceUrlsConfig: vi.fn(() => ({ getServiceUrl: vi.fn() })),
+  };
+});
 
 function createMockUser(overrides: Record<string, unknown> = {}) {
   return {

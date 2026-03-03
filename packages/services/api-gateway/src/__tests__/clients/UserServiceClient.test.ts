@@ -9,46 +9,43 @@ const mockLogger = vi.hoisted(() => ({
   child: vi.fn(),
 }));
 
-vi.mock('@aiponge/platform-core', () => ({
-  createLogger: () => mockLogger,
-  getLogger: () => mockLogger,
-  getServiceUrl: vi.fn().mockReturnValue('http://localhost:3003'),
-  getServicePort: vi.fn().mockReturnValue(8080),
-  serializeError: vi.fn().mockReturnValue({ message: 'error' }),
-  withServiceResilience: vi
-    .fn()
-    .mockImplementation((_service: string, _op: string, fn: () => Promise<unknown>) => fn()),
-  DomainError: class DomainError extends Error {
-    public statusCode: number;
-    constructor(message: string, statusCode: number = 500) {
-      super(message);
-      this.statusCode = statusCode;
-    }
-  },
-  ServiceLocator: {
+vi.mock('@aiponge/platform-core', async importOriginal => {
+  const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
+  return {
+    ...actual,
+    createLogger: vi.fn(() => mockLogger),
+    getLogger: vi.fn(() => mockLogger),
     getServiceUrl: vi.fn().mockReturnValue('http://localhost:3003'),
     getServicePort: vi.fn().mockReturnValue(8080),
-    getValidatedServicePort: vi.fn().mockReturnValue(8080),
-  },
-  createHttpClient: vi.fn(),
-  timeoutHierarchy: {
-    getGatewayTimeout: vi.fn().mockReturnValue(5000),
-    getServiceTimeout: vi.fn().mockReturnValue(5000),
-  },
-  createServiceUrlsConfig: vi.fn(() => ({
-    SERVICE_URLS: {},
-    SERVICE_PORTS: {},
-    getServiceUrl: vi.fn(() => 'http://localhost:3003'),
-    getServicePort: vi.fn(() => 3003),
-    getOwnPort: vi.fn(() => 8080),
-    createServiceHttpClient: vi.fn(),
-    getHttpConfig: vi.fn(() => ({ timeout: 5000, retries: 0 })),
-  })),
-  ServiceRegistry: {},
-  hasService: vi.fn().mockReturnValue(false),
-  waitForService: vi.fn(),
-  listServices: vi.fn(),
-}));
+    serializeError: vi.fn().mockReturnValue({ message: 'error' }),
+    withServiceResilience: vi
+      .fn()
+      .mockImplementation((_service: string, _op: string, fn: () => Promise<unknown>) => fn()),
+    ServiceLocator: {
+      getServiceUrl: vi.fn().mockReturnValue('http://localhost:3003'),
+      getServicePort: vi.fn().mockReturnValue(8080),
+      getValidatedServicePort: vi.fn().mockReturnValue(8080),
+    },
+    createHttpClient: vi.fn(),
+    timeoutHierarchy: {
+      getGatewayTimeout: vi.fn().mockReturnValue(5000),
+      getServiceTimeout: vi.fn().mockReturnValue(5000),
+    },
+    createServiceUrlsConfig: vi.fn(() => ({
+      SERVICE_URLS: {},
+      SERVICE_PORTS: {},
+      getServiceUrl: vi.fn(() => 'http://localhost:3003'),
+      getServicePort: vi.fn(() => 3003),
+      getOwnPort: vi.fn(() => 8080),
+      createServiceHttpClient: vi.fn(),
+      getHttpConfig: vi.fn(() => ({ timeout: 5000, retries: 0 })),
+    })),
+    ServiceRegistry: {},
+    hasService: vi.fn().mockReturnValue(false),
+    waitForService: vi.fn(),
+    listServices: vi.fn(),
+  };
+});
 
 vi.mock('../../presentation/middleware/correlationMiddleware', () => ({
   getCorrelationId: vi.fn().mockReturnValue('test-correlation-id'),

@@ -16,69 +16,66 @@ const mockHttpClient = vi.hoisted(() => ({
   delete: vi.fn(),
 }));
 
-vi.mock('@aiponge/platform-core', () => ({
-  createLogger: () => mockLogger,
-  getLogger: () => mockLogger,
-  createHttpClient: () => mockHttpClient,
-  ServiceLocator: {
-    getServiceUrl: vi.fn().mockReturnValue('http://localhost:3001'),
-    getServicePort: vi.fn().mockImplementation((name: string) => {
-      const ports: Record<string, number> = {
-        'system-service': 3001,
-        'storage-service': 3002,
-        'user-service': 3003,
-        'api-gateway': 8080,
-        'ai-config-service': 3004,
-        'ai-content-service': 3005,
-        'ai-analytics-service': 3006,
-        'music-service': 3007,
-      };
-      return ports[name] || 3000;
-    }),
-    getValidatedServicePort: vi.fn().mockImplementation((name: string) => {
-      const ports: Record<string, number> = {
-        'system-service': 3001,
-        'storage-service': 3002,
-        'user-service': 3003,
-        'api-gateway': 8080,
-        'ai-config-service': 3004,
-        'ai-content-service': 3005,
-        'ai-analytics-service': 3006,
-        'music-service': 3007,
-      };
-      return ports[name] || 3000;
-    }),
-  },
-  logAndTrackError: vi.fn().mockReturnValue({ error: new Error('wrapped'), correlationId: 'test-id' }),
-  serializeError: vi.fn().mockReturnValue({ message: 'error' }),
-  DomainError: class DomainError extends Error {
-    public statusCode: number;
-    constructor(message: string, statusCode: number = 500) {
-      super(message);
-      this.statusCode = statusCode;
-    }
-  },
-  createIntervalScheduler: vi.fn(() => ({
-    start: vi.fn(),
-    stop: vi.fn(),
-    destroy: vi.fn(),
-    isRunning: vi.fn().mockReturnValue(false),
-  })),
-  createServiceUrlsConfig: vi.fn(() => ({
-    SERVICE_URLS: {},
-    SERVICE_PORTS: {},
-    getServiceUrl: vi.fn(() => 'http://localhost:3001'),
-    getServicePort: vi.fn(() => 3001),
-    getOwnPort: vi.fn(() => 8080),
-    createServiceHttpClient: vi.fn(),
-    getHttpConfig: vi.fn(() => ({ timeout: 5000, retries: 0 })),
-  })),
-  ServiceRegistry: {},
-  hasService: vi.fn().mockReturnValue(false),
-  getServiceUrl: vi.fn(),
-  waitForService: vi.fn(),
-  listServices: vi.fn(),
-}));
+vi.mock('@aiponge/platform-core', async importOriginal => {
+  const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
+  return {
+    ...actual,
+    createLogger: vi.fn(() => mockLogger),
+    getLogger: vi.fn(() => mockLogger),
+    createHttpClient: () => mockHttpClient,
+    ServiceLocator: {
+      getServiceUrl: vi.fn().mockReturnValue('http://localhost:3001'),
+      getServicePort: vi.fn().mockImplementation((name: string) => {
+        const ports: Record<string, number> = {
+          'system-service': 3001,
+          'storage-service': 3002,
+          'user-service': 3003,
+          'api-gateway': 8080,
+          'ai-config-service': 3004,
+          'ai-content-service': 3005,
+          'ai-analytics-service': 3006,
+          'music-service': 3007,
+        };
+        return ports[name] || 3000;
+      }),
+      getValidatedServicePort: vi.fn().mockImplementation((name: string) => {
+        const ports: Record<string, number> = {
+          'system-service': 3001,
+          'storage-service': 3002,
+          'user-service': 3003,
+          'api-gateway': 8080,
+          'ai-config-service': 3004,
+          'ai-content-service': 3005,
+          'ai-analytics-service': 3006,
+          'music-service': 3007,
+        };
+        return ports[name] || 3000;
+      }),
+    },
+    logAndTrackError: vi.fn().mockReturnValue({ error: new Error('wrapped'), correlationId: 'test-id' }),
+    serializeError: vi.fn().mockReturnValue({ message: 'error' }),
+    createIntervalScheduler: vi.fn(() => ({
+      start: vi.fn(),
+      stop: vi.fn(),
+      destroy: vi.fn(),
+      isRunning: vi.fn().mockReturnValue(false),
+    })),
+    createServiceUrlsConfig: vi.fn(() => ({
+      SERVICE_URLS: {},
+      SERVICE_PORTS: {},
+      getServiceUrl: vi.fn(() => 'http://localhost:3001'),
+      getServicePort: vi.fn(() => 3001),
+      getOwnPort: vi.fn(() => 8080),
+      createServiceHttpClient: vi.fn(),
+      getHttpConfig: vi.fn(() => ({ timeout: 5000, retries: 0 })),
+    })),
+    ServiceRegistry: {},
+    hasService: vi.fn().mockReturnValue(false),
+    getServiceUrl: vi.fn(),
+    waitForService: vi.fn(),
+    listServices: vi.fn(),
+  };
+});
 
 vi.mock('../../config/GatewayConfig', () => ({
   GatewayConfig: {

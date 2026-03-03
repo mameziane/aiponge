@@ -8,35 +8,32 @@ const mockLogger = vi.hoisted(() => ({
   child: vi.fn(),
 }));
 
-vi.mock('@aiponge/platform-core', () => ({
-  createLogger: () => mockLogger,
-  getLogger: () => mockLogger,
-  withResilience: vi.fn().mockImplementation((_name: string, fn: () => Promise<unknown>) => fn()),
-  errorMessage: vi.fn((err: unknown) => (err instanceof Error ? err.message : String(err))),
-  createIntervalScheduler: vi.fn(() => ({ start: vi.fn(), stop: vi.fn() })),
-  DomainError: class DomainError extends Error {
-    public statusCode: number;
-    constructor(message: string, statusCode: number = 500) {
-      super(message);
-      this.statusCode = statusCode;
-    }
-  },
-  createHttpClient: vi.fn(),
-  ServiceRegistry: {},
-  hasService: vi.fn().mockReturnValue(false),
-  getServiceUrl: vi.fn(),
-  waitForService: vi.fn(),
-  listServices: vi.fn(),
-  createServiceUrlsConfig: vi.fn(() => ({
-    SERVICE_URLS: {},
-    SERVICE_PORTS: {},
+vi.mock('@aiponge/platform-core', async importOriginal => {
+  const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
+  return {
+    ...actual,
+    createLogger: vi.fn(() => mockLogger),
+    getLogger: vi.fn(() => mockLogger),
+    withResilience: vi.fn().mockImplementation((_name: string, fn: () => Promise<unknown>) => fn()),
+    errorMessage: vi.fn((err: unknown) => (err instanceof Error ? err.message : String(err))),
+    createIntervalScheduler: vi.fn(() => ({ start: vi.fn(), stop: vi.fn() })),
+    createHttpClient: vi.fn(),
+    ServiceRegistry: {},
+    hasService: vi.fn().mockReturnValue(false),
     getServiceUrl: vi.fn(),
-    getServicePort: vi.fn(),
-    getOwnPort: vi.fn(),
-    createServiceHttpClient: vi.fn(),
-    getHttpConfig: vi.fn(),
-  })),
-}));
+    waitForService: vi.fn(),
+    listServices: vi.fn(),
+    createServiceUrlsConfig: vi.fn(() => ({
+      SERVICE_URLS: {},
+      SERVICE_PORTS: {},
+      getServiceUrl: vi.fn(),
+      getServicePort: vi.fn(),
+      getOwnPort: vi.fn(),
+      createServiceHttpClient: vi.fn(),
+      getHttpConfig: vi.fn(),
+    })),
+  };
+});
 
 vi.mock('../../config/service-urls', () => ({
   getLogger: vi.fn(() => mockLogger),

@@ -8,43 +8,42 @@ const mockLogger = vi.hoisted(() => ({
   child: vi.fn(),
 }));
 
-vi.mock('@aiponge/platform-core', () => ({
-  createLogger: () => mockLogger,
-  getLogger: () => mockLogger,
-  DomainError: class DomainError extends Error {
-    public statusCode: number;
-    constructor(message: string, statusCode: number = 500, cause?: Error) {
-      super(message);
-      this.statusCode = statusCode;
-      this.name = 'DomainError';
-      if (cause) this.cause = cause;
-    }
-  },
-  createHttpClient: vi.fn(() => ({
-    get: vi.fn(),
-    post: vi.fn(),
-    put: vi.fn(),
-    delete: vi.fn(),
-  })),
-  ServiceRegistry: {},
-  hasService: () => false,
-  getServiceUrl: () => 'http://localhost:3002',
-  waitForService: vi.fn(),
-  listServices: () => [],
-  createServiceUrlsConfig: vi.fn(() => ({})),
-  errorMessage: vi.fn((err: unknown) => (err instanceof Error ? err.message : String(err))),
-  errorStack: vi.fn((err: unknown) => (err instanceof Error ? err.stack : '')),
-  withResilience: vi.fn((fn: (...args: unknown[]) => unknown) => fn),
-  createIntervalScheduler: vi.fn(() => ({ start: vi.fn(), stop: vi.fn() })),
-}));
+vi.mock('@aiponge/platform-core', async importOriginal => {
+  const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
+  return {
+    ...actual,
+    createLogger: vi.fn(() => mockLogger),
+    getLogger: vi.fn(() => mockLogger),
+    createHttpClient: vi.fn(() => ({
+      get: vi.fn(),
+      post: vi.fn(),
+      put: vi.fn(),
+      delete: vi.fn(),
+    })),
+    ServiceRegistry: {},
+    hasService: () => false,
+    getServiceUrl: () => 'http://localhost:3002',
+    waitForService: vi.fn(),
+    listServices: () => [],
+    createServiceUrlsConfig: vi.fn(() => ({})),
+    errorMessage: vi.fn((err: unknown) => (err instanceof Error ? err.message : String(err))),
+    errorStack: vi.fn((err: unknown) => (err instanceof Error ? err.stack : '')),
+    withResilience: vi.fn((fn: (...args: unknown[]) => unknown) => fn),
+    createIntervalScheduler: vi.fn(() => ({ start: vi.fn(), stop: vi.fn() })),
+  };
+});
 
-vi.mock('@aiponge/shared-contracts', () => ({
-  STORAGE_FILE_LIFECYCLE: {
-    ACTIVE: 'active',
-    ORPHANED: 'orphaned',
-    DELETED: 'deleted',
-  },
-}));
+vi.mock('@aiponge/shared-contracts', async importOriginal => {
+  const actual = await importOriginal<typeof import('@aiponge/shared-contracts')>();
+  return {
+    ...actual,
+    STORAGE_FILE_LIFECYCLE: {
+      ACTIVE: 'active',
+      ORPHANED: 'orphaned',
+      DELETED: 'deleted',
+    },
+  };
+});
 
 import { SimpleStorageRepository } from '../../infrastructure/repositories/SimpleStorageRepository';
 import { FileEntity, FileLocation, FileMetadata } from '../../domains/entities/FileEntity';

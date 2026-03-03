@@ -8,30 +8,25 @@ const mockLogger = vi.hoisted(() => ({
   child: vi.fn(),
 }));
 
-vi.mock('@aiponge/platform-core', () => ({
-  createLogger: () => mockLogger,
-  getLogger: () => mockLogger,
-  DomainError: class DomainError extends Error {
-    public statusCode: number;
-    constructor(message: string, statusCode: number = 500, cause?: Error) {
-      super(message);
-      this.statusCode = statusCode;
-      this.name = 'DomainError';
-      if (cause) this.cause = cause;
-    }
-  },
-  createHttpClient: vi.fn(() => ({
-    get: vi.fn(),
-    post: vi.fn(),
-    put: vi.fn(),
-    delete: vi.fn(),
-  })),
-  ServiceRegistry: {},
-  hasService: () => false,
-  getServiceUrl: () => 'http://localhost:3002',
-  waitForService: vi.fn(),
-  listServices: () => [],
-}));
+vi.mock('@aiponge/platform-core', async importOriginal => {
+  const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
+  return {
+    ...actual,
+    createLogger: vi.fn(() => mockLogger),
+    getLogger: vi.fn(() => mockLogger),
+    createHttpClient: vi.fn(() => ({
+      get: vi.fn(),
+      post: vi.fn(),
+      put: vi.fn(),
+      delete: vi.fn(),
+    })),
+    ServiceRegistry: {},
+    hasService: () => false,
+    getServiceUrl: () => 'http://localhost:3002',
+    waitForService: vi.fn(),
+    listServices: () => [],
+  };
+});
 
 import { GenerateSignedUrlUseCase } from '../../application/use-cases/GenerateSignedUrlUseCase';
 import { StorageError } from '../../application/errors';

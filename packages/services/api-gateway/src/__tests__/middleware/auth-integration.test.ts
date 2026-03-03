@@ -34,13 +34,71 @@ const { StandardAuthMiddleware: MockStandardAuthMiddleware } = vi.hoisted(() => 
   return { StandardAuthMiddleware: cls };
 });
 
-vi.mock('@aiponge/platform-core', () => ({
-  StandardAuthMiddleware: MockStandardAuthMiddleware,
-  AuthenticatedRequest: {},
-  createLogger: () => mockLogger,
-  getLogger: () => mockLogger,
-  serializeError: vi.fn((e: unknown) => String(e)),
-}));
+vi.mock('@aiponge/platform-core', async importOriginal => {
+  const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
+  return {
+    ...actual,
+    StandardAuthMiddleware: MockStandardAuthMiddleware,
+    AuthenticatedRequest: {},
+    createLogger: vi.fn(() => mockLogger),
+    getLogger: vi.fn(() => mockLogger),
+    serializeError: vi.fn((e: unknown) => String(e)),
+    createSecureRoleGuard: (_serviceName: string, allowedRoles: string[]) => {
+      const auth = new (MockStandardAuthMiddleware as unknown as new (...args: unknown[]) => Record<string, unknown>)();
+      return (req: Request, res: Response, next: NextFunction) => {
+        // Strip x-user-* headers
+        delete req.headers['x-user-id'];
+        delete req.headers['x-user-role'];
+        delete req.headers['x-internal-service'];
+
+        const handler = (auth.authenticate as ReturnType<typeof vi.fn>)();
+        handler(req, res, (err?: unknown) => {
+          if (err) return next(err);
+
+          const user = (req as Request & { user?: Record<string, unknown> }).user as
+            | (Record<string, unknown> & { id?: string; role?: string; roles?: string[] })
+            | undefined;
+          const userId = user?.id as string | undefined;
+          const rawRole = user?.role || (user?.roles as string[] | undefined)?.[0];
+          const role = rawRole ? String(rawRole).toLowerCase() : undefined;
+
+          if (!userId) {
+            res.status(401).json({
+              success: false,
+              error: {
+                type: 'AuthenticationError',
+                code: 'UNAUTHORIZED',
+                message: `Authentication required for ${allowedRoles.join('/')} access`,
+                details: { service: _serviceName },
+              },
+              timestamp: new Date().toISOString(),
+            });
+            return;
+          }
+
+          if (!role || !allowedRoles.includes(role)) {
+            res.status(403).json({
+              success: false,
+              error: {
+                type: 'AuthorizationError',
+                code: 'FORBIDDEN',
+                message: `Requires one of: ${allowedRoles.join(', ')}`,
+                details: { service: _serviceName },
+              },
+              timestamp: new Date().toISOString(),
+            });
+            return;
+          }
+
+          res.locals.userId = userId;
+          req.headers['x-user-id'] = userId;
+          req.headers['x-user-role'] = role;
+          next();
+        });
+      };
+    },
+  };
+});
 
 vi.mock('../../config/service-urls', () => ({
   getLogger: () => mockLogger,
@@ -167,7 +225,7 @@ describe('Auth Middleware Integration', () => {
       const res = await request(app).get('/test/admin').set('Authorization', 'Bearer valid-token');
 
       expect(res.status).toBe(403);
-      expect(res.body.error.details.code).toBe('ADMIN_ROLE_REQUIRED');
+      expect(res.body.error.code).toBe('FORBIDDEN');
     });
 
     it('should return 200 when user is admin', async () => {

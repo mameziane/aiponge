@@ -12,23 +12,19 @@ const { mockLogger } = vi.hoisted(() => ({
   },
 }));
 
-vi.mock('@aiponge/platform-core', () => ({
-  getLogger: vi.fn(() => mockLogger),
-  createLogger: vi.fn(() => mockLogger),
-  DomainError: class DomainError extends Error {
-    statusCode: number;
-    constructor(message: string, statusCode = 500) {
-      super(message);
-      this.name = 'DomainError';
-      this.statusCode = statusCode;
-    }
-  },
-  createServiceUrlsConfig: vi.fn(() => ({ getServiceUrl: vi.fn() })),
-  ServiceRegistry: {},
-  hasService: vi.fn().mockReturnValue(false),
-  waitForService: vi.fn(),
-  listServices: vi.fn(),
-}));
+vi.mock('@aiponge/platform-core', async importOriginal => {
+  const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
+  return {
+    ...actual,
+    getLogger: vi.fn(() => mockLogger),
+    createLogger: vi.fn(() => mockLogger),
+    createServiceUrlsConfig: vi.fn(() => ({ getServiceUrl: vi.fn() })),
+    ServiceRegistry: {},
+    hasService: vi.fn().mockReturnValue(false),
+    waitForService: vi.fn(),
+    listServices: vi.fn(),
+  };
+});
 
 type MockedRepository = {
   [K in keyof IPlaylistRepository]: Mock;

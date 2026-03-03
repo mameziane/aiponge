@@ -15,17 +15,21 @@ vi.mock('fs/promises', () => ({
   readdir: vi.fn(),
 }));
 
-vi.mock('@aiponge/platform-core', () => ({
-  getLogger: () => ({
-    error: vi.fn(),
-    warn: vi.fn(),
-    info: vi.fn(),
-  }),
-  logAndTrackError: (error: unknown, message: string, context: unknown, code: string, statusCode: number) => ({
-    error: error instanceof Error ? error : new Error(String(error)),
-    correlationId: 'test-correlation-id',
-  }),
-}));
+vi.mock('@aiponge/platform-core', async importOriginal => {
+  const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
+  return {
+    ...actual,
+    getLogger: () => ({
+      error: vi.fn(),
+      warn: vi.fn(),
+      info: vi.fn(),
+    }),
+    logAndTrackError: (error: unknown, message: string, context: unknown, code: string, statusCode: number) => ({
+      error: error instanceof Error ? error : new Error(String(error)),
+      correlationId: 'test-correlation-id',
+    }),
+  };
+});
 
 import * as fsPromises from 'fs/promises';
 

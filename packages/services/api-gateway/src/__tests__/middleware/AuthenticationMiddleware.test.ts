@@ -17,11 +17,15 @@ const mockLogger = vi.hoisted(() => ({
   error: vi.fn(),
   child: vi.fn(),
 }));
-vi.mock('@aiponge/platform-core', () => ({
-  StandardAuthMiddleware: MockStandardAuthMiddleware,
-  createLogger: () => mockLogger,
-  getLogger: () => mockLogger,
-}));
+vi.mock('@aiponge/platform-core', async importOriginal => {
+  const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
+  return {
+    ...actual,
+    StandardAuthMiddleware: MockStandardAuthMiddleware,
+    createLogger: vi.fn(() => mockLogger),
+    getLogger: vi.fn(() => mockLogger),
+  };
+});
 
 import {
   authenticationMiddleware,

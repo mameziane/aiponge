@@ -10,13 +10,17 @@ const mockLogger = vi.hoisted(() => ({
   child: vi.fn().mockReturnThis(),
 }));
 
-vi.mock('@aiponge/platform-core', () => ({
-  createLogger: () => mockLogger,
-  getLogger: () => mockLogger,
-  ServiceLocator: {
-    getServiceUrl: vi.fn(() => 'http://localhost:3020'),
-  },
-}));
+vi.mock('@aiponge/platform-core', async importOriginal => {
+  const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
+  return {
+    ...actual,
+    createLogger: vi.fn(() => mockLogger),
+    getLogger: vi.fn(() => mockLogger),
+    ServiceLocator: {
+      getServiceUrl: vi.fn(() => 'http://localhost:3020'),
+    },
+  };
+});
 
 vi.mock('../../config/service-urls', () => ({
   getLogger: vi.fn(() => mockLogger),

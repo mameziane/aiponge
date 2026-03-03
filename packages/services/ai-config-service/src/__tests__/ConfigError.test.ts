@@ -2,16 +2,12 @@ import { describe, it, expect } from 'vitest';
 
 import { vi } from 'vitest';
 
-vi.mock('@aiponge/platform-core', () => ({
-  DomainError: class DomainError extends Error {
-    public readonly statusCode: number;
-    constructor(message: string, statusCode: number = 500, cause?: Error) {
-      super(message);
-      this.statusCode = statusCode;
-      if (cause) this.cause = cause;
-    }
-  },
-}));
+vi.mock('@aiponge/platform-core', async importOriginal => {
+  const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
+  return {
+    ...actual,
+  };
+});
 
 import { ConfigError, ConfigErrorCode } from '../application/errors';
 

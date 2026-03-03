@@ -7,22 +7,19 @@ const mockLogger = vi.hoisted(() => ({
   error: vi.fn(),
   child: vi.fn(),
 }));
-vi.mock('@aiponge/platform-core', () => ({
-  createLogger: () => mockLogger,
-  getLogger: () => mockLogger,
-  DomainError: class DomainError extends Error {
-    public statusCode: number;
-    constructor(message: string, statusCode: number = 500, cause?: Error) {
-      super(message);
-      this.statusCode = statusCode;
-    }
-  },
-  createServiceUrlsConfig: vi.fn(() => ({ getServiceUrl: vi.fn() })),
-  ServiceRegistry: {},
-  hasService: vi.fn().mockReturnValue(false),
-  waitForService: vi.fn(),
-  listServices: vi.fn(),
-}));
+vi.mock('@aiponge/platform-core', async importOriginal => {
+  const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
+  return {
+    ...actual,
+    createLogger: vi.fn(() => mockLogger),
+    getLogger: vi.fn(() => mockLogger),
+    createServiceUrlsConfig: vi.fn(() => ({ getServiceUrl: vi.fn() })),
+    ServiceRegistry: {},
+    hasService: vi.fn().mockReturnValue(false),
+    waitForService: vi.fn(),
+    listServices: vi.fn(),
+  };
+});
 
 vi.mock('@config/service-urls', () => ({
   getLogger: () => mockLogger,

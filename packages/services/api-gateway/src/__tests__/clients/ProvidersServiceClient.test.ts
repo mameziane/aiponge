@@ -16,30 +16,35 @@ const mockHttpClient = vi.hoisted(() => ({
   delete: vi.fn(),
 }));
 
-vi.mock('@aiponge/platform-core', () => ({
-  createLogger: () => mockLogger,
-  getLogger: () => mockLogger,
-  ServiceLocator: {
-    getServiceUrl: vi.fn().mockReturnValue('http://localhost:3004'),
-    getServicePort: vi.fn().mockReturnValue(3004),
-  },
-  withServiceResilience: vi.fn((_service: string, _op: string, fn: () => unknown) => fn()),
-  createHttpClient: () => mockHttpClient,
-  createServiceUrlsConfig: vi.fn(() => ({
-    SERVICE_URLS: {},
-    SERVICE_PORTS: {},
-    getServiceUrl: vi.fn(() => 'http://localhost:3004'),
-    getServicePort: vi.fn(() => 3004),
-    getOwnPort: vi.fn(() => 8080),
-    createServiceHttpClient: vi.fn(() => mockHttpClient),
-    getHttpConfig: vi.fn(() => ({ timeout: 5000, retries: 0 })),
-  })),
-  ServiceRegistry: {},
-  hasService: vi.fn().mockReturnValue(false),
-  getServiceUrl: vi.fn(),
-  waitForService: vi.fn(),
-  listServices: vi.fn(),
-}));
+vi.mock('@aiponge/platform-core', async importOriginal => {
+  const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
+  return {
+    ...actual,
+    createLogger: vi.fn(() => mockLogger),
+    getLogger: vi.fn(() => mockLogger),
+    ServiceLocator: {
+      getServiceUrl: vi.fn().mockReturnValue('http://localhost:3004'),
+      getServicePort: vi.fn().mockReturnValue(3004),
+    },
+    withServiceResilience: vi.fn((_service: string, _op: string, fn: () => unknown) => fn()),
+    createHttpClient: () => mockHttpClient,
+    createServiceUrlsConfig: vi.fn(() => ({
+      SERVICE_URLS: {},
+      SERVICE_PORTS: {},
+      getServiceUrl: vi.fn(() => 'http://localhost:3004'),
+      getServicePort: vi.fn(() => 3004),
+      getOwnPort: vi.fn(() => 8080),
+      createServiceHttpClient: vi.fn(() => mockHttpClient),
+      createServiceClient: vi.fn(() => ({ httpClient: mockHttpClient, baseUrl: 'http://localhost:3004' })),
+      getHttpConfig: vi.fn(() => ({ timeout: 5000, retries: 0 })),
+    })),
+    ServiceRegistry: {},
+    hasService: vi.fn().mockReturnValue(false),
+    getServiceUrl: vi.fn(),
+    waitForService: vi.fn(),
+    listServices: vi.fn(),
+  };
+});
 
 import { ProvidersServiceClient } from '../../clients/ProvidersServiceClient';
 

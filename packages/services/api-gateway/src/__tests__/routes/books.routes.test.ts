@@ -12,19 +12,23 @@ const mockLogger = vi.hoisted(() => ({
 
 const mockGatewayFetch = vi.hoisted(() => vi.fn());
 
-vi.mock('@aiponge/platform-core', () => ({
-  createLogger: () => mockLogger,
-  getLogger: () => mockLogger,
-  ServiceLocator: {
-    getServiceUrl: vi.fn(() => 'http://localhost:3020'),
-    getServicePort: vi.fn(() => 3020),
-  },
-  serializeError: vi.fn((e: unknown) => String(e)),
-  getValidation: () => ({
-    validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(),
-    validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next(),
-  }),
-}));
+vi.mock('@aiponge/platform-core', async importOriginal => {
+  const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
+  return {
+    ...actual,
+    createLogger: vi.fn(() => mockLogger),
+    getLogger: vi.fn(() => mockLogger),
+    ServiceLocator: {
+      getServiceUrl: vi.fn(() => 'http://localhost:3020'),
+      getServicePort: vi.fn(() => 3020),
+    },
+    serializeError: vi.fn((e: unknown) => String(e)),
+    getValidation: () => ({
+      validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+      validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+    }),
+  };
+});
 
 vi.mock('@services/gatewayFetch', () => ({
   gatewayFetch: mockGatewayFetch,
@@ -35,6 +39,7 @@ vi.mock('../../config/service-urls', () => ({
 }));
 
 vi.mock('../../config/GatewayConfig', () => ({
+  HttpConfig: { defaults: { timeout: 5000, retries: 0 } },
   GatewayConfig: {
     rateLimit: { isRedisEnabled: false, redis: {} },
     http: { defaults: { timeout: 5000, retries: 0 } },

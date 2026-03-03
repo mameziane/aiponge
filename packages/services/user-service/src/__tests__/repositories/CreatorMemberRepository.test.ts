@@ -9,23 +9,20 @@ vi.mock('../../config/service-urls', () => ({
   }),
 }));
 
-vi.mock('@aiponge/platform-core', () => ({
-  createLogger: () => ({
-    info: vi.fn(),
-    error: vi.fn(),
-    warn: vi.fn(),
-    debug: vi.fn(),
-  }),
-  serializeError: vi.fn((err: unknown) => err),
-  DomainError: class DomainError extends Error {
-    public readonly statusCode: number;
-    constructor(message: string, statusCode: number = 500) {
-      super(message);
-      this.statusCode = statusCode;
-    }
-  },
-  createServiceUrlsConfig: vi.fn(() => ({ getServiceUrl: vi.fn() })),
-}));
+vi.mock('@aiponge/platform-core', async importOriginal => {
+  const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
+  return {
+    ...actual,
+    createLogger: vi.fn(() => ({
+      info: vi.fn(),
+      error: vi.fn(),
+      warn: vi.fn(),
+      debug: vi.fn(),
+    })),
+    serializeError: vi.fn((err: unknown) => err),
+    createServiceUrlsConfig: vi.fn(() => ({ getServiceUrl: vi.fn() })),
+  };
+});
 
 import { CreatorMemberRepository } from '../../infrastructure/repositories/CreatorMemberRepository';
 

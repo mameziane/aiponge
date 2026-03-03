@@ -12,20 +12,24 @@ const mockLogger = vi.hoisted(() => ({
 
 const mockGatewayFetch = vi.hoisted(() => vi.fn());
 
-vi.mock('@aiponge/platform-core', () => ({
-  createLogger: () => mockLogger,
-  getLogger: () => mockLogger,
-  ServiceLocator: {
-    getServiceUrl: vi.fn(() => 'http://localhost:3020'),
-    getServicePort: vi.fn(() => 3020),
-  },
-  serializeError: vi.fn((e: unknown) => String(e)),
-  signUserIdHeader: vi.fn((userId: string) => ({ 'x-user-id-signed': userId })),
-  getValidation: () => ({
-    validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(),
-    validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next(),
-  }),
-}));
+vi.mock('@aiponge/platform-core', async importOriginal => {
+  const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
+  return {
+    ...actual,
+    createLogger: vi.fn(() => mockLogger),
+    getLogger: vi.fn(() => mockLogger),
+    ServiceLocator: {
+      getServiceUrl: vi.fn(() => 'http://localhost:3020'),
+      getServicePort: vi.fn(() => 3020),
+    },
+    serializeError: vi.fn((e: unknown) => String(e)),
+    signUserIdHeader: vi.fn((userId: string) => ({ 'x-user-id-signed': userId })),
+    getValidation: () => ({
+      validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+      validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+    }),
+  };
+});
 
 vi.mock('@services/gatewayFetch', () => ({
   gatewayFetch: mockGatewayFetch,
@@ -36,6 +40,7 @@ vi.mock('../../config/service-urls', () => ({
 }));
 
 vi.mock('../../config/GatewayConfig', () => ({
+  HttpConfig: { defaults: { timeout: 5000, retries: 0 } },
   GatewayConfig: {
     rateLimit: { isRedisEnabled: false, redis: {} },
     http: { defaults: { timeout: 5000, retries: 0 } },
@@ -66,9 +71,36 @@ vi.mock('../../presentation/middleware/authorizationMiddleware', () => ({
 }));
 
 vi.mock('../../presentation/utils/response-helpers', () => ({
+  sendSuccess: vi.fn((res: Response, data: unknown) => {
+    res.json({ success: true, data });
+  }),
+  sendCreated: vi.fn((res: Response, data: unknown) => {
+    res.status(201).json({ success: true, data });
+  }),
+  forwardServiceError: vi.fn(),
+  extractErrorInfo: vi.fn(() => ({})),
+  getCorrelationId: vi.fn(() => 'test-correlation-id'),
   ServiceErrors: {
     fromException: vi.fn((res: Response, _error: unknown, message: string) => {
       res.status(502).json({ success: false, message });
+    }),
+    badRequest: vi.fn((res: Response, message: string) => {
+      res.status(400).json({ success: false, message });
+    }),
+    unauthorized: vi.fn((res: Response, message: string) => {
+      res.status(401).json({ success: false, message });
+    }),
+    forbidden: vi.fn((res: Response, message: string) => {
+      res.status(403).json({ success: false, message });
+    }),
+    notFound: vi.fn((res: Response, message: string) => {
+      res.status(404).json({ success: false, message });
+    }),
+    internal: vi.fn((res: Response, message: string) => {
+      res.status(500).json({ success: false, message });
+    }),
+    serviceUnavailable: vi.fn((res: Response, message: string) => {
+      res.status(503).json({ success: false, message });
     }),
   },
 }));
@@ -87,14 +119,18 @@ vi.mock('../../presentation/middleware/RateLimitMiddleware', () => ({
   rateLimitMiddleware: () => (_req: Request, _res: Response, next: NextFunction) => next(),
 }));
 
-vi.mock('@aiponge/shared-contracts', () => ({
-  MusicGenerateSchema: {},
-  GenerateLyricsSchema: {},
-  USER_ROLES: { MEMBER: 'member', ADMIN: 'admin', LIBRARIAN: 'librarian' },
-  isPrivilegedRole: (role: string) => role === 'admin' || role === 'librarian',
-  normalizeRole: (role: string) => (role || 'member').toLowerCase(),
-  CONTENT_LIMITS: { MAX_TRACKS_PER_ALBUM: 20 },
-}));
+vi.mock('@aiponge/shared-contracts', async importOriginal => {
+  const actual = await importOriginal<Record<string, unknown>>();
+  return {
+    ...actual,
+    MusicGenerateSchema: {},
+    GenerateLyricsSchema: {},
+    USER_ROLES: { MEMBER: 'member', ADMIN: 'admin', LIBRARIAN: 'librarian' },
+    isPrivilegedRole: (role: string) => role === 'admin' || role === 'librarian',
+    normalizeRole: (role: string) => (role || 'member').toLowerCase(),
+    CONTENT_LIMITS: { MAX_TRACKS_PER_ALBUM: 20 },
+  };
+});
 
 vi.mock('@aiponge/shared-contracts/safety', () => ({
   CRISIS_RESOURCES: {

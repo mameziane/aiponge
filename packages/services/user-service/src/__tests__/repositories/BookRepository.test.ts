@@ -120,7 +120,7 @@ describe('BookRepository Unit Tests', () => {
     it('should return all books for user', async () => {
       const book1 = createMockBook({ id: TEST_BOOK_ID, title: 'Book 1' });
       const book2 = createMockBook({ id: TEST_BOOK_ID_2, title: 'Book 2' });
-      const chain = createSelectChainOrderByResolved([book1, book2]);
+      const chain = createSelectChainWithOrderByAndLimit([book1, book2]);
       mockDb.select.mockReturnValue(chain);
 
       const books = await repo.getBooksByUserAndType(TEST_USER_ID);
@@ -134,7 +134,7 @@ describe('BookRepository Unit Tests', () => {
         title: 'Personal Book',
         typeId: BOOK_TYPE_IDS.PERSONAL,
       });
-      const chain = createSelectChainOrderByResolved([personalBook]);
+      const chain = createSelectChainWithOrderByAndLimit([personalBook]);
       mockDb.select.mockReturnValue(chain);
 
       const personalBooks = await repo.getBooksByUserAndType(TEST_USER_ID, BOOK_TYPE_IDS.PERSONAL);
@@ -144,7 +144,7 @@ describe('BookRepository Unit Tests', () => {
     });
 
     it('should return empty array for user with no books', async () => {
-      const chain = createSelectChainOrderByResolved([]);
+      const chain = createSelectChainWithOrderByAndLimit([]);
       mockDb.select.mockReturnValue(chain);
 
       const books = await repo.getBooksByUserAndType(TEST_USER_ID);
@@ -158,7 +158,7 @@ describe('BookRepository Unit Tests', () => {
       const book1 = createMockBook({ typeId: BOOK_TYPE_IDS.PERSONAL });
       const book2 = createMockBook({ id: TEST_BOOK_ID_2, typeId: 'wisdom' });
       const book3 = createMockBook({ id: 'cccccccc-cccc-cccc-cccc-cccccccccccc', typeId: 'quotes' });
-      const chain = createSelectChainOrderByResolved([book1, book2, book3]);
+      const chain = createSelectChainWithOrderByAndLimit([book1, book2, book3]);
       mockDb.select.mockReturnValue(chain);
 
       const books = await repo.getBooksByUser(TEST_USER_ID);

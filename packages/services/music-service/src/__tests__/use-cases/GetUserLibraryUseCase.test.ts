@@ -7,17 +7,14 @@ const mockLogger = vi.hoisted(() => ({
   error: vi.fn(),
   child: vi.fn(),
 }));
-vi.mock('@aiponge/platform-core', () => ({
-  createLogger: () => mockLogger,
-  getLogger: () => mockLogger,
-  DomainError: class DomainError extends Error {
-    public statusCode: number;
-    constructor(message: string, statusCode: number = 500, cause?: Error) {
-      super(message);
-      this.statusCode = statusCode;
-    }
-  },
-}));
+vi.mock('@aiponge/platform-core', async importOriginal => {
+  const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
+  return {
+    ...actual,
+    createLogger: vi.fn(() => mockLogger),
+    getLogger: vi.fn(() => mockLogger),
+  };
+});
 
 vi.mock('@config/service-urls', () => ({
   getLogger: () => mockLogger,
@@ -50,13 +47,17 @@ vi.mock('drizzle-orm', () => ({
   or: vi.fn((...args: unknown[]) => args),
 }));
 
-vi.mock('@aiponge/shared-contracts', () => ({
-  CACHE: { MAX_SIZE: 100 },
-  APP: { DEFAULT_DISPLAY_NAME: 'Artist' },
-  LIBRARY_SOURCE: { SHARED: 'shared', PRIVATE: 'private', ALL: 'all' },
-  CONTENT_VISIBILITY: { PERSONAL: 'personal', SHARED: 'shared' },
-  TRACK_LIFECYCLE: { PUBLISHED: 'published', ACTIVE: 'active' },
-}));
+vi.mock('@aiponge/shared-contracts', async importOriginal => {
+  const actual = await importOriginal<typeof import('@aiponge/shared-contracts')>();
+  return {
+    ...actual,
+    CACHE: { MAX_SIZE: 100 },
+    APP: { DEFAULT_DISPLAY_NAME: 'Artist' },
+    LIBRARY_SOURCE: { SHARED: 'shared', PRIVATE: 'private', ALL: 'all' },
+    CONTENT_VISIBILITY: { PERSONAL: 'personal', SHARED: 'shared' },
+    TRACK_LIFECYCLE: { PUBLISHED: 'published', ACTIVE: 'active' },
+  };
+});
 
 vi.mock('../../application/utils/url-utils', () => ({
   toAbsoluteUrl: (url: string | null) => url || undefined,
@@ -162,7 +163,7 @@ describe('GetUserLibraryUseCase', () => {
         throw new Error('Connection refused');
       });
 
-      await expect(useCase.execute({ userId: 'user-1' })).rejects.toThrow(LibraryError);
+      await expect(useCase.execute({ userId: 'user-1' })).rejects.toMatchObject({ name: 'LibraryError' });
     });
 
     it('should throw LibraryError with wrapped message', async () => {
@@ -174,8 +175,8 @@ describe('GetUserLibraryUseCase', () => {
         await useCase.execute({ userId: 'user-1' });
         expect.unreachable('Should have thrown');
       } catch (error) {
-        expect(error).toBeInstanceOf(LibraryError);
-        expect(error.message).toContain('Connection refused');
+        expect((error as Error).name).toBe('LibraryError');
+        expect((error as Error).message).toContain('Connection refused');
       }
     });
   });

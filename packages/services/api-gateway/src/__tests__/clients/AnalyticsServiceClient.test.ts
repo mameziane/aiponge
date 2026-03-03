@@ -23,28 +23,33 @@ const mockHttpClient = vi.hoisted(() => ({
   delete: vi.fn(),
 }));
 
-vi.mock('@aiponge/platform-core', () => ({
-  createLogger: () => mockLogger,
-  getLogger: () => mockLogger,
-  getAnalyticsEventPublisher: () => mockEventPublisher,
-  withServiceResilience: vi.fn((_service: string, _op: string, fn: () => unknown) => fn()),
-  createHttpClient: () => mockHttpClient,
-  errorMessage: vi.fn((e: unknown) => (e instanceof Error ? e.message : String(e))),
-  createServiceUrlsConfig: vi.fn(() => ({
-    SERVICE_URLS: {},
-    SERVICE_PORTS: {},
-    getServiceUrl: vi.fn(() => 'http://localhost:3000'),
-    getServicePort: vi.fn(() => 3000),
-    getOwnPort: vi.fn(() => 8080),
-    createServiceHttpClient: vi.fn(() => mockHttpClient),
-    getHttpConfig: vi.fn(() => ({ timeout: 5000, retries: 0 })),
-  })),
-  ServiceRegistry: {},
-  hasService: vi.fn().mockReturnValue(false),
-  getServiceUrl: vi.fn(),
-  waitForService: vi.fn(),
-  listServices: vi.fn(),
-}));
+vi.mock('@aiponge/platform-core', async importOriginal => {
+  const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
+  return {
+    ...actual,
+    createLogger: vi.fn(() => mockLogger),
+    getLogger: vi.fn(() => mockLogger),
+    getAnalyticsEventPublisher: () => mockEventPublisher,
+    withServiceResilience: vi.fn((_service: string, _op: string, fn: () => unknown) => fn()),
+    createHttpClient: () => mockHttpClient,
+    errorMessage: vi.fn((e: unknown) => (e instanceof Error ? e.message : String(e))),
+    createServiceUrlsConfig: vi.fn(() => ({
+      SERVICE_URLS: {},
+      SERVICE_PORTS: {},
+      getServiceUrl: vi.fn(() => 'http://localhost:3000'),
+      getServicePort: vi.fn(() => 3000),
+      getOwnPort: vi.fn(() => 8080),
+      createServiceHttpClient: vi.fn(() => mockHttpClient),
+      createServiceClient: vi.fn(() => ({ httpClient: mockHttpClient, baseUrl: 'http://localhost:3000' })),
+      getHttpConfig: vi.fn(() => ({ timeout: 5000, retries: 0 })),
+    })),
+    ServiceRegistry: {},
+    hasService: vi.fn().mockReturnValue(false),
+    getServiceUrl: vi.fn(),
+    waitForService: vi.fn(),
+    listServices: vi.fn(),
+  };
+});
 
 import { AnalyticsServiceClient } from '../../clients/AnalyticsServiceClient';
 

@@ -7,29 +7,30 @@ const mockLogger = vi.hoisted(() => ({
   error: vi.fn(),
   child: vi.fn(),
 }));
-vi.mock('@aiponge/platform-core', () => ({
-  createLogger: () => mockLogger,
-  getLogger: () => mockLogger,
-  DomainError: class DomainError extends Error {
-    public statusCode: number;
-    constructor(message: string, statusCode: number = 500, cause?: Error) {
-      super(message);
-      this.statusCode = statusCode;
-    }
-  },
-}));
+vi.mock('@aiponge/platform-core', async importOriginal => {
+  const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
+  return {
+    ...actual,
+    createLogger: vi.fn(() => mockLogger),
+    getLogger: vi.fn(() => mockLogger),
+  };
+});
 
 vi.mock('@config/service-urls', () => ({
   getLogger: () => mockLogger,
 }));
 
-vi.mock('@aiponge/shared-contracts', () => ({
-  ALBUM_LIFECYCLE: {
-    DRAFT: 'draft',
-    PUBLISHED: 'published',
-    ARCHIVED: 'archived',
-  },
-}));
+vi.mock('@aiponge/shared-contracts', async importOriginal => {
+  const actual = await importOriginal<typeof import('@aiponge/shared-contracts')>();
+  return {
+    ...actual,
+    ALBUM_LIFECYCLE: {
+      DRAFT: 'draft',
+      PUBLISHED: 'published',
+      ARCHIVED: 'archived',
+    },
+  };
+});
 
 vi.mock('uuid', () => ({
   v4: () => 'test-uuid-1234',

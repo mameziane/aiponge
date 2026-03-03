@@ -13,19 +13,23 @@ const mockLogger = vi.hoisted(() => ({
 
 const mockGatewayFetch = vi.hoisted(() => vi.fn());
 
-vi.mock('@aiponge/platform-core', () => ({
-  createLogger: () => mockLogger,
-  getLogger: () => mockLogger,
-  ServiceLocator: {
-    getServiceUrl: vi.fn(() => 'http://localhost:3020'),
-    getServicePort: vi.fn(() => 3020),
-  },
-  serializeError: vi.fn((e: unknown) => String(e)),
-  getValidation: () => ({
-    validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(),
-    validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next(),
-  }),
-}));
+vi.mock('@aiponge/platform-core', async importOriginal => {
+  const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
+  return {
+    ...actual,
+    createLogger: vi.fn(() => mockLogger),
+    getLogger: vi.fn(() => mockLogger),
+    ServiceLocator: {
+      getServiceUrl: vi.fn(() => 'http://localhost:3020'),
+      getServicePort: vi.fn(() => 3020),
+    },
+    serializeError: vi.fn((e: unknown) => String(e)),
+    getValidation: () => ({
+      validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+      validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+    }),
+  };
+});
 
 vi.mock('@services/gatewayFetch', () => ({
   gatewayFetch: mockGatewayFetch,
@@ -36,6 +40,7 @@ vi.mock('../../config/service-urls', () => ({
 }));
 
 vi.mock('../../config/GatewayConfig', () => ({
+  HttpConfig: { defaults: { timeout: 5000, retries: 0 } },
   GatewayConfig: {
     rateLimit: { isRedisEnabled: false, redis: {} },
     http: { defaults: { timeout: 5000, retries: 0 } },
@@ -66,9 +71,36 @@ vi.mock('../../presentation/middleware/authorizationMiddleware', () => ({
 }));
 
 vi.mock('../../presentation/utils/response-helpers', () => ({
+  sendSuccess: vi.fn((res: Response, data: unknown) => {
+    res.json({ success: true, data });
+  }),
+  sendCreated: vi.fn((res: Response, data: unknown) => {
+    res.status(201).json({ success: true, data });
+  }),
+  forwardServiceError: vi.fn(),
+  extractErrorInfo: vi.fn(() => ({})),
+  getCorrelationId: vi.fn(() => 'test-correlation-id'),
   ServiceErrors: {
     fromException: vi.fn((res: Response, _error: unknown, message: string) => {
       res.status(502).json({ success: false, message });
+    }),
+    badRequest: vi.fn((res: Response, message: string) => {
+      res.status(400).json({ success: false, message });
+    }),
+    unauthorized: vi.fn((res: Response, message: string) => {
+      res.status(401).json({ success: false, message });
+    }),
+    forbidden: vi.fn((res: Response, message: string) => {
+      res.status(403).json({ success: false, message });
+    }),
+    notFound: vi.fn((res: Response, message: string) => {
+      res.status(404).json({ success: false, message });
+    }),
+    internal: vi.fn((res: Response, message: string) => {
+      res.status(500).json({ success: false, message });
+    }),
+    serviceUnavailable: vi.fn((res: Response, message: string) => {
+      res.status(503).json({ success: false, message });
     }),
   },
 }));
@@ -87,12 +119,16 @@ vi.mock('../../presentation/middleware/RateLimitMiddleware', () => ({
   rateLimitMiddleware: () => (_req: Request, _res: Response, next: NextFunction) => next(),
 }));
 
-vi.mock('@aiponge/shared-contracts', () => ({
-  TIER_IDS: { GUEST: 'guest', EXPLORER: 'explorer', PERSONAL: 'personal', PRACTICE: 'practice', STUDIO: 'studio' },
-  USER_ROLES: { MEMBER: 'member', ADMIN: 'admin', LIBRARIAN: 'librarian' },
-  isPrivilegedRole: (role: string) => role === 'admin' || role === 'librarian',
-  normalizeRole: (role: string) => (role || 'member').toLowerCase(),
-}));
+vi.mock('@aiponge/shared-contracts', async importOriginal => {
+  const actual = await importOriginal<Record<string, unknown>>();
+  return {
+    ...actual,
+    TIER_IDS: { GUEST: 'guest', EXPLORER: 'explorer', PERSONAL: 'personal', PRACTICE: 'practice', STUDIO: 'studio' },
+    USER_ROLES: { MEMBER: 'member', ADMIN: 'admin', LIBRARIAN: 'librarian' },
+    isPrivilegedRole: (role: string) => role === 'admin' || role === 'librarian',
+    normalizeRole: (role: string) => (role || 'member').toLowerCase(),
+  };
+});
 
 function mockResponse(data: Record<string, unknown>, status = 200) {
   return {
@@ -154,12 +190,15 @@ describe('Subscriptions Routes', () => {
       expect(res.status).toBe(401);
     });
 
-    it('should return 400 for invalid usage type', async () => {
+    it('should forward invalid usage type to user-service (validation handled by service)', async () => {
+      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: false, message: 'Invalid usage type' }, 400));
+
       const res = await request(app)
         .post('/api/app/subscriptions/increment-usage')
         .set('x-user-id', 'user-123')
         .send({ type: 'invalid' });
       expect(res.status).toBe(400);
+      expect(res.body.success).toBe(false);
     });
 
     it('should return 200 for valid usage type', async () => {

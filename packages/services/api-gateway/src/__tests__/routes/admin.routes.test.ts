@@ -12,21 +12,25 @@ const mockLogger = vi.hoisted(() => ({
 
 const mockGatewayFetch = vi.hoisted(() => vi.fn());
 
-vi.mock('@aiponge/platform-core', () => ({
-  createLogger: () => mockLogger,
-  getLogger: () => mockLogger,
-  ServiceLocator: {
-    getServiceUrl: vi.fn(() => 'http://localhost:3020'),
-    getServicePort: vi.fn(() => 3020),
-  },
-  serializeError: vi.fn((e: unknown) => String(e)),
-  errorMessage: vi.fn((e: unknown) => (e instanceof Error ? e.message : String(e))),
-  extractAuthContext: vi.fn((req: Request) => ({ userId: req.headers?.['x-user-id'] || null })),
-  getValidation: () => ({
-    validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(),
-    validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next(),
-  }),
-}));
+vi.mock('@aiponge/platform-core', async importOriginal => {
+  const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
+  return {
+    ...actual,
+    createLogger: vi.fn(() => mockLogger),
+    getLogger: vi.fn(() => mockLogger),
+    ServiceLocator: {
+      getServiceUrl: vi.fn(() => 'http://localhost:3020'),
+      getServicePort: vi.fn(() => 3020),
+    },
+    serializeError: vi.fn((e: unknown) => String(e)),
+    errorMessage: vi.fn((e: unknown) => (e instanceof Error ? e.message : String(e))),
+    extractAuthContext: vi.fn((req: Request) => ({ userId: req.headers?.['x-user-id'] || null })),
+    getValidation: () => ({
+      validateBody: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+      validateQuery: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+    }),
+  };
+});
 
 vi.mock('@services/gatewayFetch', () => ({
   gatewayFetch: mockGatewayFetch,
@@ -37,6 +41,7 @@ vi.mock('../../config/service-urls', () => ({
 }));
 
 vi.mock('../../config/GatewayConfig', () => ({
+  HttpConfig: { defaults: { timeout: 5000, retries: 0 } },
   GatewayConfig: {
     rateLimit: { isRedisEnabled: false, redis: {} },
     http: { defaults: { timeout: 5000, retries: 0 } },
@@ -73,6 +78,15 @@ vi.mock('../../presentation/middleware/authorizationMiddleware', () => ({
 }));
 
 vi.mock('../../presentation/utils/response-helpers', () => ({
+  sendSuccess: vi.fn((res: Response, data: unknown) => {
+    res.json({ success: true, data });
+  }),
+  sendCreated: vi.fn((res: Response, data: unknown) => {
+    res.status(201).json({ success: true, data });
+  }),
+  forwardServiceError: vi.fn(),
+  extractErrorInfo: vi.fn(() => ({})),
+  getCorrelationId: vi.fn(() => 'test-correlation-id'),
   ServiceErrors: {
     fromException: vi.fn((res: Response, _error: unknown, message: string) => {
       res.status(502).json({ success: false, message });
@@ -230,17 +244,21 @@ vi.mock('../../presentation/controllers/AdminProvidersController', () => ({
   },
 }));
 
-vi.mock('@aiponge/shared-contracts', () => ({
-  USER_ROLES: { MEMBER: 'member', ADMIN: 'admin', LIBRARIAN: 'librarian' },
-  isPrivilegedRole: (role: string) => role === 'admin' || role === 'librarian',
-  normalizeRole: (role: string) => (role || 'member').toLowerCase(),
-  sendStructuredError: vi.fn((res: Response, status: number, error: unknown) => {
-    res.status(status).json(error);
-  }),
-  createStructuredError: vi.fn((...args: unknown[]) => ({ code: args[0], type: args[1], message: args[2] })),
-  getCorrelationId: vi.fn(() => 'test-correlation-id'),
-  extractErrorInfo: vi.fn(() => ({})),
-}));
+vi.mock('@aiponge/shared-contracts', async importOriginal => {
+  const actual = await importOriginal<Record<string, unknown>>();
+  return {
+    ...actual,
+    USER_ROLES: { MEMBER: 'member', ADMIN: 'admin', LIBRARIAN: 'librarian' },
+    isPrivilegedRole: (role: string) => role === 'admin' || role === 'librarian',
+    normalizeRole: (role: string) => (role || 'member').toLowerCase(),
+    sendStructuredError: vi.fn((res: Response, status: number, error: unknown) => {
+      res.status(status).json(error);
+    }),
+    createStructuredError: vi.fn((...args: unknown[]) => ({ code: args[0], type: args[1], message: args[2] })),
+    getCorrelationId: vi.fn(() => 'test-correlation-id'),
+    extractErrorInfo: vi.fn(() => ({})),
+  };
+});
 
 function mockResponse(data: Record<string, unknown>, status = 200) {
   return {

@@ -7,17 +7,14 @@ const mockLogger = vi.hoisted(() => ({
   error: vi.fn(),
   child: vi.fn(),
 }));
-vi.mock('@aiponge/platform-core', () => ({
-  createLogger: () => mockLogger,
-  getLogger: () => mockLogger,
-  DomainError: class DomainError extends Error {
-    public statusCode: number;
-    constructor(message: string, statusCode: number = 500, cause?: Error) {
-      super(message);
-      this.statusCode = statusCode;
-    }
-  },
-}));
+vi.mock('@aiponge/platform-core', async importOriginal => {
+  const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
+  return {
+    ...actual,
+    createLogger: vi.fn(() => mockLogger),
+    getLogger: vi.fn(() => mockLogger),
+  };
+});
 
 vi.mock('@config/service-urls', () => ({
   getLogger: () => mockLogger,
@@ -32,12 +29,24 @@ vi.mock('@infrastructure/clients/AIContentServiceClient', () => {
   };
 });
 
-vi.mock('@aiponge/shared-contracts', () => ({
-  CONTENT_VISIBILITY: {
-    PERSONAL: 'personal',
-    SHARED: 'shared',
-  },
+vi.mock('@infrastructure/ServiceFactory', () => ({
+  getServiceRegistry: vi.fn(() => ({
+    aiContentClient: {
+      generateAlbumArtwork: mockGenerateAlbumArtwork,
+    },
+  })),
 }));
+
+vi.mock('@aiponge/shared-contracts', async importOriginal => {
+  const actual = await importOriginal<typeof import('@aiponge/shared-contracts')>();
+  return {
+    ...actual,
+    CONTENT_VISIBILITY: {
+      PERSONAL: 'personal',
+      SHARED: 'shared',
+    },
+  };
+});
 
 import {
   GenerateArtworkUseCase,

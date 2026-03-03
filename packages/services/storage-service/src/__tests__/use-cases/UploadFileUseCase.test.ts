@@ -12,37 +12,32 @@ const mockAuditService = vi.hoisted(() => ({
   log: vi.fn(),
 }));
 
-vi.mock('@aiponge/platform-core', () => ({
-  createLogger: () => mockLogger,
-  getLogger: () => mockLogger,
-  getAuditService: () => mockAuditService,
-  getCorrelationContext: () => ({ correlationId: 'test-correlation-id' }),
-  DomainError: class DomainError extends Error {
-    public statusCode: number;
-    constructor(message: string, statusCode: number = 500, cause?: Error) {
-      super(message);
-      this.statusCode = statusCode;
-      this.name = 'DomainError';
-      if (cause) this.cause = cause;
-    }
-  },
-  createHttpClient: vi.fn(() => ({
-    get: vi.fn(),
-    post: vi.fn(),
-    put: vi.fn(),
-    delete: vi.fn(),
-  })),
-  ServiceRegistry: {},
-  hasService: () => false,
-  getServiceUrl: () => 'http://localhost:3002',
-  waitForService: vi.fn(),
-  listServices: () => [],
-  createServiceUrlsConfig: vi.fn(() => ({})),
-  errorMessage: vi.fn((err: unknown) => (err instanceof Error ? err.message : String(err))),
-  errorStack: vi.fn((err: unknown) => (err instanceof Error ? err.stack : '')),
-  withResilience: vi.fn((fn: (...args: unknown[]) => unknown) => fn),
-  createIntervalScheduler: vi.fn(() => ({ start: vi.fn(), stop: vi.fn() })),
-}));
+vi.mock('@aiponge/platform-core', async importOriginal => {
+  const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
+  return {
+    ...actual,
+    createLogger: vi.fn(() => mockLogger),
+    getLogger: vi.fn(() => mockLogger),
+    getAuditService: () => mockAuditService,
+    getCorrelationContext: () => ({ correlationId: 'test-correlation-id' }),
+    createHttpClient: vi.fn(() => ({
+      get: vi.fn(),
+      post: vi.fn(),
+      put: vi.fn(),
+      delete: vi.fn(),
+    })),
+    ServiceRegistry: {},
+    hasService: () => false,
+    getServiceUrl: () => 'http://localhost:3002',
+    waitForService: vi.fn(),
+    listServices: () => [],
+    createServiceUrlsConfig: vi.fn(() => ({})),
+    errorMessage: vi.fn((err: unknown) => (err instanceof Error ? err.message : String(err))),
+    errorStack: vi.fn((err: unknown) => (err instanceof Error ? err.stack : '')),
+    withResilience: vi.fn((fn: (...args: unknown[]) => unknown) => fn),
+    createIntervalScheduler: vi.fn(() => ({ start: vi.fn(), stop: vi.fn() })),
+  };
+});
 
 vi.mock('sharp', () => ({
   default: vi.fn(() => ({

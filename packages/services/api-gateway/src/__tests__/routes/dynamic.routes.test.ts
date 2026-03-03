@@ -10,22 +10,26 @@ const mockLogger = vi.hoisted(() => ({
   child: vi.fn().mockReturnThis(),
 }));
 
-vi.mock('@aiponge/platform-core', () => ({
-  createLogger: () => mockLogger,
-  getLogger: () => mockLogger,
-  ServiceLocator: {
-    getServiceUrl: vi.fn(() => 'http://localhost:3020'),
-    getServicePort: vi.fn(() => 3020),
-  },
-  serializeError: vi.fn((e: unknown) => String(e)),
-  serviceRegistrationClient: {},
-  createHttpClient: vi.fn(() => ({
-    get: vi.fn(),
-    post: vi.fn(),
-  })),
-  signUserIdHeader: vi.fn(),
-  HttpClient: vi.fn(),
-}));
+vi.mock('@aiponge/platform-core', async importOriginal => {
+  const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
+  return {
+    ...actual,
+    createLogger: vi.fn(() => mockLogger),
+    getLogger: vi.fn(() => mockLogger),
+    ServiceLocator: {
+      getServiceUrl: vi.fn(() => 'http://localhost:3020'),
+      getServicePort: vi.fn(() => 3020),
+    },
+    serializeError: vi.fn((e: unknown) => String(e)),
+    serviceRegistrationClient: {},
+    createHttpClient: vi.fn(() => ({
+      get: vi.fn(),
+      post: vi.fn(),
+    })),
+    signUserIdHeader: vi.fn(),
+    HttpClient: vi.fn(),
+  };
+});
 
 vi.mock('@services/gatewayFetch', () => ({
   gatewayFetch: vi.fn(),
@@ -36,6 +40,7 @@ vi.mock('../../config/service-urls', () => ({
 }));
 
 vi.mock('../../config/GatewayConfig', () => ({
+  HttpConfig: { defaults: { timeout: 5000, retries: 0 } },
   GatewayConfig: {
     rateLimit: { isRedisEnabled: false, redis: {} },
     http: { defaults: { timeout: 5000, retries: 0 } },
@@ -57,9 +62,36 @@ vi.mock('../../config/PolicyRegistry', () => ({
 }));
 
 vi.mock('../../presentation/utils/response-helpers', () => ({
+  sendSuccess: vi.fn((res: Response, data: unknown) => {
+    res.json({ success: true, data });
+  }),
+  sendCreated: vi.fn((res: Response, data: unknown) => {
+    res.status(201).json({ success: true, data });
+  }),
+  forwardServiceError: vi.fn(),
+  extractErrorInfo: vi.fn(() => ({})),
+  getCorrelationId: vi.fn(() => 'test-correlation-id'),
   ServiceErrors: {
     fromException: vi.fn((res: Response, _error: unknown, message: string) => {
       res.status(502).json({ success: false, message });
+    }),
+    badRequest: vi.fn((res: Response, message: string) => {
+      res.status(400).json({ success: false, message });
+    }),
+    unauthorized: vi.fn((res: Response, message: string) => {
+      res.status(401).json({ success: false, message });
+    }),
+    forbidden: vi.fn((res: Response, message: string) => {
+      res.status(403).json({ success: false, message });
+    }),
+    notFound: vi.fn((res: Response, message: string) => {
+      res.status(404).json({ success: false, message });
+    }),
+    internal: vi.fn((res: Response, message: string) => {
+      res.status(500).json({ success: false, message });
+    }),
+    serviceUnavailable: vi.fn((res: Response, message: string) => {
+      res.status(503).json({ success: false, message });
     }),
   },
 }));

@@ -8,31 +8,23 @@ const mockLogger = vi.hoisted(() => ({
   child: vi.fn(),
 }));
 
-const MockDomainError = vi.hoisted(() => {
-  return class DomainError extends Error {
-    code: string;
-    constructor(message: string, code?: string) {
-      super(message);
-      this.code = code || 'UNKNOWN';
-      this.name = 'DomainError';
-    }
+vi.mock('@aiponge/platform-core', async importOriginal => {
+  const actual = await importOriginal<typeof import('@aiponge/platform-core')>();
+  return {
+    ...actual,
+    createLogger: vi.fn(() => mockLogger),
+    getLogger: vi.fn(() => mockLogger),
+    createHttpClient: vi.fn().mockReturnValue({}),
+    ServiceRegistry: {},
+    hasService: vi.fn().mockReturnValue(false),
+    getServiceUrl: vi.fn(),
+    waitForService: vi.fn(),
+    listServices: vi.fn(),
+    createServiceUrlsConfig: vi.fn(() => ({ getServiceUrl: vi.fn() })),
+    errorMessage: vi.fn((err: unknown) => (err instanceof Error ? err.message : String(err))),
+    serializeError: vi.fn((err: unknown) => err),
   };
 });
-
-vi.mock('@aiponge/platform-core', () => ({
-  createLogger: () => mockLogger,
-  getLogger: () => mockLogger,
-  DomainError: MockDomainError,
-  createHttpClient: vi.fn().mockReturnValue({}),
-  ServiceRegistry: {},
-  hasService: vi.fn().mockReturnValue(false),
-  getServiceUrl: vi.fn(),
-  waitForService: vi.fn(),
-  listServices: vi.fn(),
-  createServiceUrlsConfig: vi.fn(() => ({ getServiceUrl: vi.fn() })),
-  errorMessage: vi.fn((err: unknown) => (err instanceof Error ? err.message : String(err))),
-  serializeError: vi.fn((err: unknown) => err),
-}));
 
 vi.mock('../../schema/music-schema', () => ({
   favoriteTracks: {
