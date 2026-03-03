@@ -168,6 +168,7 @@ async function handleMetricRecorded(event: StandardEvent): Promise<void> {
     labels?: Record<string, string>;
     serviceName?: string;
     timestamp?: string;
+    unit?: string;
   };
 
   logger.debug('Processing metric', {
@@ -205,7 +206,7 @@ async function handleMetricRecorded(event: StandardEvent): Promise<void> {
           data.metricName,
           data.metricValue,
           data.metricType,
-          null,
+          data.unit || null,
           data.labels ? JSON.stringify(data.labels) : null,
           event.source,
         ]

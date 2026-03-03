@@ -13,6 +13,7 @@ import { getDatabase } from '@infrastructure/database/DatabaseConnectionFactory'
 import { USER_STATUS, type UserRole } from '@aiponge/shared-contracts';
 import { serializeError } from '@aiponge/platform-core';
 import { RefreshTokenUseCase } from './RefreshTokenUseCase';
+import { UserAnalyticsEmitter } from '@infrastructure/events/UserAnalyticsEmitter';
 
 const logger = getLogger('login-user-use-case');
 
@@ -211,6 +212,8 @@ export class LoginUserUseCase {
           error: err instanceof Error ? err.message : String(err),
         });
       });
+
+      UserAnalyticsEmitter.userLoggedIn(user.id, sessionId);
 
       return { success: true, user: enrichedUser, token, refreshToken, sessionId };
     } catch (error) {

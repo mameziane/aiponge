@@ -22,6 +22,7 @@ interface AnalyticsService {
   recordEvent(event: {
     eventType: string;
     eventData: Record<string, unknown>;
+    userId?: string;
     timestamp: Date;
     metadata: Record<string, unknown>;
   }): Promise<void>;
@@ -687,10 +688,12 @@ export class GenerateContentUseCase {
     if (!this.analyticsService) return;
 
     try {
+      const { userId, ...restEventData } = event.eventData;
       this.analyticsService
         .recordEvent({
           eventType: event.eventType,
-          eventData: event.eventData,
+          eventData: restEventData,
+          userId: userId as string | undefined,
           timestamp: new Date(),
           metadata: {
             service: 'ai-content-service',

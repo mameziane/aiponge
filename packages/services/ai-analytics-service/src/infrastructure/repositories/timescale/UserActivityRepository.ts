@@ -194,8 +194,11 @@ export class UserActivityRepository {
   async recordUserActivity(record: UserActivityRecord): Promise<void> {
     try {
       await this.pool.query(
-        `INSERT INTO aia_user_activity_logs (timestamp, user_id, user_type, session_id, action, resource, success, error_code, user_agent, ip_address, processing_time_ms, metadata)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+        `INSERT INTO aia_user_activity_logs (
+          timestamp, user_id, user_type, session_id, action, resource,
+          workflow_type, provider_id, cost, processing_time_ms, success,
+          error_code, user_agent, ip_address, location, metadata
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)`,
         [
           record.timestamp,
           record.userId,
@@ -203,12 +206,16 @@ export class UserActivityRepository {
           record.sessionId,
           record.action,
           record.resource,
+          record.workflowType,
+          record.providerId,
+          record.cost || 0,
+          record.processingTime,
           record.success,
           record.errorCode,
           record.userAgent,
           record.ipAddress,
-          record.processingTime,
-          record.metadata || null,
+          record.location ? JSON.stringify(record.location) : null,
+          record.metadata ? JSON.stringify(record.metadata) : null,
         ]
       );
     } catch (error) {
@@ -219,7 +226,7 @@ export class UserActivityRepository {
   async getUserActivityByIp(ipAddress: string, since: Date): Promise<UserActivityRecord[]> {
     try {
       const result = await this.pool.query(
-        `SELECT timestamp, user_id, user_type, session_id, action, resource, success, error_code, user_agent, ip_address, processing_time_ms, metadata
+        `SELECT timestamp, user_id, user_type, session_id, action, resource, workflow_type, provider_id, cost, success, error_code, user_agent, ip_address, processing_time_ms, location, metadata
          FROM aia_user_activity_logs
          WHERE ip_address = $1 AND timestamp >= $2
          ORDER BY timestamp DESC
@@ -236,7 +243,7 @@ export class UserActivityRepository {
   async getUserActivityByUserId(userId: string, since: Date): Promise<UserActivityRecord[]> {
     try {
       const result = await this.pool.query(
-        `SELECT timestamp, user_id, user_type, session_id, action, resource, success, error_code, user_agent, ip_address, processing_time_ms, metadata
+        `SELECT timestamp, user_id, user_type, session_id, action, resource, workflow_type, provider_id, cost, success, error_code, user_agent, ip_address, processing_time_ms, location, metadata
          FROM aia_user_activity_logs
          WHERE user_id = $1 AND timestamp >= $2
          ORDER BY timestamp DESC
@@ -257,11 +264,15 @@ export class UserActivityRepository {
     session_id: string | null;
     action: string;
     resource: string | null;
+    workflow_type: string | null;
+    provider_id: string | null;
+    cost: string | number;
     success: boolean;
     error_code: string | null;
     user_agent: string | null;
     ip_address: string | null;
     processing_time_ms: number | null;
+    location: Record<string, unknown> | null;
     metadata: Record<string, unknown> | null;
   }): UserActivityRecord {
     return {
@@ -271,11 +282,15 @@ export class UserActivityRepository {
       sessionId: row.session_id,
       action: row.action,
       resource: row.resource,
+      workflowType: row.workflow_type,
+      providerId: row.provider_id,
+      cost: parseFloat(String(row.cost)) || 0,
       success: row.success,
       errorCode: row.error_code,
       userAgent: row.user_agent,
       ipAddress: row.ip_address,
       processingTime: row.processing_time_ms,
+      location: row.location,
       metadata: row.metadata,
     };
   }

@@ -198,11 +198,15 @@ export interface UserActivityRecord {
   sessionId: string | null;
   action: string;
   resource: string | null;
+  workflowType: string | null;
+  providerId: string | null;
+  cost: number;
   success: boolean;
   errorCode: string | null;
   userAgent: string | null;
   ipAddress: string | null;
   processingTime: number | null;
+  location: Record<string, unknown> | null;
   metadata: Record<string, unknown> | null;
 }
 

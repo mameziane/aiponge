@@ -7,6 +7,7 @@ import { IIntelligenceRepository } from '@domains/intelligence';
 import { IProfileRepository } from '@domains/profile';
 import { Insight, NewInsight } from '@infrastructure/database/schemas/profile-schema';
 import { getLogger } from '@config/service-urls';
+import { UserAnalyticsEmitter } from '@infrastructure/events/UserAnalyticsEmitter';
 
 const logger = getLogger('create-insight-use-case');
 
@@ -31,6 +32,8 @@ export class CreateInsightUseCase {
       logger.error('Failed to update profile metrics after insight creation', { error });
       // Don't fail the whole operation, but log it
     }
+
+    UserAnalyticsEmitter.insightCreated(data.userId as string);
 
     return insight;
   }

@@ -1,7 +1,7 @@
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Platform } from 'react-native';
+import { AppState, Platform } from 'react-native';
 import { useFonts } from 'expo-font';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -33,6 +33,7 @@ import { initI18n, reloadAppForRTL } from '../src/i18n';
 import { i18nReady } from '../src/i18n';
 import { ErrorBoundary } from '../src/components/shared/ErrorBoundary';
 import { logger } from '../src/lib/logger';
+import { flushAnalytics } from '../src/lib/analyticsTracker';
 
 // Reanimated 4.1.x screen-transition worklets crash on iPhone OS 26 with a corrupted
 // JSI function pointer (KERN_INVALID_ADDRESS at process_base+2 on the JS thread).
@@ -97,6 +98,16 @@ export default function RootLayout() {
 
   const [showSplash, setShowSplash] = useState<boolean | null>(null); // null = checking storage
   const [languageLoaded, setLanguageLoaded] = useState(false);
+
+  // Flush pending analytics events when app goes to background
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', nextState => {
+      if (nextState !== 'active') {
+        flushAnalytics();
+      }
+    });
+    return () => subscription.remove();
+  }, []);
 
   const SPLASH_SHOWN_KEY = 'aiponge_splash_shown';
 

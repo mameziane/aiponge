@@ -587,6 +587,40 @@ router.use('/library/user', savedLibraryRouter); // Saved library: user's saved/
 router.use('/library/books', libraryBooksRouter); // Unified library: book details and chapters
 router.use('/library', contentLibraryRouter); // Content library: book-types, chapters, entries, write operations
 router.use('/privacy', privacyRouter); // GDPR privacy endpoints (data export/deletion)
+
+// ================================================
+// ANALYTICS TRACKING - Inline route
+// ================================================
+
+/**
+ * POST /api/app/analytics/track
+ * Fire-and-forget user activity tracking from mobile app.
+ * Publishes to event bus → ai-analytics-service persists to aia_user_activity_logs.
+ */
+router.post(
+  '/analytics/track',
+  wrapAsync(async (req, res) => {
+    const { eventType, eventData, userId: bodyUserId } = req.body;
+    if (!eventType) {
+      ServiceErrors.badRequest(res, 'eventType is required', req);
+      return;
+    }
+    const userId = bodyUserId || (req.headers['x-user-id'] as string) || undefined;
+    try {
+      const { getAnalyticsEventPublisher } = await import('@aiponge/platform-core');
+      const publisher = getAnalyticsEventPublisher('api-gateway');
+      publisher.recordEvent({
+        eventType,
+        eventData: eventData || {},
+        userId,
+        metadata: { source: 'mobile-app' },
+      });
+    } catch {
+      // Analytics should never fail the request
+    }
+    sendSuccess(res, { tracked: true });
+  })
+);
 router.use('/creator-members', creatorMembersRouter); // Creator-member following and invitations
 router.use('/patterns', patternsRouter); // User behavioral pattern recognition
 router.use('/mood-checkins', moodCheckinsRouter); // Mood check-in management

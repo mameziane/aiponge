@@ -83,6 +83,8 @@ interface ProviderTextResponse {
 interface AnalyticsEvent {
   eventType: string;
   eventData: Record<string, unknown>;
+  userId?: string;
+  timestamp?: Date;
   metadata?: Record<string, unknown>;
 }
 
@@ -1119,14 +1121,19 @@ export class ContentAIService {
   private async recordEventSafely(event: {
     eventType: string;
     eventData: Record<string, unknown>;
+    userId?: string;
     metadata?: Record<string, unknown>;
   }): Promise<void> {
     if (!this.analyticsServiceClient?.recordEvent) return;
 
     try {
+      const { userId: eventDataUserId, ...restEventData } = event.eventData;
       this.analyticsServiceClient.recordEvent({
         eventType: event.eventType,
-        eventData: event.eventData,
+        eventData: restEventData,
+        userId: event.userId || (eventDataUserId as string | undefined),
+        timestamp: new Date(),
+        metadata: event.metadata,
       });
     } catch (error) {
       logger.warn('Failed to initiate event recording (non-blocking):', { data: error });

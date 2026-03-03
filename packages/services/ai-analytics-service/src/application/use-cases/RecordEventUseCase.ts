@@ -71,7 +71,7 @@ export interface ProviderEventData {
 export interface UserEventData {
   userId: string;
   userType: UserRole;
-  action: 'login' | 'logout' | 'feature_used' | 'error_encountered';
+  action: 'login' | 'logout' | 'feature_used' | 'error_encountered' | string;
   feature?: string;
   sessionId?: string;
   ip?: string;
@@ -79,6 +79,9 @@ export interface UserEventData {
   duration?: number;
   success?: boolean;
   errorMessage?: string;
+  workflowType?: string;
+  providerId?: string;
+  cost?: number;
 }
 
 export interface SystemEventData {
@@ -554,11 +557,15 @@ export class RecordEventUseCase {
       sessionId: data.sessionId || null,
       action: data.action,
       resource: data.feature || null,
+      workflowType: data.workflowType || null,
+      providerId: data.providerId || null,
+      cost: data.cost || 0,
       success: data.success !== false,
       errorCode: data.errorMessage || null,
       userAgent: data.userAgent || null,
       ipAddress: data.ip || null,
       processingTime: data.duration || null,
+      location: null,
       metadata: metadata || null,
     });
 

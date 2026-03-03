@@ -21,6 +21,7 @@ import { IProfileRepository } from '@domains/profile/repositories/IProfileReposi
 import { RiskDetectionService } from '@infrastructure/services';
 import { getLogger } from '@config/service-urls';
 import { serializeError } from '@aiponge/platform-core';
+import { UserAnalyticsEmitter } from '@infrastructure/events/UserAnalyticsEmitter';
 
 const logger = getLogger('create-entry-use-case');
 
@@ -175,6 +176,8 @@ export class CreateEntryUseCase {
         userId: context.userId,
         riskDetected,
       });
+
+      UserAnalyticsEmitter.libraryEntryCreated(context.userId, parsed.data.entryType);
 
       return success({ entry, entity, riskDetected });
     } catch (error) {

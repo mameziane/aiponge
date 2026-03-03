@@ -348,6 +348,7 @@ export const metricsMiddleware = (req: Request, res: Response, next: NextFunctio
         const correlationId = (req.headers['x-correlation-id'] as string) || `gw_${Date.now()}`;
         const durationMs = Math.round(duration * 1000);
         const publisher = getAnalyticsEventPublisher('api-gateway');
+        const userId = (req.headers['x-user-id'] as string) || undefined;
 
         publisher.publishDirect('analytics.span.recorded', {
           correlationId,
@@ -366,6 +367,7 @@ export const metricsMiddleware = (req: Request, res: Response, next: NextFunctio
 
         publisher.publishDirect('analytics.trace.completed', {
           correlationId,
+          userId,
           entryService: 'api-gateway',
           entryOperation: `${req.method} ${req.route?.path || req.path}`,
           httpMethod: req.method,

@@ -52,20 +52,50 @@ export class AnalyticsDashboardController {
         return;
       }
 
+      const timestamp = new Date();
+
       await this.registry.metricsCollector.recordMetric({
         name: eventType,
         value: 1,
-        timestamp: new Date(),
+        timestamp,
         serviceName: 'ai-analytics-service',
         source: userId || 'anonymous',
         metricType: 'counter',
         tags: eventData ? Object.fromEntries(Object.entries(eventData).map(([k, v]) => [k, String(v)])) : undefined,
       });
 
+      // Also record to user activity logs when userId is present
+      if (userId) {
+        this.registry.repository
+          .recordUserActivity({
+            timestamp,
+            userId,
+            userType: (eventData?.userType as string) || 'user',
+            sessionId: (eventData?.sessionId as string) || null,
+            action: eventType,
+            resource: (eventData?.resource as string) || (eventData?.feature as string) || null,
+            workflowType: (eventData?.workflowType as string) || null,
+            providerId: (eventData?.providerId as string) || null,
+            cost: (eventData?.cost as number) || 0,
+            success: eventData?.success !== false,
+            errorCode: (eventData?.errorCode as string) || null,
+            userAgent: req.get('user-agent') || null,
+            ipAddress: null,
+            processingTime: (eventData?.durationMs as number) || null,
+            location: null,
+            metadata: eventData || null,
+          })
+          .catch(err => {
+            logger.debug('Failed to record user activity from trackEvent (non-blocking)', {
+              error: serializeError(err),
+            });
+          });
+      }
+
       sendSuccess(res, {
         event: 'tracked',
         eventType,
-        timestamp: new Date().toISOString(),
+        timestamp: timestamp.toISOString(),
       });
     } catch (error) {
       logger.error('Failed to track event', { error: serializeError(error) });

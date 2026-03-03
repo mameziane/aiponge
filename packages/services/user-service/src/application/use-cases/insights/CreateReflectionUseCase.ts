@@ -7,6 +7,7 @@ import { IIntelligenceRepository } from '@domains/intelligence';
 import { IProfileRepository } from '@domains/profile';
 import { Reflection, NewReflection } from '@infrastructure/database/schemas/profile-schema';
 import { getLogger } from '@config/service-urls';
+import { UserAnalyticsEmitter } from '@infrastructure/events/UserAnalyticsEmitter';
 
 const logger = getLogger('create-reflection-use-case');
 
@@ -31,6 +32,8 @@ export class CreateReflectionUseCase {
       logger.error('Failed to update profile metrics after reflection creation', { error });
       // Don't fail the whole operation, but log it
     }
+
+    UserAnalyticsEmitter.reflectionCreated(data.userId as string);
 
     return reflection;
   }

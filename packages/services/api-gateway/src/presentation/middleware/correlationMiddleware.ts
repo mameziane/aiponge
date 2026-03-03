@@ -3,7 +3,7 @@
  * Generates root correlation IDs for all incoming requests and adds structured logging
  */
 
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { getLogger } from '../../config/service-urls';
 import { getAnalyticsEventPublisher } from '@aiponge/platform-core';
@@ -126,27 +126,22 @@ export function apiGatewayCorrelationMiddleware(
  * Extract user ID from request (from token, headers, etc.)
  */
 function extractUserId(req: Request): string | undefined {
-  // Try multiple sources for user ID
-  const authHeader = req.headers.authorization;
-  const userIdHeader = req.headers['user-id'] || req.headers['User-ID'];
-
-  if (userIdHeader) {
-    return Array.isArray(userIdHeader) ? userIdHeader[0] : userIdHeader;
+  // 1. Check x-user-id header (set by jwtAuthMiddleware after JWT verification)
+  const xUserId = req.headers['x-user-id'];
+  if (xUserId) {
+    return Array.isArray(xUserId) ? xUserId[0] : xUserId;
   }
 
-  // Could extract from JWT token if needed
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    // Basic extraction - in real implementation would decode JWT
-    try {
-      const _token = authHeader.substring(7);
-      // This is a placeholder - actual JWT decoding would go here
-      return 'user-from-token';
-    } catch (error) {
-      logger.warn('Failed to extract user ID from authorization header', {
-        error: error instanceof Error ? error.message : String(error),
-      });
-      return undefined;
-    }
+  // 2. Check res.locals.userId (set by jwtAuthMiddleware)
+  const locals = (req.res as Response | undefined)?.locals;
+  if (locals?.userId && typeof locals.userId === 'string') {
+    return locals.userId;
+  }
+
+  // 3. Fallback: check legacy user-id header
+  const userIdHeader = req.headers['user-id'];
+  if (userIdHeader) {
+    return Array.isArray(userIdHeader) ? userIdHeader[0] : userIdHeader;
   }
 
   return undefined;

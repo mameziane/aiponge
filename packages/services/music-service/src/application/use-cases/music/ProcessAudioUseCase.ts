@@ -482,9 +482,11 @@ export class ProcessAudioUseCase {
 
   private async recordAnalyticsEvent(eventType: string, eventData: Record<string, unknown>): Promise<void> {
     try {
+      const { userId, ...restEventData } = eventData;
       await this.analyticsServiceClient.recordEvent({
         eventType,
-        eventData,
+        eventData: restEventData,
+        userId: userId as string | undefined,
         timestamp: new Date(),
         metadata: { service: 'music-service', component: 'audio-processing' },
       });
