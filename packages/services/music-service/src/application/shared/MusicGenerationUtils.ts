@@ -96,6 +96,7 @@ export interface LyricsGenerationParams {
   providedLyricsId?: string;
   style?: string;
   mood?: string;
+  genre?: string;
   language?: string;
   culturalLanguages?: string[];
   skipCache?: boolean;
@@ -252,6 +253,7 @@ export class MusicGenerationUtils {
         providedLyricsId: params.providedLyricsId,
         style: params.style,
         mood: params.mood,
+        genre: params.genre,
         language: params.language,
         culturalLanguages: params.culturalLanguages,
         skipCache: params.skipCache,
@@ -356,22 +358,28 @@ export class MusicGenerationUtils {
 
     await globalMusicApiLimiter.acquire();
     try {
-      const prompt = params.isInstrumental
-        ? `Instrumental: ${params.style || 'melodic'} ${params.genre || ''} ${params.mood || ''}`
-        : params.lyrics;
+      const isPodcast = params.genre?.toLowerCase() === 'podcast';
+
+      const prompt = isPodcast
+        ? params.lyrics
+        : params.isInstrumental
+          ? `Instrumental: ${params.style || 'melodic'} ${params.genre || ''} ${params.mood || ''}`
+          : params.lyrics;
 
       const orchRequest: OrchestratorRequest = {
         prompt,
         title: params.title,
-        lyrics: params.isInstrumental ? undefined : params.lyrics,
-        style: params.style,
+        lyrics: params.isInstrumental && !isPodcast ? undefined : params.lyrics,
+        style: isPodcast ? 'spoken word, narration, soft ambient background' : params.style,
         genre: params.genre,
-        mood: params.mood,
+        mood: isPodcast ? params.mood || 'reflective' : params.mood,
         duration: params.duration,
         vocalGender: params.vocalGender,
-        isInstrumental: params.isInstrumental,
+        isInstrumental: isPodcast ? false : params.isInstrumental,
         instrumentType: params.instrumentType,
-        negativeTags: params.negativeTags,
+        negativeTags: isPodcast
+          ? [params.negativeTags, 'heavy drums, electric guitar, fast tempo, singing'].filter(Boolean).join(', ')
+          : params.negativeTags,
         culturalStyle: params.culturalStyle,
         tempo: params.tempo,
         styleWeight: params.styleWeight,

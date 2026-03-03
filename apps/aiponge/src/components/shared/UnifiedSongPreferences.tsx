@@ -414,6 +414,9 @@ export function UnifiedSongPreferences(props: UnifiedSongPreferencesProps) {
     </PreferenceSection>
   );
 
+  const podcastOption = genreOptions.find(o => o.value === 'podcast');
+  const musicGenreOptions = genreOptions.filter(o => o.value !== 'podcast');
+
   const renderGenreSection = () => (
     <PreferenceSection
       icon="disc-outline"
@@ -421,13 +424,31 @@ export function UnifiedSongPreferences(props: UnifiedSongPreferencesProps) {
       hint={t('create.genreHint')}
       saving={loading.genre}
     >
+      {podcastOption && (
+        <TouchableOpacity
+          style={[styles.podcastChip, preferences.genre === 'podcast' && styles.podcastChipSelected]}
+          onPress={() => handleGenreChange('podcast')}
+          accessibilityRole="button"
+          accessibilityLabel={podcastOption.label}
+          accessibilityState={{ selected: preferences.genre === 'podcast' }}
+        >
+          <Ionicons
+            name="mic-outline"
+            size={16}
+            color={preferences.genre === 'podcast' ? colors.interactive.primaryForeground : colors.brand.pink}
+          />
+          <Text style={[styles.podcastChipText, preferences.genre === 'podcast' && styles.podcastChipTextSelected]}>
+            {podcastOption.label}
+          </Text>
+        </TouchableOpacity>
+      )}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         style={styles.genreScrollContainer}
         contentContainerStyle={styles.genreScrollContent}
       >
-        {genreOptions.map(option => {
+        {musicGenreOptions.map(option => {
           const isSelected = preferences.genre === option.value;
           return (
             <TouchableOpacity
@@ -754,6 +775,29 @@ const createStyles = (colors: ColorScheme) =>
       fontWeight: '500',
     },
     styleSuggestionTextSelected: {
+      color: colors.interactive.primaryForeground,
+    },
+    podcastChip: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 6,
+      paddingVertical: 10,
+      borderRadius: BORDER_RADIUS.md,
+      borderWidth: 1.5,
+      borderColor: colors.brand.pink,
+      marginBottom: 10,
+    },
+    podcastChipSelected: {
+      backgroundColor: colors.brand.pink,
+      borderColor: colors.brand.pink,
+    },
+    podcastChipText: {
+      fontSize: 15,
+      color: colors.brand.pink,
+      fontWeight: '600',
+    },
+    podcastChipTextSelected: {
       color: colors.interactive.primaryForeground,
     },
     genreScrollContainer: {

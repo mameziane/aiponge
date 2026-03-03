@@ -6,12 +6,14 @@ import { BORDER_RADIUS } from '@/theme/constants';
 import { useLifecycleRevenue, useLifecycleChurn } from '@/hooks/admin';
 import { SectionHeader, LoadingSection, ErrorSection } from './shared';
 
-function formatCurrency(value: number): string {
+function formatCurrency(value: number | null | undefined): string {
+  if (value == null) return '$0';
   if (value >= 1000) return `$${(value / 1000).toFixed(1)}k`;
   return `$${value.toFixed(2)}`;
 }
 
-function formatPercent(value: number): string {
+function formatPercent(value: number | null | undefined): string {
+  if (value == null) return 'N/A';
   return `${(value * 100).toFixed(1)}%`;
 }
 

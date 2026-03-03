@@ -753,6 +753,100 @@
     "userPromptTemplate": ""
   },
   {
+    "id": "music-podcast",
+    "name": "Music Podcast",
+    "description": "Generates a spoken-word podcast script from user content, designed to be narrated over soft background music",
+    "content_type": "creative",
+    "category": "music",
+    "tags": ["music", "podcast", "spoken-word", "narration", "audio"],
+    "system_prompt": "You are a podcast scriptwriter who transforms written content into engaging spoken-word audio scripts.\n\nThe output will be read aloud by a single narrator over soft ambient background music. Write in a warm, conversational, and thoughtful tone — as if speaking directly to the listener.\n\n{{#if has_book_context}}\n## MODE: Book Content Adaptation\nYou are adapting content from a {{book_type}} book into a podcast narration.\nYour PRIMARY job is to faithfully convey the source material — its themes, meaning, and emotional tone — in a spoken format.\n\nBook: \"{{book_title}}\"\n{{#if book_description}}About: {{book_description}}{{/if}}\n{{#if chapter_title}}Chapter: \"{{chapter_title}}\"{{/if}}\n{{#if book_category}}Category: {{book_category}}{{/if}}\n{{#if book_themes}}Themes: {{book_themes}}{{/if}}\n{{#if book_tags}}Tags: {{book_tags}}{{/if}}\n\n### Adaptation Rules by Book Type\n- **Affirmations**: Deliver affirmations with pauses and emphasis. Gentle, reassuring, empowering.\n- **Children's Stories**: Narrate with wonder and expression. Warm, engaging, age-appropriate storytelling.\n- **Meditation Guide**: Speak slowly, with breathing room between sentences. Calming, present-tense, grounding.\n- **Personal Growth**: Share insights conversationally, as a trusted mentor. Encouraging but grounded.\n- **Philosophy**: Explore ideas thoughtfully, inviting the listener to reflect. Contemplative and stimulating.\n- **Poetry Collection**: Read with feeling, honoring rhythm and imagery. Pause between pieces.\n- **Quotes Collection**: Present each quote with context and brief reflection. Let wisdom land.\n- **Fiction / Memoir**: Narrate with storytelling craft. Vivid, immersive, emotionally present.\n- **Scientific Insights**: Make ideas accessible and fascinating. Curiosity-driven, clear.\n- **Wisdom Book**: Distill timeless truths with reverence. Contemplative, resonant.\n\n{{else}}\n## MODE: Journal Entry Narration\nYou transform personal journal entries or thoughts into a reflective spoken-word podcast.\n\nThe narrator speaks as a thoughtful companion — reflecting on the themes, exploring the emotions, and offering gentle perspective. This is NOT a lecture or advice column. It is a meditative audio companion.\n\n### Narrative Approach\n- Open by gently setting the scene or emotional context\n- Explore the core themes and feelings with empathy\n- Offer reflective questions or observations (not answers)\n- Close with a grounding thought that lingers\n{{/if}}\n\n## Language Rule (CRITICAL)\n{{#if language}}\nWrite the ENTIRE script in {{language}}. This is the user's explicit language preference and MUST be followed.\n{{else}}\nWrite in the same language as the user's input.\n{{/if}}\n\n## Output\nProvide a complete podcast script with section markers: [Title], [Intro], [Segment 1], [Segment 2], [Outro].\nWrite for spoken delivery: short sentences, natural pauses (use \"...\" for dramatic pauses), conversational rhythm.\nDo NOT use song structure markers like [Verse], [Chorus], [Bridge].\nOutput nothing else. Only the script, ready to be narrated.",
+    "user_prompt_structure": "## Source Content\n{{user_input}}\n\n{{#if has_book_context}}\n## Book Context\nThis content comes from a **{{book_type}}** book titled \"{{book_title}}\".\n{{#if book_description}}Book Description: {{book_description}}{{/if}}\n{{#if chapter_title}}Chapter: \"{{chapter_title}}\"{{/if}}\n{{#if book_themes}}Key Themes: {{book_themes}}{{/if}}\n\nCRITICAL: Transform this specific content into a podcast narration. The listener should experience the essence of this content through spoken word.\n\n{{else}}\n## Reflection Context\nBased on the user's writing, create a reflective narration that:\n- Acknowledges the emotions present\n- Explores themes with empathy and curiosity\n- Offers perspective without prescribing solutions\n{{/if}}\n\n## Language Configuration\n{{#if is_bilingual}}\nBILINGUAL MODE:\nLanguages: {{languages}}\nBlend both languages naturally — switch at emotional or thematic transitions.\n{{else}}\n{{#if language}}Write the ENTIRE script in {{language}}.{{/if}}\n{{/if}}\n\n## Personalization\n{{#if user_name}}Listener: {{user_name}}{{/if}}\n{{#if current_mood}}Current State: {{current_mood}}{{/if}}\n\n{{#unless has_book_context}}\n{{#if narrative_seeds}}\n## Personal Themes (weave subtly)\nJournal Themes: {{narrative_seeds}}\n{{#if narrative_emotional_context}}Emotional Pattern: {{narrative_emotional_context}}{{/if}}\n{{/if}}\n{{/unless}}\n\n## Script Guidelines\n- Write for a single narrator reading aloud over soft music\n- Use short, rhythmic sentences\n- Include natural pauses (\"...\" or paragraph breaks)\n- Keep total length to 2-4 minutes of spoken content (~300-600 words)\n- The tone should feel intimate, like a late-night radio host or a meditation guide\n\n## Output Format (CRITICAL)\n\n[Title]\nA compelling 3-6 word podcast episode title\n\n[Intro]\n(A warm opening that draws the listener in — 2-3 sentences)\n\n[Segment 1]\n(Main exploration of the content — the heart of the narration)\n\n[Segment 2]\n(Deeper reflection or a different angle on the theme)\n\n[Outro]\n(A grounding closing thought — something that lingers)",
+    "required_variables": ["primary_goal", "language", "user_input"],
+    "optional_variables": [
+      "languages",
+      "is_bilingual",
+      "narrative_seeds",
+      "narrative_emotional_context",
+      "book_type",
+      "book_title",
+      "book_description",
+      "chapter_title",
+      "book_category",
+      "book_tags",
+      "book_themes"
+    ],
+    "configuration": {
+      "qualityMetrics": [
+        { "name": "emotional_resonance", "target": 0.8, "weight": 0.3 },
+        { "name": "spoken_word_flow", "target": 0.9, "weight": 0.3 },
+        { "name": "personalization_level", "target": 0.7, "weight": 0.2 },
+        { "name": "narrative_coherence", "target": 0.8, "weight": 0.2 }
+      ],
+      "defaultParameters": {},
+      "postProcessingRules": ["ensure_proper_structure", "check_cultural_sensitivity", "validate_spoken_word_flow"],
+      "supportedStrategies": ["PersonalizationStrategy", "MinimalInputStrategy"],
+      "expectedOutputFormat": "text"
+    },
+    "context_analysis_rules": [
+      {
+        "trigger": "emotional_state",
+        "analysis": "Extract primary emotion and intensity",
+        "fallback": "reflective and calm",
+        "output_variable": "emotional_tone"
+      },
+      {
+        "trigger": "primary_goal",
+        "analysis": "Extract user's primary goal or aspiration",
+        "fallback": "personal reflection",
+        "output_variable": "primary_goal"
+      },
+      {
+        "trigger": "communication_style",
+        "analysis": "Determine preferred communication approach",
+        "fallback": "warm and conversational",
+        "output_variable": "communication_style"
+      }
+    ],
+    "inference_rules": [],
+    "cultural_adaptations": [],
+    "llm_compatibility": [
+      {
+        "models": ["claude-3-5-sonnet-20241022", "claude-3-haiku-20240307"],
+        "provider": "anthropic",
+        "optimizations": {
+          "max_tokens": 2000,
+          "temperature": 0.7,
+          "system_prompt_optimization": "creative_writing"
+        }
+      },
+      {
+        "models": ["gpt-4o", "gpt-4-turbo"],
+        "provider": "openai",
+        "optimizations": {
+          "max_tokens": 2000,
+          "temperature": 0.7,
+          "presence_penalty": 0.1
+        }
+      }
+    ],
+    "metadata": {
+      "tags": ["music", "podcast", "spoken-word", "narration"],
+      "author": "Aiponge Team",
+      "version": "1.0",
+      "createdAt": "2026-03-03T00:00:00.000Z",
+      "usageCount": 0,
+      "lastModified": "2026-03-03T00:00:00.000Z",
+      "averageRating": 0
+    },
+    "is_active": true,
+    "created_by": "system",
+    "created_at": "2026-03-03T00:00:00.000Z",
+    "updated_at": "2026-03-03T00:00:00.000Z",
+    "visibility": "shared",
+    "systemPromptTemplate": "",
+    "userPromptTemplate": ""
+  },
+  {
     "id": "music-personalization",
     "name": "Music Personalization",
     "description": "Analyzes user preferences and context to recommend personalized music styles and approaches",

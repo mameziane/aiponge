@@ -63,7 +63,7 @@ export function registerLibraryRoutes(router: Router, deps: LibraryRouteDeps): v
         ServiceErrors.unauthorized(res, 'User ID required', req);
         return;
       }
-      const { primaryGoal, language, tone, generationMode, depthLevel, bookTypeId } = req.body;
+      const { primaryGoal, language, tone, generationMode, depthLevel, bookTypeId, isOnboarding } = req.body;
       const result = await generateBookUseCase.createRequest({
         userId,
         userRole,
@@ -73,6 +73,7 @@ export function registerLibraryRoutes(router: Router, deps: LibraryRouteDeps): v
         generationMode,
         depthLevel,
         bookTypeId,
+        isOnboarding,
       });
       if (!result.success) {
         ServiceErrors.badRequest(res, result.error || 'Failed to create generation request', req, {

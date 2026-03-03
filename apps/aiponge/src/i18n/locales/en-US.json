@@ -295,7 +295,7 @@
       "defaultsSaveFailed": "Failed to save default settings",
       "resetDefaultsConfirm": "Reset all default settings to their original values?",
       "genreOptions": "Available Genres",
-      "genreOptionsHint": "Toggle which genres appear in Song Preferences",
+      "genreOptionsHint": "Toggle which genres appear in Audio Preferences",
       "enableAll": "Enable All"
     }
   },
@@ -305,23 +305,18 @@
     "history": "History"
   },
   "onboardingFlow": {
-    "welcomeTitle": "You already know what needs to change",
-    "welcomeSubtitle": "Let's help it land. Your entries become songs that reach where words alone can't.",
-    "feature1": "Write what's on your mind",
-    "feature2": "Get a personalized song",
-    "feature3": "Unlock your music library",
+    "welcomeTitle": "Create your first AI book",
+    "welcomeSubtitle": "Choose a theme, describe what matters to you, and we\u2019ll generate a personalized book with music",
+    "feature1": "Choose a book that speaks to you",
+    "feature2": "AI generates chapters & reflections",
+    "feature3": "Each entry becomes a personalized song",
+    "continue": "Continue",
     "getStarted": "Get Started",
-    "wellnessLabel": "What brings you here?",
-    "wellnessIntentions": {
-      "stress_relief": "Stress Relief",
-      "self_discovery": "Self-Discovery",
-      "motivation": "Motivation",
-      "sleep": "Better Sleep",
-      "focus": "Focus",
-      "emotional_healing": "Emotional Healing",
-      "creative_expression": "Creative Expression",
-      "mindfulness": "Mindfulness"
-    }
+    "chooseCategoryTitle": "What kind of book?",
+    "chooseCategorySubtitle": "Pick a theme that resonates",
+    "describeTitle": "Describe your {{bookTypeName}}",
+    "describeHint": "At least 10 characters",
+    "generateButton": "Generate My Book"
   },
   "manifesto": {
     "title": "The aiponge Manifesto",
@@ -675,7 +670,7 @@
     "errorLoadingEntry": "Failed to load entry",
     "entryFromLockedChapter": "This entry is from a locked chapter",
     "songGeneration": "Song Generation",
-    "songPreferences": "Song Preferences",
+    "songPreferences": "Audio Preferences",
     "songPreferencesExpand": "expand",
     "songPreferencesCollapse": "collapse",
     "musicStyles": "Music Styles",
@@ -839,7 +834,8 @@
       "worship": "Worship",
       "spiritual": "Spiritual",
       "meditation": "Meditation",
-      "ska": "Ska"
+      "ska": "Ska",
+      "podcast": "Podcast"
     },
     "vocalGenders": {
       "any": "Any",
@@ -997,8 +993,8 @@
     "enterDisplayName": "Enter your display name",
     "tapToSetDisplayName": "Tap to set your name",
     "personalInfo": "Personal Info",
-    "songPreferences": "Song Preferences",
-    "songPreferencesDescription": "Set your default preferences for generated songs. These will be used as defaults when creating new music.",
+    "songPreferences": "Audio Preferences",
+    "songPreferencesDescription": "Set your default preferences for generated audio. These will be used as defaults when creating new music or podcasts.",
     "privacyData": "Privacy & Data"
   },
   "privacy": {

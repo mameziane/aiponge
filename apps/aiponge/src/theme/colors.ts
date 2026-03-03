@@ -460,6 +460,7 @@ export const colors: ColorScheme = {
     spiritual: '#CE93D8',
     meditation: '#80CBC4',
     ska: '#7CB342',
+    podcast: '#FF6B9D',
   },
 };
 

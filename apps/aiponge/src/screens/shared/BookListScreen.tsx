@@ -23,7 +23,9 @@ import { EmptyState } from '../../components/shared/EmptyState';
 import { LoadingState } from '../../components/shared/LoadingState';
 import { BookCard, type BookCardData } from '../../components/book/BookCard';
 import { CreateBookModal, CloneBookModal } from '../../components/book';
-import { BOOK_TYPE_CATEGORY_CONFIGS } from '../../constants/bookTypes';
+import { BOOK_TYPE_CATEGORY_CONFIGS, getBookTypeConfig, resolveBookTypeColor } from '../../constants/bookTypes';
+import { GenerationProgressView } from '../../components/book/GenerationProgressView';
+import { usePendingBookGeneration } from '../../hooks/book/usePendingBookGeneration';
 
 import type { BookListScreenProps } from './book-list/types';
 import { useBookListData } from './book-list/useBookListData';
@@ -62,11 +64,40 @@ export function BookListScreen({ embedded = false, externalCreateTrigger, onStud
     }, [data.setSelectedLanguage])
   );
 
+  const pendingGen = usePendingBookGeneration();
+
+  const pendingTypeColor = useMemo(() => {
+    if (!pendingGen.bookTypeId) return colors.brand.primary;
+    const config = getBookTypeConfig(pendingGen.bookTypeId as any);
+    return config ? resolveBookTypeColor(config.colorKey, colors) : colors.brand.primary;
+  }, [pendingGen.bookTypeId, colors]);
+
   const mutations = useBookMutations({
     refetchManageBooks: data.refetchManageBooks,
     t,
     userId: user?.id,
   });
+
+  // When pending generation completes, create the book from the blueprint
+  const pendingHandledRef = useRef(false);
+  useEffect(() => {
+    if (pendingGen.status === 'completed' && pendingGen.blueprint && !pendingHandledRef.current) {
+      pendingHandledRef.current = true;
+      mutations
+        .handleCreateFromBlueprint(pendingGen.blueprint, pendingGen.bookTypeId || undefined)
+        .then(() => {
+          pendingGen.clear();
+          data.refetchManageBooks();
+        })
+        .catch(() => {
+          pendingGen.clear();
+        });
+    } else if (pendingGen.status === 'failed') {
+      // Auto-dismiss after 3s
+      const timer = setTimeout(() => pendingGen.clear(), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [pendingGen.status, pendingGen.blueprint]);
 
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -301,6 +332,17 @@ export function BookListScreen({ embedded = false, externalCreateTrigger, onStud
           maxToRenderPerBatch={9}
           windowSize={5}
           removeClippedSubviews={true}
+          ListHeaderComponent={
+            pendingGen.isPending && pendingGen.progress ? (
+              <View style={styles.generatingBanner}>
+                <GenerationProgressView progress={pendingGen.progress} typeColor={pendingTypeColor} />
+              </View>
+            ) : pendingGen.status === 'failed' ? (
+              <View style={styles.generatingBanner}>
+                <Text style={styles.generatingErrorText}>{pendingGen.error || 'Generation failed'}</Text>
+              </View>
+            ) : null
+          }
           ListFooterComponent={
             data.isFetchingNextBrowsePage ? (
               <View style={{ paddingVertical: 16, alignItems: 'center' }}>
@@ -331,7 +373,7 @@ export function BookListScreen({ embedded = false, externalCreateTrigger, onStud
                 }}
               >
                 <Ionicons name="pencil-outline" size={20} color={colors.text.primary} />
-                <Text style={styles.actionSheetOptionText}>{t('librarian.books.edit') || 'Edit Details'}</Text>
+                <Text style={styles.actionSheetOptionText}>{t('librarian.books.editBook')}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -342,7 +384,7 @@ export function BookListScreen({ embedded = false, externalCreateTrigger, onStud
                 }}
               >
                 <Ionicons name="image-outline" size={20} color={colors.brand.secondary} />
-                <Text style={styles.actionSheetOptionText}>{t('bookDetail.generateCover') || 'Upload Cover'}</Text>
+                <Text style={styles.actionSheetOptionText}>{t('bookDetail.changeCover')}</Text>
               </TouchableOpacity>
 
               {actionTarget.status === 'draft' && (
@@ -521,6 +563,21 @@ const createStyles = (colors: ColorScheme) =>
       paddingHorizontal: 8,
       paddingTop: 4,
       paddingBottom: 120,
+    },
+    generatingBanner: {
+      marginHorizontal: 8,
+      marginBottom: 16,
+      padding: 16,
+      borderRadius: BORDER_RADIUS.lg,
+      backgroundColor: colors.background.secondary,
+      borderWidth: 1,
+      borderColor: colors.border.primary,
+    },
+    generatingErrorText: {
+      fontSize: 14,
+      color: colors.semantic.error,
+      textAlign: 'center',
+      fontFamily: fontFamilies.body.medium,
     },
     pickerOverlay: {
       flex: 1,

@@ -6,34 +6,20 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   ScrollView,
+  TextInput,
   Dimensions,
   Platform,
 } from 'react-native';
 
-// Reanimated 4.1.x entering/exiting worklets crash on iPhone OS 26 (same UIKit internals
-// as the RNTP RunLoop bug). Disable them entirely on iOS 26 — plain mounts/unmounts only.
 const iosVersionMajor = Platform.OS === 'ios' ? parseInt(String(Platform.Version).split('.')[0], 10) : 0;
 const isIOS26OrLater = iosVersionMajor >= 26;
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const CONTAINER_PADDING = 48;
-
-const WELLNESS_GAP = 8;
-const WELLNESS_COLS = 2;
-const WELLNESS_CHIP_WIDTH = Math.floor(
-  (SCREEN_WIDTH - CONTAINER_PADDING - WELLNESS_GAP * (WELLNESS_COLS - 1)) / WELLNESS_COLS
-);
-
-const GENRE_GAP = 8;
-const GENRES_PER_ROW = 4;
-const GENRE_CHIP_WIDTH = Math.floor(
-  (SCREEN_WIDTH - CONTAINER_PADDING - GENRE_GAP * (GENRES_PER_ROW - 1)) / GENRES_PER_ROW
-);
-
-const OTHER_GENRE_GAP = 6;
-const OTHER_GENRES_PER_ROW = 4;
-const OTHER_GENRE_CHIP_WIDTH = Math.floor(
-  (SCREEN_WIDTH - CONTAINER_PADDING - OTHER_GENRE_GAP * (OTHER_GENRES_PER_ROW - 1)) / OTHER_GENRES_PER_ROW
+const CATEGORY_GAP = 8;
+const CATEGORY_COLS = 2;
+const CATEGORY_CHIP_WIDTH = Math.floor(
+  (SCREEN_WIDTH - CONTAINER_PADDING - CATEGORY_GAP * (CATEGORY_COLS - 1)) / CATEGORY_COLS
 );
 
 import { LinearGradient } from 'expo-linear-gradient';
@@ -45,25 +31,23 @@ import { useThemeColors, type ColorScheme } from '../../theme';
 import { BORDER_RADIUS } from '../../theme/constants';
 import { fontFamilies, fontSizes, lineHeights } from '../../theme/typography';
 import { setOnboardingCompleted } from '../../utils/onboarding';
+import { savePendingBookGeneration } from '../../utils/pendingBookGeneration';
 import { useAuthStore, selectUser } from '../../auth/store';
 import { apiClient } from '../../lib/axiosApiClient';
 import { logger } from '../../lib/logger';
 import { prefetchBooks } from '../../hooks/book/useUnifiedLibrary';
+import { useBookGenerator } from '../../hooks/book/useBookGenerator';
 import {
-  VOCAL_GENDER_KEYS,
-  LANGUAGE_KEYS,
-  GENRE_KEYS,
-  ONBOARDING_GENRES,
-  DEFAULT_GENRE,
-  WELLNESS_INTENTION_KEYS,
-  WELLNESS_INTENTION_ICONS,
-  type GenreKey,
-  type WellnessIntentionKey,
-} from '../../constants/musicPreferences';
-import { useConfigurableOptions } from '../../hooks/admin/useConfigurableOptions';
+  BOOK_TYPE_CATEGORY_CONFIGS,
+  getBookTypesForCategory,
+  getBookTypeConfig,
+  getCategoryColor,
+  type BookTypeCategoryConfig,
+  type BookTypeConfig,
+} from '../../constants/bookTypes';
+import type { BookTypeCategory, BookTypeId } from '@aiponge/shared-contracts';
 
 import { PROFILE_QUERY_KEY } from '../../hooks/profile/useProfile';
-import { APP_INIT_QUERY_KEY } from '../../hooks/system/useAppInit';
 import { queryKeys } from '../../lib/queryKeys';
 import { invalidateOnEvent } from '../../lib/cacheManager';
 
@@ -71,14 +55,7 @@ interface OnboardingFlowProps {
   onComplete: () => void;
 }
 
-type OnboardingStep = 'welcome' | 'preferences';
-
-interface UserPreferences {
-  vocalGender: 'f' | 'm' | null;
-  languagePreference: string;
-  genre: GenreKey | '';
-  wellnessIntention: WellnessIntentionKey | null;
-}
+type OnboardingStep = 'welcome' | 'chooseBookType' | 'describeBook';
 
 export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const colors = useThemeColors();
@@ -86,103 +63,88 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const { t, i18n } = useTranslation();
   const user = useAuthStore(selectUser);
   const queryClient = useQueryClient();
-  const { languages: configurableLanguages } = useConfigurableOptions();
+  const { generateBook } = useBookGenerator({ bypassTierCheck: true });
+
   const [step, setStep] = useState<OnboardingStep>('welcome');
+  const [selectedCategory, setSelectedCategory] = useState<BookTypeCategory | null>(null);
+  const [selectedBookTypeId, setSelectedBookTypeId] = useState<BookTypeId | null>(null);
+  const [bookDescription, setBookDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [moreGenresExpanded, setMoreGenresExpanded] = useState(false);
-  const [languageSectionExpanded, setLanguageSectionExpanded] = useState(false);
 
-  const getDefaultLanguage = useCallback(() => {
-    const appLang = i18n.language?.split('-')[0] || 'en';
-    return LANGUAGE_KEYS.includes(appLang as (typeof LANGUAGE_KEYS)[number]) ? appLang : 'en';
-  }, [i18n.language]);
-
-  const [preferences, setPreferences] = useState<UserPreferences>(() => ({
-    vocalGender: 'f',
-    languagePreference: getDefaultLanguage(),
-    genre: DEFAULT_GENRE,
-    wellnessIntention: null,
-  }));
-
-  const genreOptions = useMemo(
-    () =>
-      ONBOARDING_GENRES.map((genre: GenreKey) => ({
-        value: genre,
-        label: t(`create.genres.${genre}`, { defaultValue: genre }),
-      })),
-    [t]
+  const selectedBookTypeConfig = useMemo(
+    () => (selectedBookTypeId ? getBookTypeConfig(selectedBookTypeId) : null),
+    [selectedBookTypeId]
   );
 
-  const otherGenreOptions = useMemo(
-    () =>
-      GENRE_KEYS.filter(genre => !ONBOARDING_GENRES.includes(genre))
-        .map((genre: GenreKey) => ({
-          value: genre,
-          label: t(`create.genres.${genre}`, { defaultValue: genre }),
-        }))
-        .sort((a, b) => a.label.localeCompare(b.label)),
-    [t]
+  const categoryTypes = useMemo(
+    () => (selectedCategory ? getBookTypesForCategory(selectedCategory) : []),
+    [selectedCategory]
   );
 
-  const languageOptions = useMemo(() => {
-    const languageMap = new Map(configurableLanguages.map(l => [l.code, l]));
-    return LANGUAGE_KEYS.map(lang => {
-      const langConfig = languageMap.get(lang);
-      return {
-        value: lang,
-        label:
-          langConfig?.nativeLabel ||
-          langConfig?.label ||
-          t(`create.languages.${lang}`, { defaultValue: lang === 'auto' ? 'Auto-detect' : lang.toUpperCase() }),
-      };
-    });
-  }, [t, configurableLanguages]);
+  const typeColor = useMemo(() => {
+    if (selectedBookTypeConfig) return getCategoryColor(selectedBookTypeConfig.category, colors);
+    if (selectedCategory) return getCategoryColor(selectedCategory, colors);
+    return colors.brand.primary;
+  }, [selectedBookTypeConfig, selectedCategory, colors]);
 
-  const handleContinueToPreferences = useCallback(() => {
-    setStep('preferences');
+  const handleSelectCategory = useCallback((categoryId: BookTypeCategory) => {
+    setSelectedCategory(categoryId);
   }, []);
 
-  const handleCompleteOnboarding = useCallback(async () => {
-    if (isSubmitting) return;
+  const handleSelectType = useCallback((typeId: BookTypeId) => {
+    setSelectedBookTypeId(typeId);
+    setStep('describeBook');
+  }, []);
+
+  const handleBackFromTypes = useCallback(() => {
+    setSelectedCategory(null);
+  }, []);
+
+  const handleBackFromDescribe = useCallback(() => {
+    setSelectedBookTypeId(null);
+    setStep('chooseBookType');
+  }, []);
+
+  const handleGenerate = useCallback(async () => {
+    if (isSubmitting || bookDescription.trim().length < 10) return;
     setIsSubmitting(true);
 
     try {
-      await apiClient.post(
-        '/api/v1/app/onboarding/complete',
-        {
-          wellnessGoals: [],
-          preferences: {
-            favoriteStyles: ['ambient', 'acoustic'],
-            preferredDuration: 600,
-            vocalGender: preferences.vocalGender,
-            languagePreference: preferences.languagePreference,
-            genre: preferences.genre,
-            wellnessIntention: preferences.wellnessIntention,
-          },
-          journal: {
-            title: t('welcomeJourney.journalTitle', { defaultValue: 'My Story' }),
-            description: t('welcomeJourney.journalDescription', {
-              defaultValue: 'Your personal space for reflection and growth',
-            }),
-          },
-          locale: i18n.language || 'en-US',
-        },
-        { timeout: 45000 }
-      );
+      const language = i18n.language?.split('-')[0] || 'en';
+      const requestId = await generateBook({
+        primaryGoal: bookDescription.trim(),
+        depthLevel: 'brief',
+        bookTypeId: selectedBookTypeId || undefined,
+        language,
+        isOnboarding: true,
+      });
 
-      // Invalidate profile cache so newly saved preferences are loaded for song generation
-      invalidateOnEvent(queryClient, { type: 'ONBOARDING_COMPLETED', userId: user?.id });
+      if (requestId) {
+        await savePendingBookGeneration({
+          requestId,
+          bookTypeId: selectedBookTypeId || '',
+          description: bookDescription.trim(),
+          startedAt: Date.now(),
+        });
+      }
+
+      // Complete onboarding on the server (preferences only, no book)
+      try {
+        await apiClient.post(
+          '/api/v1/app/onboarding/complete',
+          {
+            preferences: {},
+            locale: i18n.language || 'en-US',
+          },
+          { timeout: 15000 }
+        );
+        invalidateOnEvent(queryClient, { type: 'ONBOARDING_COMPLETED', userId: user?.id });
+      } catch (err) {
+        logger.error('Onboarding complete API failed (non-fatal)', err);
+      }
 
       await Promise.all([
         prefetchBooks(queryClient),
-        queryClient.prefetchQuery({
-          queryKey: queryKeys.tracks.explore(),
-          queryFn: () => apiClient.get('/api/v1/app/library/explore'),
-        }),
-        queryClient.prefetchQuery({
-          queryKey: queryKeys.tracks.private(),
-          queryFn: () => apiClient.get('/api/v1/app/library/private'),
-        }),
         queryClient.prefetchQuery({
           queryKey: [PROFILE_QUERY_KEY, user?.id],
           queryFn: () => apiClient.get(PROFILE_QUERY_KEY),
@@ -195,7 +157,8 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
       onComplete();
     } catch (error) {
-      logger.error('Failed to complete onboarding', error);
+      logger.error('Failed to generate onboarding book', error);
+      // Still complete onboarding even if generation fails
       if (user?.id) {
         await setOnboardingCompleted(user.id);
       }
@@ -203,7 +166,19 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     } finally {
       setIsSubmitting(false);
     }
-  }, [user?.id, onComplete, isSubmitting, i18n.language, t, preferences, queryClient]);
+  }, [
+    isSubmitting,
+    bookDescription,
+    selectedBookTypeId,
+    i18n.language,
+    generateBook,
+    queryClient,
+    user?.id,
+    onComplete,
+    t,
+  ]);
+
+  // ─── Step 1: Welcome ─────────────────────────────────────────────────────────
 
   const renderWelcomeStep = () => (
     <Animated.View
@@ -214,35 +189,36 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
       <View style={styles.content}>
         <View style={styles.centerContent}>
           <View style={styles.iconContainer}>
-            <Ionicons name="musical-notes" size={56} color={colors.text.primary} />
+            <Ionicons name="book-outline" size={56} color={colors.text.primary} />
           </View>
 
           <Text style={styles.title}>
-            {t('onboardingFlow.welcomeTitle', { defaultValue: 'Your musical journey begins' })}
+            {t('onboardingFlow.welcomeTitle', { defaultValue: 'Create your first AI book' })}
           </Text>
           <Text style={styles.subtitle}>
             {t('onboardingFlow.welcomeSubtitle', {
-              defaultValue: 'Create your first personalized song and discover how your entries become music',
+              defaultValue:
+                'Choose a theme, describe what matters to you, and we\u2019ll generate a personalized book with music',
             })}
           </Text>
 
           <View style={styles.featureList}>
             <View style={styles.featureItem}>
-              <Ionicons name="checkmark-circle" size={24} color={colors.brand.primary} />
+              <Ionicons name="book-outline" size={24} color={colors.brand.primary} />
               <Text style={styles.featureText}>
-                {t('onboardingFlow.feature1', { defaultValue: "Write what's on your mind" })}
+                {t('onboardingFlow.feature1', { defaultValue: 'Choose a book that speaks to you' })}
               </Text>
             </View>
             <View style={styles.featureItem}>
-              <Ionicons name="checkmark-circle" size={24} color={colors.brand.primary} />
+              <Ionicons name="sparkles-outline" size={24} color={colors.brand.primary} />
               <Text style={styles.featureText}>
-                {t('onboardingFlow.feature2', { defaultValue: 'Get a personalized song' })}
+                {t('onboardingFlow.feature2', { defaultValue: 'AI generates chapters & reflections' })}
               </Text>
             </View>
             <View style={styles.featureItem}>
-              <Ionicons name="checkmark-circle" size={24} color={colors.brand.primary} />
+              <Ionicons name="musical-notes-outline" size={24} color={colors.brand.primary} />
               <Text style={styles.featureText}>
-                {t('onboardingFlow.feature3', { defaultValue: 'Unlock your music library' })}
+                {t('onboardingFlow.feature3', { defaultValue: 'Each entry becomes a personalized song' })}
               </Text>
             </View>
           </View>
@@ -250,7 +226,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
       </View>
 
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.primaryButton} onPress={handleContinueToPreferences}>
+        <TouchableOpacity style={styles.primaryButton} onPress={() => setStep('chooseBookType')}>
           <LinearGradient
             colors={[colors.brand.primary, colors.brand.accent]}
             start={{ x: 0, y: 0 }}
@@ -265,250 +241,170 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     </Animated.View>
   );
 
-  const renderPreferencesStep = () => (
+  // ─── Step 2: Choose Book Type (category → type) ──────────────────────────────
+
+  const renderCategoryGrid = () => (
+    <>
+      <View style={styles.preferencesHeader}>
+        <Ionicons name="library-outline" size={40} color={colors.text.primary} />
+        <Text style={styles.preferencesTitle}>
+          {t('onboardingFlow.chooseCategoryTitle', { defaultValue: 'What kind of book?' })}
+        </Text>
+        <Text style={styles.preferencesSubtitle}>
+          {t('onboardingFlow.chooseCategorySubtitle', { defaultValue: 'Pick a theme that resonates' })}
+        </Text>
+      </View>
+
+      <View style={styles.categoryGrid}>
+        {BOOK_TYPE_CATEGORY_CONFIGS.map(config => {
+          const catColor = getCategoryColor(config.id, colors);
+          return (
+            <TouchableOpacity
+              key={config.id}
+              style={styles.categoryChip}
+              onPress={() => handleSelectCategory(config.id)}
+              accessibilityRole="button"
+            >
+              <Ionicons name={config.icon as ComponentProps<typeof Ionicons>['name']} size={20} color={catColor} />
+              <Text style={styles.categoryChipText}>{t(config.nameKey)}</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    </>
+  );
+
+  const renderTypeList = () => (
+    <>
+      <View style={styles.typeListHeader}>
+        <TouchableOpacity onPress={handleBackFromTypes} style={styles.typeBackButton}>
+          <Ionicons name="arrow-back" size={22} color={colors.text.primary} />
+        </TouchableOpacity>
+        <Text style={styles.typeListTitle}>
+          {selectedCategory ? t(BOOK_TYPE_CATEGORY_CONFIGS.find(c => c.id === selectedCategory)?.nameKey || '') : ''}
+        </Text>
+      </View>
+
+      {categoryTypes.map(typeConfig => (
+        <TouchableOpacity
+          key={typeConfig.id}
+          style={styles.typeRow}
+          onPress={() => handleSelectType(typeConfig.id)}
+          accessibilityRole="button"
+        >
+          <View style={[styles.typeIconCircle, { backgroundColor: typeColor + '20' }]}>
+            <Ionicons name={typeConfig.icon as ComponentProps<typeof Ionicons>['name']} size={22} color={typeColor} />
+          </View>
+          <View style={styles.typeTextContainer}>
+            <Text style={styles.typeRowTitle}>{t(typeConfig.nameKey)}</Text>
+            <Text style={styles.typeRowDesc} numberOfLines={2}>
+              {t(typeConfig.descriptionKey)}
+            </Text>
+          </View>
+          <Ionicons name="chevron-forward" size={18} color={colors.text.tertiary} />
+        </TouchableOpacity>
+      ))}
+    </>
+  );
+
+  const renderChooseBookTypeStep = () => (
     <Animated.View entering={isIOS26OrLater ? undefined : FadeIn.duration(500)} style={styles.stepContainer}>
       <ScrollView style={styles.scrollContent} contentContainerStyle={styles.scrollContentContainer}>
-        <View style={styles.preferencesHeader}>
-          <Ionicons name="settings-outline" size={40} color={colors.text.primary} />
-          <Text style={styles.preferencesTitle}>
-            {t('onboardingFlow.preferencesTitle', { defaultValue: 'Quick Setup' })}
-          </Text>
-          <Text style={styles.preferencesSubtitle}>
-            {t('onboardingFlow.preferencesSubtitle', { defaultValue: 'Help us personalize your music' })}
-          </Text>
-        </View>
-
-        <View style={styles.preferenceSection}>
-          <Text style={styles.sectionLabel}>
-            {t('onboardingFlow.wellnessLabel', { defaultValue: 'What brings you here?' })}
-          </Text>
-          <View style={styles.wellnessGrid}>
-            {WELLNESS_INTENTION_KEYS.map(key => {
-              const isSelected = preferences.wellnessIntention === key;
-              return (
-                <TouchableOpacity
-                  key={key}
-                  style={[styles.wellnessChip, isSelected && styles.wellnessChipSelected]}
-                  onPress={() =>
-                    setPreferences(prev => ({
-                      ...prev,
-                      wellnessIntention: prev.wellnessIntention === key ? null : key,
-                    }))
-                  }
-                  accessibilityRole="button"
-                  accessibilityState={{ selected: isSelected }}
-                >
-                  <Ionicons
-                    name={WELLNESS_INTENTION_ICONS[key] as ComponentProps<typeof Ionicons>['name']}
-                    size={18}
-                    color={isSelected ? colors.absolute.white : colors.text.secondary}
-                  />
-                  <Text style={[styles.wellnessChipText, isSelected && styles.wellnessChipTextSelected]}>
-                    {t(`onboardingFlow.wellnessIntentions.${key}`, { defaultValue: key })}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        </View>
-
-        <View style={styles.preferenceSection}>
-          <TouchableOpacity
-            style={styles.moreGenresToggle}
-            onPress={() => setLanguageSectionExpanded(prev => !prev)}
-            accessibilityRole="button"
-            accessibilityLabel={t('onboardingFlow.languageLabel', { defaultValue: 'Lyrics Language' })}
-          >
-            <Ionicons name="language-outline" size={18} color={colors.text.secondary} />
-            <Text style={styles.sectionLabel}>
-              {t('onboardingFlow.languageLabel', { defaultValue: 'Lyrics Language' })}
-            </Text>
-            <Text style={styles.languageCurrentValue}>
-              {languageOptions.find(opt => opt.value === preferences.languagePreference)?.label || 'EN'}
-            </Text>
-            <Ionicons
-              name={languageSectionExpanded ? 'chevron-up' : 'chevron-down'}
-              size={18}
-              color={colors.text.tertiary}
-            />
-          </TouchableOpacity>
-          {languageSectionExpanded && (
-            <View style={styles.languageListContainer}>
-              {languageOptions.map(item => (
-                <TouchableOpacity
-                  key={item.value}
-                  style={[
-                    styles.languageItem,
-                    preferences.languagePreference === item.value && styles.languageItemSelected,
-                  ]}
-                  onPress={() => setPreferences(prev => ({ ...prev, languagePreference: item.value }))}
-                >
-                  <Text
-                    style={[
-                      styles.languageItemText,
-                      preferences.languagePreference === item.value && styles.languageItemTextSelected,
-                    ]}
-                  >
-                    {item.label}
-                  </Text>
-                  {preferences.languagePreference === item.value && (
-                    <Ionicons name="checkmark" size={18} color={colors.absolute.white} />
-                  )}
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
-        </View>
-
-        <View style={styles.preferenceSection}>
-          <Text style={styles.sectionLabel}>{t('onboardingFlow.vocalLabel', { defaultValue: 'Preferred Voice' })}</Text>
-          <View style={styles.optionRow}>
-            {VOCAL_GENDER_KEYS.map(option => (
-              <TouchableOpacity
-                key={option.value}
-                style={[styles.optionButton, preferences.vocalGender === option.value && styles.optionButtonSelected]}
-                onPress={() => setPreferences(prev => ({ ...prev, vocalGender: option.value }))}
-              >
-                <Ionicons
-                  name={option.icon}
-                  size={24}
-                  color={preferences.vocalGender === option.value ? colors.absolute.white : colors.text.secondary}
-                />
-                <Text
-                  style={[styles.optionText, preferences.vocalGender === option.value && styles.optionTextSelected]}
-                >
-                  {t(`createScreen.vocalGenders.${option.labelKey}`, { defaultValue: option.labelKey })}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-
-        <View style={styles.preferenceSection}>
-          <Text style={styles.sectionLabel}>{t('create.genre', { defaultValue: 'Genre' })}</Text>
-          <View style={styles.genreGridContainer}>
-            {genreOptions.map(option => {
-              const isSelected = preferences.genre === option.value;
-              return (
-                <TouchableOpacity
-                  key={option.value}
-                  style={[
-                    styles.genreChip,
-                    { backgroundColor: colors.background.subtle, borderColor: colors.border.primary },
-                    isSelected && styles.genreChipSelected,
-                  ]}
-                  onPress={() =>
-                    setPreferences(prev => ({
-                      ...prev,
-                      genre: prev.genre === option.value ? '' : (option.value as GenreKey),
-                    }))
-                  }
-                  accessibilityRole="button"
-                  accessibilityLabel={option.label}
-                  accessibilityState={{ selected: isSelected }}
-                >
-                  <Text
-                    style={[
-                      styles.genreChipText,
-                      { color: isSelected ? colors.absolute.white : colors.text.secondary },
-                    ]}
-                  >
-                    {option.label}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-
-          <TouchableOpacity
-            style={styles.moreGenresToggle}
-            onPress={() => setMoreGenresExpanded(prev => !prev)}
-            accessibilityRole="button"
-            accessibilityLabel={t('onboardingFlow.moreGenres', { defaultValue: 'More Genres' })}
-          >
-            <Text style={styles.otherGenresLabel}>
-              {t('onboardingFlow.moreGenres', { defaultValue: 'More Genres' })}
-            </Text>
-            <Ionicons
-              name={moreGenresExpanded ? 'chevron-up' : 'chevron-down'}
-              size={18}
-              color={colors.text.tertiary}
-            />
-          </TouchableOpacity>
-          {moreGenresExpanded && (
-            <View style={styles.otherGenreGridContainer}>
-              {otherGenreOptions.map(option => {
-                const isSelected = preferences.genre === option.value;
-                return (
-                  <TouchableOpacity
-                    key={option.value}
-                    style={[
-                      styles.otherGenreChip,
-                      { backgroundColor: colors.background.subtle, borderColor: colors.border.primary },
-                      isSelected && styles.genreChipSelected,
-                    ]}
-                    onPress={() =>
-                      setPreferences(prev => ({
-                        ...prev,
-                        genre: prev.genre === option.value ? '' : (option.value as GenreKey),
-                      }))
-                    }
-                    accessibilityRole="button"
-                    accessibilityLabel={option.label}
-                    accessibilityState={{ selected: isSelected }}
-                  >
-                    <Text
-                      style={[
-                        styles.otherGenreChipText,
-                        { color: isSelected ? colors.absolute.white : colors.text.secondary },
-                      ]}
-                    >
-                      {option.label}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          )}
-        </View>
+        {selectedCategory === null ? renderCategoryGrid() : renderTypeList()}
       </ScrollView>
-
-      <View style={styles.footer}>
-        <TouchableOpacity style={styles.primaryButton} onPress={handleCompleteOnboarding} disabled={isSubmitting}>
-          <LinearGradient
-            colors={[colors.brand.primary, colors.brand.accent]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.buttonGradient}
-          >
-            {isSubmitting ? (
-              <ActivityIndicator color={colors.absolute.white} />
-            ) : (
-              <>
-                <Text style={styles.buttonText}>{t('onboardingFlow.getStarted', { defaultValue: 'Get Started' })}</Text>
-                <Ionicons name="arrow-forward" size={20} color={colors.absolute.white} />
-              </>
-            )}
-          </LinearGradient>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.skipButton} onPress={handleCompleteOnboarding} disabled={isSubmitting}>
-          <Text style={styles.skipText}>{t('onboardingFlow.skipForNow', { defaultValue: 'Skip for now' })}</Text>
-        </TouchableOpacity>
-      </View>
     </Animated.View>
   );
+
+  // ─── Step 3: Describe & Generate ─────────────────────────────────────────────
+
+  const renderDescribeBookStep = () => {
+    const canGenerate = bookDescription.trim().length >= 10;
+    const placeholderKey = selectedBookTypeConfig?.generatorPlaceholderKey || 'books.generator.placeholder';
+
+    return (
+      <Animated.View entering={isIOS26OrLater ? undefined : FadeIn.duration(500)} style={styles.stepContainer}>
+        <ScrollView style={styles.scrollContent} contentContainerStyle={styles.scrollContentContainer}>
+          <View style={styles.describeHeader}>
+            <TouchableOpacity onPress={handleBackFromDescribe} style={styles.typeBackButton}>
+              <Ionicons name="arrow-back" size={22} color={colors.text.primary} />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.describeIconRow}>
+            {selectedBookTypeConfig && (
+              <View style={[styles.describeIconCircle, { backgroundColor: typeColor + '20' }]}>
+                <Ionicons
+                  name={selectedBookTypeConfig.icon as ComponentProps<typeof Ionicons>['name']}
+                  size={32}
+                  color={typeColor}
+                />
+              </View>
+            )}
+            <Text style={styles.describeTitle}>
+              {t('onboardingFlow.describeTitle', {
+                defaultValue: 'Describe your {{bookTypeName}}',
+                bookTypeName: selectedBookTypeConfig ? t(selectedBookTypeConfig.nameKey) : 'Book',
+              })}
+            </Text>
+          </View>
+
+          <TextInput
+            style={styles.describeInput}
+            multiline
+            value={bookDescription}
+            onChangeText={setBookDescription}
+            placeholder={t(placeholderKey, { defaultValue: 'Describe what this book means to you...' })}
+            placeholderTextColor={colors.text.tertiary}
+            textAlignVertical="top"
+          />
+
+          <Text style={[styles.describeHint, canGenerate && { color: colors.semantic.success }]}>
+            {t('onboardingFlow.describeHint', { defaultValue: 'At least 10 characters' })}
+          </Text>
+        </ScrollView>
+
+        <View style={styles.footer}>
+          <TouchableOpacity
+            style={[styles.primaryButton, !canGenerate && styles.buttonDisabled]}
+            onPress={handleGenerate}
+            disabled={!canGenerate || isSubmitting}
+          >
+            <LinearGradient
+              colors={canGenerate ? [typeColor, colors.brand.accent] : [colors.text.tertiary, colors.text.tertiary]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.buttonGradient}
+            >
+              {isSubmitting ? (
+                <ActivityIndicator color={colors.absolute.white} />
+              ) : (
+                <>
+                  <Ionicons name="sparkles" size={20} color={colors.absolute.white} />
+                  <Text style={styles.buttonText}>
+                    {t('onboardingFlow.generateButton', { defaultValue: 'Generate My Book' })}
+                  </Text>
+                </>
+              )}
+            </LinearGradient>
+          </TouchableOpacity>
+        </View>
+      </Animated.View>
+    );
+  };
+
+  // ─── Render ───────────────────────────────────────────────────────────────────
 
   return (
     <View style={styles.container}>
       <LinearGradient
-        // as unknown: theme gradient arrays are string[] but LinearGradient requires readonly tuple type
         colors={colors.gradients.onboarding.slideA as unknown as readonly [string, string, ...string[]]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.gradient}
       >
         {step === 'welcome' && renderWelcomeStep()}
-        {step === 'preferences' && renderPreferencesStep()}
+        {step === 'chooseBookType' && renderChooseBookTypeStep()}
+        {step === 'describeBook' && renderDescribeBookStep()}
       </LinearGradient>
     </View>
   );
@@ -591,35 +487,8 @@ const createStyles = (colors: ColorScheme) =>
       borderRadius: 14,
       overflow: 'hidden',
     },
-    languageCurrentValue: {
-      fontFamily: fontFamilies.body.regular,
-      fontSize: fontSizes.footnote,
-      color: colors.brand.primary,
-      marginLeft: 'auto',
-      marginRight: 4,
-    },
-    languageListContainer: {
-      gap: 2,
-    },
-    languageItem: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      paddingVertical: 12,
-      paddingHorizontal: 16,
-      borderRadius: BORDER_RADIUS.md,
-    },
-    languageItemSelected: {
-      backgroundColor: colors.brand.primary,
-    },
-    languageItemText: {
-      fontFamily: fontFamilies.body.regular,
-      fontSize: fontSizes.callout,
-      color: colors.text.secondary,
-    },
-    languageItemTextSelected: {
-      fontFamily: fontFamilies.body.medium,
-      color: colors.absolute.white,
+    buttonDisabled: {
+      opacity: 0.5,
     },
     buttonGradient: {
       flexDirection: 'row',
@@ -633,6 +502,8 @@ const createStyles = (colors: ColorScheme) =>
       fontSize: fontSizes.headline,
       color: colors.absolute.white,
     },
+
+    // ─── Step 2: Choose Book Type ────────────────────────────────
     preferencesHeader: {
       alignItems: 'center',
       marginBottom: 32,
@@ -650,84 +521,102 @@ const createStyles = (colors: ColorScheme) =>
       color: colors.text.secondary,
       textAlign: 'center',
     },
-    preferenceSection: {
-      marginBottom: 20,
-    },
-    wellnessGrid: {
+    categoryGrid: {
       flexDirection: 'row',
       flexWrap: 'wrap',
-      gap: WELLNESS_GAP,
-      marginTop: 8,
+      gap: CATEGORY_GAP,
     },
-    wellnessChip: {
+    categoryChip: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 6,
-      width: WELLNESS_CHIP_WIDTH,
-      paddingVertical: 12,
-      paddingHorizontal: 12,
+      gap: 8,
+      width: CATEGORY_CHIP_WIDTH,
+      paddingVertical: 14,
+      paddingHorizontal: 14,
       borderRadius: BORDER_RADIUS.md,
       backgroundColor: colors.background.subtle,
       borderWidth: 1,
       borderColor: colors.border.primary,
     },
-    wellnessChipSelected: {
-      backgroundColor: colors.brand.primary,
-      borderColor: colors.brand.primary,
-    },
-    wellnessChipText: {
+    categoryChipText: {
       fontFamily: fontFamilies.body.medium,
       fontSize: fontSizes.footnote,
-      color: colors.text.secondary,
+      color: colors.text.primary,
+      flex: 1,
     },
-    wellnessChipTextSelected: {
-      color: colors.absolute.white,
+
+    // ─── Type list (within category) ─────────────────────────────
+    typeListHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+      marginBottom: 20,
     },
-    sectionLabel: {
+    typeBackButton: {
+      padding: 4,
+    },
+    typeListTitle: {
+      fontFamily: fontFamilies.body.bold,
+      fontSize: fontSizes.title3,
+      color: colors.text.primary,
+    },
+    typeRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 14,
+      paddingVertical: 14,
+      paddingHorizontal: 4,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: colors.border.primary,
+    },
+    typeIconCircle: {
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    typeTextContainer: {
+      flex: 1,
+    },
+    typeRowTitle: {
       fontFamily: fontFamilies.body.semibold,
       fontSize: fontSizes.callout,
       color: colors.text.primary,
-      marginBottom: 4,
+      marginBottom: 2,
     },
-    sectionHint: {
+    typeRowDesc: {
       fontFamily: fontFamilies.body.regular,
       fontSize: fontSizes.footnote,
-      color: colors.text.tertiary,
-      marginBottom: 12,
+      color: colors.text.secondary,
+      lineHeight: 18,
     },
-    optionRow: {
-      flexDirection: 'row',
-      gap: 12,
-    },
-    optionButton: {
-      flex: 1,
+
+    // ─── Step 3: Describe & Generate ─────────────────────────────
+    describeHeader: {
       flexDirection: 'row',
       alignItems: 'center',
+      marginBottom: 16,
+    },
+    describeIconRow: {
+      alignItems: 'center',
+      marginBottom: 24,
+    },
+    describeIconCircle: {
+      width: 64,
+      height: 64,
+      borderRadius: 32,
+      alignItems: 'center',
       justifyContent: 'center',
-      gap: 6,
-      paddingVertical: 10,
-      paddingHorizontal: 16,
-      borderRadius: BORDER_RADIUS.md,
-      backgroundColor: colors.background.subtle,
-      borderWidth: 1,
-      borderColor: colors.border.primary,
+      marginBottom: 16,
     },
-    optionButtonSelected: {
-      backgroundColor: colors.brand.primary,
-      borderColor: colors.brand.primary,
+    describeTitle: {
+      fontFamily: fontFamilies.body.bold,
+      fontSize: fontSizes.title2,
+      color: colors.text.primary,
+      textAlign: 'center',
     },
-    optionText: {
-      fontFamily: fontFamilies.body.medium,
-      fontSize: fontSizes.callout,
-      color: colors.text.secondary,
-    },
-    optionTextSelected: {
-      color: colors.absolute.white,
-    },
-    textInputContainer: {
-      position: 'relative' as const,
-    },
-    textInput: {
+    describeInput: {
       fontFamily: fontFamilies.body.regular,
       fontSize: fontSizes.callout,
       color: colors.text.primary,
@@ -736,88 +625,14 @@ const createStyles = (colors: ColorScheme) =>
       borderColor: colors.border.primary,
       borderRadius: BORDER_RADIUS.md,
       paddingHorizontal: 16,
-      paddingVertical: 12,
-      paddingRight: 36,
-      minHeight: 80,
+      paddingVertical: 14,
+      minHeight: 120,
     },
-    clearButton: {
-      position: 'absolute' as const,
-      top: 8,
-      right: 8,
-      padding: 4,
-    },
-    quickPicksContainer: {
-      marginTop: 12,
-    },
-    quickPicksLabel: {
+    describeHint: {
       fontFamily: fontFamilies.body.regular,
       fontSize: fontSizes.footnote,
       color: colors.text.tertiary,
-      marginBottom: 8,
-    },
-    skipButton: {
-      marginTop: 16,
-      alignItems: 'center',
-    },
-    skipText: {
-      fontFamily: fontFamilies.body.regular,
-      fontSize: fontSizes.callout,
-      color: colors.text.tertiary,
-    },
-    genreGridContainer: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      marginTop: 12,
-      gap: GENRE_GAP,
-    },
-    genreChip: {
-      paddingVertical: 8,
-      borderRadius: BORDER_RADIUS.md,
-      borderWidth: 1,
-      width: GENRE_CHIP_WIDTH,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    genreChipSelected: {
-      backgroundColor: colors.brand.primary,
-      borderColor: colors.brand.primary,
-    },
-    genreChipText: {
-      fontSize: fontSizes.footnote,
-      fontFamily: fontFamilies.body.medium,
-      textAlign: 'center',
-    },
-    moreGenresToggle: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: 6,
-      marginTop: 12,
-      marginBottom: 4,
-      paddingVertical: 6,
-    },
-    otherGenresLabel: {
-      fontFamily: fontFamilies.body.medium,
-      fontSize: fontSizes.footnote,
-      color: colors.text.tertiary,
-    },
-    otherGenreGridContainer: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      gap: OTHER_GENRE_GAP,
-      justifyContent: 'center',
-    },
-    otherGenreChip: {
-      paddingVertical: 8,
-      borderRadius: BORDER_RADIUS.md,
-      borderWidth: 1,
-      width: OTHER_GENRE_CHIP_WIDTH,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    otherGenreChipText: {
-      fontSize: 11,
-      fontFamily: fontFamilies.body.medium,
+      marginTop: 8,
       textAlign: 'center',
     },
   });

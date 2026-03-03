@@ -181,6 +181,7 @@ export class TrackGenerationService {
         providedLyricsId: request.lyricsId ?? undefined,
         style: suggestedStyle ?? undefined,
         mood: suggestedMood ?? undefined,
+        genre: request.genre ?? request.genres?.[0] ?? undefined,
         language: request.language ?? undefined,
         culturalLanguages: request.culturalLanguages ?? undefined,
         visibility: targetVisibility,

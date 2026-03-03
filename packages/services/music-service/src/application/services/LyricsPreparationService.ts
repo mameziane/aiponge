@@ -154,6 +154,7 @@ export interface LyricsPreparationRequest {
   providedLyricsId?: string;
   style?: string;
   mood?: string;
+  genre?: string;
   language?: string;
   culturalLanguages?: string[];
   isBilingual?: boolean;
@@ -445,7 +446,8 @@ export class LyricsPreparationService {
       prefResult.preferences,
       seedsResult.seeds,
       personaResult.persona,
-      request.bookContext
+      request.bookContext,
+      request.genre
     );
 
     if (!lyricsResult.success) {
@@ -595,7 +597,8 @@ export class LyricsPreparationService {
     preferences?: UserPreferences,
     seeds?: NarrativeSeeds,
     persona?: UserPersonaData,
-    bookContext?: BookContext
+    bookContext?: BookContext,
+    genre?: string
   ): Promise<{ success: true; content: string } | { success: false; error: string; code: string }> {
     const WELLNESS_INTENTION_MAP: Record<string, { primary_goal: string; motivators: string[] }> = {
       stress_relief: {
@@ -684,7 +687,7 @@ export class LyricsPreparationService {
           book_themes: bookContext.bookThemes,
         }),
       },
-      options: { templateId: 'music-lyrics' },
+      options: { templateId: genre?.toLowerCase() === 'podcast' ? 'music-podcast' : 'music-lyrics' },
     };
 
     if (persona) {
@@ -705,12 +708,13 @@ export class LyricsPreparationService {
     try {
       const url = `${this.aiContentServiceUrl}/api/content/generate`;
 
+      const templateId = genre?.toLowerCase() === 'podcast' ? 'music-podcast' : 'music-lyrics';
       const callData = {
         requestId,
         userId,
         promptLength: entryContent.length,
         language,
-        templateId: 'music-lyrics',
+        templateId,
         url,
       };
       logger.info('🎵 [LYRICS] Calling AI content service', callData);

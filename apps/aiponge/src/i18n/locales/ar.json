@@ -268,7 +268,7 @@
       "defaultsSaveFailed": "فشل حفظ الإعدادات الافتراضية",
       "resetDefaultsConfirm": "إعادة تعيين جميع الإعدادات الافتراضية إلى قيمها الأصلية؟",
       "genreOptions": "الأنواع المتاحة",
-      "genreOptionsHint": "تبديل الأنواع التي تظهر في تفضيلات الأغاني",
+      "genreOptionsHint": "تبديل الأنواع التي تظهر في تفضيلات الصوت",
       "enableAll": "تفعيل الكل"
     }
   },
@@ -278,23 +278,18 @@
     "history": "السجل"
   },
   "onboardingFlow": {
-    "welcomeTitle": "رحلتك الموسيقية تبدأ",
-    "welcomeSubtitle": "أنشئ أغنيتك الشخصية الأولى واكتشف كيف تتحول إدخالاتك إلى موسيقى",
-    "feature1": "اكتب ما يدور في ذهنك",
-    "feature2": "احصل على أغنية مخصصة",
-    "feature3": "افتح مكتبتك الموسيقية",
+    "welcomeTitle": "أنشئ كتابك الأول بالذكاء الاصطناعي",
+    "welcomeSubtitle": "اختر موضوعاً، صف ما يهمك، وسنولّد كتاباً مخصصاً مع موسيقى",
+    "feature1": "اختر كتاباً يتحدث إليك",
+    "feature2": "الذكاء الاصطناعي يولّد الفصول والتأملات",
+    "feature3": "كل إدخال يصبح أغنية مخصصة",
+    "continue": "متابعة",
     "getStarted": "ابدأ",
-    "wellnessLabel": "ما الذي يجلبك إلى هنا؟",
-    "wellnessIntentions": {
-      "stress_relief": "تخفيف التوتر",
-      "self_discovery": "اكتشاف الذات",
-      "motivation": "التحفيز",
-      "sleep": "نوم أفضل",
-      "focus": "التركيز",
-      "emotional_healing": "الشفاء العاطفي",
-      "creative_expression": "التعبير الإبداعي",
-      "mindfulness": "اليقظة الذهنية"
-    }
+    "chooseCategoryTitle": "أي نوع من الكتب؟",
+    "chooseCategorySubtitle": "اختر موضوعاً يتردد صداه معك",
+    "describeTitle": "صِف {{bookTypeName}} الخاص بك",
+    "describeHint": "10 أحرف على الأقل",
+    "generateButton": "أنشئ كتابي"
   },
   "manifesto": {
     "title": "بيان aiponge",
@@ -648,7 +643,7 @@
     "errorLoadingEntry": "فشل تحميل الإدخال",
     "entryFromLockedChapter": "هذا الإدخال من فصل مغلق",
     "songGeneration": "إنشاء الأغنية",
-    "songPreferences": "تفضيلات الأغنية",
+    "songPreferences": "تفضيلات الصوت",
     "songPreferencesExpand": "توسيع",
     "songPreferencesCollapse": "طي",
     "musicStyles": "أنماط الموسيقى",
@@ -786,7 +781,8 @@
       "worship": "تسبيح",
       "spiritual": "روحاني",
       "meditation": "تأمل",
-      "ska": "سكا"
+      "ska": "سكا",
+      "podcast": "بودكاست"
     },
     "vocalGenders": {
       "any": "أي",
@@ -910,8 +906,8 @@
     "enterDisplayName": "أدخل اسم العرض الخاص بك",
     "tapToSetDisplayName": "اضغط لتعيين اسمك",
     "personalInfo": "المعلومات الشخصية",
-    "songPreferences": "تفضيلات الأغاني",
-    "songPreferencesDescription": "حدد تفضيلاتك الافتراضية للأغاني المُنشأة. سيتم استخدامها كإعدادات افتراضية عند إنشاء موسيقى جديدة.",
+    "songPreferences": "تفضيلات الصوت",
+    "songPreferencesDescription": "حدد تفضيلاتك الافتراضية للصوت المُنشأ، بما في ذلك الموسيقى والبودكاست.",
     "privacyData": "الخصوصية والبيانات"
   },
   "wellness": {

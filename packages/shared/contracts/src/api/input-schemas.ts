@@ -261,6 +261,7 @@ export const CreateBookGenerationSchema = z.object({
   generationMode: z.enum(['blueprint', 'book']).optional(),
   depthLevel: z.enum(['brief', 'standard', 'deep']).optional(),
   bookTypeId: z.string().max(50).optional(),
+  isOnboarding: z.boolean().optional(),
 });
 export type CreateBookGenerationInput = z.infer<typeof CreateBookGenerationSchema>;
 

@@ -48,6 +48,7 @@ export const GENRE_KEYS = [
   'spiritual',
   'meditation',
   'ska',
+  'podcast',
 ] as const;
 
 export type GenreKey = (typeof GENRE_KEYS)[number];

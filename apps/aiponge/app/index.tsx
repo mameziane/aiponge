@@ -84,7 +84,7 @@ export default function AuthGate() {
     try {
       console.log('[AuthGate] handleOnboardingComplete called - user:', user?.id, 'isGuest:', user?.isGuest);
       setShowOnboarding(false);
-      const route = user?.isGuest ? '/(user)/music' : '/(user)/books?expandChapters=true';
+      const route = '/(user)/books';
       console.log('[AuthGate] Onboarding complete - setting initial route to:', route);
       setInitialRoute(route);
       console.log('[AuthGate] Initial route set successfully');

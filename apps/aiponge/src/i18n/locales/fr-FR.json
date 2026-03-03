@@ -296,7 +296,7 @@
       "defaultsSaveFailed": "Échec de l'enregistrement des paramètres par défaut",
       "resetDefaultsConfirm": "Réinitialiser tous les paramètres par défaut à leurs valeurs d'origine ?",
       "genreOptions": "Genres Disponibles",
-      "genreOptionsHint": "Basculer les genres qui apparaissent dans les Préférences de Chanson",
+      "genreOptionsHint": "Basculer les genres qui apparaissent dans les Préférences Audio",
       "enableAll": "Tout Activer"
     }
   },
@@ -306,23 +306,18 @@
     "history": "Historique"
   },
   "onboardingFlow": {
-    "welcomeTitle": "Ton voyage musical commence",
-    "welcomeSubtitle": "Crée ta première chanson personnalisée et découvre comment tes entrées deviennent musique",
-    "feature1": "Écris ce que tu as en tête",
-    "feature2": "Obtiens une chanson personnalisée",
-    "feature3": "Débloque ta bibliothèque musicale",
+    "welcomeTitle": "Créez votre premier livre IA",
+    "welcomeSubtitle": "Choisissez un thème, décrivez ce qui compte pour vous, et nous générerons un livre personnalisé avec de la musique",
+    "feature1": "Choisissez un livre qui vous parle",
+    "feature2": "L'IA génère chapitres & réflexions",
+    "feature3": "Chaque entrée devient une chanson personnalisée",
+    "continue": "Continuer",
     "getStarted": "Commencer",
-    "wellnessLabel": "Qu'est-ce qui vous amène ici ?",
-    "wellnessIntentions": {
-      "stress_relief": "Réduction du stress",
-      "self_discovery": "Découverte de soi",
-      "motivation": "Motivation",
-      "sleep": "Meilleur sommeil",
-      "focus": "Concentration",
-      "emotional_healing": "Guérison émotionnelle",
-      "creative_expression": "Expression créative",
-      "mindfulness": "Pleine conscience"
-    }
+    "chooseCategoryTitle": "Quel type de livre ?",
+    "chooseCategorySubtitle": "Choisissez un thème qui résonne",
+    "describeTitle": "Décrivez votre {{bookTypeName}}",
+    "describeHint": "Au moins 10 caractères",
+    "generateButton": "Générer Mon Livre"
   },
   "manifesto": {
     "title": "Le Manifeste aiponge",
@@ -676,7 +671,7 @@
     "errorLoadingEntry": "Échec du chargement de l'entrée",
     "entryFromLockedChapter": "Cette entrée provient d'un chapitre verrouillé",
     "songGeneration": "Génération de Chanson",
-    "songPreferences": "Préférences de Chanson",
+    "songPreferences": "Préférences Audio",
     "songPreferencesExpand": "développer",
     "songPreferencesCollapse": "réduire",
     "musicStyles": "Styles de Musique",
@@ -823,7 +818,8 @@
       "worship": "Louange",
       "spiritual": "Spirituel",
       "meditation": "Méditation",
-      "ska": "Ska"
+      "ska": "Ska",
+      "podcast": "Podcast"
     },
     "vocalGenders": {
       "any": "Nimporte",
@@ -989,8 +985,8 @@
     "enterDisplayName": "Entrez votre nom d'affichage",
     "tapToSetDisplayName": "Appuyez pour définir votre nom",
     "personalInfo": "Informations Personnelles",
-    "songPreferences": "Préférences Musicales",
-    "songPreferencesDescription": "Définissez vos préférences par défaut pour les chansons générées. Celles-ci seront utilisées lors de la création de nouvelle musique.",
+    "songPreferences": "Préférences Audio",
+    "songPreferencesDescription": "Définissez vos préférences par défaut pour l'audio généré, y compris la musique et les podcasts.",
     "privacyData": "Confidentialité et données",
     "summary": "Résumé"
   },

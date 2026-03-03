@@ -51,6 +51,7 @@ export interface BookGenerationRequest {
   tone?: 'supportive' | 'challenging' | 'neutral';
   depthLevel?: DepthLevel;
   bookTypeId?: string;
+  isOnboarding?: boolean;
 }
 
 export interface ChapterProgress {
@@ -101,7 +102,11 @@ const MAX_POLL_TIME_BY_DEPTH: Record<DepthLevel, number> = {
   deep: 600_000,
 };
 
-export function useBookGenerator(): UseBookGeneratorResult {
+interface UseBookGeneratorOptions {
+  bypassTierCheck?: boolean;
+}
+
+export function useBookGenerator(options?: UseBookGeneratorOptions): UseBookGeneratorResult {
   const { tierConfig } = useSubscriptionData();
   const { isLibrarian: isLibrarianOrAdmin, isLoading: roleLoading } = useIsLibrarianWithLoading();
   const [state, setState] = useState<BookGenerationState>({
@@ -232,6 +237,7 @@ export function useBookGenerator(): UseBookGeneratorResult {
           tone: request.tone,
           depthLevel: request.depthLevel,
           bookTypeId: request.bookTypeId,
+          isOnboarding: request.isOnboarding,
         });
 
         if (!response?.success) {
@@ -353,7 +359,7 @@ export function useBookGenerator(): UseBookGeneratorResult {
     });
   }, [cleanup]);
 
-  const canGenerate = tierConfig.canCreateCustomBooks || isLibrarianOrAdmin;
+  const canGenerate = options?.bypassTierCheck || tierConfig.canCreateCustomBooks || isLibrarianOrAdmin;
 
   return {
     status: state.status,

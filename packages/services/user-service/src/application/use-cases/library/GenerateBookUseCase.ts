@@ -45,6 +45,7 @@ interface GenerateBookRequestInput {
   generationMode?: 'blueprint' | 'book';
   depthLevel?: 'brief' | 'standard' | 'deep';
   bookTypeId?: string;
+  isOnboarding?: boolean;
 }
 
 interface GenerationProgress {
@@ -169,13 +170,18 @@ export class GenerateBookUseCase {
   }
 
   async createRequest(request: GenerateBookRequestInput): Promise<GenerateBookResponse> {
-    const { userId, userRole, primaryGoal, language, tone, generationMode, depthLevel } = request;
+    const { userId, userRole, primaryGoal, language, tone, generationMode, isOnboarding } = request;
+    const depthLevel = isOnboarding ? 'brief' : request.depthLevel;
     const resolvedBookTypeId = request.bookTypeId;
     const isGenerated = isGeneratedBookType(resolvedBookTypeId);
 
-    const accessCheck = await this.checkBookAccess(userId, userRole, depthLevel || 'standard');
-    if (!accessCheck.hasAccess) {
-      return { success: false, error: accessCheck.message };
+    if (!isOnboarding) {
+      const accessCheck = await this.checkBookAccess(userId, userRole, depthLevel || 'standard');
+      if (!accessCheck.hasAccess) {
+        return { success: false, error: accessCheck.message };
+      }
+    } else {
+      logger.info('Onboarding book generation — skipping tier check', { userId });
     }
 
     if (!primaryGoal || primaryGoal.trim().length < 10) {

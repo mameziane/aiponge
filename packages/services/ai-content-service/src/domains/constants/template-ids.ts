@@ -8,6 +8,7 @@ export const TEMPLATE_IDS = {
   BOOK_COVER_ARTWORK: 'book-cover-artwork',
   QUOTE_INSPIRATION: 'quote-inspiration',
   MUSIC_LYRICS: 'music-lyrics',
+  MUSIC_PODCAST: 'music-podcast',
   MUSIC_SONG_TITLE: 'music-song-title',
   MUSIC_PERSONALIZATION: 'music-personalization',
 } as const;

@@ -296,7 +296,7 @@
       "defaultsSaveFailed": "Falha ao salvar configurações padrão",
       "resetDefaultsConfirm": "Redefinir todas as configurações padrão para seus valores originais?",
       "genreOptions": "Gêneros Disponíveis",
-      "genreOptionsHint": "Alternar quais gêneros aparecem nas Preferências de Música",
+      "genreOptionsHint": "Alternar quais gêneros aparecem nas Preferências de Áudio",
       "enableAll": "Habilitar Tudo"
     }
   },
@@ -306,23 +306,18 @@
     "history": "Histórico"
   },
   "onboardingFlow": {
-    "welcomeTitle": "Sua jornada musical começa",
-    "welcomeSubtitle": "Crie sua primeira música personalizada e descubra como seus entradas viram música",
-    "feature1": "Escreva o que está em sua mente",
-    "feature2": "Receba uma música personalizada",
-    "feature3": "Desbloqueie sua biblioteca musical",
+    "welcomeTitle": "Crie seu primeiro livro com IA",
+    "welcomeSubtitle": "Escolha um tema, descreva o que importa para você, e geraremos um livro personalizado com música",
+    "feature1": "Escolha um livro que fale com você",
+    "feature2": "A IA gera capítulos e reflexões",
+    "feature3": "Cada entrada se torna uma música personalizada",
+    "continue": "Continuar",
     "getStarted": "Começar",
-    "wellnessLabel": "O que te traz aqui?",
-    "wellnessIntentions": {
-      "stress_relief": "Alívio do estresse",
-      "self_discovery": "Autoconhecimento",
-      "motivation": "Motivação",
-      "sleep": "Melhor sono",
-      "focus": "Foco",
-      "emotional_healing": "Cura emocional",
-      "creative_expression": "Expressão criativa",
-      "mindfulness": "Atenção plena"
-    }
+    "chooseCategoryTitle": "Que tipo de livro?",
+    "chooseCategorySubtitle": "Escolha um tema que ressoe",
+    "describeTitle": "Descreva seu {{bookTypeName}}",
+    "describeHint": "Pelo menos 10 caracteres",
+    "generateButton": "Gerar Meu Livro"
   },
   "manifesto": {
     "title": "O Manifesto aiponge",
@@ -676,7 +671,7 @@
     "errorLoadingEntry": "Falha ao carregar entrada",
     "entryFromLockedChapter": "Esta entrada é de um capítulo bloqueado",
     "songGeneration": "Geração de Música",
-    "songPreferences": "Preferências da Música",
+    "songPreferences": "Preferências de Áudio",
     "songPreferencesExpand": "expandir",
     "songPreferencesCollapse": "contrair",
     "musicStyles": "Estilos Musicais",
@@ -823,7 +818,8 @@
       "worship": "Louvor",
       "spiritual": "Espiritual",
       "meditation": "Meditação",
-      "ska": "Ska"
+      "ska": "Ska",
+      "podcast": "Podcast"
     },
     "vocalGenders": {
       "any": "Qualquer",
@@ -990,8 +986,8 @@
     "enterDisplayName": "Digite seu nome de exibição",
     "tapToSetDisplayName": "Toque para definir seu nome",
     "personalInfo": "Informações Pessoais",
-    "songPreferences": "Preferências Musicais",
-    "songPreferencesDescription": "Defina suas preferências padrão para músicas geradas. Estas serão usadas como padrão ao criar novas músicas.",
+    "songPreferences": "Preferências de Áudio",
+    "songPreferencesDescription": "Defina suas preferências padrão para áudio gerado, incluindo música e podcasts.",
     "privacyData": "Privacidade e Dados"
   },
   "wellness": {

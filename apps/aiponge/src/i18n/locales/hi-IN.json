@@ -296,7 +296,7 @@
       "defaultsSaveFailed": "डिफ़ॉल्ट सेटिंग्स सहेजने में विफल",
       "resetDefaultsConfirm": "सभी डिफ़ॉल्ट सेटिंग्स को मूल मानों पर रीसेट करें?",
       "genreOptions": "उपलब्ध शैलियाँ",
-      "genreOptionsHint": "गाना प्राथमिकताओं में दिखने वाली शैलियाँ टॉगल करें",
+      "genreOptionsHint": "ऑडियो प्राथमिकताओं में दिखने वाली शैलियाँ टॉगल करें",
       "enableAll": "सभी सक्षम करें"
     }
   },
@@ -306,23 +306,18 @@
     "history": "इतिहास"
   },
   "onboardingFlow": {
-    "welcomeTitle": "आपकी संगीत यात्रा शुरू होती है",
-    "welcomeSubtitle": "अपना पहला निजीकृत गाना बनाएँ और जानें कि आपकी प्रविष्टियाँ संगीत में कैसे बदलती हैं",
-    "feature1": "जो मन में है वो लिखें",
-    "feature2": "एक निजीकृत गाना पाएँ",
-    "feature3": "अपना संगीत पुस्तकालय अनलॉक करें",
+    "welcomeTitle": "अपनी पहली AI किताब बनाएं",
+    "welcomeSubtitle": "एक विषय चुनें, बताएं कि आपके लिए क्या मायने रखता है, और हम संगीत के साथ एक व्यक्तिगत किताब बनाएंगे",
+    "feature1": "ऐसी किताब चुनें जो आपसे बात करे",
+    "feature2": "AI अध्याय और चिंतन बनाता है",
+    "feature3": "हर प्रविष्टि एक व्यक्तिगत गाना बनती है",
+    "continue": "जारी रखें",
     "getStarted": "शुरू करें",
-    "wellnessLabel": "आप यहाँ क्यों आए हैं?",
-    "wellnessIntentions": {
-      "stress_relief": "तनाव मुक्ति",
-      "self_discovery": "आत्म-खोज",
-      "motivation": "प्रेरणा",
-      "sleep": "बेहतर नींद",
-      "focus": "एकाग्रता",
-      "emotional_healing": "भावनात्मक उपचार",
-      "creative_expression": "रचनात्मक अभिव्यक्ति",
-      "mindfulness": "सजगता"
-    }
+    "chooseCategoryTitle": "किस तरह की किताब?",
+    "chooseCategorySubtitle": "ऐसा विषय चुनें जो गूंजे",
+    "describeTitle": "अपने {{bookTypeName}} का वर्णन करें",
+    "describeHint": "कम से कम 10 अक्षर",
+    "generateButton": "मेरी किताब बनाएं"
   },
   "manifesto": {
     "title": "aiponge का घोषणापत्र",
@@ -676,7 +671,7 @@
     "errorLoadingEntry": "प्रविष्टि लोड करने में विफल",
     "entryFromLockedChapter": "यह प्रविष्टि एक लॉक अध्याय से है",
     "songGeneration": "गाना जनरेशन",
-    "songPreferences": "गाना प्राथमिकताएँ",
+    "songPreferences": "ऑडियो प्राथमिकताएँ",
     "songPreferencesExpand": "विस्तार करें",
     "songPreferencesCollapse": "संक्षिप्त करें",
     "musicStyles": "संगीत शैलियाँ",
@@ -823,7 +818,8 @@
       "worship": "भक्ति",
       "spiritual": "आध्यात्मिक",
       "meditation": "ध्यान",
-      "ska": "स्का"
+      "ska": "स्का",
+      "podcast": "पॉडकास्ट"
     },
     "vocalGenders": {
       "any": "कोई भी",
@@ -989,8 +985,8 @@
     "enterDisplayName": "अपना प्रदर्शन नाम दर्ज करें",
     "tapToSetDisplayName": "अपना नाम सेट करने के लिए टैप करें",
     "personalInfo": "व्यक्तिगत जानकारी",
-    "songPreferences": "संगीत प्राथमिकताएँ",
-    "songPreferencesDescription": "जनरेट किए गए गानों के लिए अपनी डिफ़ॉल्ट प्राथमिकताएँ निर्धारित करें। नया संगीत बनाते समय इनका उपयोग होगा।",
+    "songPreferences": "ऑडियो प्राथमिकताएँ",
+    "songPreferencesDescription": "संगीत और पॉडकास्ट सहित जनरेट किए गए ऑडियो के लिए अपनी डिफ़ॉल्ट प्राथमिकताएँ निर्धारित करें।",
     "privacyData": "गोपनीयता और डेटा",
     "summary": "सारांश"
   },

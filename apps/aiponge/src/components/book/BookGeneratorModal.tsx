@@ -43,6 +43,7 @@ import {
   type BookTypeConfig,
 } from '../../constants/bookTypes';
 import { LoadingState } from '../shared';
+import { GenerationProgressView } from './GenerationProgressView';
 
 type DepthOption = { value: DepthLevel; labelKey: string; descriptionKey: string };
 
@@ -64,86 +65,6 @@ function getDepthOptions(config: BookTypeConfig): DepthOption[] {
       descriptionKey: config.generatorDepthDeepDescKey || 'books.generator.depth.deepDesc',
     },
   ];
-}
-
-interface GenerationProgressViewProps {
-  progress: GenerationProgress;
-  colors: ColorScheme;
-  typeColor: string;
-  t: (key: string, params?: Record<string, unknown>) => string;
-}
-
-function GenerationProgressView({ progress, colors, typeColor, t }: GenerationProgressViewProps) {
-  const progressStyles = useMemo(() => createProgressStyles(colors), [colors]);
-  const completionRatio = progress.totalChapters > 0 ? progress.completedChapters / progress.totalChapters : 0;
-
-  return (
-    <View style={progressStyles.container}>
-      <ActivityIndicator size="large" color={typeColor} style={progressStyles.spinner} />
-      {progress.bookTitle && (
-        <Text style={progressStyles.bookTitle} numberOfLines={2}>
-          {progress.bookTitle}
-        </Text>
-      )}
-      <Text style={progressStyles.phaseText}>
-        {progress.phase === 'outline'
-          ? t('books.generator.progress.creatingOutline')
-          : t('books.generator.progress.writingChapters')}
-      </Text>
-      {progress.phase === 'chapters' && progress.totalChapters > 0 && (
-        <>
-          <View style={progressStyles.progressBarContainer}>
-            <View
-              style={[
-                progressStyles.progressBarFill,
-                { width: `${Math.round(completionRatio * 100)}%`, backgroundColor: typeColor },
-              ]}
-            />
-          </View>
-          <Text style={progressStyles.progressCount}>
-            {progress.completedChapters} / {progress.totalChapters}
-          </Text>
-          <ScrollView style={progressStyles.chapterList} showsVerticalScrollIndicator={false}>
-            {progress.chapters.map((ch, idx) => (
-              <View key={idx} style={progressStyles.chapterRow}>
-                <Ionicons
-                  name={
-                    ch.status === 'completed'
-                      ? 'checkmark-circle'
-                      : ch.status === 'generating'
-                        ? 'sync-circle'
-                        : ch.status === 'failed'
-                          ? 'close-circle'
-                          : 'ellipse-outline'
-                  }
-                  size={16}
-                  color={
-                    ch.status === 'completed'
-                      ? colors.semantic.success
-                      : ch.status === 'generating'
-                        ? typeColor
-                        : ch.status === 'failed'
-                          ? colors.semantic.error
-                          : colors.text.tertiary
-                  }
-                />
-                <Text
-                  style={[
-                    progressStyles.chapterTitle,
-                    ch.status === 'completed' && { color: colors.text.secondary },
-                    ch.status === 'generating' && { color: typeColor, fontWeight: '600' },
-                  ]}
-                  numberOfLines={1}
-                >
-                  {ch.title}
-                </Text>
-              </View>
-            ))}
-          </ScrollView>
-        </>
-      )}
-    </View>
-  );
 }
 
 interface BookGeneratorModalProps {
@@ -296,7 +217,7 @@ export function BookGeneratorModal({
         <View style={styles.overlay}>
           <View style={styles.content}>
             {progress ? (
-              <GenerationProgressView progress={progress} colors={colors} typeColor={typeColor} t={t} />
+              <GenerationProgressView progress={progress} typeColor={typeColor} />
             ) : (
               <LoadingState fullScreen={false} message={t(bookTypeConfig.generatorGeneratingKey)} />
             )}
@@ -707,61 +628,5 @@ const createStyles = (colors: ColorScheme) =>
       fontSize: 13,
       color: colors.text.secondary,
       textDecorationLine: 'underline',
-    },
-  });
-
-const createProgressStyles = (colors: ColorScheme) =>
-  StyleSheet.create({
-    container: {
-      alignItems: 'center',
-      paddingVertical: 8,
-    },
-    spinner: {
-      marginBottom: 16,
-    },
-    bookTitle: {
-      fontSize: 18,
-      fontWeight: '700',
-      color: colors.text.primary,
-      textAlign: 'center',
-      marginBottom: 8,
-    },
-    phaseText: {
-      fontSize: 14,
-      color: colors.text.secondary,
-      marginBottom: 16,
-    },
-    progressBarContainer: {
-      width: '100%',
-      height: 6,
-      backgroundColor: colors.background.darkCard,
-      borderRadius: 3,
-      overflow: 'hidden',
-      marginBottom: 8,
-    },
-    progressBarFill: {
-      height: '100%',
-      borderRadius: 3,
-    },
-    progressCount: {
-      fontSize: 13,
-      color: colors.text.tertiary,
-      marginBottom: 12,
-    },
-    chapterList: {
-      width: '100%',
-      maxHeight: 200,
-    },
-    chapterRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 8,
-      paddingVertical: 6,
-      paddingHorizontal: 4,
-    },
-    chapterTitle: {
-      fontSize: 13,
-      color: colors.text.primary,
-      flex: 1,
     },
   });

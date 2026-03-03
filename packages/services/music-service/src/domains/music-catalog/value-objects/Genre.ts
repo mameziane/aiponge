@@ -21,6 +21,7 @@ export enum GenreCategory {
   METAL = 'metal',
   AMBIENT = 'ambient',
   WORLD = 'world',
+  PODCAST = 'podcast',
   OTHER = 'other',
 }
 
@@ -93,6 +94,7 @@ export class Genre {
       [GenreCategory.R_AND_B]: [GenreCategory.POP, GenreCategory.HIP_HOP],
       [GenreCategory.REGGAE]: [GenreCategory.WORLD],
       [GenreCategory.WORLD]: [GenreCategory.REGGAE, GenreCategory.FOLK],
+      [GenreCategory.PODCAST]: [GenreCategory.AMBIENT, GenreCategory.WORLD],
       [GenreCategory.OTHER]: [],
     };
 
@@ -183,6 +185,11 @@ export class Genre {
       african: GenreCategory.WORLD,
       latin: GenreCategory.WORLD,
       celtic: GenreCategory.WORLD,
+      // Podcast / spoken word
+      podcast: GenreCategory.PODCAST,
+      'spoken word': GenreCategory.PODCAST,
+      audiobook: GenreCategory.PODCAST,
+      narration: GenreCategory.PODCAST,
     };
 
     return categoryMap[normalized] || GenreCategory.OTHER;
@@ -279,6 +286,12 @@ export class Genre {
         energyLevel: 'medium',
         instrumentalFocus: ['traditional instruments', 'vocals'],
         culturalOrigin: 'Various',
+      },
+      [GenreCategory.PODCAST]: {
+        typicalTempo: { min: 0, max: 0 },
+        energyLevel: 'low',
+        instrumentalFocus: ['voice', 'ambient pad'],
+        culturalOrigin: 'Global',
       },
       [GenreCategory.OTHER]: {
         typicalTempo: { min: 60, max: 180 },

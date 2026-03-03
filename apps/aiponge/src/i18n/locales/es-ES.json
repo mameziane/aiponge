@@ -296,7 +296,7 @@
       "defaultsSaveFailed": "Error al guardar la configuración predeterminada",
       "resetDefaultsConfirm": "¿Restablecer toda la configuración predeterminada a sus valores originales?",
       "genreOptions": "Géneros Disponibles",
-      "genreOptionsHint": "Alternar qué géneros aparecen en Preferencias de Canción",
+      "genreOptionsHint": "Alternar qué géneros aparecen en Preferencias de Audio",
       "enableAll": "Habilitar Todo"
     }
   },
@@ -306,23 +306,18 @@
     "history": "Historial"
   },
   "onboardingFlow": {
-    "welcomeTitle": "Tu viaje musical comienza",
-    "welcomeSubtitle": "Crea tu primera canción personalizada y descubre cómo tus entradas se convierten en música",
-    "feature1": "Escribe lo que tienes en mente",
-    "feature2": "Obtén una canción personalizada",
-    "feature3": "Desbloquea tu biblioteca musical",
+    "welcomeTitle": "Crea tu primer libro con IA",
+    "welcomeSubtitle": "Elige un tema, describe lo que te importa, y generaremos un libro personalizado con música",
+    "feature1": "Elige un libro que te hable",
+    "feature2": "La IA genera capítulos y reflexiones",
+    "feature3": "Cada entrada se convierte en una canción personalizada",
+    "continue": "Continuar",
     "getStarted": "Comenzar",
-    "wellnessLabel": "¿Qué te trae por aquí?",
-    "wellnessIntentions": {
-      "stress_relief": "Alivio del estrés",
-      "self_discovery": "Autoconocimiento",
-      "motivation": "Motivación",
-      "sleep": "Mejor sueño",
-      "focus": "Concentración",
-      "emotional_healing": "Sanación emocional",
-      "creative_expression": "Expresión creativa",
-      "mindfulness": "Atención plena"
-    }
+    "chooseCategoryTitle": "¿Qué tipo de libro?",
+    "chooseCategorySubtitle": "Elige un tema que resuene contigo",
+    "describeTitle": "Describe tu {{bookTypeName}}",
+    "describeHint": "Al menos 10 caracteres",
+    "generateButton": "Generar Mi Libro"
   },
   "manifesto": {
     "title": "El Manifiesto aiponge",
@@ -676,7 +671,7 @@
     "errorLoadingEntry": "Error al cargar la entrada",
     "entryFromLockedChapter": "Este entrada es de un capítulo bloqueado",
     "songGeneration": "Generación de Canción",
-    "songPreferences": "Preferencias de Canción",
+    "songPreferences": "Preferencias de Audio",
     "songPreferencesExpand": "expandir",
     "songPreferencesCollapse": "contraer",
     "musicStyles": "Estilos de Música",
@@ -823,7 +818,8 @@
       "worship": "Alabanza",
       "spiritual": "Espiritual",
       "meditation": "Meditación",
-      "ska": "Ska"
+      "ska": "Ska",
+      "podcast": "Podcast"
     },
     "vocalGenders": {
       "any": "Cualquiera",
@@ -990,8 +986,8 @@
     "enterDisplayName": "Ingresa tu nombre para mostrar",
     "tapToSetDisplayName": "Toca para establecer tu nombre",
     "personalInfo": "Información Personal",
-    "songPreferences": "Preferencias Musicales",
-    "songPreferencesDescription": "Configura tus preferencias predeterminadas para las canciones generadas. Estas se usarán como predeterminadas al crear nueva música.",
+    "songPreferences": "Preferencias de Audio",
+    "songPreferencesDescription": "Configura tus preferencias predeterminadas para el audio generado, incluyendo música y podcasts.",
     "privacyData": "Privacidad y datos"
   },
   "wellness": {

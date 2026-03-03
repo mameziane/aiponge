@@ -295,7 +295,7 @@
       "defaultsSaveFailed": "デフォルト設定の保存に失敗しました",
       "resetDefaultsConfirm": "すべてのデフォルト設定を元の値にリセットしますか？",
       "genreOptions": "利用可能なジャンル",
-      "genreOptionsHint": "曲の設定に表示されるジャンルを切り替え",
+      "genreOptionsHint": "オーディオ設定に表示されるジャンルを切り替え",
       "enableAll": "すべて有効化"
     }
   },
@@ -305,23 +305,18 @@
     "history": "履歴"
   },
   "onboardingFlow": {
-    "welcomeTitle": "あなたの音楽の旅が始まります",
-    "welcomeSubtitle": "最初のパーソナライズされた曲を作成し、あなたのエントリーが音楽になる方法を発見しましょう",
-    "feature1": "心に浮かんだことを書きましょう",
-    "feature2": "パーソナライズされた曲をもらう",
-    "feature3": "音楽ライブラリをアンロック",
+    "welcomeTitle": "初めてのAIブックを作成",
+    "welcomeSubtitle": "テーマを選び、あなたにとって大切なことを描写すると、音楽付きのパーソナライズされた本を生成します",
+    "feature1": "心に響く本を選ぶ",
+    "feature2": "AIがチャプターとリフレクションを生成",
+    "feature3": "各エントリーがパーソナライズされた曲に",
+    "continue": "続ける",
     "getStarted": "始める",
-    "wellnessLabel": "どんな目的で来ましたか？",
-    "wellnessIntentions": {
-      "stress_relief": "ストレス解消",
-      "self_discovery": "自己発見",
-      "motivation": "モチベーション",
-      "sleep": "より良い睡眠",
-      "focus": "集中力",
-      "emotional_healing": "心の癒し",
-      "creative_expression": "創造的表現",
-      "mindfulness": "マインドフルネス"
-    }
+    "chooseCategoryTitle": "どんな本がいいですか？",
+    "chooseCategorySubtitle": "心に響くテーマを選んでください",
+    "describeTitle": "{{bookTypeName}}を説明してください",
+    "describeHint": "10文字以上",
+    "generateButton": "私の本を生成"
   },
   "manifesto": {
     "title": "aipongeマニフェスト",
@@ -675,7 +670,7 @@
     "errorLoadingEntry": "エントリーの読み込みに失敗しました",
     "entryFromLockedChapter": "このエントリーはロックされたチャプターからです",
     "songGeneration": "曲の生成",
-    "songPreferences": "曲の好み",
+    "songPreferences": "オーディオ設定",
     "songPreferencesExpand": "展開",
     "songPreferencesCollapse": "折りたたむ",
     "musicStyles": "音楽スタイル",
@@ -822,7 +817,8 @@
       "worship": "ワーシップ",
       "spiritual": "スピリチュアル",
       "meditation": "瞑想",
-      "ska": "スカ"
+      "ska": "スカ",
+      "podcast": "ポッドキャスト"
     },
     "vocalGenders": {
       "any": "どちらでも",
@@ -989,8 +985,8 @@
     "enterDisplayName": "表示名を入力",
     "tapToSetDisplayName": "タップして名前を設定",
     "personalInfo": "個人情報",
-    "songPreferences": "楽曲設定",
-    "songPreferencesDescription": "生成される楽曲のデフォルト設定を行います。新しい音楽を作成する際のデフォルト値として使用されます。",
+    "songPreferences": "オーディオ設定",
+    "songPreferencesDescription": "音楽やポッドキャストを含む、生成されるオーディオのデフォルト設定を行います。",
     "privacyData": "プライバシーとデータ"
   },
   "wellness": {

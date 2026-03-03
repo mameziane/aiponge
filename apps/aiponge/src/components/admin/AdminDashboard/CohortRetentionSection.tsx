@@ -6,16 +6,19 @@ import { BORDER_RADIUS } from '@/theme/constants';
 import { useLifecycleCohorts } from '@/hooks/admin';
 import { SectionHeader, LoadingSection, ErrorSection } from './shared';
 
-function formatPercent(value: number): string {
+function formatPercent(value: number | null | undefined): string {
+  if (value == null) return 'N/A';
   return `${(value * 100).toFixed(1)}%`;
 }
 
-function formatCurrency(value: number): string {
+function formatCurrency(value: number | null | undefined): string {
+  if (value == null) return '$0';
   if (value >= 1000) return `$${(value / 1000).toFixed(1)}k`;
   return `$${value.toFixed(0)}`;
 }
 
-function formatMonth(dateStr: string): string {
+function formatMonth(dateStr: string | null | undefined): string {
+  if (!dateStr) return 'N/A';
   const d = new Date(dateStr);
   return d.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
 }
@@ -54,7 +57,7 @@ export function CohortRetentionSection() {
                 style={[
                   styles.cell,
                   styles.numCol,
-                  { color: cohort.retentionRate >= 0.5 ? colors.semantic.success : colors.semantic.warning },
+                  { color: (cohort.retentionRate ?? 0) >= 0.5 ? colors.semantic.success : colors.semantic.warning },
                 ]}
               >
                 {formatPercent(cohort.retentionRate)}
