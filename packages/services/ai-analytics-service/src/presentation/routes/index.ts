@@ -12,6 +12,8 @@ import { createTraceRoutes } from './traces.routes';
 import { createReportRoutes } from './reports.routes';
 import { createGdprRoutes } from './gdpr.routes';
 import { createFraudRoutes } from './fraud.routes';
+import { createLifecycleRoutes } from './lifecycle.routes';
+import { createDashboardAnalyticsRoutes } from './dashboard.routes';
 
 const { sendSuccess, ServiceErrors } = getResponseHelpers();
 
@@ -22,6 +24,8 @@ export function setupRoutes(app: Express, registry: AnalyticsServiceRegistry): v
   app.use('/', createReportRoutes());
   app.use('/', createGdprRoutes(registry));
   app.use('/', createFraudRoutes(registry));
+  app.use('/', createLifecycleRoutes());
+  app.use('/', createDashboardAnalyticsRoutes());
 
   // Root endpoint
   app.get('/', (req, res) => {

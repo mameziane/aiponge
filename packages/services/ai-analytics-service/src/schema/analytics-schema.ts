@@ -3,6 +3,9 @@
  * Optimized for TimescaleDB time-series analytics workloads
  */
 
+// Re-export lifecycle analytics tables
+export * from './lifecycle-schema.js';
+
 import {
   pgTable,
   serial,

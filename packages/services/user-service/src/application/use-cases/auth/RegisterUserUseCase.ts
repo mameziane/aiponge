@@ -18,6 +18,7 @@ import { CreatorMemberRepository } from '@infrastructure/repositories/CreatorMem
 import { serializeError } from '@aiponge/platform-core';
 import { RefreshTokenUseCase } from './RefreshTokenUseCase';
 import { UserAnalyticsEmitter } from '@infrastructure/events/UserAnalyticsEmitter';
+import { UserLifecyclePublisher } from '@infrastructure/events/UserLifecyclePublisher';
 
 const logger = getLogger('register-user-use-case');
 
@@ -146,6 +147,7 @@ export class RegisterUserUseCase {
       const { refreshToken, sessionId } = await refreshTokenUseCase.createSession(user.id);
 
       UserAnalyticsEmitter.userRegistered(user.id, role);
+      UserLifecyclePublisher.userSignedUp(user.id);
 
       // Build response with optional migration status
       const response: RegisterUserResponse = { success: true, user, token, refreshToken, sessionId };

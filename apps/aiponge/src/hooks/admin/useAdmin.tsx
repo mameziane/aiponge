@@ -696,3 +696,102 @@ export function useAdminReplayRate(days: number = 7) {
     cachePreset: 'ANALYTICS',
   });
 }
+
+// ====================================
+// LIFECYCLE ANALYTICS DASHBOARD
+// ====================================
+
+export interface DashboardOverview {
+  totalUsers: number;
+  paidUsers: number;
+  mrr: number;
+  arr: number;
+  conversionRate: number;
+  churnRate: number;
+  arpu: number;
+  ltv: number;
+  trialConversionRate: number;
+  activeUsersToday: number;
+}
+
+export interface RevenueSeries {
+  period: string;
+  tier: string;
+  grossRevenue: number;
+  netRevenue: number;
+  userCount: number;
+}
+
+export interface ChurnRateRow {
+  period: string;
+  tier: string;
+  startingUsers: number;
+  churned: number;
+  churnRate: number;
+}
+
+export interface ConversionFunnelRow {
+  step: string;
+  users: number;
+  conversionRate: number;
+  dropoffRate: number;
+}
+
+export interface AcquisitionBreakdownRow {
+  source: string;
+  campaign?: string | null;
+  users: number;
+  paidUsers: number;
+  revenue: number;
+  avgTimeToConvertDays: number | null;
+}
+
+export interface CohortSnapshot {
+  cohortMonth: string;
+  originalSize: number;
+  retainedCount: number;
+  retentionRate: number;
+  revenue: number;
+}
+
+export function useLifecycleDashboardOverview() {
+  return useAdminQuery<DashboardOverview>({
+    endpoint: '/api/v1/admin/analytics/dashboard/overview',
+    cachePreset: 'ANALYTICS',
+  });
+}
+
+export function useLifecycleRevenue() {
+  return useAdminQuery<RevenueSeries[]>({
+    endpoint: '/api/v1/admin/analytics/dashboard/revenue',
+    cachePreset: 'ANALYTICS',
+  });
+}
+
+export function useLifecycleChurn() {
+  return useAdminQuery<ChurnRateRow[]>({
+    endpoint: '/api/v1/admin/analytics/dashboard/churn',
+    cachePreset: 'ANALYTICS',
+  });
+}
+
+export function useLifecycleCohorts() {
+  return useAdminQuery<CohortSnapshot[]>({
+    endpoint: '/api/v1/admin/analytics/dashboard/cohorts',
+    cachePreset: 'ANALYTICS',
+  });
+}
+
+export function useLifecycleFunnel() {
+  return useAdminQuery<ConversionFunnelRow[]>({
+    endpoint: '/api/v1/admin/analytics/dashboard/funnel',
+    cachePreset: 'ANALYTICS',
+  });
+}
+
+export function useLifecycleAcquisition() {
+  return useAdminQuery<AcquisitionBreakdownRow[]>({
+    endpoint: '/api/v1/admin/analytics/dashboard/acquisition',
+    cachePreset: 'ANALYTICS',
+  });
+}

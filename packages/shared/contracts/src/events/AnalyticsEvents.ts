@@ -11,7 +11,10 @@ export type AnalyticsEventType =
   | 'analytics.event.recorded'
   | 'analytics.events.batch'
   | 'analytics.metric.recorded'
-  | 'analytics.provider.usage';
+  | 'analytics.provider.usage'
+  | 'analytics.daily_metrics.computed'
+  | 'analytics.cohort_snapshot.computed'
+  | 'analytics.lifecycle.recorded';
 
 export const analyticsEventRecordedSchema = baseEventSchema.extend({
   type: z.literal('analytics.event.recorded'),
@@ -73,17 +76,48 @@ export const analyticsProviderUsageSchema = baseEventSchema.extend({
   }),
 });
 
+export const analyticsDailyMetricsComputedSchema = baseEventSchema.extend({
+  type: z.literal('analytics.daily_metrics.computed'),
+  data: z.object({
+    date: z.string(),
+    rowsComputed: z.number(),
+  }),
+});
+
+export const analyticsCohortSnapshotComputedSchema = baseEventSchema.extend({
+  type: z.literal('analytics.cohort_snapshot.computed'),
+  data: z.object({
+    targetMonth: z.string(),
+    cohortsProcessed: z.number(),
+  }),
+});
+
+export const analyticsLifecycleRecordedSchema = baseEventSchema.extend({
+  type: z.literal('analytics.lifecycle.recorded'),
+  data: z.object({
+    eventId: z.string(),
+    eventType: z.string(),
+    userId: z.string(),
+  }),
+});
+
 export const analyticsEventSchema = z.discriminatedUnion('type', [
   analyticsEventRecordedSchema,
   analyticsEventsBatchSchema,
   analyticsMetricRecordedSchema,
   analyticsProviderUsageSchema,
+  analyticsDailyMetricsComputedSchema,
+  analyticsCohortSnapshotComputedSchema,
+  analyticsLifecycleRecordedSchema,
 ]);
 
 export type AnalyticsEventRecordedEvent = z.infer<typeof analyticsEventRecordedSchema>;
 export type AnalyticsEventsBatchEvent = z.infer<typeof analyticsEventsBatchSchema>;
 export type AnalyticsMetricRecordedEvent = z.infer<typeof analyticsMetricRecordedSchema>;
 export type AnalyticsProviderUsageEvent = z.infer<typeof analyticsProviderUsageSchema>;
+export type AnalyticsDailyMetricsComputedEvent = z.infer<typeof analyticsDailyMetricsComputedSchema>;
+export type AnalyticsCohortSnapshotComputedEvent = z.infer<typeof analyticsCohortSnapshotComputedSchema>;
+export type AnalyticsLifecycleRecordedEvent = z.infer<typeof analyticsLifecycleRecordedSchema>;
 export type AnalyticsEvent = z.infer<typeof analyticsEventSchema>;
 
 export function createAnalyticsEvent<T extends AnalyticsEvent['type']>(

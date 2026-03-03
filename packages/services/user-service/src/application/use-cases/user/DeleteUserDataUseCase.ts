@@ -15,6 +15,7 @@ import { getDatabase } from '@infrastructure/database/DatabaseConnectionFactory'
 import { getLogger, getServiceUrl, createServiceHttpClient } from '@config/service-urls';
 import { signUserIdHeader, serializeError } from '@aiponge/platform-core';
 import { UserEventPublisher } from '../../../infrastructure/events/UserEventPublisher';
+import { UserLifecyclePublisher } from '../../../infrastructure/events/UserLifecyclePublisher';
 import { AuthError } from '@application/errors';
 import type { UserRole } from '@aiponge/shared-contracts';
 
@@ -197,6 +198,7 @@ export class DeleteUserDataUseCase {
     });
 
     UserEventPublisher.userDeleted(dto.userId);
+    UserLifecyclePublisher.userDeleted(dto.userId);
 
     return result;
   }

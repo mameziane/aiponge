@@ -27,11 +27,21 @@ import {
   failFastValidation,
   initTracing,
   initResponseHelpers,
+  SchedulerRegistry,
 } from '@aiponge/platform-core';
 import { contractRegistry, CURRENT_CONTRACT_VERSION } from '@aiponge/shared-contracts';
 import express from 'express';
 import { createApp } from './app';
 import { startAnalyticsEventSubscriber } from './infrastructure/events/AnalyticsEventSubscriber';
+import {
+  startUserLifecycleSubscriber,
+  stopUserLifecycleSubscriber,
+} from './infrastructure/events/UserLifecycleSubscriber';
+
+// Import schedulers — they self-register with SchedulerRegistry on import
+import './infrastructure/schedulers/DailyMetricsScheduler';
+import './infrastructure/schedulers/CohortSnapshotScheduler';
+import './infrastructure/schedulers/DormancyDetectionScheduler';
 
 // Initialize ServiceLocator to load ports from services.config.ts
 ServiceLocator.initialize();
@@ -170,6 +180,18 @@ async function main(): Promise<void> {
           logger.warn('Failed to start analytics event subscriber (non-critical)', {
             error: err instanceof Error ? err.message : String(err),
           });
+        });
+
+        startUserLifecycleSubscriber().catch(err => {
+          logger.warn('Failed to start user lifecycle subscriber (non-critical)', {
+            error: err instanceof Error ? err.message : String(err),
+          });
+        });
+
+        // Start lifecycle analytics schedulers
+        SchedulerRegistry.startAll();
+        logger.info('Lifecycle schedulers started', {
+          count: SchedulerRegistry.getAllInfo().length,
         });
       },
     });

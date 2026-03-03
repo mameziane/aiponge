@@ -6,6 +6,10 @@ import { useThemeColors, commonStyles, type ColorScheme } from '../../theme';
 import { TabBar } from '../../components/shared/TabBar';
 import { AdminMetricsSection } from '../../components/admin/AdminDashboard/AdminMetricsSection';
 import { AdminRevenueSection } from '../../components/admin/AdminDashboard/AdminRevenueSection';
+import { SubscriptionOverviewSection } from '../../components/admin/AdminDashboard/SubscriptionOverviewSection';
+import { RevenueBreakdownSection } from '../../components/admin/AdminDashboard/RevenueBreakdownSection';
+import { CohortRetentionSection } from '../../components/admin/AdminDashboard/CohortRetentionSection';
+import { GrowthFunnelSection } from '../../components/admin/AdminDashboard/GrowthFunnelSection';
 import { useAdminProductMetrics } from '../../hooks/admin';
 import {
   SectionHeader,
@@ -181,9 +185,25 @@ export default function InsightsScreen() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.brand.primary} />
         }
       >
-        {activeTab === 'growth' && <AdminMetricsSection key={`growth-${refreshKey}`} />}
-        {activeTab === 'engagement' && <EngagementContent key={`engagement-${refreshKey}`} />}
-        {activeTab === 'revenue' && <AdminRevenueSection key={`revenue-${refreshKey}`} />}
+        {activeTab === 'growth' && (
+          <View key={`growth-${refreshKey}`}>
+            <AdminMetricsSection />
+            <GrowthFunnelSection />
+          </View>
+        )}
+        {activeTab === 'engagement' && (
+          <View key={`engagement-${refreshKey}`}>
+            <EngagementContent />
+            <CohortRetentionSection />
+          </View>
+        )}
+        {activeTab === 'revenue' && (
+          <View key={`revenue-${refreshKey}`}>
+            <SubscriptionOverviewSection />
+            <RevenueBreakdownSection />
+            <AdminRevenueSection />
+          </View>
+        )}
         {activeTab === 'adoption' && <AdoptionContent key={`adoption-${refreshKey}`} />}
       </ScrollView>
     </View>

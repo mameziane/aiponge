@@ -520,34 +520,125 @@ router.post(
 // AI ANALYTICS ENDPOINTS (Direct database queries for analytics data)
 // ============================================================================
 
+const proxyToAnalytics = async (req: Request, res: Response, path: string) => {
+  const analyticsServiceUrl = ServiceLocator.getServiceUrl('ai-analytics-service');
+
+  const queryString =
+    Object.keys(req.query).length > 0 ? '?' + new URLSearchParams(req.query as Record<string, string>).toString() : '';
+
+  const targetUrl = `${analyticsServiceUrl}${path}${queryString}`;
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'x-request-id': (req.headers['x-request-id'] as string) || 'unknown',
+  };
+
+  const { userId } = extractAuthContext(req);
+  if (userId) {
+    headers['x-user-id'] = userId;
+  }
+  if (req.headers['authorization']) {
+    headers['authorization'] = req.headers['authorization'] as string;
+  }
+
+  const response = await gatewayFetch(targetUrl, { method: 'GET', headers });
+  const data = await response.json();
+  res.status(response.status).json(data);
+};
+
 router.get(
   '/analytics/summary',
   wrapAsync(async (req: Request, res: Response) => {
     try {
-      const analyticsServiceUrl = ServiceLocator.getServiceUrl('ai-analytics-service');
-
-      // Forward auth headers for admin validation
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-        'x-request-id': (req.headers['x-request-id'] as string) || 'unknown',
-      };
-
-      const { userId } = extractAuthContext(req);
-      if (userId) {
-        headers['x-user-id'] = userId;
-      }
-      if (req.headers['authorization']) {
-        headers['authorization'] = req.headers['authorization'] as string;
-      }
-
-      const response = await gatewayFetch(`${analyticsServiceUrl}/api/analytics/summary`, {
-        method: 'GET',
-        headers,
-      });
-      const data = await response.json();
-      res.status(response.status).json(data);
+      await proxyToAnalytics(req, res, '/api/analytics/summary');
     } catch (error) {
       logger.warn('Failed to fetch analytics summary', { error: errorMessage(error) });
+      ServiceErrors.serviceUnavailable(res, 'Analytics service temporarily unavailable', req);
+    }
+  })
+);
+
+// ── Lifecycle Dashboard Endpoints ──────────────────────────────────────────
+
+router.get(
+  '/analytics/dashboard/overview',
+  wrapAsync(async (req, res) => {
+    try {
+      await proxyToAnalytics(req, res, '/api/v1/analytics/dashboard/overview');
+    } catch (error) {
+      logger.warn('Failed to fetch dashboard overview', { error: errorMessage(error) });
+      ServiceErrors.serviceUnavailable(res, 'Analytics service temporarily unavailable', req);
+    }
+  })
+);
+
+router.get(
+  '/analytics/dashboard/revenue',
+  wrapAsync(async (req, res) => {
+    try {
+      await proxyToAnalytics(req, res, '/api/v1/analytics/dashboard/revenue');
+    } catch (error) {
+      logger.warn('Failed to fetch dashboard revenue', { error: errorMessage(error) });
+      ServiceErrors.serviceUnavailable(res, 'Analytics service temporarily unavailable', req);
+    }
+  })
+);
+
+router.get(
+  '/analytics/dashboard/users',
+  wrapAsync(async (req, res) => {
+    try {
+      await proxyToAnalytics(req, res, '/api/v1/analytics/dashboard/users');
+    } catch (error) {
+      logger.warn('Failed to fetch dashboard users', { error: errorMessage(error) });
+      ServiceErrors.serviceUnavailable(res, 'Analytics service temporarily unavailable', req);
+    }
+  })
+);
+
+router.get(
+  '/analytics/dashboard/churn',
+  wrapAsync(async (req, res) => {
+    try {
+      await proxyToAnalytics(req, res, '/api/v1/analytics/dashboard/churn');
+    } catch (error) {
+      logger.warn('Failed to fetch dashboard churn', { error: errorMessage(error) });
+      ServiceErrors.serviceUnavailable(res, 'Analytics service temporarily unavailable', req);
+    }
+  })
+);
+
+router.get(
+  '/analytics/dashboard/cohorts',
+  wrapAsync(async (req, res) => {
+    try {
+      await proxyToAnalytics(req, res, '/api/v1/analytics/dashboard/cohorts');
+    } catch (error) {
+      logger.warn('Failed to fetch dashboard cohorts', { error: errorMessage(error) });
+      ServiceErrors.serviceUnavailable(res, 'Analytics service temporarily unavailable', req);
+    }
+  })
+);
+
+router.get(
+  '/analytics/dashboard/funnel',
+  wrapAsync(async (req, res) => {
+    try {
+      await proxyToAnalytics(req, res, '/api/v1/analytics/dashboard/funnel');
+    } catch (error) {
+      logger.warn('Failed to fetch dashboard funnel', { error: errorMessage(error) });
+      ServiceErrors.serviceUnavailable(res, 'Analytics service temporarily unavailable', req);
+    }
+  })
+);
+
+router.get(
+  '/analytics/dashboard/acquisition',
+  wrapAsync(async (req, res) => {
+    try {
+      await proxyToAnalytics(req, res, '/api/v1/analytics/dashboard/acquisition');
+    } catch (error) {
+      logger.warn('Failed to fetch dashboard acquisition', { error: errorMessage(error) });
       ServiceErrors.serviceUnavailable(res, 'Analytics service temporarily unavailable', req);
     }
   })

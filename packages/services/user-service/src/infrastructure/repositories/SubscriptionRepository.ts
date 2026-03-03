@@ -30,6 +30,7 @@ import { users } from '../database/schemas/user-schema';
 import { getLogger } from '../../config/service-urls';
 import { BillingError } from '../../application/errors/errors';
 import { SUBSCRIPTION_STATUS, isAdmin } from '@aiponge/shared-contracts';
+import { UserLifecyclePublisher } from '../events/UserLifecyclePublisher';
 
 const logger = getLogger('subscription-repository');
 
@@ -429,6 +430,62 @@ export class SubscriptionRepository implements ISubscriptionRepository {
       newStatus,
       eventData: webhookData as unknown as Record<string, unknown>,
     });
+
+    // Emit lifecycle events for analytics (fire-and-forget, non-blocking)
+    if (previousTier !== normalizedNewTier) {
+      const trigger =
+        type === 'CANCELLATION' || type === 'EXPIRATION'
+          ? 'downgrade'
+          : type === 'UNCANCELLATION'
+            ? 'reactivation'
+            : 'upgrade';
+      UserLifecyclePublisher.tierChanged(subscription.userId, previousTier, normalizedNewTier, {
+        trigger,
+        store: store || undefined,
+        platform: store || undefined,
+      });
+    }
+
+    switch (type) {
+      case 'INITIAL_PURCHASE':
+      case 'RENEWAL':
+        UserLifecyclePublisher.paymentSucceeded(subscription.userId, {
+          transactionId:
+            ((webhookData.event as unknown as Record<string, unknown>).transaction_id as string) || 'unknown',
+          grossAmount: ((webhookData.event as unknown as Record<string, unknown>).price as number) || 0,
+          currency: ((webhookData.event as unknown as Record<string, unknown>).currency as string) || 'USD',
+          store: store || 'apple',
+          billingCycle: period_type === 'ANNUAL' ? 'yearly' : 'monthly',
+          tier: normalizedNewTier,
+          platform: store || undefined,
+        });
+        break;
+
+      case 'CANCELLATION':
+      case 'EXPIRATION':
+        UserLifecyclePublisher.churned(subscription.userId, {
+          tier: previousTier,
+          reason: type === 'CANCELLATION' ? 'voluntary' : 'payment_failure',
+          platform: store || undefined,
+        });
+        break;
+
+      case 'BILLING_ISSUE':
+        UserLifecyclePublisher.paymentFailed(subscription.userId, {
+          reason: 'billing_issue',
+          store: store || undefined,
+          platform: store || undefined,
+        });
+        break;
+
+      case 'UNCANCELLATION':
+        UserLifecyclePublisher.reactivated(subscription.userId, {
+          previousTier,
+          newTier: normalizedNewTier,
+          platform: store || undefined,
+        });
+        break;
+    }
 
     logger.info('Webhook processed successfully', {
       subscriptionId: subscription.id,
