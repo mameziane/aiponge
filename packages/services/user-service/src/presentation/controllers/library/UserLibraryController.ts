@@ -60,25 +60,20 @@ export class UserLibraryController {
       res,
       errorMessage: 'Failed to get reading progress',
       handler: async () => {
-        const entry = await this.deps.userLibraryRepo.getByUserAndBook(userId, bookId);
+        let entry = await this.deps.userLibraryRepo.getByUserAndBook(userId, bookId);
 
-        const defaultProgress = {
-          lastChapterId: null,
-          lastEntryId: null,
-          currentPageIndex: 0,
-          fontSize: 'm',
-          lastAccessedAt: null,
+        // Auto-create library entry on first access so progress can be tracked
+        if (!entry) {
+          entry = await this.deps.userLibraryRepo.addToLibrary({ userId, bookId });
+        }
+
+        return {
+          lastChapterId: entry.lastChapterId ?? null,
+          lastEntryId: entry.lastEntryId ?? null,
+          currentPageIndex: entry.currentPageIndex ?? 0,
+          fontSize: entry.fontSize ?? 'm',
+          lastAccessedAt: entry.lastAccessedAt ? entry.lastAccessedAt.toISOString() : null,
         };
-
-        return entry
-          ? {
-              lastChapterId: entry.lastChapterId ?? null,
-              lastEntryId: entry.lastEntryId ?? null,
-              currentPageIndex: entry.currentPageIndex ?? 0,
-              fontSize: entry.fontSize ?? 'm',
-              lastAccessedAt: entry.lastAccessedAt ? entry.lastAccessedAt.toISOString() : null,
-            }
-          : defaultProgress;
       },
     });
   }
@@ -94,13 +89,25 @@ export class UserLibraryController {
         return;
       }
 
-      const updated = await this.deps.userLibraryRepo.updateProgress(userId, bookId, {
+      let updated = await this.deps.userLibraryRepo.updateProgress(userId, bookId, {
         lastChapterId,
         lastEntryId,
         currentPageIndex,
         readingProgress,
         fontSize,
       });
+
+      // Auto-create library entry if it doesn't exist yet (user opened a book
+      // without explicitly saving it — progress should still be tracked)
+      if (!updated) {
+        await this.deps.userLibraryRepo.addToLibrary({ userId, bookId, fontSize });
+        updated = await this.deps.userLibraryRepo.updateProgress(userId, bookId, {
+          lastChapterId,
+          lastEntryId,
+          currentPageIndex,
+          readingProgress,
+        });
+      }
 
       if (!updated) {
         ServiceErrors.notFound(res, 'Book not in library', req);
