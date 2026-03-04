@@ -18,6 +18,8 @@ import {
   validateIncrementUsage,
   validateCheckEligibility,
   validateCheckQuota,
+  validateUpdatePendingOrderTransaction,
+  validateUpdatePendingOrderStatus,
 } from '../middleware/billing-validation';
 
 export interface BillingRouteDeps {
@@ -69,10 +71,12 @@ export function registerBillingRoutes(router: Router, deps: BillingRouteDeps): v
   router.post('/credits/orders/pending', validateCreatePendingOrder, (req, res) =>
     creditController.createPendingOrder(req, res)
   );
-  router.patch('/credits/orders/:orderId/transaction', (req, res) =>
+  router.patch('/credits/orders/:orderId/transaction', validateUpdatePendingOrderTransaction, (req, res) =>
     creditController.updatePendingOrderTransaction(req, res)
   );
-  router.patch('/credits/orders/:orderId/status', (req, res) => creditController.updatePendingOrderStatus(req, res));
+  router.patch('/credits/orders/:orderId/status', validateUpdatePendingOrderStatus, (req, res) =>
+    creditController.updatePendingOrderStatus(req, res)
+  );
 
   // Admin - Platform credit statistics
   router.get('/admin/credits/stats', serviceAuthMiddleware({ required: true }), (req, res) =>
