@@ -40,7 +40,7 @@ export function usePlaylistMutations() {
     onError: createMutationErrorHandler(
       toast,
       'Create Playlist',
-      '/api/v1/playlists',
+      '/api/v1/app/playlists',
       t('alerts.failedToCreatePlaylist'),
       t
     ),
@@ -80,7 +80,7 @@ export function usePlaylistMutations() {
         });
       } else {
         // Show error toast for other failures
-        const serialized = logError(error, 'Add Track to Playlist', '/api/v1/playlists/*/tracks');
+        const serialized = logError(error, 'Add Track to Playlist', '/api/v1/app/playlists/*/tracks');
         toast({
           title: t('alerts.failedToAddTrack'),
           description: getTranslatedFriendlyMessage(serialized, t),
@@ -147,7 +147,7 @@ export function usePlaylistMutations() {
       createMutationErrorHandler(
         toast,
         'Remove Track from Playlist',
-        '/api/v1/playlists/*/tracks/*',
+        '/api/v1/app/playlists/*/tracks/*',
         t('alerts.failedToRemoveTrack'),
         t
       )(error);

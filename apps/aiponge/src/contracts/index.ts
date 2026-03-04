@@ -150,7 +150,7 @@ export const API_CONTRACTS: Record<string, ZodType<unknown>> = {
   'GET /api/v1/librarian/templates': TemplatesListResponseSchema,
   'POST /api/v1/dev/reset': DevResetResponseSchema,
   'GET /api/v1/app/test-openai-credits': TestOpenAICreditsResponseSchema,
-  'GET /api/v1/frameworks': ListFrameworksResponseSchema,
+  'GET /api/v1/app/frameworks': ListFrameworksResponseSchema,
   'POST /api/v1/app/reminders/push-token': SuccessResponseSchema,
   'POST /api/v1/app/reminders': ReminderResponseSchema,
 };

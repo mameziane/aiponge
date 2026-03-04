@@ -96,10 +96,10 @@ export class DynamicRouter {
         retries: 2,
       },
 
-      // Analytics Service - Routes to user-service
+      // Analytics Service - Routes to ai-analytics-service (lifecycle events, dashboard, etc.)
       {
         path: '/api/v1/analytics/*',
-        serviceName: 'user-service',
+        serviceName: 'ai-analytics-service',
         stripPrefix: false,
         timeout: 15000,
       },

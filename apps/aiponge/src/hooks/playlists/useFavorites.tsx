@@ -93,7 +93,7 @@ export function useFavorites(userId: string) {
     onError: createMutationErrorHandler(
       toast,
       'Create Favorites Playlist',
-      '/api/v1/playlists',
+      '/api/v1/app/playlists',
       t('alerts.failedToCreateFavorites'),
       t
     ),
@@ -133,7 +133,7 @@ export function useFavorites(userId: string) {
       createMutationErrorHandler(
         toast,
         'Add to Favorites',
-        '/api/v1/playlists/*/tracks',
+        '/api/v1/app/playlists/*/tracks',
         t('alerts.failedToAddToFavorites'),
         t
       )(error);
@@ -167,7 +167,7 @@ export function useFavorites(userId: string) {
       createMutationErrorHandler(
         toast,
         'Remove from Favorites',
-        '/api/v1/playlists/*/tracks/*',
+        '/api/v1/app/playlists/*/tracks/*',
         t('alerts.failedToRemoveFromFavorites'),
         t
       )(error);
