@@ -721,16 +721,29 @@ export function useSongGeneration({
     });
   };
 
-  return {
-    songGenerationProgress,
-    currentPhase,
-    queuePosition,
-    estimatedWaitSeconds,
-    preferencesAnalysis: null as MusicPreferencesAnalysis | null, // Provided by facade
-    usageLimitModal,
-    setUsageLimitModal,
-    isGeneratingSong: generateSongMutation.isPending,
-    generateSong,
-    songError: generateSongMutation.error,
-  };
+  return React.useMemo(
+    () => ({
+      songGenerationProgress,
+      currentPhase,
+      queuePosition,
+      estimatedWaitSeconds,
+      preferencesAnalysis: null as MusicPreferencesAnalysis | null, // Provided by facade
+      usageLimitModal,
+      setUsageLimitModal,
+      isGeneratingSong: generateSongMutation.isPending,
+      generateSong,
+      songError: generateSongMutation.error,
+    }),
+    [
+      songGenerationProgress,
+      currentPhase,
+      queuePosition,
+      estimatedWaitSeconds,
+      usageLimitModal,
+      setUsageLimitModal,
+      generateSongMutation.isPending,
+      generateSong,
+      generateSongMutation.error,
+    ]
+  );
 }

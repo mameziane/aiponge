@@ -22,6 +22,7 @@ import {
   StyleSheet,
   Keyboard,
   ScrollView,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useThemeColors, type ColorScheme } from '../../theme';
@@ -44,6 +45,7 @@ import {
 } from '../../constants/bookTypes';
 import { LoadingState } from '../shared';
 import { GenerationProgressView } from './GenerationProgressView';
+import { useSpeechRecognition } from '../../hooks/ui/useSpeechRecognition';
 
 type DepthOption = { value: DepthLevel; labelKey: string; descriptionKey: string };
 
@@ -100,8 +102,53 @@ export function BookGeneratorModal({
   const onCreateBookRef = useRef(onCreateBook);
   const onCloseRef = useRef(onClose);
 
+  // Speech recognition for voice dictation
+  const {
+    isListening,
+    transcript,
+    interimTranscript,
+    isSupported: speechSupported,
+    error: speechError,
+    startListening,
+    stopListening,
+    clearTranscript,
+    clearError: clearSpeechError,
+  } = useSpeechRecognition({
+    interimResults: true,
+    continuous: false,
+  });
+
   onCreateBookRef.current = onCreateBook;
   onCloseRef.current = onClose;
+
+  // Append final transcript to the goal text
+  useEffect(() => {
+    if (transcript) {
+      setPrimaryGoal(prev => {
+        const separator = prev.trim() ? ' ' : '';
+        return prev + separator + transcript;
+      });
+      clearTranscript();
+    }
+  }, [transcript, clearTranscript]);
+
+  // Show speech errors as alerts
+  useEffect(() => {
+    if (speechError) {
+      Alert.alert(t('create.voiceInputError'), speechError);
+      clearSpeechError();
+    }
+  }, [speechError, clearSpeechError, t]);
+
+  const handleVoiceInput = useCallback(() => {
+    if (isListening) {
+      stopListening();
+    } else {
+      // Map the selected book language to speech recognition locale
+      const langCode = selectedLanguage.split('-')[0];
+      startListening(langCode);
+    }
+  }, [isListening, stopListening, startListening, selectedLanguage]);
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
@@ -130,8 +177,11 @@ export function BookGeneratorModal({
       setIsCreating(false);
       creationInitiatedRef.current = false;
       reset();
+      // Stop any active dictation session
+      if (isListening) stopListening();
+      clearTranscript();
     }
-  }, [visible, reset]);
+  }, [visible, reset, isListening, stopListening, clearTranscript]);
 
   useEffect(() => {
     if (status === 'processing' || status === 'pending') {
@@ -247,16 +297,41 @@ export function BookGeneratorModal({
             </View>
             <Text style={styles.description}>{t(bookTypeConfig.generatorDescriptionKey)}</Text>
 
-            <TextInput
-              style={styles.textArea}
-              placeholder={t(bookTypeConfig.generatorPlaceholderKey)}
-              placeholderTextColor={colors.text.tertiary}
-              value={primaryGoal}
-              onChangeText={setPrimaryGoal}
-              multiline
-              numberOfLines={4}
-              textAlignVertical="top"
-            />
+            <View style={styles.textAreaWrapper}>
+              <TextInput
+                style={styles.textArea}
+                placeholder={t(bookTypeConfig.generatorPlaceholderKey)}
+                placeholderTextColor={colors.text.tertiary}
+                value={isListening ? `${primaryGoal}${primaryGoal.trim() ? ' ' : ''}${interimTranscript}` : primaryGoal}
+                onChangeText={setPrimaryGoal}
+                multiline
+                numberOfLines={4}
+                textAlignVertical="top"
+                editable={!isListening}
+              />
+              <TouchableOpacity
+                style={[
+                  styles.micButton,
+                  isListening && [styles.micButtonActive, { backgroundColor: typeColor + '20' }],
+                  !speechSupported && styles.micButtonDisabled,
+                ]}
+                onPress={handleVoiceInput}
+                disabled={!speechSupported || isCreating}
+                activeOpacity={0.7}
+              >
+                <Ionicons
+                  name={isListening ? 'mic' : 'mic-outline'}
+                  size={22}
+                  color={isListening ? typeColor : speechSupported ? colors.text.secondary : colors.text.tertiary}
+                />
+              </TouchableOpacity>
+              {isListening && (
+                <View style={styles.listeningIndicator}>
+                  <View style={[styles.listeningDot, { backgroundColor: typeColor }]} />
+                  <Text style={[styles.listeningText, { color: typeColor }]}>{t('create.listening')}</Text>
+                </View>
+              )}
+            </View>
 
             <View style={styles.languageContainer}>
               <TouchableOpacity
@@ -430,16 +505,51 @@ const createStyles = (colors: ColorScheme) =>
       marginBottom: 16,
       lineHeight: 20,
     },
+    textAreaWrapper: {
+      marginBottom: 16,
+    },
     textArea: {
       backgroundColor: colors.background.darkCard,
       borderRadius: BORDER_RADIUS.md,
       padding: 16,
+      paddingRight: 48,
       fontSize: 16,
       color: colors.text.primary,
       minHeight: 120,
       borderWidth: 1,
       borderColor: colors.border.muted,
-      marginBottom: 16,
+    },
+    micButton: {
+      position: 'absolute',
+      top: 10,
+      right: 10,
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    micButtonActive: {
+      borderRadius: 18,
+    },
+    micButtonDisabled: {
+      opacity: 0.3,
+    },
+    listeningIndicator: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      marginTop: 6,
+      paddingHorizontal: 4,
+    },
+    listeningDot: {
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+    },
+    listeningText: {
+      fontSize: 13,
+      fontWeight: '500',
     },
     buttonRow: {
       flexDirection: 'row',

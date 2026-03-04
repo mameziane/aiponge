@@ -387,10 +387,26 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
           }
 
           // Fetch credits offering for consumable purchases
-          if (availableOfferings.all['credits']) {
-            setCreditsOffering(availableOfferings.all['credits']);
+          const allOfferingIds = Object.keys(availableOfferings.all);
+          logger.info('RevenueCat: Available offering identifiers', { offeringIds: allOfferingIds });
+
+          // Look for credits offering — try exact match first, then case-insensitive fallback
+          const creditsOffer =
+            availableOfferings.all['credits'] ||
+            Object.values(availableOfferings.all).find(o => o.identifier.toLowerCase() === 'credits');
+
+          if (creditsOffer) {
+            setCreditsOffering(creditsOffer);
+            logger.info('RevenueCat: Credits offering loaded', {
+              identifier: creditsOffer.identifier,
+              packageCount: creditsOffer.availablePackages.length,
+              packages: creditsOffer.availablePackages.map(p => p.identifier),
+            });
           } else {
-            logger.debug('RevenueCat: No credits offering found');
+            logger.warn('RevenueCat: No credits offering found', {
+              availableOfferingIds: allOfferingIds,
+              hint: 'Expected offering with identifier "credits" in RevenueCat dashboard',
+            });
           }
         } catch (offeringsError) {
           logger.warn('RevenueCat: getOfferings failed', { error: String(offeringsError) });

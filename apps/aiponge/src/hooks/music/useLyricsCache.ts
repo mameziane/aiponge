@@ -86,13 +86,24 @@ export function useLyricsCache({
     }
   }, [existingLyricsResponse, selectedEntryId, entries, activeRequestIdRef, activeEntryIdRef, setGeneratedLyrics]);
 
-  return {
-    generatedLyrics,
-    generatedLyricsRef,
-    generatedLyricsId,
-    generatedSongTitle,
-    setGeneratedLyrics,
-    setGeneratedLyricsId,
-    setGeneratedSongTitle,
-  };
+  return React.useMemo(
+    () => ({
+      generatedLyrics,
+      generatedLyricsRef,
+      generatedLyricsId,
+      generatedSongTitle,
+      setGeneratedLyrics,
+      setGeneratedLyricsId,
+      setGeneratedSongTitle,
+    }),
+    [
+      generatedLyrics,
+      generatedLyricsRef,
+      generatedLyricsId,
+      generatedSongTitle,
+      setGeneratedLyrics,
+      setGeneratedLyricsId,
+      setGeneratedSongTitle,
+    ]
+  );
 }

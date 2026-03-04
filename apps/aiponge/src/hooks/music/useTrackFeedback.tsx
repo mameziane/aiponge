@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '../../lib/axiosApiClient';
 import { useToast } from '../ui/use-toast';
@@ -75,12 +75,23 @@ export function useTrackFeedback(trackId: string | undefined, userId: string | u
     [userId, trackId, submitFeedbackMutation]
   );
 
-  return {
-    hasFeedback: feedbackData?.data?.hasFeedback ?? false,
-    wasHelpful: feedbackData?.data?.wasHelpful,
-    isLoading,
-    submitFeedback,
-    isSubmitting: submitFeedbackMutation.isPending,
-    canSubmit: !!userId && !!trackId && !feedbackData?.data?.hasFeedback,
-  };
+  return useMemo(
+    () => ({
+      hasFeedback: feedbackData?.data?.hasFeedback ?? false,
+      wasHelpful: feedbackData?.data?.wasHelpful,
+      isLoading,
+      submitFeedback,
+      isSubmitting: submitFeedbackMutation.isPending,
+      canSubmit: !!userId && !!trackId && !feedbackData?.data?.hasFeedback,
+    }),
+    [
+      feedbackData?.data?.hasFeedback,
+      feedbackData?.data?.wasHelpful,
+      isLoading,
+      submitFeedback,
+      submitFeedbackMutation.isPending,
+      userId,
+      trackId,
+    ]
+  );
 }

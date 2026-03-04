@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { normalizeMediaUrl } from '../../lib/apiConfig';
 import { useApiQuery } from '../system/useAppQuery';
 import { queryKeys } from '../../lib/queryKeys';
@@ -52,18 +53,25 @@ export function useAlbums() {
     },
   });
 
-  const albums = (Array.isArray(data?.data?.albums) ? data.data.albums : []).map((album: UserAlbum) => ({
-    ...album,
-    coverArtworkUrl: normalizeMediaUrl(album.coverArtworkUrl),
-  }));
+  const albums = useMemo(
+    () =>
+      (Array.isArray(data?.data?.albums) ? data.data.albums : []).map((album: UserAlbum) => ({
+        ...album,
+        coverArtworkUrl: normalizeMediaUrl(album.coverArtworkUrl),
+      })),
+    [data?.data?.albums]
+  );
 
-  return {
-    albums,
-    total: data?.data?.total || 0,
-    isLoading,
-    isError,
-    refetch,
-  };
+  return useMemo(
+    () => ({
+      albums,
+      total: data?.data?.total || 0,
+      isLoading,
+      isError,
+      refetch,
+    }),
+    [albums, data?.data?.total, isLoading, isError, refetch]
+  );
 }
 
 export function useAlbumDetail(albumId: string | undefined) {
@@ -78,24 +86,35 @@ export function useAlbumDetail(albumId: string | undefined) {
     },
   });
 
-  const album = data?.data?.album
-    ? {
-        ...data.data.album,
-        coverArtworkUrl: normalizeMediaUrl(data.data.album.coverArtworkUrl),
-      }
-    : undefined;
+  const album = useMemo(
+    () =>
+      data?.data?.album
+        ? {
+            ...data.data.album,
+            coverArtworkUrl: normalizeMediaUrl(data.data.album.coverArtworkUrl),
+          }
+        : undefined,
+    [data?.data?.album]
+  );
 
-  const tracks = (Array.isArray(data?.data?.tracks) ? data.data.tracks : []).map(track => ({
-    ...track,
-    audioUrl: normalizeMediaUrl(track.audioUrl) || track.audioUrl,
-    artworkUrl: normalizeMediaUrl(track.artworkUrl),
-  }));
+  const tracks = useMemo(
+    () =>
+      (Array.isArray(data?.data?.tracks) ? data.data.tracks : []).map(track => ({
+        ...track,
+        audioUrl: normalizeMediaUrl(track.audioUrl) || track.audioUrl,
+        artworkUrl: normalizeMediaUrl(track.artworkUrl),
+      })),
+    [data?.data?.tracks]
+  );
 
-  return {
-    album,
-    tracks,
-    isLoading,
-    isError,
-    refetch,
-  };
+  return useMemo(
+    () => ({
+      album,
+      tracks,
+      isLoading,
+      isError,
+      refetch,
+    }),
+    [album, tracks, isLoading, isError, refetch]
+  );
 }

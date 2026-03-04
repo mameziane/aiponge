@@ -521,13 +521,16 @@ export function useTrackPlayback<T extends PlayableTrack>(
     logger.debug('[Playback] Cleared current track');
   }, [player, setCurrentTrack, updatePlaybackPhase]);
 
-  return {
-    currentTrack,
-    isPlaying,
-    player,
-    handlePlayTrack,
-    pause,
-    resume,
-    clearCurrentTrack,
-  };
+  return useMemo(
+    () => ({
+      currentTrack,
+      isPlaying,
+      player,
+      handlePlayTrack,
+      pause,
+      resume,
+      clearCurrentTrack,
+    }),
+    [currentTrack, isPlaying, player, handlePlayTrack, pause, resume, clearCurrentTrack]
+  );
 }

@@ -7,7 +7,7 @@
  * - Development Build: Uses expo-file-system for real file operations
  */
 
-import { useCallback, useRef, useEffect } from 'react';
+import { useCallback, useRef, useEffect, useMemo } from 'react';
 import { Alert } from 'react-native';
 import { useDownloadStore, OFFLINE_DIR, ensureTrackDir, selectDownloads } from './store';
 import { useNetworkStatus } from '../hooks/system/useNetworkStatus';
@@ -336,29 +336,50 @@ export function useOfflineDownload() {
     [getLocalAudioPath]
   );
 
-  return {
-    // State (downloads filtered to current user)
-    downloads: userDownloads,
-    queue,
-    isProcessing,
-    storageInfo,
-    isOnline: networkStatus.isConnected,
-    isOfflineSupported,
+  return useMemo(
+    () => ({
+      // State (downloads filtered to current user)
+      downloads: userDownloads,
+      queue,
+      isProcessing,
+      storageInfo,
+      isOnline: networkStatus.isConnected,
+      isOfflineSupported,
 
-    // Actions
-    downloadTrack,
-    removeDownload,
-    pauseDownload,
-    resumeDownload,
-    cancelDownload,
-    refreshStorageInfo,
+      // Actions
+      downloadTrack,
+      removeDownload,
+      pauseDownload,
+      resumeDownload,
+      cancelDownload,
+      refreshStorageInfo,
 
-    // Helpers
-    getCompletedDownloads,
-    getDownload,
-    hasOfflineVersion,
-    resolvePlaybackUrl,
-    getLocalAudioPath,
-    isDownloaded,
-  };
+      // Helpers
+      getCompletedDownloads,
+      getDownload,
+      hasOfflineVersion,
+      resolvePlaybackUrl,
+      getLocalAudioPath,
+      isDownloaded,
+    }),
+    [
+      userDownloads,
+      queue,
+      isProcessing,
+      storageInfo,
+      networkStatus.isConnected,
+      downloadTrack,
+      removeDownload,
+      pauseDownload,
+      resumeDownload,
+      cancelDownload,
+      refreshStorageInfo,
+      getCompletedDownloads,
+      getDownload,
+      hasOfflineVersion,
+      resolvePlaybackUrl,
+      getLocalAudioPath,
+      isDownloaded,
+    ]
+  );
 }

@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { usePlaybackQueue, usePlaybackState } from '../../contexts/PlaybackContext';
 import { useUnifiedPlaybackControl } from './useUnifiedPlaybackControl';
 import { configureAudioSession } from './audioSession';
@@ -75,20 +75,38 @@ export function usePlaylistTrackNavigation({ logPrefix = '[Playlist]' }: UsePlay
     }
   }, [previous, playNewTrack, resolveUrl, logPrefix]);
 
-  return {
-    handleNextTrack,
-    handlePreviousTrack,
-    handleTogglePlayPause,
-    resolveUrl,
-    shuffleEnabled,
-    repeatMode,
-    toggleShuffle,
-    cycleRepeat,
-    hasNext,
-    hasPrevious,
-    trackCount,
-    currentTrack,
-    isPlaying,
-    playNewTrack,
-  };
+  return useMemo(
+    () => ({
+      handleNextTrack,
+      handlePreviousTrack,
+      handleTogglePlayPause,
+      resolveUrl,
+      shuffleEnabled,
+      repeatMode,
+      toggleShuffle,
+      cycleRepeat,
+      hasNext,
+      hasPrevious,
+      trackCount,
+      currentTrack,
+      isPlaying,
+      playNewTrack,
+    }),
+    [
+      handleNextTrack,
+      handlePreviousTrack,
+      handleTogglePlayPause,
+      resolveUrl,
+      shuffleEnabled,
+      repeatMode,
+      toggleShuffle,
+      cycleRepeat,
+      hasNext,
+      hasPrevious,
+      trackCount,
+      currentTrack,
+      isPlaying,
+      playNewTrack,
+    ]
+  );
 }

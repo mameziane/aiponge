@@ -62,13 +62,24 @@ export function useEntryLibrary(bookId?: string | null) {
     }),
   });
 
-  return {
-    entries,
-    totalEntries,
-    isLoadingEntries,
-    refetchEntries,
-    invalidateEntries,
-    deleteEntry: deleteEntryMutation.mutate,
-    isDeletingEntry: deleteEntryMutation.isPending,
-  };
+  return React.useMemo(
+    () => ({
+      entries,
+      totalEntries,
+      isLoadingEntries,
+      refetchEntries,
+      invalidateEntries,
+      deleteEntry: deleteEntryMutation.mutate,
+      isDeletingEntry: deleteEntryMutation.isPending,
+    }),
+    [
+      entries,
+      totalEntries,
+      isLoadingEntries,
+      refetchEntries,
+      invalidateEntries,
+      deleteEntryMutation.mutate,
+      deleteEntryMutation.isPending,
+    ]
+  );
 }

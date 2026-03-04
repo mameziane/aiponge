@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 
 interface LyricsModalState {
   visible: boolean;
@@ -34,11 +34,14 @@ export function useLyricsModal() {
     });
   }, []);
 
-  return {
-    lyricsModal,
-    handleShowLyrics,
-    handleCloseLyrics,
-  };
+  return useMemo(
+    () => ({
+      lyricsModal,
+      handleShowLyrics,
+      handleCloseLyrics,
+    }),
+    [lyricsModal, handleShowLyrics, handleCloseLyrics]
+  );
 }
 
 export default useLyricsModal;

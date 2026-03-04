@@ -53,16 +53,30 @@ export function useEntryContext() {
   const setSelectedEntryArtworkUrl = _setSelectedEntryArtworkUrl;
   const setSelectedEntryChapterId = _setSelectedEntryChapterId;
 
-  return {
-    selectedEntryContent,
-    selectedEntryId: selectedEntryIdState,
-    selectedEntryArtworkUrl,
-    selectedEntryChapterId,
-    updateEntryContext,
-    setEntryContext,
-    setSelectedEntry,
-    setSelectedEntryId,
-    setSelectedEntryArtworkUrl,
-    setSelectedEntryChapterId,
-  };
+  return React.useMemo(
+    () => ({
+      selectedEntryContent,
+      selectedEntryId: selectedEntryIdState,
+      selectedEntryArtworkUrl,
+      selectedEntryChapterId,
+      updateEntryContext,
+      setEntryContext,
+      setSelectedEntry,
+      setSelectedEntryId,
+      setSelectedEntryArtworkUrl,
+      setSelectedEntryChapterId,
+    }),
+    [
+      selectedEntryContent,
+      selectedEntryIdState,
+      selectedEntryArtworkUrl,
+      selectedEntryChapterId,
+      updateEntryContext,
+      setEntryContext,
+      setSelectedEntry,
+      setSelectedEntryId,
+      setSelectedEntryArtworkUrl,
+      setSelectedEntryChapterId,
+    ]
+  );
 }

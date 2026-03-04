@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { ServiceResponse } from '@aiponge/shared-contracts';
 import { apiClient, extractErrorMessage } from '../../lib/axiosApiClient';
@@ -108,11 +108,8 @@ export function useCredits() {
     invalidateOnEvent(queryClient, { type: 'CREDITS_CHANGED' });
   }, [queryClient]);
 
-  return {
-    balance: balance ?? null,
-    policy: policy ?? null,
-    loading,
-    error:
+  const error = useMemo(
+    () =>
       balanceError || policyError
         ? balanceError instanceof Error
           ? balanceError.message
@@ -120,8 +117,19 @@ export function useCredits() {
             ? policyError.message
             : 'Failed to load credits'
         : null,
-    validateCreditsForOperation,
-    refreshBalance,
-    creditCostPerSong: policy?.musicGeneration.costPerSong ?? null,
-  };
+    [balanceError, policyError]
+  );
+
+  return useMemo(
+    () => ({
+      balance: balance ?? null,
+      policy: policy ?? null,
+      loading,
+      error,
+      validateCreditsForOperation,
+      refreshBalance,
+      creditCostPerSong: policy?.musicGeneration.costPerSong ?? null,
+    }),
+    [balance, policy, loading, error, validateCreditsForOperation, refreshBalance]
+  );
 }

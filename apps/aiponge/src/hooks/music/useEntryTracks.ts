@@ -73,10 +73,13 @@ export function useEntryTracks({ selectedEntryId }: UseEntryTracksParams) {
     return [];
   }, [selectedEntryId, privateTracksResponse, lastGeneratedTrackId]);
 
-  return {
-    entryTracks,
-    lastGeneratedTrackId,
-    setLastGeneratedTrackId,
-    privateTracksResponse,
-  };
+  return React.useMemo(
+    () => ({
+      entryTracks,
+      lastGeneratedTrackId,
+      setLastGeneratedTrackId,
+      privateTracksResponse,
+    }),
+    [entryTracks, lastGeneratedTrackId, setLastGeneratedTrackId, privateTracksResponse]
+  );
 }

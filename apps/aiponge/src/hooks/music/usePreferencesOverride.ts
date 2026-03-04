@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import type { MusicPreferencesState, MusicPreferencesLoading } from './useMusicPreferences';
 import type { MoodKey, InstrumentKey, LanguageKey } from '../../constants/musicPreferences';
 
@@ -126,19 +126,38 @@ export function usePreferencesOverride(
     setNegativeTags(savedPreferences.negativeTags);
   }, [savedPreferences]);
 
-  return {
-    preferences,
-    styleWeight,
-    negativeTags,
-    loading: buildLoadingState(savedLoading),
-    setStyleWeight,
-    setNegativeTags,
-    handleMusicStylesChange,
-    handleGenreChange,
-    handleCulturalLanguagesChange,
-    handleMoodChange,
-    handleInstrumentsChange,
-    handleVocalGenderChange,
-    resetToSaved,
-  };
+  const loading = useMemo(() => buildLoadingState(savedLoading), [savedLoading]);
+
+  return useMemo(
+    () => ({
+      preferences,
+      styleWeight,
+      negativeTags,
+      loading,
+      setStyleWeight,
+      setNegativeTags,
+      handleMusicStylesChange,
+      handleGenreChange,
+      handleCulturalLanguagesChange,
+      handleMoodChange,
+      handleInstrumentsChange,
+      handleVocalGenderChange,
+      resetToSaved,
+    }),
+    [
+      preferences,
+      styleWeight,
+      negativeTags,
+      loading,
+      setStyleWeight,
+      setNegativeTags,
+      handleMusicStylesChange,
+      handleGenreChange,
+      handleCulturalLanguagesChange,
+      handleMoodChange,
+      handleInstrumentsChange,
+      handleVocalGenderChange,
+      resetToSaved,
+    ]
+  );
 }
