@@ -45,7 +45,18 @@ function buildServiceUrl(serviceName: string): string {
   if (fullUrl) return fullUrl;
 
   const host = process.env.SERVICE_HOST;
-  if (!host && process.env.NODE_ENV === 'production') {
+  if (host) {
+    const port = resolveServicePort(serviceName);
+    return `http://${host}:${port}`;
+  }
+
+  // Railway internal networking: services are reachable via {name}.railway.internal
+  if (process.env.RAILWAY_SERVICE_NAME || process.env.RAILWAY_ENVIRONMENT_NAME) {
+    const port = resolveServicePort(serviceName);
+    return `http://${serviceName}.railway.internal:${port}`;
+  }
+
+  if (process.env.NODE_ENV === 'production') {
     throw new DomainError(
       `Neither ${urlEnvVar} nor SERVICE_HOST is set. ` +
         `In production, one of these environment variables is required to resolve ${serviceName}.`,
@@ -54,7 +65,7 @@ function buildServiceUrl(serviceName: string): string {
   }
 
   const port = resolveServicePort(serviceName);
-  return `http://${host || 'localhost'}:${port}`;
+  return `http://localhost:${port}`;
 }
 
 export type HttpClientType = keyof typeof HttpConfigs;
