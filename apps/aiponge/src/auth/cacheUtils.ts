@@ -11,6 +11,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { queryKeys } from '../lib/queryKeys';
 import { logger } from '../lib/logger';
 import { useDownloadStore } from '../offline/store';
+import { cancelAllReminderNotifications } from '../lib/localNotifications';
 
 interface TrackItem {
   id: string;
@@ -240,6 +241,14 @@ export async function clearUserCachesOnLogout(): Promise<void> {
 
   // Clear download store user context so next user gets a clean view
   useDownloadStore.getState().setCurrentUser(null);
+
+  // Cancel all locally scheduled reminder notifications
+  // Prevents previous user's reminders from firing for the next user
+  try {
+    await cancelAllReminderNotifications();
+  } catch (error) {
+    logger.warn('[cacheUtils] Failed to cancel reminder notifications on logout', { error });
+  }
 
   queryClient.clear();
 }
