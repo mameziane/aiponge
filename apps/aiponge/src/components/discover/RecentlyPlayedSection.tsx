@@ -36,6 +36,7 @@ export const RecentlyPlayedSection = memo(function RecentlyPlayedSection({
           title={track.title}
           displayName={track.displayName || ''}
           artworkUrl={track.artworkUrl}
+          audioUrl={track.audioUrl}
           duration={track.duration}
           isPlaying={currentTrackId === track.id && isPlaying}
           isFavorite={isLiked(track.id)}

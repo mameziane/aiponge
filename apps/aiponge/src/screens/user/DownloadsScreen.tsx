@@ -5,7 +5,6 @@
 
 import { useCallback, useMemo } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, Alert, RefreshControl } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useThemeColors, type ColorScheme, commonStyles } from '../../theme';
@@ -14,7 +13,6 @@ import { useOfflineDownload } from '../../offline/useOfflineDownload';
 import { useTrackPlayback, type PlayableTrack } from '../../hooks/music/useTrackPlayback';
 import { ArtworkImage } from '../../components/music/ArtworkImage';
 import { AnimatedWaveform } from '../../components/music/AnimatedWaveform';
-import { UnifiedHeader } from '../../components/shared/UnifiedHeader';
 import { LiquidGlassCard, LiquidGlassView } from '../../components/ui';
 import { EmptyState } from '../../components/shared/EmptyState';
 import type { OfflineTrack, DownloadStatus } from '../../offline/types';
@@ -120,8 +118,7 @@ export function DownloadsScreen() {
   // Show Expo Go message if offline downloads are not supported
   if (!isOfflineSupported) {
     return (
-      <SafeAreaView style={styles.container} edges={['top']}>
-        <UnifiedHeader title={t('downloads.title', 'Downloads')} />
+      <View style={styles.container}>
         <View style={styles.expoGoState}>
           <View style={styles.expoGoIconContainer}>
             <Ionicons name="construct-outline" size={48} color={colors.brand.primary} />
@@ -142,7 +139,7 @@ export function DownloadsScreen() {
             </View>
           </LiquidGlassCard>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
@@ -261,9 +258,7 @@ export function DownloadsScreen() {
   const storagePercentage = storageInfo.limitBytes > 0 ? (storageInfo.usedBytes / storageInfo.limitBytes) * 100 : 0;
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <UnifiedHeader title={t('downloads.title', 'Downloads')} />
-
+    <View style={styles.container}>
       {/* Storage Info */}
       <LiquidGlassCard intensity="medium" padding={16} style={styles.storageCard}>
         <View style={styles.storageHeader}>
@@ -336,7 +331,7 @@ export function DownloadsScreen() {
           )}
         />
       )}
-    </SafeAreaView>
+    </View>
   );
 }
 

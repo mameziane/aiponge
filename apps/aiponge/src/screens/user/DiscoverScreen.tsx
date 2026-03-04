@@ -478,6 +478,7 @@ export function DiscoverScreen() {
                   title={track.title}
                   displayName={track.displayName || t('explore.unknownCreator')}
                   artworkUrl={track.artworkUrl}
+                  audioUrl={track.audioUrl}
                   duration={track.duration}
                   isPlaying={currentTrack?.id === track.id && isPlaying}
                   isFavorite={isLiked(track.id)}
@@ -553,6 +554,7 @@ export function DiscoverScreen() {
                     title={track.title}
                     displayName={track.displayName || t('explore.youCreator')}
                     artworkUrl={track.artworkUrl}
+                    audioUrl={track.audioUrl}
                     duration={track.duration}
                     playCount={track.playCount}
                     isPlaying={currentTrack?.id === track.id && isPlaying}
@@ -592,6 +594,7 @@ export function DiscoverScreen() {
                         title={track.title}
                         displayName={track.displayName || t('explore.unknownCreator')}
                         artworkUrl={track.artworkUrl}
+                        audioUrl={track.audioUrl}
                         duration={track.duration}
                         playCount={track.playCount}
                         isPlaying={currentTrack?.id === track.id && isPlaying}

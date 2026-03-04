@@ -289,6 +289,7 @@ export function AlbumDetailScreen() {
             title: track.title,
             displayName: track.displayName,
             artworkUrl: track.artworkUrl,
+            audioUrl: track.audioUrl,
             duration: track.durationSeconds,
             lyricsId: track.lyricsId,
             hasSyncedLyrics: track.hasSyncedLyrics,

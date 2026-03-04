@@ -35,6 +35,7 @@ export const RecommendationsSection = memo(function RecommendationsSection({
           title={track.title}
           displayName={track.displayName || ''}
           artworkUrl={track.artworkUrl}
+          audioUrl={track.audioUrl}
           duration={track.duration}
           playCount={track.playCount}
           isPlaying={currentTrackId === track.id && isPlaying}
