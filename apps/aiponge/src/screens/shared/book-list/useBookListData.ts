@@ -137,10 +137,7 @@ export function useBookListData({ userDisplayName, t }: BookListDataOptions) {
     return ownBooksRaw
       .filter(book => {
         if (selectedCategoryTypeIds && (!book.typeId || !selectedCategoryTypeIds.has(book.typeId))) return false;
-        if (selectedLanguage) {
-          const bookLang = book.language;
-          if (bookLang && !bookLang.toLowerCase().startsWith(activeLang.toLowerCase())) return false;
-        }
+        // Own books are always visible regardless of language filter
         return true;
       })
       .map(

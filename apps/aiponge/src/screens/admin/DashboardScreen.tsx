@@ -10,16 +10,18 @@ import { useTranslation } from 'react-i18next';
 import { useThemeColors, commonStyles, type ColorScheme } from '../../theme';
 import { AdminDashboardSection } from '../../components/admin/AdminDashboard/AdminDashboardSection';
 import { AdminProvidersSection } from '../../components/admin/AdminDashboard/AdminProvidersSection';
+import { AdminRiskSection } from '../../components/admin/AdminDashboard/AdminRiskSection';
 import { TabBar } from '../../components/shared/TabBar';
 import { CONFIG } from '../../constants/appConfig';
 import { useAdminCreateAction } from '../../contexts/AdminCreateContext';
 import { CreateProviderModal } from '../../components/admin/CreateProviderModal';
 
-type SubTab = 'dashboard' | 'providers';
+type SubTab = 'dashboard' | 'providers' | 'risk';
 
 const SUB_TABS = [
   { id: 'dashboard', label: 'admin.tabs.dashboard' },
   { id: 'providers', label: 'admin.tabs.providers' },
+  { id: 'risk', label: 'admin.tabs.risk' },
 ];
 
 export default function DashboardScreen() {
@@ -80,6 +82,7 @@ export default function DashboardScreen() {
       >
         {activeSubTab === 'dashboard' && <AdminDashboardSection key={`dashboard-${refreshKey}`} />}
         {activeSubTab === 'providers' && <AdminProvidersSection key={`providers-${refreshKey}`} />}
+        {activeSubTab === 'risk' && <AdminRiskSection key={`risk-${refreshKey}`} />}
       </ScrollView>
 
       <CreateProviderModal visible={showCreateProvider} onClose={() => setShowCreateProvider(false)} />

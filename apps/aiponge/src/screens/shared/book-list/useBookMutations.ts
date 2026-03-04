@@ -64,6 +64,8 @@ export function useBookMutations({ refetchManageBooks, t, userId }: BookMutation
           typeId: bookTypeId,
           scope: vis === CONTENT_VISIBILITY.PERSONAL ? 'personal' : 'shared',
           visibility: vis,
+          // Personal books must be writable so the user can edit generated entries
+          ...(vis === CONTENT_VISIBILITY.PERSONAL && { isReadOnly: false }),
         },
       })) as { data?: { book?: { id: string }; id?: string }; book?: { id: string }; id?: string };
       invalidateOnEvent(queryClient, { type: 'LIBRARY_BOOK_CREATED' });

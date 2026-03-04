@@ -1,6 +1,8 @@
-import { View, ScrollView, StyleSheet, RefreshControl } from 'react-native';
+import React from 'react';
+import { View, ScrollView, StyleSheet, RefreshControl, Text, TouchableOpacity } from 'react-native';
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useRouter, useLocalSearchParams, type Href } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useThemeColors, commonStyles, type ColorScheme } from '../../theme';
 import { TabBar } from '../../components/shared/TabBar';
@@ -18,6 +20,73 @@ import {
   ErrorSection,
   sharedStyles,
 } from '../../components/admin/AdminDashboard/shared';
+
+/**
+ * Per-section ErrorBoundary — isolates render crashes so a single
+ * failing section doesn't take down the entire Insights screen.
+ */
+class SectionErrorBoundary extends React.Component<
+  { children: React.ReactNode; label?: string },
+  { hasError: boolean; error: Error | null }
+> {
+  constructor(props: { children: React.ReactNode; label?: string }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <View style={boundaryStyles.container}>
+          <Ionicons name="alert-circle-outline" size={28} color="#FF6B6B" />
+          <Text style={boundaryStyles.title}>Failed to load {this.props.label || 'section'}</Text>
+          <Text style={boundaryStyles.message}>{this.state.error?.message || 'Unknown error'}</Text>
+          <TouchableOpacity
+            style={boundaryStyles.retry}
+            onPress={() => this.setState({ hasError: false, error: null })}
+          >
+            <Text style={boundaryStyles.retryText}>Retry</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+const boundaryStyles = StyleSheet.create({
+  container: {
+    padding: 24,
+    alignItems: 'center',
+    gap: 8,
+  },
+  title: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#FF6B6B',
+  },
+  message: {
+    fontSize: 12,
+    color: '#999',
+    textAlign: 'center',
+  },
+  retry: {
+    marginTop: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 6,
+    backgroundColor: '#333',
+  },
+  retryText: {
+    fontSize: 13,
+    color: '#fff',
+    fontWeight: '500',
+  },
+});
 
 type SubTab = 'growth' | 'engagement' | 'revenue' | 'adoption';
 
@@ -187,24 +256,42 @@ export default function InsightsScreen() {
       >
         {activeTab === 'growth' && (
           <View key={`growth-${refreshKey}`}>
-            <AdminMetricsSection />
-            <GrowthFunnelSection />
+            <SectionErrorBoundary label="Growth Metrics">
+              <AdminMetricsSection />
+            </SectionErrorBoundary>
+            <SectionErrorBoundary label="Growth Funnel">
+              <GrowthFunnelSection />
+            </SectionErrorBoundary>
           </View>
         )}
         {activeTab === 'engagement' && (
           <View key={`engagement-${refreshKey}`}>
-            <EngagementContent />
-            <CohortRetentionSection />
+            <SectionErrorBoundary label="Engagement">
+              <EngagementContent />
+            </SectionErrorBoundary>
+            <SectionErrorBoundary label="Cohort Retention">
+              <CohortRetentionSection />
+            </SectionErrorBoundary>
           </View>
         )}
         {activeTab === 'revenue' && (
           <View key={`revenue-${refreshKey}`}>
-            <SubscriptionOverviewSection />
-            <RevenueBreakdownSection />
-            <AdminRevenueSection />
+            <SectionErrorBoundary label="Subscriptions">
+              <SubscriptionOverviewSection />
+            </SectionErrorBoundary>
+            <SectionErrorBoundary label="Revenue Breakdown">
+              <RevenueBreakdownSection />
+            </SectionErrorBoundary>
+            <SectionErrorBoundary label="Revenue">
+              <AdminRevenueSection />
+            </SectionErrorBoundary>
           </View>
         )}
-        {activeTab === 'adoption' && <AdoptionContent key={`adoption-${refreshKey}`} />}
+        {activeTab === 'adoption' && (
+          <SectionErrorBoundary label="Adoption" key={`adoption-${refreshKey}`}>
+            <AdoptionContent />
+          </SectionErrorBoundary>
+        )}
       </ScrollView>
     </View>
   );

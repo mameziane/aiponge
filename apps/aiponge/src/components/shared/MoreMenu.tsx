@@ -51,7 +51,7 @@ export function MoreMenu({ onClose }: MoreMenuProps) {
   return (
     <>
       <MenuTrigger
-        icon="ellipsis-horizontal"
+        icon="menu"
         onPress={() => setVisible(true)}
         testID="header-more-button"
         label={t('components.moreMenu.more')}
@@ -72,12 +72,6 @@ export function MoreMenu({ onClose }: MoreMenuProps) {
           label={t('settingsPage.preferences')}
           onPress={() => handleNavigate('/preferences')}
           testID="menu-preferences"
-        />
-        <MenuItem
-          icon="language-outline"
-          label={t('settingsPage.language')}
-          onPress={() => handleNavigate('/language')}
-          testID="menu-language"
         />
         <MenuItem
           icon="notifications-outline"

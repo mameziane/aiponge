@@ -41,6 +41,7 @@ import type { BookTypeCategory, BookTypeId } from '@aiponge/shared-contracts';
 
 import { PROFILE_QUERY_KEY } from '../../hooks/profile/useProfile';
 import { invalidateOnEvent } from '../../lib/cacheManager';
+import { LiquidGlassCard } from '../../components/ui/LiquidGlassCard';
 
 interface OnboardingFlowProps {
   onComplete: () => void;
@@ -108,6 +109,43 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     },
     [router]
   );
+
+  const handleSkip = useCallback(async () => {
+    // Complete onboarding without generating a book — lets guests explore shared content
+    try {
+      try {
+        await apiClient.post(
+          '/api/v1/app/onboarding/complete',
+          { preferences: {}, locale: i18n.language || 'en-US' },
+          { timeout: 15000 }
+        );
+        invalidateOnEvent(queryClient, { type: 'ONBOARDING_COMPLETED', userId: user?.id });
+      } catch (err) {
+        logger.error('Onboarding complete API failed during skip (non-fatal)', err);
+      }
+
+      await Promise.all([
+        prefetchBooks(queryClient),
+        queryClient.prefetchQuery({
+          queryKey: [PROFILE_QUERY_KEY, user?.id],
+          queryFn: () => apiClient.get(PROFILE_QUERY_KEY),
+        }),
+      ]);
+
+      if (user?.id) {
+        await setOnboardingCompleted(user.id);
+      }
+
+      onComplete();
+    } catch (error) {
+      logger.error('Failed to skip onboarding', error);
+      // Still complete — don't trap the user
+      if (user?.id) {
+        await setOnboardingCompleted(user.id);
+      }
+      onComplete();
+    }
+  }, [queryClient, user?.id, onComplete, i18n.language]);
 
   const handleGenerate = useCallback(async () => {
     if (isSubmitting || bookDescription.trim().length < 10) return;
@@ -242,6 +280,12 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
             <Ionicons name="arrow-forward" size={20} color={colors.absolute.white} />
           </LinearGradient>
         </TouchableOpacity>
+
+        <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
+          <Text style={styles.skipButtonText}>
+            {t('onboardingFlow.skip', { defaultValue: 'Skip & explore the app' })}
+          </Text>
+        </TouchableOpacity>
       </View>
     </Animated.View>
   );
@@ -267,7 +311,12 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
           const types = isExpanded ? getBookTypesForCategory(config.id) : [];
 
           return (
-            <View key={config.id}>
+            <LiquidGlassCard
+              key={config.id}
+              intensity={isExpanded ? 'medium' : 'light'}
+              padding={0}
+              borderRadius={BORDER_RADIUS.md}
+            >
               <TouchableOpacity
                 style={[styles.categoryRow, isExpanded && styles.categoryRowExpanded]}
                 onPress={() => handleToggleCategory(config.id)}
@@ -309,7 +358,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                     <Ionicons name="chevron-forward" size={16} color={colors.text.tertiary} />
                   </TouchableOpacity>
                 ))}
-            </View>
+            </LiquidGlassCard>
           );
         })}
       </View>
@@ -634,6 +683,15 @@ const createStyles = (colors: ColorScheme) =>
       fontSize: fontSizes.headline,
       color: colors.absolute.white,
     },
+    skipButton: {
+      alignItems: 'center',
+      paddingVertical: 14,
+    },
+    skipButtonText: {
+      fontFamily: fontFamilies.body.medium,
+      fontSize: fontSizes.footnote,
+      color: colors.text.tertiary,
+    },
 
     // ─── Step 2: Accordion categories ──────────────────────────────
     preferencesHeader: {
@@ -662,16 +720,10 @@ const createStyles = (colors: ColorScheme) =>
       gap: 14,
       paddingVertical: 16,
       paddingHorizontal: 14,
-      borderRadius: BORDER_RADIUS.md,
-      backgroundColor: colors.background.subtle,
-      borderWidth: 1,
-      borderColor: colors.border.primary,
     },
     categoryRowExpanded: {
-      backgroundColor: colors.background.secondary,
-      borderBottomLeftRadius: 0,
-      borderBottomRightRadius: 0,
-      borderBottomWidth: 0,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: colors.border.primary,
     },
     categoryIconCircle: {
       width: 40,
@@ -695,11 +747,8 @@ const createStyles = (colors: ColorScheme) =>
       paddingVertical: 14,
       paddingHorizontal: 14,
       paddingLeft: 28,
-      backgroundColor: colors.background.secondary,
-      borderLeftWidth: 1,
-      borderRightWidth: 1,
       borderBottomWidth: StyleSheet.hairlineWidth,
-      borderColor: colors.border.primary,
+      borderBottomColor: colors.border.primary,
     },
     typeIconCircle: {
       width: 40,

@@ -73,6 +73,12 @@ export default function AdminLayout() {
             paddingTop: 8,
             paddingBottom: 12,
             height: 70,
+            overflow: 'visible' as const,
+          },
+          tabBarItemStyle: {
+            flex: 1,
+            justifyContent: 'center' as const,
+            alignItems: 'center' as const,
           },
           tabBarActiveTintColor: colors.brand.primary,
           tabBarInactiveTintColor: colors.text.secondary,

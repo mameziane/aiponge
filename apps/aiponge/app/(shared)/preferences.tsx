@@ -16,6 +16,7 @@ import { useAuthStore, selectUserId } from '../../src/auth/store';
 import { UnifiedSongPreferences } from '../../src/components/shared/UnifiedSongPreferences';
 import { AVAILABLE_LANGUAGES, changeLanguage, reloadAppForRTL, type SupportedLanguage } from '../../src/i18n';
 import type { IconName } from '../../src/types/ui.types';
+import { LiquidGlassCard } from '../../src/components/ui/LiquidGlassCard';
 
 const THEME_OPTIONS: { mode: ThemeMode; icon: keyof typeof Ionicons.glyphMap; label: string }[] = [
   { mode: 'light', icon: 'sunny-outline', label: 'settingsPage.themeLight' },
@@ -44,13 +45,15 @@ function CollapsibleSection({
 }) {
   return (
     <View style={styles.sectionWrapper}>
-      <TouchableOpacity style={[styles.card, expanded && styles.cardExpanded]} onPress={onToggle} activeOpacity={0.7}>
-        <Ionicons name={icon} size={18} color={colors.brand.primary} />
-        <Text style={styles.cardLabel} numberOfLines={1}>
-          {!expanded && subtitle ? `${title} — ${subtitle}` : title}
-        </Text>
-      </TouchableOpacity>
-      {expanded && children}
+      <LiquidGlassCard intensity={expanded ? 'medium' : 'light'} padding={0} borderRadius={12}>
+        <TouchableOpacity style={[styles.card, expanded && styles.cardExpanded]} onPress={onToggle} activeOpacity={0.7}>
+          <Ionicons name={icon} size={18} color={colors.brand.primary} />
+          <Text style={styles.cardLabel} numberOfLines={1}>
+            {!expanded && subtitle ? `${title} — ${subtitle}` : title}
+          </Text>
+        </TouchableOpacity>
+        {expanded && <View style={styles.sectionContent}>{children}</View>}
+      </LiquidGlassCard>
     </View>
   );
 }
@@ -189,15 +192,12 @@ export default function PreferencesScreen() {
         </CollapsibleSection>
 
         {otherSettingsItems.map((item, index) => (
-          <TouchableOpacity
-            key={index}
-            style={styles.card}
-            onPress={() => router.push(item.route as Href)}
-            activeOpacity={0.7}
-          >
-            <Ionicons name={item.icon} size={18} color={colors.brand.primary} />
-            <Text style={styles.cardLabel}>{item.label}</Text>
-          </TouchableOpacity>
+          <LiquidGlassCard key={index} intensity="light" padding={0} borderRadius={12}>
+            <TouchableOpacity style={styles.card} onPress={() => router.push(item.route as Href)} activeOpacity={0.7}>
+              <Ionicons name={item.icon} size={18} color={colors.brand.primary} />
+              <Text style={styles.cardLabel}>{item.label}</Text>
+            </TouchableOpacity>
+          </LiquidGlassCard>
         ))}
       </ScrollView>
     </View>
@@ -214,23 +214,24 @@ const createStyles = (colors: ColorScheme) =>
     contentContainer: {
       paddingHorizontal: spacing.screenHorizontal,
       paddingBottom: 100,
-      gap: 10,
+      gap: 8,
     },
     sectionWrapper: {},
     card: {
       flexDirection: 'row',
       alignItems: 'center',
-      minHeight: 52,
+      minHeight: 56,
       paddingHorizontal: 14,
-      paddingVertical: 12,
-      backgroundColor: colors.background.secondary,
-      borderRadius: BORDER_RADIUS.md,
-      borderWidth: 1,
-      borderColor: colors.border.primary,
+      paddingVertical: 14,
       gap: 10,
     },
     cardExpanded: {
-      marginBottom: 10,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: colors.border.primary,
+    },
+    sectionContent: {
+      paddingHorizontal: 14,
+      paddingVertical: 12,
     },
     cardLabel: {
       flex: 1,

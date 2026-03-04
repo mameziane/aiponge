@@ -1,21 +1,19 @@
-import { View, ScrollView, StyleSheet, RefreshControl, Text } from 'react-native';
+import { View, ScrollView, StyleSheet, RefreshControl } from 'react-native';
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useRouter, useLocalSearchParams, type Href } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { useThemeColors, commonStyles, BORDER_RADIUS, type ColorScheme } from '../../theme';
+import { useThemeColors, commonStyles, type ColorScheme } from '../../theme';
 import { TabBar } from '../../components/shared/TabBar';
 import { AdminPromptsSection } from '../../components/admin/AdminDashboard/AdminPromptsSection';
 import { AdminFrameworksSection } from '../../components/admin/AdminDashboard/AdminFrameworksSection';
-import { AdminProvidersSection } from '../../components/admin/AdminDashboard/AdminProvidersSection';
+import { LibrarianDefaultsSection } from '../../components/admin/LibrarianDashboard/LibrarianDefaultsSection';
 
-type SubTab = 'prompts' | 'frameworks' | 'settings' | 'providers';
+type SubTab = 'prompts' | 'frameworks' | 'settings';
 
 const SUB_TABS = [
   { id: 'prompts', label: 'admin.tabs.prompts' },
   { id: 'frameworks', label: 'admin.tabs.frameworks' },
   { id: 'settings', label: 'admin.tabs.settings' },
-  { id: 'providers', label: 'admin.tabs.providers' },
 ];
 
 const VALID_TABS = SUB_TABS.map(t => t.id);
@@ -68,21 +66,7 @@ export default function SystemsScreen() {
       >
         {activeTab === 'prompts' && <AdminPromptsSection key={`prompts-${refreshKey}`} />}
         {activeTab === 'frameworks' && <AdminFrameworksSection key={`frameworks-${refreshKey}`} />}
-        {activeTab === 'settings' && (
-          <View style={styles.comingSoon}>
-            <Ionicons name="construct-outline" size={48} color={colors.text.tertiary} />
-            <Text style={styles.comingSoonTitle}>{t('admin.comingSoon')}</Text>
-            <Text style={styles.comingSoonText}>{t('admin.systems.comingSoonSettings')}</Text>
-            <View style={styles.plannedFeatures}>
-              <Text style={styles.featureItem}>{`• ${t('admin.systems.plannedFeatures.musicGenParams')}`}</Text>
-              <Text style={styles.featureItem}>{`• ${t('admin.systems.plannedFeatures.riskThresholds')}`}</Text>
-              <Text style={styles.featureItem}>{`• ${t('admin.systems.plannedFeatures.featureFlags')}`}</Text>
-              <Text style={styles.featureItem}>{`• ${t('admin.systems.plannedFeatures.rateLimiting')}`}</Text>
-              <Text style={styles.featureItem}>{`• ${t('admin.systems.plannedFeatures.cacheDuration')}`}</Text>
-            </View>
-          </View>
-        )}
-        {activeTab === 'providers' && <AdminProvidersSection key={`providers-${refreshKey}`} />}
+        {activeTab === 'settings' && <LibrarianDefaultsSection key={`settings-${refreshKey}`} />}
       </ScrollView>
     </View>
   );
@@ -98,34 +82,5 @@ const createStyles = (colors: ColorScheme) =>
     contentContainer: {
       padding: 16,
       paddingBottom: 100,
-    },
-    comingSoon: {
-      alignItems: 'center',
-      paddingVertical: 48,
-      paddingHorizontal: 24,
-    },
-    comingSoonTitle: {
-      fontSize: 18,
-      fontWeight: '600',
-      color: colors.text.primary,
-      marginTop: 16,
-      marginBottom: 8,
-    },
-    comingSoonText: {
-      fontSize: 14,
-      color: colors.text.secondary,
-      textAlign: 'center',
-      marginBottom: 24,
-    },
-    plannedFeatures: {
-      alignSelf: 'stretch',
-      backgroundColor: colors.background.secondary,
-      borderRadius: BORDER_RADIUS.md,
-      padding: 16,
-    },
-    featureItem: {
-      fontSize: 13,
-      color: colors.text.secondary,
-      marginBottom: 8,
     },
   });

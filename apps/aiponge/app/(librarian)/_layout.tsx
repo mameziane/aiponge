@@ -205,7 +205,7 @@ export default function LibrarianLayout() {
             tabBarLabelStyle: styles.createLabel,
             tabBarIcon: ({ color }) => (
               <View style={styles.createIconWrapper}>
-                <Ionicons name="add-circle" color={color} size={36} />
+                <Ionicons name="add-circle" color={color} size={48} />
               </View>
             ),
             tabBarItemStyle: {
@@ -247,10 +247,11 @@ export default function LibrarianLayout() {
 
 const styles = StyleSheet.create({
   createIconWrapper: {
-    width: 40,
-    height: 40,
+    width: 52,
+    height: 52,
     justifyContent: 'center',
     alignItems: 'center',
+    marginTop: -12,
   },
   createLabel: {
     fontSize: 10,

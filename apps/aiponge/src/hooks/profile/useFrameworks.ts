@@ -76,11 +76,15 @@ export function useFrameworks(): UseFrameworksResult {
   const query = useQuery({
     queryKey: queryKeys.frameworks.list(),
     queryFn: async () => {
-      const response = await apiClient.get<ServiceResponse<RawFramework[]>>('/api/v1/frameworks');
-      if (!response.success) {
-        throw new Error('Failed to fetch frameworks');
+      try {
+        const response = await apiClient.get<ServiceResponse<RawFramework[]>>('/api/v1/frameworks');
+        // Handle both direct array response and ServiceResponse wrapper
+        if (Array.isArray(response)) return response;
+        if (response?.success === false) throw new Error('Failed to fetch frameworks');
+        return ((response?.data ?? response) as RawFramework[]) || [];
+      } catch {
+        return [] as RawFramework[];
       }
-      return response.data || [];
     },
     select: (data: RawFramework[]) =>
       data.map(
