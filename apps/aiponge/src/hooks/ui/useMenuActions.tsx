@@ -29,6 +29,7 @@ type NavigationRoute =
   | '/(user)/books'
   | '/(settings)/reports'
   | '/(settings)/reminders'
+  | '/(library)/downloads'
   | '/(commerce)/subscription';
 
 interface UseMenuActionsOptions {

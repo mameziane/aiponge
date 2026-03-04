@@ -80,6 +80,12 @@ export function MoreMenu({ onClose }: MoreMenuProps) {
           testID="menu-reminders"
         />
         <MenuItem
+          icon="cloud-download-outline"
+          label={t('navigation.downloads')}
+          onPress={() => handleNavigate('/(library)/downloads')}
+          testID="menu-downloads"
+        />
+        <MenuItem
           icon="book-outline"
           label={t('components.moreMenu.manifesto')}
           onPress={() => handleNavigate('/manifesto')}
