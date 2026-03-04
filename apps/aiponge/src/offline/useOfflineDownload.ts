@@ -11,6 +11,8 @@ import { useCallback, useRef, useEffect } from 'react';
 import { Alert } from 'react-native';
 import { useDownloadStore, OFFLINE_DIR, ensureTrackDir, selectDownloads } from './store';
 import { useNetworkStatus } from '../hooks/system/useNetworkStatus';
+import { useAuthStore } from '../auth/store';
+import { normalizeMediaUrl } from '../lib/apiConfig';
 import { logger } from '../lib/logger';
 import { FileSystem, isOfflineSupported } from './offlineEnv';
 import type { OfflineTrack } from './types';
@@ -68,17 +70,25 @@ export function useOfflineDownload() {
       return;
     }
 
+    const resolvedAudioUrl = normalizeMediaUrl(job.track.audioUrl);
     logger.info('[OfflineDownload] Starting download', {
       trackId: job.trackId,
       title: job.track.title,
-      audioUrl: job.track.audioUrl?.substring(0, 100),
-      hasAudioUrl: !!job.track.audioUrl,
+      rawUrl: job.track.audioUrl?.substring(0, 80),
+      resolvedUrl: resolvedAudioUrl?.substring(0, 80),
+      hasAuth: !!useAuthStore.getState().token,
     });
 
     try {
       // Validate audio URL before attempting download
       if (!job.track.audioUrl) {
         throw new Error('No audio URL available for download');
+      }
+
+      // Normalize the URL: resolve relative paths and replace localhost
+      const resolvedUrl = normalizeMediaUrl(job.track.audioUrl);
+      if (!resolvedUrl) {
+        throw new Error('Could not resolve audio URL for download');
       }
 
       // Create track directory
@@ -88,11 +98,19 @@ export function useOfflineDownload() {
       }
       const audioPath = trackDir + 'audio.m4a';
 
+      // Build download options with auth header for API-gateway URLs
+      const currentToken = useAuthStore.getState().token;
+      const downloadHeaders: Record<string, string> = {};
+      if (currentToken && !resolvedUrl.includes('storage.googleapis.com') && !resolvedUrl.includes('amazonaws.com')) {
+        // Only send auth header to our own API gateway, not to external storage providers
+        downloadHeaders['Authorization'] = `Bearer ${currentToken}`;
+      }
+
       // Create download resumable
       const downloadResumable = FileSystem.createDownloadResumable(
-        job.track.audioUrl,
+        resolvedUrl,
         audioPath,
-        {},
+        { headers: downloadHeaders },
         downloadProgress => {
           const progress =
             downloadProgress.totalBytesExpectedToWrite > 0
@@ -115,10 +133,11 @@ export function useOfflineDownload() {
       if (result?.uri) {
         // Download artwork if available
         let artworkPath: string | undefined;
-        if (job.track.artworkUrl) {
+        const resolvedArtworkUrl = normalizeMediaUrl(job.track.artworkUrl);
+        if (resolvedArtworkUrl) {
           try {
             artworkPath = trackDir + 'artwork.jpg';
-            await FileSystem.downloadAsync(job.track.artworkUrl, artworkPath);
+            await FileSystem.downloadAsync(resolvedArtworkUrl, artworkPath);
           } catch (artworkError) {
             logger.warn('[OfflineDownload] Artwork download failed', {
               trackId: job.trackId,
