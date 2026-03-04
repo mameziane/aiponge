@@ -20,7 +20,7 @@ export function MiniPlayer() {
   const { t } = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
-  const { currentTrack, playbackPhase } = usePlaybackState();
+  const { currentTrack } = usePlaybackState();
   const { togglePlayPause, isPlaying } = useUnifiedPlaybackControl();
   const { dismissed, dismiss, onTrackChange } = useMiniPlayerStore();
 
@@ -30,16 +30,13 @@ export function MiniPlayer() {
   }, [currentTrack?.id, onTrackChange]);
 
   // Hide when:
-  // - No track loaded
-  // - Playback is idle (track finished) and no current track
+  // - No track loaded (cleared after queue ends or single track finishes)
   // - User explicitly dismissed (stays hidden until a new track starts)
   // - On a full-screen route (track detail, book reader)
-  if (
-    !currentTrack ||
-    (playbackPhase === 'idle' && !isPlaying) ||
-    dismissed ||
-    HIDDEN_ROUTES.some(route => pathname.startsWith(route))
-  ) {
+  // Note: We do NOT hide on playbackPhase === 'idle' because currentTrack being null
+  // already covers that case. Keeping the mini-player visible after a play error
+  // (idle with currentTrack set) lets the user see what failed and retry.
+  if (!currentTrack || dismissed || HIDDEN_ROUTES.some(route => pathname.startsWith(route))) {
     return null;
   }
 

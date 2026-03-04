@@ -441,6 +441,9 @@ export function useTrackPlayback<T extends PlayableTrack>(
             });
           }, 100);
         } else {
+          // No next track — end of queue without repeat.
+          // Clear currentTrack so the mini-player hides and reset phase.
+          setCurrentTrack(null);
           updatePlaybackPhase('idle');
           isHandlingTrackEnd.current = false;
         }
