@@ -392,7 +392,7 @@ export function ReminderModal({ visible, onClose, reminder, onSave, defaultType,
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <Pressable style={styles.overlay} onPress={pickerView ? undefined : onClose}>
-        <Pressable onPress={e => e.stopPropagation()}>
+        <Pressable style={styles.modalWrapper} onPress={e => e.stopPropagation()}>
           <LiquidGlassView intensity="strong" borderRadius={24} showBorder={true} style={styles.modalContainer}>
             {/* Inline Book Picker */}
             {pickerView === 'book' && (
@@ -803,9 +803,11 @@ const createStyles = (colors: ColorScheme) =>
       alignItems: 'center',
       padding: 16,
     },
-    modalContainer: {
+    modalWrapper: {
       width: '100%',
       maxWidth: 500,
+    },
+    modalContainer: {
       maxHeight: '85%',
       padding: 0,
     },
