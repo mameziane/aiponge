@@ -79,24 +79,39 @@ export function useUnifiedPlaybackControl(): UseUnifiedPlaybackControlReturn {
 
   const playNewTrack = useCallback(
     async (track: PlaybackTrack, audioUrl: string) => {
-      logger.debug('[UnifiedPlayback] Playing new track', { trackId: track.id, isCasting });
+      logger.debug('[UnifiedPlayback] Playing new track', {
+        trackId: track.id,
+        audioUrl: audioUrl ? `${audioUrl.substring(0, 80)}...` : '(empty)',
+        isCasting,
+      });
+
+      if (!audioUrl) {
+        logger.error('[UnifiedPlayback] Cannot play track — audioUrl is empty', { trackId: track.id });
+        setPlaybackPhase('paused');
+        return;
+      }
 
       setCurrentTrack(track);
       setPlaybackPhase('buffering');
 
-      if (isCasting) {
-        logger.debug('[UnifiedPlayback] Routing new track to Cast');
-        await transferToCast(track);
-      } else {
-        logger.debug('[UnifiedPlayback] Loading new track locally');
-        player.replace({ uri: audioUrl });
-        player.play();
-        // Note: Don't set 'playing' here - let useTrackPlayback's useEffect transition
-        // from 'buffering' to 'playing' when player.playing becomes true
-      }
+      try {
+        if (isCasting) {
+          logger.debug('[UnifiedPlayback] Routing new track to Cast');
+          await transferToCast(track);
+        } else {
+          logger.debug('[UnifiedPlayback] Loading new track locally', { uri: audioUrl });
+          player.replace({ uri: audioUrl });
+          player.play();
+          // Note: Don't set 'playing' here - let useTrackPlayback's useEffect transition
+          // from 'buffering' to 'playing' when player.playing becomes true
+        }
 
-      // Update lock screen via expo-audio's native API
-      updateMediaSessionTrack(player, track);
+        // Update lock screen via expo-audio's native API
+        updateMediaSessionTrack(player, track);
+      } catch (error) {
+        logger.error('[UnifiedPlayback] Failed to start playback', { trackId: track.id, audioUrl, error });
+        setPlaybackPhase('paused');
+      }
     },
     [isCasting, player, setCurrentTrack, setPlaybackPhase, transferToCast]
   );

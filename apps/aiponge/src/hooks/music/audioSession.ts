@@ -30,10 +30,10 @@ export async function configureAudioSession(): Promise<void> {
     sessionConfigured = true;
     logger.debug('[AudioSession] Audio session configured successfully');
   } catch (error) {
-    // Mark as configured even on failure to avoid retrying on every track play.
-    // Audio may still work with default system session settings.
-    sessionConfigured = true;
-    logger.error('[AudioSession] Failed to configure audio session — audio may not play in silent mode', error);
+    // Do NOT mark as configured on failure — allow retry on next track play.
+    // Without a properly configured audio session, audio won't play through the
+    // iOS mute switch and background playback won't work.
+    logger.error('[AudioSession] Failed to configure audio session — will retry on next play', error);
   }
 }
 

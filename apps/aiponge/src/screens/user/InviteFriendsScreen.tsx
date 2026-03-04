@@ -163,17 +163,15 @@ export function InviteFriends({ onNavigateToMembers }: InviteFriendsProps) {
 
         {inviteCode ? (
           <>
-            <View style={styles.codeSection}>
+            <LiquidGlassView intensity="medium" borderRadius={12} showBorder style={styles.codeContainer}>
               <Text style={styles.sectionLabel}>{t('sharing.yourInviteCode')}</Text>
-              <LiquidGlassView intensity="medium" borderRadius={12} showBorder style={styles.codeContainer}>
-                <Text style={styles.codeText} testID="text-invite-code">
-                  {inviteCode}
-                </Text>
-                <TouchableOpacity style={styles.copyButton} onPress={handleCopyCode} testID="button-copy-code">
-                  <Ionicons name={codeCopied ? 'checkmark' : 'copy-outline'} size={24} color={colors.brand.primary} />
-                </TouchableOpacity>
-              </LiquidGlassView>
-            </View>
+              <Text style={styles.codeText} testID="text-invite-code">
+                {inviteCode}
+              </Text>
+              <TouchableOpacity style={styles.copyButton} onPress={handleCopyCode} testID="button-copy-code">
+                <Ionicons name={codeCopied ? 'checkmark' : 'copy-outline'} size={22} color={colors.brand.primary} />
+              </TouchableOpacity>
+            </LiquidGlassView>
 
             <LiquidGlassCard intensity="light" style={styles.rewardCard} padding={16}>
               <View style={styles.rewardRow}>
@@ -182,27 +180,29 @@ export function InviteFriends({ onNavigateToMembers }: InviteFriendsProps) {
               </View>
             </LiquidGlassCard>
 
-            <TouchableOpacity
-              style={styles.shareButton}
-              onPress={handleShare}
-              activeOpacity={0.8}
-              testID="button-share-invite"
-            >
-              <LinearGradient
-                colors={colors.gradients.primary}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.shareButtonGradient}
+            <View style={styles.actionRow}>
+              <TouchableOpacity
+                style={styles.shareButton}
+                onPress={handleShare}
+                activeOpacity={0.8}
+                testID="button-share-invite"
               >
-                <Ionicons name="share-social" size={24} color={colors.text.primary} />
-                <Text style={styles.shareButtonText}>{t('sharing.shareInvite')}</Text>
-              </LinearGradient>
-            </TouchableOpacity>
+                <LinearGradient
+                  colors={colors.gradients.primary}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.shareButtonGradient}
+                >
+                  <Ionicons name="share-social" size={20} color={colors.text.primary} />
+                  <Text style={styles.shareButtonText}>{t('sharing.shareInvite')}</Text>
+                </LinearGradient>
+              </TouchableOpacity>
 
-            <TouchableOpacity style={styles.copyLinkButton} onPress={handleCopyLink} testID="button-copy-link">
-              <Ionicons name={linkCopied ? 'checkmark-circle' : 'link'} size={20} color={colors.brand.primary} />
-              <Text style={styles.copyLinkText}>{t('sharing.copyLink')}</Text>
-            </TouchableOpacity>
+              <TouchableOpacity style={styles.copyLinkButton} onPress={handleCopyLink} testID="button-copy-link">
+                <Ionicons name={linkCopied ? 'checkmark-circle' : 'link'} size={18} color={colors.brand.primary} />
+                <Text style={styles.copyLinkText}>{t('sharing.copyLink')}</Text>
+              </TouchableOpacity>
+            </View>
           </>
         ) : (
           <LiquidGlassCard intensity="medium" padding={16} style={styles.createCard}>
@@ -298,7 +298,7 @@ const createStyles = (colors: ColorScheme) =>
     },
     scrollView: commonStyles.flexOne,
     scrollContent: {
-      paddingTop: 24,
+      paddingTop: 12,
       paddingBottom: 48,
     },
     loadingContainer: commonStyles.loadingContainer,
@@ -309,31 +309,30 @@ const createStyles = (colors: ColorScheme) =>
       marginBottom: 16,
       textAlign: 'center',
     },
-    codeSection: {
-      marginBottom: 16,
-    },
     sectionLabel: {
-      fontSize: 14,
+      fontSize: 13,
       fontFamily: fontFamilies.body.medium,
       color: colors.text.secondary,
-      marginBottom: 4,
     },
     codeContainer: {
       flexDirection: 'row',
       alignItems: 'center',
       borderRadius: BORDER_RADIUS.md,
-      padding: 16,
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+      marginBottom: 16,
+      gap: 8,
     },
     codeText: {
       flex: 1,
-      fontSize: 24,
+      fontSize: 22,
       fontFamily: fontFamilies.body.bold,
       color: colors.brand.primary,
       letterSpacing: 2,
-      textAlign: 'center',
+      textTransform: 'uppercase',
     },
     copyButton: {
-      padding: 4,
+      padding: 6,
     },
     rewardCard: {
       borderRadius: BORDER_RADIUS.md,
@@ -378,33 +377,43 @@ const createStyles = (colors: ColorScheme) =>
       color: colors.text.primary,
       textAlign: 'center',
     },
+    actionRow: {
+      flexDirection: 'row',
+      gap: 10,
+      marginBottom: 20,
+    },
     shareButton: {
+      flex: 1,
       borderRadius: BORDER_RADIUS.md,
       overflow: 'hidden',
-      marginBottom: 12,
     },
     shareButtonGradient: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: 16,
-      gap: 8,
+      paddingVertical: 14,
+      paddingHorizontal: 12,
+      gap: 6,
     },
     shareButtonText: {
-      fontSize: 17,
+      fontSize: 15,
       fontFamily: fontFamilies.body.bold,
       color: colors.text.primary,
     },
     copyLinkButton: {
+      flex: 1,
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: 16,
+      paddingVertical: 14,
+      paddingHorizontal: 12,
       gap: 4,
-      marginBottom: 24,
+      borderRadius: BORDER_RADIUS.md,
+      borderWidth: 1,
+      borderColor: colors.border.primary,
     },
     copyLinkText: {
-      fontSize: 17,
+      fontSize: 15,
       fontFamily: fontFamilies.body.medium,
       color: colors.brand.primary,
     },

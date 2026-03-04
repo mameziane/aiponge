@@ -347,9 +347,12 @@ export function ReminderModal({ visible, onClose, reminder, onSave, defaultType,
         invalidateOnEvent(queryClient, { type: 'REMINDER_UPDATED' });
         savedReminderId = reminder.id;
       } else {
+        // apiClient returns full AxiosResponse; the API body is at response.data
+        // and follows { success, data: { id } } shape
         const response = await apiClient.post('/api/v1/app/reminders', payload);
         invalidateOnEvent(queryClient, { type: 'REMINDER_CREATED' });
-        savedReminderId = (response as { data?: { id?: string } })?.data?.id;
+        const body = (response as { data?: { success?: boolean; data?: { id?: string } } })?.data;
+        savedReminderId = body?.data?.id;
       }
 
       // Schedule local notification as a resilient fallback
