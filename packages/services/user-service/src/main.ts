@@ -16,10 +16,12 @@ import {
   registerShutdownHook,
   failFastValidation,
   initTracing,
+  initValidation,
 } from '@aiponge/platform-core';
 
 initSentry('user-service');
 failFastValidation('user-service');
+initValidation('user-service');
 import routes from './presentation/routes/index';
 import './infrastructure/schedulers/MigrationRetryScheduler';
 import './infrastructure/schedulers/OrphanedReservationCleanupScheduler';

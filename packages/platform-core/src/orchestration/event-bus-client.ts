@@ -97,6 +97,13 @@ export class RedisEventBusClient implements IStandardizedEventBusClient {
   private readonly STREAM_MAXLEN = parseInt(process.env.EVENT_BUS_STREAM_MAXLEN || '10000', 10);
   private readonly POLL_INTERVAL_MS = parseInt(process.env.EVENT_BUS_POLL_INTERVAL_MS || '100', 10);
 
+  // Health observability: tracks reconnection events for getHealthDetail()
+  private reconnectAttempts = 0;
+  private lastReconnectAt: Date | null = null;
+  private lastError: string | null = null;
+  private dlqPublishedCount = 0;
+  private shuttingDown = false;
+
   constructor(serviceName: string) {
     this.serviceName = serviceName;
     this.consumerGroupName = `aiponge-${serviceName}`;
@@ -144,13 +151,19 @@ export class RedisEventBusClient implements IStandardizedEventBusClient {
         // Mark Redis as unavailable so publishInternal falls through to local delivery.
         // ioredis will reconnect automatically; the 'ready' handler below re-enables it.
         this.redisEnabled = false;
+        this.lastError = err.message;
         this.metrics.setConnectionStatus(true, false);
       });
 
       // Fires on every successful (re)connection, including after a transient drop.
       this.redisClient.on('ready', () => {
         if (!this.redisEnabled) {
-          logger.info('Redis event bus reconnected for service {}', { data0: this.serviceName });
+          this.reconnectAttempts++;
+          this.lastReconnectAt = new Date();
+          logger.info('Redis event bus reconnected for service {}', {
+            data0: this.serviceName,
+            reconnectAttempts: this.reconnectAttempts,
+          });
         }
         this.redisEnabled = true;
         this.connected = true;
@@ -527,6 +540,7 @@ export class RedisEventBusClient implements IStandardizedEventBusClient {
 
   async shutdown(): Promise<void> {
     try {
+      this.shuttingDown = true;
       this.pollingActive = false;
       if (this.pollTimer) {
         clearTimeout(this.pollTimer);
@@ -565,6 +579,53 @@ export class RedisEventBusClient implements IStandardizedEventBusClient {
       });
       throw error;
     }
+  }
+
+  async publishToDeadLetter(event: StandardEvent, error: Error): Promise<void> {
+    const dlqEvent: StandardEvent = {
+      ...event,
+      type: `dlq.${event.type}`,
+      data: {
+        ...event.data,
+        _dlqReason: error.message,
+        _dlqTimestamp: new Date().toISOString(),
+        _dlqSource: this.serviceName,
+      },
+    };
+
+    try {
+      await this.publishInternal(dlqEvent);
+      this.dlqPublishedCount++;
+      logger.warn('Event published to dead letter queue', {
+        eventId: event.eventId,
+        eventType: event.type,
+        error: error.message,
+      });
+    } catch (dlqError) {
+      logger.error('Failed to publish to dead letter queue', {
+        eventId: event.eventId,
+        error: serializeError(dlqError),
+      });
+    }
+  }
+
+  getHealthDetail(): EventBusHealthDetail {
+    const isRedisReady = !!(this.redisClient && this.redisClient.status === 'ready');
+    return {
+      provider: this.redisEnabled ? 'redis' : 'memory',
+      connected: this.connected,
+      producerConnected: isRedisReady,
+      consumerConnected: isRedisReady && (this.pollingActive || this.pubsubSubClients.size > 0),
+      consumerRunning: this.pollingActive || this.pubsubSubClients.size > 0,
+      pendingEventCount: this.pendingEvents.length,
+      subscriptionCount: this.subscriptions.size,
+      reconnectAttempts: this.reconnectAttempts,
+      lastReconnectAt: this.lastReconnectAt?.toISOString() ?? null,
+      lastError: this.lastError,
+      dlqPublishedCount: this.dlqPublishedCount,
+      shuttingDown: this.shuttingDown,
+      bufferCapacityPercent: this.pendingEvents.length > 0 ? Math.round((this.pendingEvents.length / 1000) * 100) : 0,
+    };
   }
 
   getConnectionStatus(): boolean {
