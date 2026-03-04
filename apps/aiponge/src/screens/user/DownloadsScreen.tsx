@@ -86,7 +86,9 @@ function DownloadItem({ item, isPlaying, isActive, onPress, onRemove, formatDura
               ? `${Math.round(item.progress * 100)}%`
               : item.status === 'completed'
                 ? formatSize(item.size)
-                : item.status}
+                : item.status === 'failed' && item.error
+                  ? item.error
+                  : item.status}
           </Text>
           <Text style={styles.metaDot}>•</Text>
           <Text style={styles.metaText}>{formatDuration(item.duration)}</Text>

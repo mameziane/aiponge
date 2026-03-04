@@ -8,6 +8,7 @@
  */
 
 import { useCallback, useRef, useEffect } from 'react';
+import { Alert } from 'react-native';
 import { useDownloadStore, OFFLINE_DIR, ensureTrackDir } from './store';
 import { useNetworkStatus } from '../hooks/system/useNetworkStatus';
 import { logger } from '../lib/logger';
@@ -68,11 +69,21 @@ export function useOfflineDownload() {
     logger.info('[OfflineDownload] Starting download', {
       trackId: job.trackId,
       title: job.track.title,
+      audioUrl: job.track.audioUrl?.substring(0, 100),
+      hasAudioUrl: !!job.track.audioUrl,
     });
 
     try {
+      // Validate audio URL before attempting download
+      if (!job.track.audioUrl) {
+        throw new Error('No audio URL available for download');
+      }
+
       // Create track directory
       const trackDir = await ensureTrackDir(job.trackId);
+      if (!trackDir) {
+        throw new Error('Could not create offline storage directory');
+      }
       const audioPath = trackDir + 'audio.m4a';
 
       // Create download resumable
@@ -141,8 +152,10 @@ export function useOfflineDownload() {
       logger.error('[OfflineDownload] Download failed', {
         trackId: job.trackId,
         error: errorMessage,
+        audioUrl: job.track.audioUrl?.substring(0, 80),
       });
       setDownloadStatus(job.trackId, 'failed', errorMessage);
+      Alert.alert('Download Failed', `"${job.track.title}" could not be downloaded.\n\n${errorMessage}`);
     } finally {
       // Remove from active downloads
       activeDownloadsRef.current.delete(job.trackId);

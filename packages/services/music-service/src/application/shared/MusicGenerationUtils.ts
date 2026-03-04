@@ -366,20 +366,27 @@ export class MusicGenerationUtils {
           ? `Instrumental: ${params.style || 'melodic'} ${params.genre || ''} ${params.mood || ''}`
           : params.lyrics;
 
+      // Podcast: use explicit spoken-word tags so MusicAPI.ai does NOT default to singing
+      const podcastStyle = 'spoken word, podcast narration, conversational voice, calm speech, soft ambient background';
+      const podcastNegativeTags = [
+        params.negativeTags,
+        'singing, sung vocals, vocal melody, chorus, harmony, singing voice, musical vocals, belting, falsetto, vibrato, rap, hip hop vocals, heavy drums, electric guitar, fast tempo',
+      ]
+        .filter(Boolean)
+        .join(', ');
+
       const orchRequest: OrchestratorRequest = {
         prompt,
         title: params.title,
         lyrics: params.isInstrumental && !isPodcast ? undefined : params.lyrics,
-        style: isPodcast ? 'spoken word, narration, soft ambient background' : params.style,
+        style: isPodcast ? podcastStyle : params.style,
         genre: params.genre,
         mood: isPodcast ? params.mood || 'reflective' : params.mood,
         duration: params.duration,
         vocalGender: params.vocalGender,
         isInstrumental: isPodcast ? false : params.isInstrumental,
         instrumentType: params.instrumentType,
-        negativeTags: isPodcast
-          ? [params.negativeTags, 'heavy drums, electric guitar, fast tempo, singing'].filter(Boolean).join(', ')
-          : params.negativeTags,
+        negativeTags: isPodcast ? podcastNegativeTags : params.negativeTags,
         culturalStyle: params.culturalStyle,
         tempo: params.tempo,
         styleWeight: params.styleWeight,
