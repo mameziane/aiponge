@@ -39,6 +39,7 @@ export interface GeneratePlaylistArtworkRequest {
   trackCount?: number;
   playlistId: string;
   userId?: string;
+  visibility?: ContentVisibility;
 }
 
 export interface GenerateArtworkResponse {

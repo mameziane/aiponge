@@ -1,4 +1,7 @@
 {
+  "app": {
+    "tagline": "आपके शब्द आपका संगीत बन जाते हैं।"
+  },
   "search": {
     "musicPlaceholder": "गाने, कलाकार खोजें...",
     "albumsPlaceholder": "एल्बम खोजें...",
@@ -45,7 +48,6 @@
     "success": "सफल",
     "share": "साझा करें",
     "or": "या",
-    "seeAll": "सभी देखें",
     "creating": "बनाया जा रहा है...",
     "deleting": "हटाया जा रहा है...",
     "durationHoursMinutes": "{{hours}}घं {{minutes}}मि",
@@ -59,7 +61,9 @@
     "reset": "रीसेट करें",
     "tracks": "ट्रैक",
     "upgrade": "अपग्रेड करें",
-    "yourPhone": "आपका फ़ोन नंबर"
+    "yourPhone": "आपका फ़ोन नंबर",
+    "errorTitle": "Could not load content",
+    "networkErrorDesc": "Something went wrong. Tap to try again."
   },
   "errors": {
     "serviceUnavailable": "सेवा अस्थायी रूप से अनुपलब्ध है। कुछ देर बाद पुनः प्रयास करें।",
@@ -139,7 +143,6 @@
     }
   },
   "settings": {
-    "title": "सेटिंग्स",
     "comingSoon": "जल्द आ रहा है",
     "languageNote": "आपकी भाषा की प्राथमिकता स्थानीय रूप से सहेजी गई है।",
     "restartRequired": "पुनः आरंभ आवश्यक",
@@ -155,44 +158,16 @@
     "saveFailed": "प्रोफ़ाइल सहेजने में विफल। कृपया पुनः प्रयास करें।"
   },
   "navigation": {
-    "create": "बनाएँ",
     "myMusic": "संगीत",
-    "myCreations": "मेरी रचनाएँ",
     "adminDashboard": "एडमिन",
-    "config": "कॉन्फ़िग",
     "newEntry": "नई प्रविष्टि",
-    "newSong": "नया गाना",
-    "tabCreate": "बनाएँ",
-    "tabBook": "पुस्तक",
-    "tabChapter": "अध्याय",
-    "tabEntry": "प्रविष्टि",
-    "tabInsight": "अंतर्दृष्टि",
-    "tabSong": "गाना",
-    "profile": "प्रोफ़ाइल",
     "reflect": "चिंतन",
     "reflectDisabledTitle": "अभी तक कोई प्रविष्टि नहीं",
     "reflectDisabledMessage": "पहले जर्नल प्रविष्टियाँ लिखें — चिंतन आपकी प्रविष्टियों का विश्लेषण करके रुझान और अंतर्दृष्टि खोजता है।",
-    "credits": "क्रेडिट",
-    "creditsAndPlan": "क्रेडिट और प्लान",
-    "store": "स्टोर",
-    "playlists": "मेरी प्लेलिस्ट",
-    "downloads": "डाउनलोड",
-    "sharedLibrary": "संगीत पुस्तकालय",
-    "dashboard": "डैशबोर्ड",
-    "insights": "अंतर्दृष्टि",
-    "governance": "शासन",
-    "myBooks": "पुस्तकें",
-    "reports": "साझा करें",
     "studio": "Studio"
   },
   "librarian": {
     "title": "लाइब्रेरियन",
-    "tabs": {
-      "music": "संगीत",
-      "studio": "Studio",
-      "books": "पुस्तकें",
-      "settings": "सेटिंग्स"
-    },
     "music": {
       "title": "संगीत जनरेशन",
       "description": "साझा संगीत पुस्तकालय के लिए एल्बम और ट्रैक बनाएँ। सभी उपयोगकर्ताओं के लिए बहुभाषी सामग्री जनरेट करें।",
@@ -224,7 +199,6 @@
       "publishFailed": "पुस्तक प्रकाशित करने में विफल",
       "publishConfirmTitle": "पुस्तक प्रकाशित करें",
       "publishConfirmMessage": "यह पुस्तक सभी उपयोगकर्ताओं को दिखाई देगी। जारी रखें?",
-      "coverFailed": "कवर जनरेट करने में विफल",
       "deleteConfirmTitle": "पुस्तक हटाएँ",
       "deleteConfirmMessage": "क्या आप \"{{title}}\" को हटाना चाहते हैं? इससे सभी अध्याय और प्रविष्टियाँ भी हट जाएँगी।",
       "deleteForbidden": "आपको यह पुस्तक हटाने की अनुमति नहीं है",
@@ -236,8 +210,7 @@
       "authorPlaceholder": "लेखक का नाम",
       "descriptionPlaceholder": "पुस्तक का विवरण",
       "status": "स्थिति",
-      "subtitlePlaceholder": "एक संक्षिप्त उपशीर्षक",
-      "filterByStatus": "स्थिति के अनुसार फ़िल्टर करें"
+      "subtitlePlaceholder": "एक संक्षिप्त उपशीर्षक"
     },
     "library": {
       "subtabs": {
@@ -312,7 +285,6 @@
     "feature2": "AI अध्याय और चिंतन बनाता है",
     "feature3": "हर प्रविष्टि एक व्यक्तिगत गाना बनती है",
     "continue": "जारी रखें",
-    "getStarted": "शुरू करें",
     "chooseCategoryTitle": "किस तरह की किताब?",
     "chooseCategorySubtitle": "ऐसा विषय चुनें जो गूंजे",
     "describeTitle": "अपने {{bookTypeName}} का वर्णन करें",
@@ -320,7 +292,6 @@
     "generateButton": "मेरी किताब बनाएं"
   },
   "manifesto": {
-    "title": "aiponge का घोषणापत्र",
     "section1": {
       "title": "प्राचीन ज्ञान",
       "content": "2,500 साल पहले, खोजकर्ता स्पष्टता और आत्म-ज्ञान पाने के लिए Delphes जाते थे। दो कालातीत विचारों ने उनका मार्गदर्शन किया: 'अपने आप को जानो' और 'अति कुछ नहीं'। यही ज्ञान अब aiponge का मार्गदर्शन करता है।"
@@ -432,7 +403,7 @@
       "title": "aiponge के बारे में",
       "description": "संस्करण {{version}}",
       "modalTitle": "के बारे में",
-      "tagline": "आपका व्यक्तिगत AI संगीत साथी",
+      "tagline": "आपके शब्द आपका संगीत बन जाते हैं।",
       "version": "संस्करण",
       "build": "बिल्ड",
       "copyright": "© {{year}} aiponge. सर्वाधिकार सुरक्षित।"
@@ -478,7 +449,6 @@
     "infoNote": "ये फ़िल्टर नया संगीत जनरेट करते समय और लाइब्रेरी ब्राउज़ करते समय लागू होते हैं। आपकी लाइब्रेरी के मौजूदा गाने हटाए नहीं जाएँगे।"
   },
   "subscription": {
-    "title": "सदस्यता",
     "continueWithFree": "मुफ़्त उपकरणों के साथ जारी रखें",
     "seePlusOptions": "प्लस विकल्प देखें",
     "perMonth": "/माह",
@@ -657,6 +627,10 @@
     },
     "restorePurchases": "पहले से सदस्य हैं? खरीदारी पुनर्स्थापित करें",
     "legalText": "सदस्यता स्वचालित रूप से नवीनीकृत होती है जब तक कि वर्तमान अवधि समाप्त होने से कम से कम 24 घंटे पहले स्वचालित नवीनीकरण बंद न किया जाए।",
+    "explorerFreeWithAccount": "खाते के साथ मुफ्त",
+    "registerForFree": "मुफ्त में पंजीकरण करें",
+    "currentPlan": "वर्तमान योजना",
+    "guestNoAccountNeeded": "कोई खाता आवश्यक नहीं",
     "accountRequired": {
       "createAccount": "खाता बनाएँ",
       "message": "सदस्यता लेने और प्रबंधित करने के लिए कृपया पहले एक खाता बनाएँ। आपकी जनरेट की गई सामग्री आपके नए खाते में सहेजी जाएगी।",
@@ -837,8 +811,6 @@
       "ja": "जापानी"
     },
     "listening": "सुन रहे हैं...",
-    "voiceInputUnavailable": "ध्वनि इनपुट अनुपलब्ध",
-    "voiceInputRequiresBuild": "ध्वनि इनपुट के लिए डेवलपमेंट बिल्ड आवश्यक है। यह सुविधा Expo Go में उपलब्ध नहीं है।",
     "voiceInputError": "ध्वनि इनपुट त्रुटि",
     "allEntriesEmpty": "कोई सामग्री उपलब्ध नहीं",
     "allEntriesEmptyDescription": "चयनित प्रविष्टियों में अभी तक कोई सामग्री नहीं है। पहले कुछ प्रविष्टियाँ लिखें, फिर पुनः प्रयास करें।",
@@ -927,7 +899,6 @@
     "albumCount": "{{count}} एल्बम",
     "trackCount": "{{count}} ट्रैक",
     "tracks": "ट्रैक",
-    "albumDetail": "एल्बम विवरण",
     "detailTitle": "एल्बम",
     "generatingAlbum": "एल्बम जनरेट हो रहा है...",
     "newAlbum": "नया एल्बम",
@@ -1550,7 +1521,6 @@
     "autoPlay": "सामग्री स्वचालित चलाएँ",
     "noReminders": "कोई रिमाइंडर नहीं",
     "noRemindersDesc": "लेखन, पढ़ने, सुनने और ध्यान में स्वस्थ आदतें बनाने के लिए रिमाइंडर बनाएँ।",
-    "addReminder": "रिमाइंडर जोड़ें",
     "error": "त्रुटि",
     "titleRequired": "कृपया अपने रिमाइंडर के लिए शीर्षक दर्ज करें",
     "selectAtLeastOneDay": "कृपया कम से कम एक दिन चुनें",
@@ -1558,7 +1528,13 @@
     "failedToToggle": "रिमाइंडर अपडेट करने में विफल। कृपया पुनः प्रयास करें।",
     "failedToDelete": "रिमाइंडर हटाने में विफल। कृपया पुनः प्रयास करें।",
     "deleteTitle": "रिमाइंडर हटाएँ",
-    "deleteConfirm": "क्या आप \"{{title}}\" को हटाना चाहते हैं?"
+    "deleteConfirm": "क्या आप \"{{title}}\" को हटाना चाहते हैं?",
+    "repeatLabel": "दोहराएँ",
+    "repeatOnce": "एक बार",
+    "repeatDaily": "दैनिक",
+    "repeatWeekly": "साप्ताहिक",
+    "repeatMonthly": "मासिक",
+    "repeatYearly": "वार्षिक"
   },
   "editTrack": {
     "title": "ट्रैक संपादित करें",
@@ -2073,10 +2049,8 @@
     "deleteEntry": "प्रविष्टि हटाएँ",
     "deleteEntryConfirmation": "क्या आप इस प्रविष्टि को हटाना चाहते हैं? यह क्रिया अपरिवर्तनीय है।",
     "deleteEntryFailed": "प्रविष्टि हटाने में विफल",
-    "moveToBook": "पुस्तक में स्थानांतरित करें",
     "moveChapterDescription": "\"{{title}}\" और उसकी सभी प्रविष्टियों को दूसरी पुस्तक में स्थानांतरित करें",
     "chapterMoveFailed": "अध्याय को पुस्तक में स्थानांतरित करने में विफल",
-    "noOtherBooks": "अध्यायों को आपस में स्थानांतरित करने के लिए दूसरी पुस्तक बनाएँ",
     "entries": "प्रविष्टियाँ",
     "lockedChapter": "लॉक",
     "createFirstSongToUnlock": "अनलॉक करने के लिए अपना पहला गाना बनाएँ",
@@ -2176,16 +2150,12 @@
     "loadingBooks": "पुस्तकें लोड हो रही हैं...",
     "noBooks": "कोई पुस्तक नहीं मिली",
     "checkBackSoon": "चयनित ज्ञान सामग्री के लिए जल्द वापस आएँ",
+    "createPlaylist": "प्लेलिस्ट बनाएँ",
     "sections": {
-      "myBooks": "मेरी पुस्तकें",
-      "continueReading": "पढ़ना जारी रखें",
-      "fromYourLibrary": "आपकी लाइब्रेरी से",
-      "basedOnReading": "आपकी पढ़ाई पर आधारित",
-      "recommendedForYou": "आपके लिए अनुशंसित",
-      "allBooks": "सभी पुस्तकें",
-      "fromCreatorsYouFollow": "आपके द्वारा फ़ॉलो किए गए क्रिएटर्स से"
-    },
-    "createPlaylist": "प्लेलिस्ट बनाएँ"
+      "myBooks": "मेरी किताबें",
+      "followedCreators": "आपके अनुसरण किए गए रचनाकारों से",
+      "sharedLibrary": "साझा पुस्तकालय"
+    }
   },
   "screens": {
     "reports": {
@@ -2290,10 +2260,6 @@
     "usesUnlimited": "{{used}} उपयोग",
     "followingBenefits": "क्रिएटर्स को फ़ॉलो करने से आपको उनके साझा संगीत, प्लेलिस्ट और ज्ञान पुस्तकों तक पहुँच मिलती है।"
   },
-  "welcomeJourney": {
-    "journalTitle": "मेरी कहानी",
-    "journalDescription": "चिंतन और विकास के लिए आपका व्यक्तिगत स्थान"
-  },
   "admin": {
     "exitAdminMode": "एडमिन मोड से बाहर निकलें",
     "tabs": {
@@ -2301,7 +2267,6 @@
       "risk": "जोखिम",
       "compliance": "अनुपालन",
       "users": "उपयोगकर्ता",
-      "support": "सहायता",
       "prompts": "प्रॉम्प्ट",
       "templates": "टेम्पलेट",
       "frameworks": "ढाँचे",
@@ -2318,7 +2283,19 @@
       "performanceMonitoring": "प्रदर्शन निगरानी",
       "health": "स्वास्थ्य",
       "performance": "प्रदर्शन",
-      "alerts": "अलर्ट"
+      "alerts": "अलर्ट",
+      "performanceDescription": "Performance forecasting, capacity planning, and anomaly detection will be available here.",
+      "featureTrendCharts": "• Trend charts (hourly/daily/weekly)",
+      "featureCapacityForecasting": "• Capacity forecasting",
+      "featureAnomalyDetection": "• Anomaly detection alerts",
+      "featureBottleneckId": "• Bottleneck identification"
+    },
+    "safety": {
+      "auditLog": "Audit Log",
+      "featureAdminHistory": "• Admin action history",
+      "featureDataAccess": "• Data access logging",
+      "featureSecurityEvents": "• Security event tracking",
+      "featureExportReports": "• Export audit reports"
     },
     "alerts": {
       "resilienceMonitoring": "लचीलापन निगरानी",
@@ -2494,6 +2471,9 @@
       "useChapters": "अध्यायों का उपयोग",
       "useTrackAlarms": "ट्रैक अलार्म का उपयोग",
       "usersWith2PlusJournals": "2+ पुस्तकों वाले उपयोगकर्ता"
+    },
+    "frameworks": {
+      "sortOrder": "Sort Order"
     }
   },
   "audioOutput": {
@@ -2505,14 +2485,11 @@
     "chromecast": "Chromecast",
     "chromecastDevice": "Chromecast डिवाइस",
     "connectBluetoothDevice": "यहाँ देखने के लिए Bluetooth डिवाइस या हेडफ़ोन कनेक्ट करें",
-    "expoGoLimitation": "डेवलपमेंट बिल्ड आवश्यक",
     "noDevices": "कोई ऑडियो डिवाइस नहीं मिला",
     "playingLocally": "इसके बजाय डिवाइस पर चल रहा है",
-    "requiresDevelopmentBuild": "ऑडियो डिवाइस पहचान के लिए डेवलपमेंट बिल्ड आवश्यक है। इस सुविधा को सक्षम करने के लिए 'eas build' से ऐप कंपाइल करें।",
     "requiresProductionBuild": "ऑडियो डिवाइस चयन के लिए प्रोडक्शन या डेवलपमेंट बिल्ड आवश्यक है। यह सुविधा Expo Go में उपलब्ध नहीं है।",
     "searchCastDevices": "कास्ट डिवाइस खोजें",
     "selectDevice": "ऑडियो आउटपुट चुनें",
-    "speaker": "स्पीकर",
     "stopCasting": "कास्ट बंद करें",
     "switchFailed": "स्विच विफल",
     "switchFailedDescription": "इस ऑडियो डिवाइस पर स्विच नहीं हो सका। जाँचें कि यह कनेक्ट है और पुनः प्रयास करें।",

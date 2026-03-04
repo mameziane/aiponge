@@ -408,10 +408,10 @@ function ComplianceContent() {
           <Text style={styles.comingSoonTitle}>{t('admin.comingSoon')}</Text>
           <Text style={styles.comingSoonText}>{t('admin.safety.auditLogDescription')}</Text>
           <View style={styles.plannedFeatures}>
-            <Text style={styles.featureItem}>• Admin action history</Text>
-            <Text style={styles.featureItem}>• Data access logging</Text>
-            <Text style={styles.featureItem}>• Security event tracking</Text>
-            <Text style={styles.featureItem}>• Export audit reports</Text>
+            <Text style={styles.featureItem}>{t('admin.safety.featureAdminHistory')}</Text>
+            <Text style={styles.featureItem}>{t('admin.safety.featureDataAccess')}</Text>
+            <Text style={styles.featureItem}>{t('admin.safety.featureSecurityEvents')}</Text>
+            <Text style={styles.featureItem}>{t('admin.safety.featureExportReports')}</Text>
           </View>
         </View>
       </View>

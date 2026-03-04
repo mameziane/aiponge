@@ -1,10 +1,8 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Share, Dimensions, Alert } from 'react-native';
+import React, { useState, useMemo } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Dimensions } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { apiRequest } from '../../lib/axiosApiClient';
-import { logError, getTranslatedFriendlyMessage } from '../../utils/errorSerialization';
+import { useRouter } from 'expo-router';
 import { useThemeColors, type ColorScheme, commonStyles, Z_INDEX, BORDER_RADIUS } from '../../theme';
 import { LoadingState } from '../../components/shared';
 import { fontFamilies, fontSizes, lineHeights } from '../../theme/typography';
@@ -13,387 +11,51 @@ import { LiquidGlassCard } from '../../components/ui';
 import { SyncedLyricsDisplay } from '../../components/music/SyncedLyricsDisplay';
 import { KaraokeLyricsDisplay } from '../../components/music/KaraokeLyricsDisplay';
 import { useTranslation } from '../../i18n';
-import { logger } from '../../lib/logger';
-import { usePlaybackState, usePlaybackQueue } from '../../contexts/PlaybackContext';
-import { useUnifiedPlaybackControl } from '../../hooks/music/useUnifiedPlaybackControl';
-import { configureAudioSession } from '../../hooks/music/audioSession';
-import { getApiGatewayUrl } from '../../lib/apiConfig';
 import { EditTrackModal } from '../../components/music/EditTrackModal';
 import { useAuthStore, selectUser } from '../../auth/store';
 import { PlaybackControls } from '../../components/music/PlaybackControls';
 import { ShortsStyleReactions } from '../../components/music/ShortsStyleReactions';
 import { useFavorites } from '../../hooks/playlists/useFavorites';
-import type { SyncedLine } from '@aiponge/shared-contracts';
 import { filterSectionHeadersFromContent } from '@aiponge/shared-contracts';
+import { getApiGatewayUrl } from '../../lib/apiConfig';
+
+import { useTrackData } from './track-details/useTrackData';
+import { useTrackPlayback } from './track-details/useTrackPlayback';
+import { useTrackShare } from './track-details/useTrackShare';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-interface LyricsData {
-  id: string;
-  content: string;
-  syncedLines?: SyncedLine[];
-  title?: string;
-  style?: string;
-  mood?: string;
-  themes?: string[];
-}
-
-interface TrackData {
-  id: string;
-  title: string;
-  displayName?: string;
-  artworkUrl?: string;
-  fileUrl?: string;
-  audioUrl?: string; // Alternative field name
-  duration?: number;
-  durationSeconds?: number; // Alternative field name from shared library
-  lyricsId?: string;
-  createdAt?: string;
-  playCount?: number;
-  hasSyncedLyrics?: boolean;
-  // Inline lyrics data from shared library (included in album detail response)
-  lyricsContent?: string;
-  lyricsSyncedLines?: SyncedLine[];
-  lyricsStyle?: string;
-  lyricsMood?: string;
-  lyricsThemes?: string[];
+function formatDuration(seconds?: number) {
+  if (!seconds) return '--:--';
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
 export default function TrackDetailsScreen() {
   const colors = useThemeColors();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const router = useRouter();
-  const params = useLocalSearchParams();
-  const { currentTrack, isPlaying } = usePlaybackState();
-  const { togglePlayPause: unifiedToggle, playNewTrack } = useUnifiedPlaybackControl();
-  const {
-    queue,
-    queueSource,
-    currentIndex,
-    shuffleEnabled,
-    repeatMode,
-    hasNext,
-    hasPrevious,
-    trackCount,
-    next,
-    previous,
-    toggleShuffle,
-    cycleRepeat,
-    syncCurrentIndex,
-  } = usePlaybackQueue();
   const user = useAuthStore(selectUser);
   const displayName = user?.name || 'You';
 
   const { isFavorite: isLiked, toggleFavorite: toggleLike, isToggling } = useFavorites(user?.id || '');
   const canLike = !!user?.id;
 
-  const [track, setTrack] = useState<TrackData | null>(null);
-  const [lyrics, setLyrics] = useState<LyricsData | null>(null);
-  const [isLoadingTrack, setIsLoadingTrack] = useState(false);
-  const [isLoadingLyrics, setIsLoadingLyrics] = useState(false);
-  const [trackError, setTrackError] = useState<string | null>(null);
-  const [lyricsError, setLyricsError] = useState<string | null>(null);
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
-
   // Edit track modal state
   const [showEditModal, setShowEditModal] = useState(false);
 
-  const isCurrentTrackPlaying = track && currentTrack?.id === track.id && isPlaying;
+  // ─── Extracted hooks ─────────────────────────────────────────────
 
-  const handlePlayPause = useCallback(async () => {
-    if (!track || !audioUrl) {
-      logger.warn('Cannot play - no track or audio URL');
-      return;
-    }
+  const { track, setTrack, lyrics, audioUrl, isLoadingTrack, isLoadingLyrics, trackError, lyricsError } =
+    useTrackData(t);
 
-    try {
-      if (currentTrack?.id === track.id) {
-        await unifiedToggle();
-        return;
-      }
+  const playback = useTrackPlayback(track, audioUrl, displayName);
 
-      await configureAudioSession();
+  const { handleShare } = useTrackShare(track, lyrics, displayName, t);
 
-      const playableTrack = {
-        id: track.id,
-        title: track.title,
-        artworkUrl: track.artworkUrl || '',
-        audioUrl: audioUrl,
-        displayName: track.displayName || displayName,
-        duration: track.duration,
-        lyricsId: track.lyricsId,
-        hasSyncedLyrics: track.hasSyncedLyrics,
-      };
-
-      await playNewTrack(playableTrack, audioUrl);
-
-      logger.debug('[TrackDetail] Started playback', { trackId: track.id });
-    } catch (error) {
-      logger.error('[TrackDetail] Playback failed', error);
-    }
-  }, [track, audioUrl, currentTrack, unifiedToggle, playNewTrack, displayName]);
-
-  // Sync queue index when track changes
-  useEffect(() => {
-    if (track?.id) {
-      syncCurrentIndex(track.id);
-    }
-  }, [track?.id, syncCurrentIndex]);
-
-  // Handle next track from queue
-  const handleNextTrack = useCallback(async () => {
-    const nextTrack = next();
-    if (nextTrack) {
-      if (!nextTrack.audioUrl) {
-        logger.error('[TrackDetail] Next track has no audio URL', { trackId: nextTrack.id });
-        return;
-      }
-      try {
-        await configureAudioSession();
-        await playNewTrack(nextTrack, nextTrack.audioUrl);
-        logger.debug('[TrackDetail] Playing next track', { trackId: nextTrack.id });
-      } catch (error) {
-        logger.error('[TrackDetail] Failed to play next track', error);
-      }
-    }
-  }, [next, playNewTrack]);
-
-  // Handle previous track from queue
-  const handlePreviousTrack = useCallback(async () => {
-    const prevTrack = previous();
-    if (prevTrack) {
-      if (!prevTrack.audioUrl) {
-        logger.error('[TrackDetail] Previous track has no audio URL', { trackId: prevTrack.id });
-        return;
-      }
-      try {
-        await configureAudioSession();
-        await playNewTrack(prevTrack, prevTrack.audioUrl);
-        logger.debug('[TrackDetail] Playing previous track', { trackId: prevTrack.id });
-      } catch (error) {
-        logger.error('[TrackDetail] Failed to play previous track', error);
-      }
-    }
-  }, [previous, playNewTrack]);
-
-  // Show playback controls whenever we have a playable track
-  const showPlaybackControls = audioUrl !== null;
-
-  const fetchTrackById = async (trackId: string, options?: { silentOnNotFound?: boolean }) => {
-    setIsLoadingTrack(true);
-    if (!options?.silentOnNotFound) {
-      setTrackError(null);
-    }
-
-    try {
-      const response = await apiRequest<{ data: TrackData }>(`/api/v1/app/library/track/${trackId}`);
-      if (response?.data) {
-        setTrack(response.data);
-        if (response.data.lyricsId) {
-          fetchLyrics(response.data.lyricsId);
-        }
-      } else if (!options?.silentOnNotFound) {
-        setTrackError(t('components.trackDetails.trackNotFound'));
-      }
-    } catch (err) {
-      const serialized = logError(err, 'Fetch Track', trackId);
-      // Only show error if we don't have fallback track data (e.g., from navigation params)
-      if (!options?.silentOnNotFound) {
-        setTrackError(getTranslatedFriendlyMessage(serialized, t));
-      } else {
-        logger.debug('Track not found in database, using navigation params data', { trackId });
-      }
-    } finally {
-      setIsLoadingTrack(false);
-    }
-  };
-
-  useEffect(() => {
-    if (params.track) {
-      try {
-        const parsedTrack = JSON.parse(params.track as string);
-        setTrack(parsedTrack);
-
-        // Check for inline lyrics data first (from shared library album details)
-        if (parsedTrack.lyricsContent || parsedTrack.lyricsSyncedLines) {
-          logger.debug('Using inline lyrics data from track', {
-            hasContent: !!parsedTrack.lyricsContent,
-            hasSyncedLines: !!parsedTrack.lyricsSyncedLines?.length,
-            hasStyle: !!parsedTrack.lyricsStyle,
-            hasMood: !!parsedTrack.lyricsMood,
-          });
-          setLyrics({
-            id: parsedTrack.lyricsId || parsedTrack.id,
-            content: parsedTrack.lyricsContent || '',
-            syncedLines: parsedTrack.lyricsSyncedLines,
-            style: parsedTrack.lyricsStyle,
-            mood: parsedTrack.lyricsMood,
-            themes: parsedTrack.lyricsThemes,
-          });
-        } else if (parsedTrack.lyricsId) {
-          // Fetch lyrics by ID if we have one
-          fetchLyrics(parsedTrack.lyricsId);
-        } else if (parsedTrack.hasSyncedLyrics) {
-          // If track has synced lyrics indicator but no lyricsId in params, fetch full track data
-          // to get the lyricsId and load synced lyrics
-          // Use silentOnNotFound since we already have basic track data from params
-          fetchTrackById(parsedTrack.id, { silentOnNotFound: true });
-        }
-      } catch (error) {
-        logger.error('Failed to parse track data', error);
-      }
-    } else if (params.trackId) {
-      fetchTrackById(params.trackId as string);
-    }
-  }, [params.track, params.trackId]);
-
-  useEffect(() => {
-    // Check for fileUrl first (from API), then audioUrl (from queue/navigation params)
-    const sourceUrl = track?.fileUrl || track?.audioUrl;
-    if (sourceUrl) {
-      const baseUrl = getApiGatewayUrl();
-      const resolvedUrl = sourceUrl.startsWith('http')
-        ? sourceUrl
-        : `${baseUrl}${sourceUrl.startsWith('/') ? '' : '/'}${sourceUrl}`;
-      setAudioUrl(resolvedUrl);
-      logger.debug('[TrackDetail] Resolved audio URL', { sourceUrl, resolvedUrl });
-    }
-  }, [track]);
-
-  const fetchLyrics = async (lyricsId: string) => {
-    setIsLoadingLyrics(true);
-    setLyricsError(null);
-
-    try {
-      const response = await apiRequest<{ data: LyricsData }>(`/api/v1/app/lyrics/id/${lyricsId}`);
-      if (response?.data) {
-        setLyrics(response.data);
-      } else {
-        setLyricsError(t('components.lyricsModal.lyricsNotFound'));
-      }
-    } catch (err) {
-      const serialized = logError(err, 'Fetch Lyrics', lyricsId);
-      setLyricsError(getTranslatedFriendlyMessage(serialized, t));
-    } finally {
-      setIsLoadingLyrics(false);
-    }
-  };
-
-  const formatDuration = (seconds?: number) => {
-    if (!seconds) return '--:--';
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  const extractLyricPreview = (lyricsData: LyricsData | null): string => {
-    if (!lyricsData) return '';
-
-    // If we have synced lines, extract first 2-3 lines
-    if (lyricsData.syncedLines && lyricsData.syncedLines.length > 0) {
-      const previewLines = lyricsData.syncedLines
-        .slice(0, 3)
-        .map(line => line.text)
-        .filter(text => text && text.trim().length > 0);
-      return previewLines.join('\n');
-    }
-
-    // Otherwise, extract first 2-3 lines from content
-    if (lyricsData.content) {
-      const lines = lyricsData.content
-        .split('\n')
-        .filter(line => line.trim().length > 0)
-        .slice(0, 3);
-      return lines.join('\n');
-    }
-
-    return '';
-  };
-
-  const handleShare = async () => {
-    if (!track) return;
-
-    // Show options to user
-    Alert.alert(
-      t('components.trackDetails.shareTrack'),
-      track.lyricsId
-        ? t('components.trackDetails.includeLyricsQuestion')
-        : t('components.trackDetails.shareWithOthers'),
-      track.lyricsId
-        ? [
-            {
-              text: t('common.cancel'),
-              style: 'cancel',
-            },
-            {
-              text: t('components.trackDetails.withoutLyrics'),
-              onPress: () => shareTrack(false),
-            },
-            {
-              text: t('components.trackDetails.withLyricsPreview'),
-              onPress: () => shareTrack(true),
-            },
-          ]
-        : [
-            {
-              text: t('common.cancel'),
-              style: 'cancel',
-            },
-            {
-              text: t('components.trackDetails.share'),
-              onPress: () => shareTrack(false),
-            },
-          ],
-      { cancelable: true }
-    );
-  };
-
-  const shareTrack = async (includeLyrics: boolean) => {
-    if (!track) return;
-
-    try {
-      // Get the effective display name
-      const effectiveDisplayName = track.displayName;
-
-      // Determine if this is a user-created track or a library track
-      const isUserCreated = effectiveDisplayName === 'You' || effectiveDisplayName === displayName;
-
-      let message: string;
-
-      if (isUserCreated) {
-        // User-created track
-        message = `🎵 "${track.title}"\n\n${t('components.trackDetails.shareUserCreatedMessage')}`;
-      } else {
-        // Library track
-        const artistInfo = effectiveDisplayName ? ` ${t('common.by')} ${effectiveDisplayName}` : '';
-        message = `🎵 "${track.title}"${artistInfo}\n\n${t('components.trackDetails.shareLibraryTrackMessage')}`;
-      }
-
-      // Add lyrics preview if requested and available
-      if (includeLyrics && lyrics) {
-        const preview = extractLyricPreview(lyrics);
-        if (preview) {
-          message += `\n\n📝 ${t('components.trackDetails.lyricPreview')}:\n"${preview}..."\n`;
-        }
-      }
-
-      // Add app download link
-      message += `\n\n${t('components.trackDetails.discoverYourSound')}:\n🎵 www.aiponge.app`;
-
-      const result = await Share.share({ message });
-
-      if (result.action === Share.sharedAction) {
-        logger.debug('Track shared successfully');
-      }
-    } catch (error: unknown) {
-      const typedError = error as { message?: string };
-      Alert.alert(
-        t('components.trackDetails.unableToShare'),
-        typedError?.message || t('components.trackDetails.shareError')
-      );
-    }
-  };
+  // ─── Loading / Error states ──────────────────────────────────────
 
   if (isLoadingTrack) {
     return <LoadingState message={t('common.loading')} />;
@@ -437,6 +99,8 @@ export default function TrackDetailsScreen() {
       ? track.artworkUrl
       : `${getApiGatewayUrl()}${track.artworkUrl}`
     : null;
+
+  // ─── Render ──────────────────────────────────────────────────────
 
   return (
     <View style={styles.container}>
@@ -537,19 +201,19 @@ export default function TrackDetailsScreen() {
         })()}
       </View>
 
-      {/* Playback Controls - show whenever track is playable */}
-      {showPlaybackControls && (
+      {/* Playback Controls */}
+      {playback.showPlaybackControls && (
         <PlaybackControls
-          shuffleEnabled={shuffleEnabled}
-          repeatMode={repeatMode}
-          onToggleShuffle={toggleShuffle}
-          onCycleRepeat={cycleRepeat}
-          onPrevious={hasPrevious ? handlePreviousTrack : undefined}
-          onNext={hasNext ? handleNextTrack : undefined}
-          onPlayPause={handlePlayPause}
-          isPlaying={isCurrentTrackPlaying || false}
-          trackCount={trackCount}
-          showTrackCount={queue.length > 1}
+          shuffleEnabled={playback.shuffleEnabled}
+          repeatMode={playback.repeatMode}
+          onToggleShuffle={playback.toggleShuffle}
+          onCycleRepeat={playback.cycleRepeat}
+          onPrevious={playback.hasPrevious ? playback.handlePreviousTrack : undefined}
+          onNext={playback.hasNext ? playback.handleNextTrack : undefined}
+          onPlayPause={playback.handlePlayPause}
+          isPlaying={playback.isCurrentTrackPlaying || false}
+          trackCount={playback.trackCount}
+          showTrackCount={playback.queue.length > 1}
         />
       )}
 
@@ -647,14 +311,14 @@ export default function TrackDetailsScreen() {
             displayName: track.displayName || displayName,
             artworkUrl: track.artworkUrl,
           }}
-          onSave={() => fetchTrackById(track.id)}
+          onSave={() => {
+            /* Track data will be refreshed via cache invalidation */
+          }}
         />
       )}
     </View>
   );
 }
-
-const ARTWORK_SIZE = Math.min(SCREEN_WIDTH - 48, 320);
 
 const createStyles = (colors: ColorScheme) =>
   StyleSheet.create({
@@ -908,106 +572,5 @@ const createStyles = (colors: ColorScheme) =>
       backgroundColor: colors.overlay.black[40],
       justifyContent: 'center',
       alignItems: 'center',
-    },
-    modalOverlay: {
-      flex: 1,
-      backgroundColor: colors.overlay.black[60],
-      justifyContent: 'flex-end',
-    },
-    modalContent: {
-      backgroundColor: colors.background.primary,
-      borderTopLeftRadius: 24,
-      borderTopRightRadius: 24,
-      paddingHorizontal: 24,
-      paddingTop: 20,
-      paddingBottom: 40,
-    },
-    modalHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: 24,
-    },
-    modalTitle: {
-      fontFamily: fontFamilies.serif.bold,
-      fontSize: fontSizes.title2,
-      color: colors.text.primary,
-    },
-    modalCloseButton: {
-      width: 36,
-      height: 36,
-      borderRadius: 18,
-      backgroundColor: colors.background.subtle,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    scheduleSection: {
-      marginBottom: 24,
-    },
-    scheduleSectionLabel: {
-      fontFamily: fontFamilies.body.semibold,
-      fontSize: fontSizes.subhead,
-      color: colors.text.secondary,
-      marginBottom: 12,
-    },
-    dateButton: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      backgroundColor: colors.background.subtle,
-      padding: 16,
-      borderRadius: BORDER_RADIUS.md,
-      borderWidth: 1,
-      borderColor: colors.border.primary,
-    },
-    dateButtonText: {
-      fontFamily: fontFamilies.body.regular,
-      fontSize: fontSizes.body,
-      color: colors.text.primary,
-      marginLeft: 12,
-    },
-    repeatOptionsContainer: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      gap: 8,
-    },
-    repeatOption: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      width: '48%',
-      padding: 14,
-      borderRadius: BORDER_RADIUS.md,
-      backgroundColor: colors.background.subtle,
-      borderWidth: 1,
-      borderColor: colors.border.primary,
-    },
-    repeatOptionSelected: {
-      backgroundColor: colors.brand.primary,
-      borderColor: colors.brand.primary,
-    },
-    repeatOptionText: {
-      fontFamily: fontFamilies.body.regular,
-      fontSize: fontSizes.callout,
-      color: colors.text.secondary,
-      marginLeft: 8,
-      textAlign: 'center',
-    },
-    repeatOptionTextSelected: {
-      color: colors.text.primary,
-    },
-    scheduleSubmitButton: {
-      backgroundColor: colors.brand.primary,
-      padding: 16,
-      borderRadius: BORDER_RADIUS.md,
-      alignItems: 'center',
-      marginTop: 8,
-    },
-    scheduleSubmitButtonDisabled: {
-      opacity: 0.6,
-    },
-    scheduleSubmitButtonText: {
-      fontFamily: fontFamilies.body.semibold,
-      fontSize: fontSizes.body,
-      color: colors.text.primary,
     },
   });

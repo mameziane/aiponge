@@ -1,5 +1,16 @@
 import { useState, useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Linking, Alert, Modal, Platform } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Linking,
+  Alert,
+  Modal,
+  Platform,
+  Image,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -161,12 +172,8 @@ export function HelpScreen() {
               </TouchableOpacity>
             </View>
 
-            <View style={styles.aboutLogo}>
-              <Ionicons name="musical-notes" size={48} color={colors.brand.primary} />
-            </View>
-
-            <Text style={styles.appName}>aiponge</Text>
-            <Text style={styles.appTagline}>{t('help.about.tagline')}</Text>
+            <Image source={require('../../../assets/logo.png')} style={styles.aboutLogoImage} resizeMode="contain" />
+            <Text style={styles.appTagline}>{t('app.tagline')}</Text>
 
             <View style={styles.versionInfo}>
               <View style={styles.versionRow}>
@@ -264,20 +271,11 @@ const createStyles = (colors: ColorScheme) =>
     closeButton: {
       padding: 4,
     },
-    aboutLogo: {
-      width: 80,
-      height: 80,
-      borderRadius: 20,
-      backgroundColor: colors.background.subtle,
-      justifyContent: 'center',
-      alignItems: 'center',
-      marginBottom: 16,
-    },
-    appName: {
-      fontSize: 24,
-      fontWeight: '700',
-      color: colors.text.primary,
-      marginBottom: 4,
+    aboutLogoImage: {
+      width: 120,
+      height: 120,
+      borderRadius: 24,
+      marginBottom: 12,
     },
     appTagline: {
       fontSize: 14,

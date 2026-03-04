@@ -14,14 +14,15 @@
       "timeout": 120000,
       "endpoint": "https://api.musicapi.ai/api/v1/sonic/create",
       "requestTemplate": {
-        "mv": "sonic-v5",
-        "tags": "{{style}}",
+        "mv": "{{mv}}",
+        "tags": "{{tags}}",
         "title": "{{title}}",
         "prompt": "{{prompt}}",
         "duration": 180,
         "custom_mode": true,
         "make_instrumental": false
       },
+      "passthroughFields": ["duration", "mv"],
       "responseMapping": {
         "message": "message",
         "task_id": "task_id"
@@ -67,6 +68,7 @@
         ],
         "temperature": 0.7
       },
+      "passthroughFields": ["temperature", "max_tokens", "top_p", "response_format", "model"],
       "responseMapping": {
         "content": "choices[0].message.content"
       },
@@ -109,6 +111,7 @@
         "prompt": "{{prompt}}",
         "quality": "standard"
       },
+      "passthroughFields": ["quality", "size", "style", "model"],
       "responseMapping": {
         "imageUrl": "data[0].url",
         "revisedPrompt": "data[0].revised_prompt"
@@ -148,6 +151,7 @@
         "response_format": "verbose_json",
         "timestamp_granularities": ["word"]
       },
+      "passthroughFields": ["language"],
       "responseMapping": {
         "text": "text",
         "words": "words"
@@ -202,6 +206,7 @@
           }
         ]
       },
+      "passthroughFields": ["temperature", "max_tokens", "top_p", "model"],
       "responseMapping": {
         "content": "content[0].text"
       }
@@ -234,6 +239,7 @@
         "generationConfig": { "temperature": 0.7, "maxOutputTokens": 8192 },
         "systemInstruction": { "parts": [{ "text": "${systemPrompt}" }] }
       },
+      "passthroughFields": ["temperature"],
       "responseMapping": {
         "content": "candidates[0].content.parts[0].text"
       }
@@ -266,6 +272,7 @@
         "generationConfig": { "temperature": 0.7, "maxOutputTokens": 8192 },
         "systemInstruction": { "parts": [{ "text": "${systemPrompt}" }] }
       },
+      "passthroughFields": ["temperature"],
       "responseMapping": {
         "content": "candidates[0].content.parts[0].text"
       }
@@ -294,10 +301,21 @@
         "Content-Type": "application/json"
       },
       "timeout": 60000,
-      "endpoint": "https://api.elevenlabs.io/v1/text-to-speech",
-      "capabilities": ["text_to_speech", "voice_synthesis", "music_generation"],
+      "endpoint": "https://api.elevenlabs.io/v1/text-to-speech/${voice_id}",
+      "capabilities": ["text_to_speech", "voice_synthesis"],
       "requestTemplate": {
-        "model_id": "eleven_multilingual_v2"
+        "text": "${text}",
+        "model_id": "eleven_multilingual_v2",
+        "voice_settings": {
+          "stability": 0.5,
+          "similarity_boost": 0.75,
+          "style": 0.0,
+          "use_speaker_boost": true
+        }
+      },
+      "passthroughFields": ["language_code", "voice_id"],
+      "responseMapping": {
+        "audioUrl": "audio_url"
       }
     },
     "is_active": true,
@@ -339,6 +357,7 @@
           }
         ]
       },
+      "passthroughFields": ["steps", "cfg_scale", "width", "height"],
       "responseMapping": {
         "format": "base64",
         "result": "artifacts[0].base64"

@@ -30,6 +30,17 @@ export function GuestGate() {
             <Ionicons name="arrow-forward" size={20} color={colors.absolute.white} />
           </TouchableOpacity>
 
+          <Text style={styles.guestGateOrText}>{t('common.or')}</Text>
+
+          <TouchableOpacity
+            style={styles.guestGateRegisterButton}
+            onPress={() => router.push({ pathname: '/(auth)/register' } as never)}
+            testID="button-register-free"
+          >
+            <Ionicons name="person-add-outline" size={18} color={colors.brand.primary} />
+            <Text style={styles.guestGateRegisterText}>{t('paywall.registerForFree')}</Text>
+          </TouchableOpacity>
+
           <TouchableOpacity
             style={styles.guestGateLibraryButton}
             onPress={() => router.replace('/(user)/music' as Href)}
@@ -92,6 +103,28 @@ const createStyles = (colors: ColorScheme) =>
       fontSize: 16,
       fontWeight: '600',
       color: colors.absolute.white,
+    },
+    guestGateOrText: {
+      fontSize: 14,
+      color: colors.text.tertiary,
+      marginBottom: 12,
+    },
+    guestGateRegisterButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 8,
+      paddingVertical: 14,
+      paddingHorizontal: 28,
+      borderRadius: BORDER_RADIUS.md,
+      borderWidth: 1,
+      borderColor: colors.brand.primary,
+      marginBottom: 16,
+    },
+    guestGateRegisterText: {
+      fontSize: 15,
+      fontWeight: '600',
+      color: colors.brand.primary,
     },
     guestGateLibraryButton: {
       flexDirection: 'row',

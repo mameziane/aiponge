@@ -73,13 +73,18 @@ export function useBookMutations({ refetchManageBooks, t, userId }: BookMutation
       if (bookId && !options?.skipNavigation) {
         router.push(`/book-detail?bookId=${bookId}` as Href);
       }
-    } catch {
+    } catch (error) {
+      logger.error('[useBookMutations] Create book from blueprint failed', error instanceof Error ? error : undefined, {
+        blueprintTitle: blueprint.title,
+        bookTypeId,
+        visibility: options?.visibility,
+      });
       toast({
         title: t('common.error'),
         description: t('librarian.books.createFailed') || 'Failed to create book',
         variant: 'destructive',
       });
-      throw new Error('Failed to create book');
+      throw error;
     }
   };
 
@@ -96,7 +101,11 @@ export function useBookMutations({ refetchManageBooks, t, userId }: BookMutation
       setEditingBook(null);
       setFormData(initialFormData);
     },
-    onError: () => {
+    onError: (error, variables) => {
+      logger.error('[useBookMutations] Update book failed', error instanceof Error ? error : undefined, {
+        bookId: variables.bookId,
+        updatedFields: Object.keys(variables.data),
+      });
       toast({
         title: t('common.error'),
         description: t('librarian.books.updateFailed') || 'Failed to update book',
@@ -181,7 +190,10 @@ export function useBookMutations({ refetchManageBooks, t, userId }: BookMutation
     onSuccess: (_data, bookId) => {
       invalidateOnEvent(queryClient, { type: 'LIBRARY_BOOK_PUBLISHED', bookId });
     },
-    onError: () => {
+    onError: (error, bookId) => {
+      logger.error('[useBookMutations] Publish book failed', error instanceof Error ? error : undefined, {
+        bookId,
+      });
       toast({
         title: t('common.error'),
         description: t('librarian.books.publishFailed') || 'Failed to publish book',
@@ -217,7 +229,11 @@ export function useBookMutations({ refetchManageBooks, t, userId }: BookMutation
 
         invalidateOnEvent(queryClient, { type: 'LIBRARY_BOOK_UPDATED', bookId: book.id });
         refetchManageBooks();
-      } catch {
+      } catch (error) {
+        logger.error('[useBookMutations] Upload cover failed', error instanceof Error ? error : undefined, {
+          bookId: book.id,
+          bookTitle: book.title,
+        });
         toast({
           title: t('common.error'),
           description: t('bookDetail.coverUploadFailed') || 'Failed to upload cover',

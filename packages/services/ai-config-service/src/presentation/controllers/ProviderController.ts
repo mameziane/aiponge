@@ -423,6 +423,11 @@ export class ProviderController {
         tags: builtTags,
       });
 
+      // ✅ CRITICAL: Override template-rendered tags with properly built tags.
+      // The template uses {{style}} for tags, but style gets overridden to just genre (e.g. 'podcast').
+      // builtTags correctly combines genre + style + mood + culturalStyle (e.g. 'podcast, spoken word, narration, soft ambient background, reflective').
+      renderedTemplate.tags = builtTags;
+
       // Log tags for debugging
       logger.info('🎵 Tags set for MusicAPI.ai', {
         inputGenre: parameters.genre,
@@ -549,6 +554,28 @@ export class ProviderController {
       logger.info('🚫 Setting negative tags to exclude elements', {
         negativeTags: renderedTemplate.negative_tags,
       });
+    }
+
+    // ✅ Map isInstrumental to make_instrumental for MusicAPI.ai
+    // Template hardcodes make_instrumental: false — override it when parameter is explicitly set
+    if (parameters.isInstrumental !== undefined) {
+      renderedTemplate.make_instrumental = Boolean(parameters.isInstrumental);
+      logger.info('🎹 Setting make_instrumental from parameters', {
+        isInstrumental: parameters.isInstrumental,
+        makeInstrumental: renderedTemplate.make_instrumental,
+      });
+    }
+
+    // ✅ Override duration when explicitly provided (template defaults to 180s)
+    if (parameters.duration !== undefined && typeof parameters.duration === 'number' && parameters.duration > 0) {
+      renderedTemplate.duration = parameters.duration;
+      logger.info('⏱️ Overriding duration from parameters', { duration: parameters.duration });
+    }
+
+    // ✅ Override model version when explicitly provided (template defaults to sonic-v5)
+    if (parameters.mv && typeof parameters.mv === 'string') {
+      renderedTemplate.mv = parameters.mv;
+      logger.info('🎵 Overriding model version from parameters', { mv: parameters.mv });
     }
   }
 

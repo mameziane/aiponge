@@ -75,14 +75,12 @@ export function AdminSystemSection() {
           <View style={styles.comingSoon}>
             <Ionicons name="construct-outline" size={48} color={colors.text.tertiary} />
             <Text style={styles.comingSoonTitle}>{t('admin.comingSoon')}</Text>
-            <Text style={styles.comingSoonText}>
-              Performance forecasting, capacity planning, and anomaly detection will be available here.
-            </Text>
+            <Text style={styles.comingSoonText}>{t('admin.system.performanceDescription')}</Text>
             <View style={styles.plannedFeatures}>
-              <Text style={styles.featureItem}>• Trend charts (hourly/daily/weekly)</Text>
-              <Text style={styles.featureItem}>• Capacity forecasting</Text>
-              <Text style={styles.featureItem}>• Anomaly detection alerts</Text>
-              <Text style={styles.featureItem}>• Bottleneck identification</Text>
+              <Text style={styles.featureItem}>{t('admin.system.featureTrendCharts')}</Text>
+              <Text style={styles.featureItem}>{t('admin.system.featureCapacityForecasting')}</Text>
+              <Text style={styles.featureItem}>{t('admin.system.featureAnomalyDetection')}</Text>
+              <Text style={styles.featureItem}>{t('admin.system.featureBottleneckId')}</Text>
             </View>
           </View>
         </View>

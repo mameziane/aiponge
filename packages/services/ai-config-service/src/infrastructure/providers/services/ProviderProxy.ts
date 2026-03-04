@@ -938,6 +938,7 @@ export class ProviderProxy implements IProviderProxy {
       responseMapping: Record<string, unknown>;
       timeout?: number;
       models?: string[];
+      passthroughFields?: string[];
       healthEndpoint?: {
         url: string;
         method: 'GET' | 'HEAD';
@@ -986,6 +987,7 @@ export class ProviderProxy implements IProviderProxy {
       cost: typeof config.costPerUnit === 'string' ? parseFloat(config.costPerUnit) : config.costPerUnit,
       timeout: configData.timeout,
       models: configData.models, // Include models array for health checks
+      passthroughFields: configData.passthroughFields, // Forward declared passthrough fields to template engine
       healthEndpoint: configData.healthEndpoint, // CRITICAL: Pass through health endpoint for free health checks
     } as ProviderTemplate;
   }

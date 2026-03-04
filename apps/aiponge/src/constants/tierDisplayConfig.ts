@@ -1,8 +1,8 @@
-import { TIER_IDS, PAID_TIERS, LAUNCH_TIERS, DEFERRED_TIERS, type TierId } from '@aiponge/shared-contracts';
+import { TIER_IDS, PAID_TIERS, type TierId } from '@aiponge/shared-contracts';
 import type { IconName } from '../types/ui.types';
 
 export type { TierId } from '@aiponge/shared-contracts';
-export { PAID_TIERS, LAUNCH_TIERS, DEFERRED_TIERS } from '@aiponge/shared-contracts';
+export { PAID_TIERS } from '@aiponge/shared-contracts';
 
 export interface TierFeatureItem {
   icon: IconName;
@@ -248,27 +248,6 @@ export function getUpgradeFeatures(fromTier: TierId): TierFeatureItem[] {
   const targetTier = TIER_DISPLAY[fromTier].canUpgradeTo;
   if (!targetTier) return [];
   return TIER_DISPLAY[targetTier].features;
-}
-
-export function getPaywallTiers(options?: {
-  includeProfessional?: boolean;
-  includeStudio?: boolean;
-}): TierDisplayConfig[] {
-  const { FEATURE_FLAGS } = require('./featureFlags');
-
-  const tiers: TierId[] = [TIER_IDS.EXPLORER, TIER_IDS.PERSONAL];
-
-  const showProfessional = options?.includeProfessional ?? FEATURE_FLAGS.ENABLE_PROFESSIONAL_TIERS;
-  const showStudio = options?.includeStudio ?? FEATURE_FLAGS.ENABLE_STUDIO_TIER;
-
-  if (showProfessional) {
-    tiers.push(TIER_IDS.PRACTICE);
-  }
-  if (showStudio) {
-    tiers.push(TIER_IDS.STUDIO);
-  }
-
-  return tiers.map(id => TIER_DISPLAY[id]);
 }
 
 export function getComparisonFeatures(

@@ -1,5 +1,6 @@
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
+import { useCoverPolling } from '../../../hooks/book/useCoverPolling';
 import { CONTENT_VISIBILITY, BOOK_LIFECYCLE } from '@aiponge/shared-contracts';
 import { i18n } from '../../../i18n';
 import { useAuthStore, selectToken, selectUser } from '../../../auth/store';
@@ -15,9 +16,10 @@ const OWN_BOOKS_PAGE_SIZE = 100;
 export interface BookListDataOptions {
   userDisplayName: string;
   t: (key: string, params?: Record<string, string>) => string;
+  followedCreatorIds?: Set<string>;
 }
 
-export function useBookListData({ userDisplayName, t }: BookListDataOptions) {
+export function useBookListData({ userDisplayName, t, followedCreatorIds }: BookListDataOptions) {
   const token = useAuthStore(selectToken);
   const user = useAuthStore(selectUser);
   const [selectedCategory, setSelectedCategory] = useState<BookTypeCategory | null>(null);
@@ -94,35 +96,8 @@ export function useBookListData({ userDisplayName, t }: BookListDataOptions) {
     return manageBooksPages?.pages.flatMap(page => page.books) ?? [];
   }, [manageBooksPages]);
 
-  const coverPollRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const coverPollCountRef = useRef(0);
-  const MAX_COVER_POLLS = 6;
-  const COVER_POLL_INTERVAL = 5000;
-
-  useEffect(() => {
-    if (coverPollRef.current) {
-      clearTimeout(coverPollRef.current);
-      coverPollRef.current = null;
-    }
-
-    const hasBooksWithoutCovers = ownBooksRaw.some(book => !book.coverIllustrationUrl);
-
-    if (hasBooksWithoutCovers && coverPollCountRef.current < MAX_COVER_POLLS) {
-      coverPollRef.current = setTimeout(() => {
-        coverPollCountRef.current += 1;
-        refetchManageBooks();
-      }, COVER_POLL_INTERVAL);
-    } else if (!hasBooksWithoutCovers) {
-      coverPollCountRef.current = 0;
-    }
-
-    return () => {
-      if (coverPollRef.current) {
-        clearTimeout(coverPollRef.current);
-        coverPollRef.current = null;
-      }
-    };
-  }, [ownBooksRaw, refetchManageBooks]);
+  // Poll for async cover generation until all covers are loaded (max 6 polls, 5s interval)
+  useCoverPolling({ books: ownBooksRaw, refetch: refetchManageBooks });
 
   const browsableBookTypes = useMemo(() => {
     if (!bookTypesData) return [];
@@ -201,9 +176,27 @@ export function useBookListData({ userDisplayName, t }: BookListDataOptions) {
       );
   }, [browseBooks, ownBookIds, selectedCategoryTypeIds, selectedLanguage, activeLang]);
 
+  // Split public books into followed-creator books vs shared/public books
+  const { followedCreatorBooks, sharedBooks } = useMemo(() => {
+    if (!followedCreatorIds || followedCreatorIds.size === 0) {
+      return { followedCreatorBooks: [] as BookCardData[], sharedBooks: publicBooksData };
+    }
+    const followed: BookCardData[] = [];
+    const shared: BookCardData[] = [];
+    for (const book of publicBooksData) {
+      if (book.userId && followedCreatorIds.has(book.userId)) {
+        followed.push(book);
+      } else {
+        shared.push(book);
+      }
+    }
+    return { followedCreatorBooks: followed, sharedBooks: shared };
+  }, [publicBooksData, followedCreatorIds]);
+
+  // Backward compatibility: merged list for search filtering
   const unifiedBooks = useMemo((): BookCardData[] => {
-    return [...ownBooksData, ...publicBooksData];
-  }, [ownBooksData, publicBooksData]);
+    return [...ownBooksData, ...followedCreatorBooks, ...sharedBooks];
+  }, [ownBooksData, followedCreatorBooks, sharedBooks]);
 
   const savedBookIds = useMemo(() => {
     return new Set(libraryData?.map(item => item.bookId) || []);
@@ -218,6 +211,9 @@ export function useBookListData({ userDisplayName, t }: BookListDataOptions) {
     setSelectedLanguage,
     browsableBookTypes,
     unifiedBooks,
+    ownBooksData,
+    followedCreatorBooks,
+    sharedBooks,
     ownBookIds,
     savedBookIds,
     isLoading,

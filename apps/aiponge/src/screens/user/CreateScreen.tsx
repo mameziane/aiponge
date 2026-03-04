@@ -1,17 +1,5 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  StyleSheet,
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  Image,
-  TextInput,
-  Dimensions,
-} from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, type Href } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -33,7 +21,6 @@ import { useThemeColors, type ColorScheme, commonStyles, BORDER_RADIUS } from '.
 import { LoadingState } from '../../components/shared';
 import { spacing } from '../../theme/spacing';
 import { useAuthStore } from '../../auth/store';
-import { logger } from '../../lib/logger';
 import { useTranslation } from '../../i18n';
 import { useSubscriptionData } from '../../contexts/SubscriptionContext';
 import { TIER_IDS } from '@aiponge/shared-contracts';
@@ -43,6 +30,8 @@ import { useGenerationLifecycle } from './create-screen/useGenerationLifecycle';
 import { useTrackManagement } from './create-screen/useTrackManagement';
 import { EntryTracksList } from './create-screen/EntryTracksList';
 import { MusicPlayerCard } from './create-screen/MusicPlayerCard';
+import { PictureModeSection } from './create-screen/PictureModeSection';
+import { SourceModeSection } from './create-screen/SourceModeSection';
 
 const KEYBOARD_AVOIDANCE_PADDING = 400;
 
@@ -295,113 +284,28 @@ export function CreateScreen() {
           keyboardDismissMode="on-drag"
         >
           {params.isPictureMode && (
-            <View style={styles.pictureModeContainer}>
-              <View style={styles.pictureHeader}>
-                <Ionicons name="image" size={20} color={colors.brand.primary} />
-                <Text style={styles.pictureHeaderText}>{t('create.pictureToSong')}</Text>
-              </View>
-              <View style={styles.picturePreviewContainer}>
-                <Image source={{ uri: params.decodedPictureUri! }} style={styles.picturePreview} resizeMode="cover" />
-              </View>
-              <TextInput
-                style={styles.pictureContextInput}
-                value={pictureContext}
-                onChangeText={setPictureContext}
-                placeholder={t('create.pictureContextPlaceholder')}
-                placeholderTextColor={colors.text.tertiary}
-                multiline
-                maxLength={500}
-              />
-              <Text style={styles.pictureHint}>{t('create.pictureHint')}</Text>
-
-              <TouchableOpacity
-                style={[
-                  styles.pictureGenerateButton,
-                  (!canGenerate || isGeneratingSong) && styles.pictureGenerateButtonDisabled,
-                ]}
-                onPress={() => {
-                  if (!canGenerate || isGeneratingSong) return;
-
-                  if (!params.decodedPictureUri) {
-                    logger.error('[CreateScreen] decodedPictureUri is falsy', undefined, {
-                      pictureUri: params.pictureUri,
-                      decodedPictureUri: params.decodedPictureUri,
-                    });
-                    return;
-                  }
-
-                  logger.debug('[CreateScreen] Generating song from picture', {
-                    artworkUrl: params.decodedPictureUri,
-                    artworkUrlLength: params.decodedPictureUri.length,
-                    pictureContext,
-                    hasImage: !!params.decodedPictureUri,
-                  });
-
-                  const languageParam =
-                    preferences.culturalLanguages.length > 0 ? preferences.culturalLanguages : undefined;
-                  generateSong(languageParam, {
-                    artworkUrl: params.decodedPictureUri,
-                    pictureContext: pictureContext || undefined,
-                    styleWeight: preferences.styleWeight,
-                    negativeTags: preferences.negativeTags,
-                    vocalGender: preferences.vocalGender,
-                    instruments: preferences.instruments,
-                    genre: preferences.genre,
-                    onGenerationStart: () => {
-                      router.push(musicPath as Href);
-                    },
-                  });
-                }}
-                disabled={!canGenerate || isGeneratingSong}
-              >
-                {isGeneratingSong ? (
-                  <ActivityIndicator size="small" color={colors.brand.primary} />
-                ) : (
-                  <>
-                    <Ionicons name="musical-notes" size={20} color={colors.background.primary} />
-                    <Text style={styles.pictureGenerateButtonText}>{t('create.generateFromPicture')}</Text>
-                  </>
-                )}
-              </TouchableOpacity>
-            </View>
+            <PictureModeSection
+              decodedPictureUri={params.decodedPictureUri}
+              pictureUri={params.pictureUri}
+              pictureContext={pictureContext}
+              onPictureContextChange={setPictureContext}
+              canGenerate={canGenerate}
+              isGeneratingSong={isGeneratingSong}
+              preferences={preferences}
+              generateSong={generateSong}
+              musicPath={musicPath}
+            />
           )}
 
           {params.isSourceMode && (
-            <View style={styles.sourceModeContainer}>
-              <View style={styles.sourceHeader}>
-                <Ionicons name="book" size={20} color={colors.brand.accent} />
-                <Text style={styles.sourceHeaderText}>{t('create.sourceToSong')}</Text>
-              </View>
-              {params.decodedSourceBookTitle ? (
-                <Text style={styles.sourceBookTitle}>{params.decodedSourceBookTitle}</Text>
-              ) : null}
-              <ScrollView style={styles.sourceContentScroll} nestedScrollEnabled>
-                <Text style={styles.sourceEntryText}>{params.decodedSourceText}</Text>
-                {params.decodedSourceReference ? (
-                  <Text style={styles.sourceReference}>— {params.decodedSourceReference}</Text>
-                ) : null}
-              </ScrollView>
-              <Text style={styles.sourceHint}>{t('create.sourceHint')}</Text>
-
-              <TouchableOpacity
-                style={[
-                  styles.sourceGenerateButton,
-                  (!canGenerate || isGeneratingSong) && styles.sourceGenerateButtonDisabled,
-                ]}
-                onPress={handleGenerateSong}
-                disabled={!canGenerate || isGeneratingSong}
-                testID="button-generate-from-source"
-              >
-                {isGeneratingSong ? (
-                  <ActivityIndicator size="small" color={colors.brand.primary} />
-                ) : (
-                  <>
-                    <Ionicons name="musical-notes" size={20} color={colors.background.primary} />
-                    <Text style={styles.sourceGenerateButtonText}>{t('create.generateFromSource')}</Text>
-                  </>
-                )}
-              </TouchableOpacity>
-            </View>
+            <SourceModeSection
+              decodedSourceBookTitle={params.decodedSourceBookTitle}
+              decodedSourceText={params.decodedSourceText}
+              decodedSourceReference={params.decodedSourceReference}
+              canGenerate={canGenerate}
+              isGeneratingSong={isGeneratingSong}
+              onGenerateSong={handleGenerateSong}
+            />
           )}
 
           {!params.isPictureMode && !params.isSourceMode && (
@@ -643,135 +547,6 @@ const createStyles = (colors: ColorScheme) =>
       color: colors.text.primary,
       fontSize: 16,
       fontWeight: '600',
-    },
-    pictureModeContainer: {
-      marginHorizontal: spacing.screenHorizontal,
-      marginVertical: spacing.sectionGap,
-      backgroundColor: colors.background.secondary,
-      borderRadius: BORDER_RADIUS.lg,
-      padding: spacing.elementPadding,
-      borderWidth: 1,
-      borderColor: colors.border.primary,
-    },
-    pictureHeader: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 8,
-      marginBottom: 12,
-    },
-    pictureHeaderText: {
-      fontSize: 16,
-      fontWeight: '600',
-      color: colors.text.primary,
-    },
-    picturePreviewContainer: {
-      borderRadius: BORDER_RADIUS.md,
-      overflow: 'hidden',
-      marginBottom: 12,
-    },
-    picturePreview: {
-      width: '100%',
-      height: Dimensions.get('window').width * 0.5,
-      borderRadius: BORDER_RADIUS.md,
-      backgroundColor: colors.background.tertiary,
-    },
-    pictureContextInput: {
-      backgroundColor: colors.background.tertiary,
-      borderRadius: BORDER_RADIUS.sm,
-      padding: 12,
-      color: colors.text.primary,
-      fontSize: 14,
-      minHeight: 60,
-      textAlignVertical: 'top',
-      marginBottom: 8,
-    },
-    pictureHint: {
-      fontSize: 12,
-      color: colors.text.tertiary,
-      fontStyle: 'italic',
-    },
-    pictureGenerateButton: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: 8,
-      backgroundColor: colors.brand.primary,
-      paddingVertical: 16,
-      paddingHorizontal: 24,
-      borderRadius: BORDER_RADIUS.md,
-      marginTop: 16,
-    },
-    pictureGenerateButtonDisabled: {
-      opacity: 0.5,
-    },
-    pictureGenerateButtonText: {
-      color: colors.background.primary,
-      fontSize: 16,
-      fontWeight: '600',
-    },
-    sourceModeContainer: {
-      marginHorizontal: spacing.screenHorizontal,
-      marginVertical: spacing.sectionGap,
-      backgroundColor: colors.background.secondary,
-      borderRadius: BORDER_RADIUS.lg,
-      padding: spacing.elementPadding,
-      borderWidth: 1,
-      borderColor: colors.brand.accent + '40',
-    },
-    sourceHeader: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 8,
-      marginBottom: 12,
-    },
-    sourceHeaderText: {
-      fontSize: 16,
-      fontWeight: '600',
-      color: colors.text.primary,
-    },
-    sourceBookTitle: {
-      fontSize: 14,
-      fontWeight: '500',
-      color: colors.brand.accent,
-      marginBottom: 12,
-    },
-    sourceContentScroll: {
-      maxHeight: 200,
-      marginBottom: 12,
-    },
-    sourceEntryText: {
-      fontSize: 15,
-      lineHeight: 24,
-      color: colors.text.primary,
-      fontStyle: 'italic',
-    },
-    sourceReference: {
-      fontSize: 13,
-      color: colors.text.tertiary,
-      marginTop: 12,
-      textAlign: 'right',
-    },
-    sourceHint: {
-      fontSize: 13,
-      color: colors.text.tertiary,
-      marginBottom: 16,
-    },
-    sourceGenerateButton: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: colors.brand.accent,
-      borderRadius: BORDER_RADIUS.md,
-      padding: spacing.elementPadding,
-      gap: 8,
-    },
-    sourceGenerateButtonDisabled: {
-      opacity: 0.5,
-    },
-    sourceGenerateButtonText: {
-      fontSize: 16,
-      fontWeight: '600',
-      color: colors.background.primary,
     },
   });
 

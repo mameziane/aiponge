@@ -24,6 +24,15 @@ export interface ProviderTemplate {
   timeout?: number;
   models?: string[]; // Optional array of supported models (for providers that use model in URL/request)
   providerId?: string; // Optional provider ID (for template lookup)
+  /**
+   * Fields from the request context to merge into the request body AFTER template processing.
+   * This allows parameters like temperature, max_tokens, quality etc. to be forwarded
+   * without needing explicit template placeholders. Type-safe: numbers stay numbers.
+   *
+   * Example: ["temperature", "max_tokens", "top_p"] — if these exist in the context,
+   * they'll be added to the final request body alongside the template-rendered fields.
+   */
+  passthroughFields?: string[];
   healthEndpoint?: {
     url: string;
     method: 'GET' | 'HEAD';
@@ -425,10 +434,14 @@ export class UniversalHTTPProvider {
     if (template.method !== 'GET') {
       if (isVisionRequest) {
         // Build Vision API specific message format with content arrays
-        body = JSON.stringify(this.buildVisionRequestBody(request, context));
+        const visionBody = this.buildVisionRequestBody(request, context);
+        this.applyPassthroughFields(visionBody, context, template.passthroughFields);
+        body = JSON.stringify(visionBody);
       } else {
         // Process request body template (NO SECRETS in body)
-        body = JSON.stringify(this.processTemplate(template.requestTemplate, context));
+        const processedBody = this.processTemplate(template.requestTemplate, context) as Record<string, unknown>;
+        this.applyPassthroughFields(processedBody, context, template.passthroughFields);
+        body = JSON.stringify(processedBody);
       }
     }
 
@@ -498,6 +511,36 @@ export class UniversalHTTPProvider {
     }
 
     return requestBody;
+  }
+
+  /**
+   * Apply passthrough fields from context to the processed request body.
+   * This allows parameters like temperature, max_tokens, quality etc. to be forwarded
+   * to the provider WITHOUT needing explicit template placeholders.
+   *
+   * Type-safe: numbers stay numbers, booleans stay booleans (unlike template string substitution).
+   * Only sets fields that exist in context and are NOT already in the body (template takes precedence).
+   */
+  private applyPassthroughFields(
+    body: Record<string, unknown>,
+    context: Record<string, unknown>,
+    passthroughFields?: string[]
+  ): void {
+    if (!passthroughFields?.length) return;
+
+    const logger = getLogger('ai-config-universal-http-provider');
+
+    for (const field of passthroughFields) {
+      // Support both camelCase context key and snake_case output key
+      // e.g., passthrough "max_tokens" checks context for max_tokens AND maxTokens
+      const camelKey = field.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
+      const value = context[field] ?? context[camelKey];
+
+      if (value !== undefined && value !== null && !(field in body)) {
+        body[field] = value;
+        logger.debug('📎 Passthrough field applied', { field, valueType: typeof value });
+      }
+    }
   }
 
   /**

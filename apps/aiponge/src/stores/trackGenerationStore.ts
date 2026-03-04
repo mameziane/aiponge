@@ -124,13 +124,14 @@ const { store, completedRequestIds } = createGenerationStore<TrackGenerationProg
     streamingUrl: update.streamingUrl || existing?.streamingUrl,
   }),
 
-  onCompleted: (requestId, progress, get, set, completedIds) => {
+  onCompleted: async (requestId, progress, get, set, completedIds) => {
     logger.info('[TrackGeneration] Generation finished', {
       id: progress.id,
       status: progress.status,
       trackId: progress.trackId,
     });
 
+    // 1. Set finalizing state
     set(state => ({
       activeGenerations: {
         ...state.activeGenerations,
@@ -143,6 +144,7 @@ const { store, completedRequestIds } = createGenerationStore<TrackGenerationProg
       },
     }));
 
+    // 2. Capture streaming preview state before clearing
     const wasPlayingPreview = isStreamingPreviewPlaying(progress.id);
     const previewPosition = wasPlayingPreview ? getPreviewPosition() : 0;
     logger.info('Track generation completed, checking preview state', {
@@ -157,58 +159,46 @@ const { store, completedRequestIds } = createGenerationStore<TrackGenerationProg
       clearStreamingPreviewPlaying(progress.id);
     }
 
-    const emitCompletionEvent = () => {
-      trackGenerationEvents.emit('complete', {
-        id: progress.id,
-        status: progress.status as 'completed' | 'failed',
-        trackTitle: progress.trackTitle,
-        trackId: progress.trackId,
-        artworkUrl: progress.artworkUrl,
-        errorMessage: progress.errorMessage,
-        wasPlayingPreview,
-        previewPosition,
-      });
-    };
-
+    // 3. Deduplication check — prevent double-completion from rapid polling
     const generationId = progress.id;
-
-    Promise.all([
-      forceRefreshExplore(),
-      (async () => invalidateOnEvent(queryClient, { type: 'TRACK_GENERATION_COMPLETED' }))(),
-    ])
-      .then(() => {
-        if (completedIds.has(generationId)) {
-          logger.debug('[TrackGeneration] Generation already finalized, skipping duplicate completion', {
-            id: generationId,
-          });
-          return;
-        }
-        completedIds.set(generationId, Date.now());
-
-        logger.debug('[TrackGeneration] All caches invalidated (with gateway bypass), removing draft');
-        set(state => {
-          if (!state.activeGenerations[generationId]) return state;
-          const newGens = { ...state.activeGenerations };
-          delete newGens[generationId];
-          return { activeGenerations: newGens };
-        });
-
-        emitCompletionEvent();
-      })
-      .catch(error => {
-        logger.warn('[TrackGeneration] Cache refresh failed, emitting completion anyway', { error });
-
-        if (completedIds.has(generationId)) return;
-        completedIds.set(generationId, Date.now());
-
-        set(state => {
-          if (!state.activeGenerations[generationId]) return state;
-          const newGens = { ...state.activeGenerations };
-          delete newGens[generationId];
-          return { activeGenerations: newGens };
-        });
-        emitCompletionEvent();
+    if (completedIds.has(generationId)) {
+      logger.debug('[TrackGeneration] Generation already finalized, skipping duplicate completion', {
+        id: generationId,
       });
+      return;
+    }
+    completedIds.set(generationId, Date.now());
+
+    // 4. Invalidate caches (best-effort — don't block completion event)
+    try {
+      await Promise.all([
+        forceRefreshExplore(),
+        invalidateOnEvent(queryClient, { type: 'TRACK_GENERATION_COMPLETED' }),
+      ]);
+      logger.debug('[TrackGeneration] All caches invalidated, removing draft');
+    } catch (error) {
+      logger.warn('[TrackGeneration] Cache refresh failed, continuing with completion', { error });
+    }
+
+    // 5. Remove from active generations
+    set(state => {
+      if (!state.activeGenerations[generationId]) return state;
+      const newGens = { ...state.activeGenerations };
+      delete newGens[generationId];
+      return { activeGenerations: newGens };
+    });
+
+    // 6. Emit completion event for subscribers (e.g., CreateScreen toast)
+    trackGenerationEvents.emit('complete', {
+      id: progress.id,
+      status: progress.status as 'completed' | 'failed',
+      trackTitle: progress.trackTitle,
+      trackId: progress.trackId,
+      artworkUrl: progress.artworkUrl,
+      errorMessage: progress.errorMessage,
+      wasPlayingPreview,
+      previewPosition,
+    });
   },
 
   onClearGeneration: (id, completedIds) => {

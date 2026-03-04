@@ -1,4 +1,7 @@
 {
+  "app": {
+    "tagline": "كلماتك تصبح موسيقاك."
+  },
   "search": {
     "musicPlaceholder": "البحث عن أغاني، فنانين...",
     "albumsPlaceholder": "البحث عن ألبومات...",
@@ -45,7 +48,6 @@
     "success": "نجاح",
     "share": "مشاركة",
     "or": "أو",
-    "seeAll": "عرض الكل",
     "creating": "جارٍ الإنشاء...",
     "deleting": "جارٍ الحذف...",
     "durationHoursMinutes": "{{hours}}س {{minutes}}د",
@@ -59,7 +61,9 @@
     "reset": "إعادة تعيين",
     "tracks": "مقاطع",
     "upgrade": "ترقية",
-    "yourPhone": "رقم هاتفك"
+    "yourPhone": "رقم هاتفك",
+    "errorTitle": "Could not load content",
+    "networkErrorDesc": "Something went wrong. Tap to try again."
   },
   "errors": {
     "serviceUnavailable": "الخدمة غير متاحة مؤقتاً. يرجى المحاولة مرة أخرى قريباً.",
@@ -111,7 +115,6 @@
     "submitting": "جاري الإرسال..."
   },
   "settings": {
-    "title": "الإعدادات",
     "comingSoon": "قريباً",
     "languageNote": "يتم حفظ تفضيل اللغة محلياً.",
     "restartRequired": "يتطلب إعادة التشغيل",
@@ -127,44 +130,16 @@
     "saveFailed": "فشل حفظ الملف الشخصي. يرجى المحاولة مرة أخرى."
   },
   "navigation": {
-    "create": "إنشاء",
     "myMusic": "الموسيقى",
-    "myCreations": "إبداعاتي",
     "adminDashboard": "إدارة",
-    "config": "التكوين",
     "newEntry": "إدخال جديد",
-    "newSong": "أغنية جديدة",
-    "tabCreate": "إنشاء",
-    "tabBook": "كتاب",
-    "tabChapter": "فصل",
-    "tabEntry": "إدخال",
-    "tabInsight": "رؤية",
-    "tabSong": "أغنية",
-    "profile": "الملف الشخصي",
     "reflect": "تأمل",
     "reflectDisabledTitle": "لا توجد إدخالات بعد",
     "reflectDisabledMessage": "اكتب بعض إدخالات اليوميات أولاً — يحلل التأمل إدخالاتك للعثور على الأنماط والرؤى.",
-    "credits": "رصيد",
-    "creditsAndPlan": "الرصيد والاشتراك",
-    "store": "المتجر",
-    "playlists": "قوائم التشغيل",
-    "downloads": "التنزيلات",
-    "sharedLibrary": "مكتبة الموسيقى",
-    "dashboard": "لوحة التحكم",
-    "insights": "رؤى",
-    "governance": "حوكمة",
-    "myBooks": "الكتب",
-    "reports": "تقارير",
     "studio": "استوديو"
   },
   "librarian": {
     "title": "أمين المكتبة",
-    "tabs": {
-      "music": "الموسيقى",
-      "studio": "الاستوديو",
-      "books": "الكتب",
-      "settings": "الإعدادات"
-    },
     "music": {
       "title": "إنشاء الموسيقى",
       "description": "إنشاء ألبومات ومقاطع للمكتبة الموسيقية المشتركة. إنشاء محتوى متعدد اللغات لجميع المستخدمين.",
@@ -196,7 +171,6 @@
       "publishFailed": "فشل نشر الكتاب",
       "publishConfirmTitle": "نشر الكتاب",
       "publishConfirmMessage": "سيجعل هذا الكتاب مرئياً لجميع المستخدمين. متابعة؟",
-      "coverFailed": "فشل إنشاء الغلاف",
       "deleteConfirmTitle": "حذف الكتاب",
       "deleteConfirmMessage": "هل أنت متأكد من حذف \"{{title}}\"؟ سيتم حذف جميع الفصول والإدخالات أيضاً.",
       "deleteForbidden": "ليس لديك صلاحية حذف هذا الكتاب",
@@ -208,8 +182,7 @@
       "authorPlaceholder": "اسم المؤلف",
       "descriptionPlaceholder": "وصف الكتاب",
       "status": "الحالة",
-      "subtitlePlaceholder": "عنوان فرعي مختصر",
-      "filterByStatus": "تصفية حسب الحالة"
+      "subtitlePlaceholder": "عنوان فرعي مختصر"
     },
     "library": {
       "subtabs": {
@@ -284,7 +257,6 @@
     "feature2": "الذكاء الاصطناعي يولّد الفصول والتأملات",
     "feature3": "كل إدخال يصبح أغنية مخصصة",
     "continue": "متابعة",
-    "getStarted": "ابدأ",
     "chooseCategoryTitle": "أي نوع من الكتب؟",
     "chooseCategorySubtitle": "اختر موضوعاً يتردد صداه معك",
     "describeTitle": "صِف {{bookTypeName}} الخاص بك",
@@ -292,7 +264,6 @@
     "generateButton": "أنشئ كتابي"
   },
   "manifesto": {
-    "title": "بيان aiponge",
     "section1": {
       "title": "الحكمة القديمة",
       "content": "منذ 2500 عام، سافر الباحثون إلى دلفي بحثاً عن الوضوح وفهم الذات. فكرتان خالدتان أرشدتاهم: \"اعرف نفسك\" و\"لا شيء بإفراط\". هذه الحكمة ذاتها الآن ترشد aiponge."
@@ -404,7 +375,7 @@
       "title": "حول aiponge",
       "description": "الإصدار {{version}}",
       "modalTitle": "حول",
-      "tagline": "رفيقك الموسيقي الذكي الشخصي",
+      "tagline": "كلماتك تصبح موسيقاك.",
       "version": "الإصدار",
       "build": "البناء",
       "copyright": "© {{year}} aiponge. جميع الحقوق محفوظة."
@@ -450,7 +421,6 @@
     "infoNote": "تُطبق هذه الفلاتر عند إنشاء موسيقى جديدة وتصفح المكتبة. لن تُزال الأغاني الموجودة في مكتبتك."
   },
   "subscription": {
-    "title": "الاشتراك",
     "continueWithFree": "متابعة مع الأدوات المجانية",
     "seePlusOptions": "عرض خيارات بلس",
     "perMonth": "/شهر",
@@ -629,6 +599,10 @@
     },
     "restorePurchases": "مشترك بالفعل؟ استعادة المشتريات",
     "legalText": "يتجدد الاشتراك تلقائياً ما لم يتم إيقاف التجديد التلقائي قبل 24 ساعة على الأقل من نهاية الفترة الحالية.",
+    "explorerFreeWithAccount": "مجاني مع حساب",
+    "registerForFree": "سجل مجاناً",
+    "currentPlan": "الخطة الحالية",
+    "guestNoAccountNeeded": "لا يلزم حساب",
     "accountRequired": {
       "createAccount": "إنشاء حساب",
       "message": "للاشتراك وإدارة عضويتك، يرجى إنشاء حساب أولاً. سيتم حفظ المحتوى المُنشأ في حسابك الجديد.",
@@ -809,8 +783,6 @@
     "you": "أنت",
     "entrySelectionHint": "اختر إدخال موجود أو اكتب واحدة جديدة لإنشاء كلمات أغاني مخصصة",
     "listening": "جاري الاستماع...",
-    "voiceInputUnavailable": "الإدخال الصوتي غير متاح",
-    "voiceInputRequiresBuild": "الإدخال الصوتي يتطلب إصدار تطوير. هذه الميزة غير متاحة في Expo Go.",
     "voiceInputError": "خطأ في الإدخال الصوتي",
     "allEntriesEmpty": "لا يوجد محتوى متاح",
     "allEntriesEmptyDescription": "الإدخالات المحددة لا تحتوي على أي محتوى بعد. اكتب بعض الإدخالات أولاً، ثم حاول مرة أخرى.",
@@ -1470,7 +1442,6 @@
     "autoPlay": "تشغيل تلقائي للمحتوى",
     "noReminders": "لا توجد تذكيرات",
     "noRemindersDesc": "أنشئ تذكيرات لبناء عادات صحية للكتابة والقراءة والاستماع والتأمل.",
-    "addReminder": "إضافة تذكير",
     "error": "خطأ",
     "titleRequired": "يرجى إدخال عنوان لتذكيرك",
     "selectAtLeastOneDay": "يرجى اختيار يوم واحد على الأقل",
@@ -1478,7 +1449,13 @@
     "failedToToggle": "فشل تحديث التذكير. يرجى المحاولة مرة أخرى.",
     "failedToDelete": "فشل حذف التذكير. يرجى المحاولة مرة أخرى.",
     "deleteTitle": "حذف التذكير",
-    "deleteConfirm": "هل أنت متأكد أنك تريد حذف \"{{title}}\"؟"
+    "deleteConfirm": "هل أنت متأكد أنك تريد حذف \"{{title}}\"؟",
+    "repeatLabel": "تكرار",
+    "repeatOnce": "مرة واحدة",
+    "repeatDaily": "يومي",
+    "repeatWeekly": "أسبوعي",
+    "repeatMonthly": "شهري",
+    "repeatYearly": "سنوي"
   },
   "editTrack": {
     "title": "تعديل المقطع",
@@ -1993,10 +1970,8 @@
     "deleteEntry": "حذف المدخل",
     "deleteEntryConfirmation": "هل أنت متأكد من رغبتك في حذف هذا المدخل؟ لا يمكن التراجع عن هذا الإجراء.",
     "deleteEntryFailed": "فشل حذف المدخل",
-    "moveToBook": "نقل إلى الكتاب",
     "moveChapterDescription": "نقل \"{{title}}\" وجميع إدخالاته إلى كتاب آخر",
     "chapterMoveFailed": "فشل نقل الفصل إلى الكتاب",
-    "noOtherBooks": "أنشئ كتابًا آخر لنقل الفصول بينها",
     "entries": "مدخلات",
     "lockedChapter": "مقفل",
     "createFirstSongToUnlock": "أنشئ أغنيتك الأولى لفتح القفل",
@@ -2069,7 +2044,6 @@
     "albumCount": "{{count}} ألبوم",
     "trackCount": "{{count}} مقطع",
     "tracks": "المقاطع",
-    "albumDetail": "تفاصيل الألبوم",
     "detailTitle": "ألبوم",
     "generatingAlbum": "جاري إنشاء الألبوم...",
     "newAlbum": "ألبوم جديد",
@@ -2213,16 +2187,12 @@
     "loadingBooks": "جاري تحميل الكتب...",
     "noBooks": "لم يتم العثور على كتب",
     "checkBackSoon": "عد قريباً للاطلاع على محتوى حكمة مختار",
+    "createPlaylist": "إنشاء قائمة تشغيل",
     "sections": {
       "myBooks": "كتبي",
-      "continueReading": "متابعة القراءة",
-      "fromYourLibrary": "من مكتبتك",
-      "basedOnReading": "بناءً على قراءاتك",
-      "recommendedForYou": "موصى به لك",
-      "allBooks": "جميع الكتب",
-      "fromCreatorsYouFollow": "من المبدعين الذين تتابعهم"
-    },
-    "createPlaylist": "إنشاء قائمة تشغيل"
+      "followedCreators": "من المبدعين الذين تتابعهم",
+      "sharedLibrary": "المكتبة المشتركة"
+    }
   },
   "creatorMembers": {
     "dashboardTitle": "جمهورك",
@@ -2290,10 +2260,6 @@
     "usesUnlimited": "{{used}} استخدامات",
     "followingBenefits": "متابعة المبدعين تمنحك الوصول إلى موسيقاهم والقوائم والكتب الحكمة المشتركة."
   },
-  "welcomeJourney": {
-    "journalTitle": "قصتي",
-    "journalDescription": "مساحتك الشخصية للتأمل والنمو"
-  },
   "admin": {
     "exitAdminMode": "الخروج من وضع المشرف",
     "tabs": {
@@ -2301,7 +2267,6 @@
       "risk": "المخاطر",
       "compliance": "الامتثال",
       "users": "المستخدمون",
-      "support": "الدعم",
       "prompts": "التعليمات",
       "templates": "القوالب",
       "frameworks": "الأطر",
@@ -2318,7 +2283,19 @@
       "performanceMonitoring": "مراقبة الأداء",
       "health": "الصحة",
       "performance": "الأداء",
-      "alerts": "التنبيهات"
+      "alerts": "التنبيهات",
+      "performanceDescription": "Performance forecasting, capacity planning, and anomaly detection will be available here.",
+      "featureTrendCharts": "• Trend charts (hourly/daily/weekly)",
+      "featureCapacityForecasting": "• Capacity forecasting",
+      "featureAnomalyDetection": "• Anomaly detection alerts",
+      "featureBottleneckId": "• Bottleneck identification"
+    },
+    "safety": {
+      "auditLog": "Audit Log",
+      "featureAdminHistory": "• Admin action history",
+      "featureDataAccess": "• Data access logging",
+      "featureSecurityEvents": "• Security event tracking",
+      "featureExportReports": "• Export audit reports"
     },
     "alerts": {
       "resilienceMonitoring": "مراقبة المرونة",
@@ -2494,6 +2471,9 @@
       "useChapters": "استخدام الفصول",
       "useTrackAlarms": "استخدام تنبيهات المقاطع",
       "usersWith2PlusJournals": "مستخدمون بأكثر من كتابين"
+    },
+    "frameworks": {
+      "sortOrder": "Sort Order"
     }
   },
   "audioOutput": {
@@ -2505,14 +2485,11 @@
     "chromecast": "Chromecast",
     "chromecastDevice": "جهاز Chromecast",
     "connectBluetoothDevice": "قم بتوصيل جهاز بلوتوث أو سماعات لرؤيتها هنا",
-    "expoGoLimitation": "يتطلب إصدار التطوير",
     "noDevices": "لم يتم العثور على أجهزة صوتية",
     "playingLocally": "يتم التشغيل على الجهاز بدلاً من ذلك",
-    "requiresDevelopmentBuild": "يتطلب اكتشاف أجهزة الصوت إصدار تطوير. أنشئ التطبيق باستخدام 'eas build' لتفعيل هذه الميزة.",
     "requiresProductionBuild": "يتطلب اختيار جهاز الصوت إصدار إنتاج أو تطوير. هذه الميزة غير متاحة في Expo Go.",
     "searchCastDevices": "البحث عن أجهزة البث",
     "selectDevice": "اختر مخرج الصوت",
-    "speaker": "مكبر الصوت",
     "stopCasting": "إيقاف البث",
     "switchFailed": "فشل التبديل",
     "switchFailedDescription": "تعذر التبديل إلى جهاز الصوت هذا. تأكد من أنه متصل وحاول مرة أخرى.",

@@ -15,6 +15,7 @@ import type { Reminder, ReminderType } from '../../screens/user/RemindersScreen'
 import type { IconName } from '../../types/ui.types';
 import { useBooks } from '../../hooks/book/useUnifiedLibrary';
 import { useAlbums } from '../../hooks/music/useAlbums';
+import { scheduleReminderNotification } from '../../lib/localNotifications';
 
 export type RepeatType = 'once' | 'daily' | 'weekly' | 'monthly' | 'yearly';
 
@@ -40,10 +41,19 @@ interface ReminderConfig {
   prompt: string;
   enabled: boolean;
   time: Date;
+  repeatType: RepeatType;
   days: boolean[];
   notifyEnabled: boolean;
   autoPlayEnabled: boolean;
 }
+
+const REPEAT_ICONS: Record<RepeatType, keyof typeof Ionicons.glyphMap> = {
+  once: 'calendar-outline',
+  daily: 'today-outline',
+  weekly: 'calendar-number-outline',
+  monthly: 'calendar',
+  yearly: 'repeat',
+};
 
 const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -104,6 +114,7 @@ export function ReminderModal({ visible, onClose, reminder, onSave, defaultType,
     prompt: '',
     enabled: true,
     time: new Date(),
+    repeatType: 'daily',
     days: [true, true, true, true, true, true, true],
     notifyEnabled: true,
     autoPlayEnabled: false,
@@ -141,12 +152,17 @@ export function ReminderModal({ visible, onClose, reminder, onSave, defaultType,
         const mappedType: ReminderType =
           reminder.type === 'book' ? 'reading' : reminder.type === 'meditation' ? 'listening' : reminder.type;
 
+        // Infer repeat type from the days-of-week pattern
+        const activeDayCount = days.filter(Boolean).length;
+        const inferredRepeat: RepeatType = activeDayCount === 7 ? 'daily' : activeDayCount === 0 ? 'once' : 'weekly';
+
         setConfig({
           reminderType: mappedType,
           title: reminder.title,
           prompt: reminder.prompt || '',
           enabled: reminder.enabled,
           time,
+          repeatType: inferredRepeat,
           days,
           notifyEnabled: reminder.notifyEnabled !== false,
           autoPlayEnabled: reminder.autoPlayEnabled === true,
@@ -167,6 +183,7 @@ export function ReminderModal({ visible, onClose, reminder, onSave, defaultType,
           prompt: promptText,
           enabled: true,
           time,
+          repeatType: 'daily',
           days: [true, true, true, true, true, true, true],
           notifyEnabled: true,
           autoPlayEnabled: true,
@@ -182,6 +199,7 @@ export function ReminderModal({ visible, onClose, reminder, onSave, defaultType,
           prompt: preset.defaultPrompt,
           enabled: true,
           time,
+          repeatType: 'daily',
           days: [true, true, true, true, true, true, true],
           notifyEnabled: true,
           autoPlayEnabled: false,
@@ -254,7 +272,8 @@ export function ReminderModal({ visible, onClose, reminder, onSave, defaultType,
   };
 
   const handleSave = async () => {
-    if (!config.days.some(d => d)) {
+    // Only validate day selection for weekly repeat
+    if (config.repeatType === 'weekly' && !config.days.some(d => d)) {
       Alert.alert(t('reminders.error'), t('reminders.selectAtLeastOneDay'));
       return;
     }
@@ -270,15 +289,29 @@ export function ReminderModal({ visible, onClose, reminder, onSave, defaultType,
       const minutes = config.time.getMinutes();
       const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
 
-      const daysOfWeek = config.days
-        .map((selected, index) => (selected ? index : null))
-        .filter((day): day is number => day !== null);
+      // Compute daysOfWeek based on repeat type
+      let daysOfWeek: number[];
+      switch (config.repeatType) {
+        case 'daily':
+          daysOfWeek = [0, 1, 2, 3, 4, 5, 6];
+          break;
+        case 'weekly':
+          daysOfWeek = config.days
+            .map((selected, index) => (selected ? index : null))
+            .filter((day): day is number => day !== null);
+          break;
+        default:
+          // once, monthly, yearly — no day-of-week
+          daysOfWeek = [];
+          break;
+      }
 
       const payload: Record<string, unknown> = {
         type: config.reminderType,
         title: config.title.trim(),
         prompt: config.prompt.trim() || undefined,
         time: timeString,
+        repeatType: config.repeatType,
         daysOfWeek,
         enabled: config.enabled,
         notifyEnabled: config.notifyEnabled,
@@ -308,16 +341,34 @@ export function ReminderModal({ visible, onClose, reminder, onSave, defaultType,
         if (reminder.trackTitle) payload.trackTitle = reminder.trackTitle;
       }
 
+      let savedReminderId: string | undefined;
       if (isEditing && reminder) {
         await apiClient.patch(`/api/v1/app/reminders/${reminder.id}`, payload);
         invalidateOnEvent(queryClient, { type: 'REMINDER_UPDATED' });
+        savedReminderId = reminder.id;
       } else {
-        await apiClient.post('/api/v1/app/reminders', payload);
+        const response = await apiClient.post('/api/v1/app/reminders', payload);
         invalidateOnEvent(queryClient, { type: 'REMINDER_CREATED' });
+        savedReminderId = (response as { data?: { id?: string } })?.data?.id;
+      }
+
+      // Schedule local notification as a resilient fallback
+      if (savedReminderId && config.notifyEnabled) {
+        scheduleReminderNotification({
+          reminderId: savedReminderId,
+          title: config.title.trim(),
+          body: config.prompt.trim() || config.title.trim(),
+          hour: hours,
+          minute: minutes,
+          repeatType: config.repeatType,
+          daysOfWeek: config.repeatType === 'weekly' ? daysOfWeek : undefined,
+          data: { reminderType: config.reminderType },
+        }).catch(err => logger.warn('[ReminderModal] Local notification scheduling failed', err));
       }
 
       logger.debug('Reminder saved', {
         type: config.reminderType,
+        repeatType: config.repeatType,
         time: timeString,
         daysOfWeek,
       });
@@ -376,7 +427,7 @@ export function ReminderModal({ visible, onClose, reminder, onSave, defaultType,
                     >
                       <Ionicons name="book" size={20} color={themeColors.brand.primary} />
                       <View style={styles.pickerItemInfo}>
-                        <Text style={styles.pickerItemText} numberOfLines={1}>
+                        <Text style={styles.pickerItemText} numberOfLines={2}>
                           {book.title}
                         </Text>
                         {book.author && (
@@ -432,7 +483,7 @@ export function ReminderModal({ visible, onClose, reminder, onSave, defaultType,
                     >
                       <Ionicons name="disc" size={20} color={themeColors.brand.primary} />
                       <View style={styles.pickerItemInfo}>
-                        <Text style={styles.pickerItemText} numberOfLines={1}>
+                        <Text style={styles.pickerItemText} numberOfLines={2}>
                           {album.title}
                         </Text>
                         {album.totalTracks > 0 && (
@@ -626,29 +677,69 @@ export function ReminderModal({ visible, onClose, reminder, onSave, defaultType,
                   )}
 
                   <View style={styles.inputSection}>
-                    <Text style={styles.sectionLabel}>{t('reminders.repeatDays')}</Text>
-                    <Text style={styles.selectedDaysLabel}>{getSelectedDaysLabel()}</Text>
-                    <View style={styles.daysRow}>
-                      {DAY_LABELS.map((day, index) => (
-                        <Pressable
-                          key={index}
-                          style={[
-                            styles.dayButton,
-                            config.days[index] && {
-                              backgroundColor: currentPreset.color,
-                              borderColor: currentPreset.color,
-                            },
-                          ]}
-                          onPress={() => toggleDay(index)}
-                          testID={`button-day-${index}`}
-                        >
-                          <Text style={[styles.dayButtonText, config.days[index] && styles.dayButtonTextActive]}>
-                            {day.charAt(0)}
-                          </Text>
-                        </Pressable>
-                      ))}
-                    </View>
+                    <Text style={styles.sectionLabel}>{t('reminders.repeatLabel', { defaultValue: 'Repeat' })}</Text>
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      contentContainerStyle={styles.repeatRow}
+                    >
+                      {(['once', 'daily', 'weekly', 'monthly', 'yearly'] as RepeatType[]).map(opt => {
+                        const isActive = config.repeatType === opt;
+                        return (
+                          <Pressable
+                            key={opt}
+                            style={[
+                              styles.repeatChip,
+                              isActive && {
+                                backgroundColor: currentPreset.color,
+                                borderColor: currentPreset.color,
+                              },
+                            ]}
+                            onPress={() => setConfig({ ...config, repeatType: opt })}
+                            testID={`button-repeat-${opt}`}
+                          >
+                            <Ionicons
+                              name={REPEAT_ICONS[opt]}
+                              size={14}
+                              color={isActive ? colors.absolute.white : colors.text.tertiary}
+                            />
+                            <Text style={[styles.repeatChipText, isActive && styles.repeatChipTextActive]}>
+                              {t(`reminders.repeat${opt.charAt(0).toUpperCase() + opt.slice(1)}`, {
+                                defaultValue: opt,
+                              })}
+                            </Text>
+                          </Pressable>
+                        );
+                      })}
+                    </ScrollView>
                   </View>
+
+                  {config.repeatType === 'weekly' && (
+                    <View style={styles.inputSection}>
+                      <Text style={styles.sectionLabel}>{t('reminders.repeatDays')}</Text>
+                      <Text style={styles.selectedDaysLabel}>{getSelectedDaysLabel()}</Text>
+                      <View style={styles.daysRow}>
+                        {DAY_LABELS.map((day, index) => (
+                          <Pressable
+                            key={index}
+                            style={[
+                              styles.dayButton,
+                              config.days[index] && {
+                                backgroundColor: currentPreset.color,
+                                borderColor: currentPreset.color,
+                              },
+                            ]}
+                            onPress={() => toggleDay(index)}
+                            testID={`button-day-${index}`}
+                          >
+                            <Text style={[styles.dayButtonText, config.days[index] && styles.dayButtonTextActive]}>
+                              {day.charAt(0)}
+                            </Text>
+                          </Pressable>
+                        ))}
+                      </View>
+                    </View>
+                  )}
 
                   <View style={styles.switchSection}>
                     <View style={styles.switchRow}>
@@ -710,11 +801,11 @@ const createStyles = (colors: ColorScheme) =>
       backgroundColor: colors.overlay.black[70],
       justifyContent: 'center',
       alignItems: 'center',
-      padding: 20,
+      padding: 16,
     },
     modalContainer: {
       width: '100%',
-      maxWidth: 400,
+      maxWidth: 500,
       maxHeight: '85%',
       padding: 0,
     },
@@ -809,6 +900,30 @@ const createStyles = (colors: ColorScheme) =>
       fontSize: 18,
       fontWeight: '600',
       color: colors.text.primary,
+    },
+    repeatRow: {
+      flexDirection: 'row',
+      gap: 8,
+    },
+    repeatChip: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      paddingHorizontal: 14,
+      paddingVertical: 8,
+      borderRadius: 20,
+      backgroundColor: colors.background.subtle,
+      borderWidth: 1.5,
+      borderColor: colors.border.muted,
+    },
+    repeatChipText: {
+      fontSize: 13,
+      fontWeight: '500',
+      color: colors.text.tertiary,
+    },
+    repeatChipTextActive: {
+      color: colors.absolute.white,
+      fontWeight: '600',
     },
     selectedDaysLabel: {
       fontSize: 14,

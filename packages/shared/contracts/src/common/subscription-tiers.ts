@@ -263,14 +263,6 @@ export const PAID_TIERS: readonly SubscriptionTier[] = [TIER_IDS.PERSONAL, TIER_
 
 export const PROFESSIONAL_TIERS: readonly SubscriptionTier[] = [TIER_IDS.PRACTICE, TIER_IDS.STUDIO] as const;
 
-export const LAUNCH_TIERS: readonly SubscriptionTier[] = [
-  TIER_IDS.GUEST,
-  TIER_IDS.EXPLORER,
-  TIER_IDS.PERSONAL,
-] as const;
-
-export const DEFERRED_TIERS: readonly SubscriptionTier[] = [TIER_IDS.PRACTICE, TIER_IDS.STUDIO] as const;
-
 /**
  * Tier sort order for comparison and display
  */
@@ -347,15 +339,6 @@ export function isProfessionalTier(tier: string | null | undefined): boolean {
   if (!tier) return false;
   const normalized = normalizeTier(tier);
   return PROFESSIONAL_TIERS.includes(normalized);
-}
-
-/**
- * Check if a tier is a launch tier (available at launch)
- */
-export function isLaunchTier(tier: string | null | undefined): boolean {
-  if (!tier) return true;
-  const normalized = normalizeTier(tier);
-  return LAUNCH_TIERS.includes(normalized);
 }
 
 /**

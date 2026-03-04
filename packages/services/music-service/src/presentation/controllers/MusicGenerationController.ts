@@ -462,7 +462,7 @@ export class MusicGenerationController {
             subscription: quotaResult.subscription,
             credits: quotaResult.credits,
           });
-          ServiceErrors.forbidden(res, reason, req, {
+          ServiceErrors.paymentRequired(res, reason, req, {
             code,
             subscription: quotaResult.subscription,
             credits: quotaResult.credits,
@@ -706,7 +706,7 @@ export class MusicGenerationController {
             totalTracks,
             credits: quotaResult.credits,
           });
-          ServiceErrors.forbidden(res, reason, req, {
+          ServiceErrors.paymentRequired(res, reason, req, {
             code,
             credits: quotaResult.credits,
             shouldUpgrade: quotaResult.shouldUpgrade,

@@ -271,9 +271,11 @@ export class AnalyzeTextUseCase {
         therapeuticFramework: 'emotion-analysis',
       };
 
-      // Add framework metadata if available
+      // Add framework metadata if available — flatten to top-level for template access
       if (frameworkResult?.primaryFramework) {
         const pf = frameworkResult.primaryFramework;
+
+        // Nested version (for Handlebars dot notation: {{frameworkMetadata.name}})
         context.frameworkMetadata = {
           id: pf.framework.id,
           name: pf.framework.name,
@@ -283,6 +285,26 @@ export class AnalyzeTextUseCase {
           confidence: pf.confidence,
           matchedPatterns: pf.matchedPatterns,
         };
+
+        // Flattened version (for simple templates: {{framework_name}}, {{framework_principles_str}})
+        context.framework_id = pf.framework.id;
+        context.framework_name = pf.framework.name;
+        context.framework_short_name = pf.framework.shortName;
+        context.framework_confidence = pf.confidence;
+        context.framework_principles = pf.framework.keyPrinciples;
+        context.framework_principles_str = Array.isArray(pf.framework.keyPrinciples)
+          ? pf.framework.keyPrinciples.join(', ')
+          : pf.framework.keyPrinciples;
+        context.framework_goals = pf.framework.therapeuticGoals;
+        context.framework_goals_str = Array.isArray(pf.framework.therapeuticGoals)
+          ? pf.framework.therapeuticGoals.join(', ')
+          : pf.framework.therapeuticGoals;
+        context.framework_matched_patterns = pf.matchedPatterns;
+        context.framework_matched_patterns_str = Array.isArray(pf.matchedPatterns)
+          ? pf.matchedPatterns.join(', ')
+          : pf.matchedPatterns;
+
+        // Supporting frameworks as readable summary
         context.supportingFrameworks = frameworkResult.supportingFrameworks.map(s => ({
           id: s.framework.id,
           name: s.framework.name,
@@ -291,8 +313,19 @@ export class AnalyzeTextUseCase {
           therapeuticGoals: s.framework.therapeuticGoals,
           confidence: s.confidence,
         }));
+        context.supporting_frameworks_str = frameworkResult.supportingFrameworks
+          .map(s => `${s.framework.name} (${Math.round(Number(s.confidence) * 100)}%)`)
+          .join(', ');
+
+        // Emotions and themes — both array and string versions
         context.detectedEmotions = frameworkResult.detectedEmotions;
+        context.detected_emotions_str = Array.isArray(frameworkResult.detectedEmotions)
+          ? frameworkResult.detectedEmotions.join(', ')
+          : frameworkResult.detectedEmotions;
         context.detectedThemes = frameworkResult.detectedThemes;
+        context.detected_themes_str = Array.isArray(frameworkResult.detectedThemes)
+          ? frameworkResult.detectedThemes.join(', ')
+          : frameworkResult.detectedThemes;
         context.therapeuticApproach = frameworkResult.therapeuticApproach;
       }
 

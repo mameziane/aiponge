@@ -5,7 +5,6 @@ import {
   Text,
   TouchableOpacity,
   Pressable,
-  FlatList,
   ScrollView,
   StyleSheet,
   ActivityIndicator,
@@ -27,6 +26,8 @@ import { CONTENT_VISIBILITY } from '@aiponge/shared-contracts';
 import { BOOK_TYPE_CATEGORY_CONFIGS, getBookTypeConfig, resolveBookTypeColor } from '../../constants/bookTypes';
 import { GenerationProgressView } from '../../components/book/GenerationProgressView';
 import { usePendingBookGeneration } from '../../hooks/book/usePendingBookGeneration';
+import { useFollowedCreators } from '../../hooks/profile/useFollowedCreators';
+import { useCollapsibleSections } from '../../hooks/ui/useCollapsibleSections';
 
 import type { BookListScreenProps } from './book-list/types';
 import { useBookListData } from './book-list/useBookListData';
@@ -55,7 +56,10 @@ export function BookListScreen({ embedded = false, externalCreateTrigger, onStud
     }
   }, [externalCreateTrigger]);
 
-  const data = useBookListData({ userDisplayName, t });
+  const { followedCreatorIds } = useFollowedCreators();
+  const { isSectionExpanded, toggleSection } = useCollapsibleSections('bookList');
+
+  const data = useBookListData({ userDisplayName, t, followedCreatorIds });
 
   // Reset language selector to the current app language every time the screen is focused.
   useFocusEffect(
@@ -149,16 +153,27 @@ export function BookListScreen({ embedded = false, externalCreateTrigger, onStud
   const selectedLanguageLabel =
     languageOptions.find(o => o.value === data.selectedLanguage)?.label || languageOptions[0].label;
 
-  const filteredBooks = useMemo(() => {
-    if (!searchQuery.trim()) return data.unifiedBooks;
-    const q = searchQuery.toLowerCase().trim();
-    return data.unifiedBooks.filter(
-      book =>
-        book.title.toLowerCase().includes(q) ||
-        book.author?.toLowerCase().includes(q) ||
-        book.description?.toLowerCase().includes(q)
-    );
-  }, [data.unifiedBooks, searchQuery]);
+  const filterBySearch = useCallback(
+    (books: BookCardData[]) => {
+      if (!searchQuery.trim()) return books;
+      const q = searchQuery.toLowerCase().trim();
+      return books.filter(
+        book =>
+          book.title.toLowerCase().includes(q) ||
+          book.author?.toLowerCase().includes(q) ||
+          book.description?.toLowerCase().includes(q)
+      );
+    },
+    [searchQuery]
+  );
+
+  const filteredOwnBooks = useMemo(() => filterBySearch(data.ownBooksData), [filterBySearch, data.ownBooksData]);
+  const filteredFollowedBooks = useMemo(
+    () => filterBySearch(data.followedCreatorBooks),
+    [filterBySearch, data.followedCreatorBooks]
+  );
+  const filteredSharedBooks = useMemo(() => filterBySearch(data.sharedBooks), [filterBySearch, data.sharedBooks]);
+  const totalFiltered = filteredOwnBooks.length + filteredFollowedBooks.length + filteredSharedBooks.length;
 
   const handleSearchToggle = useCallback(() => {
     if (isSearchActive) {
@@ -304,7 +319,7 @@ export function BookListScreen({ embedded = false, externalCreateTrigger, onStud
 
       {data.isLoading ? (
         <LoadingState message={t('library.loadingBooks') || 'Loading books...'} />
-      ) : filteredBooks.length === 0 ? (
+      ) : totalFiltered === 0 ? (
         <EmptyState
           icon="book-outline"
           title={
@@ -319,45 +334,141 @@ export function BookListScreen({ embedded = false, externalCreateTrigger, onStud
           }
         />
       ) : (
-        <FlatList
-          data={filteredBooks}
-          renderItem={renderGridItem}
-          keyExtractor={(item, index) => item.id || `fallback-${index}`}
-          numColumns={3}
-          contentContainerStyle={styles.gridContent}
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
-          onEndReached={() => {
-            if (data.hasNextBrowsePage && !data.isFetchingNextBrowsePage) {
-              data.fetchNextBrowsePage();
+          onScroll={({ nativeEvent }) => {
+            const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
+            if (layoutMeasurement.height + contentOffset.y >= contentSize.height - 100) {
+              if (data.hasNextBrowsePage && !data.isFetchingNextBrowsePage) {
+                data.fetchNextBrowsePage();
+              }
+              if (data.hasNextManagePage && !data.isFetchingNextManagePage) {
+                data.fetchNextManagePage();
+              }
             }
           }}
-          onEndReachedThreshold={0.5}
-          initialNumToRender={9}
-          maxToRenderPerBatch={9}
-          windowSize={5}
-          removeClippedSubviews={true}
-          ListHeaderComponent={
-            pendingGen.isPending && pendingGen.progress ? (
-              <View style={styles.generatingBanner}>
-                <GenerationProgressView progress={pendingGen.progress} typeColor={pendingTypeColor} />
-              </View>
-            ) : pendingGen.status === 'failed' ? (
-              <View style={styles.generatingBanner}>
-                <Text style={styles.generatingErrorText}>{pendingGen.error || 'Generation failed'}</Text>
-              </View>
-            ) : null
-          }
-          ListFooterComponent={
-            data.isFetchingNextBrowsePage ? (
-              <View style={{ paddingVertical: 16, alignItems: 'center' }}>
-                <ActivityIndicator size="small" color={colors.brand.primary} />
-              </View>
-            ) : null
-          }
+          scrollEventThrottle={400}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={colors.brand.primary} />
           }
-        />
+        >
+          {pendingGen.isPending && pendingGen.progress ? (
+            <View style={styles.generatingBanner}>
+              <GenerationProgressView progress={pendingGen.progress} typeColor={pendingTypeColor} />
+            </View>
+          ) : pendingGen.status === 'failed' ? (
+            <View style={styles.generatingBanner}>
+              <Text style={styles.generatingErrorText}>{pendingGen.error || 'Generation failed'}</Text>
+            </View>
+          ) : null}
+
+          {/* ── My Books ── */}
+          {filteredOwnBooks.length > 0 && (
+            <>
+              <TouchableOpacity
+                style={styles.sectionHeader}
+                onPress={() => toggleSection('myBooks')}
+                activeOpacity={0.7}
+              >
+                <View style={styles.sectionHeaderLeft}>
+                  <Ionicons name="person-outline" size={18} color={colors.text.primary} />
+                  <Text style={styles.sectionHeaderTitle}>{t('library.sections.myBooks')}</Text>
+                  <View style={styles.sectionBadge}>
+                    <Text style={styles.sectionBadgeText}>{filteredOwnBooks.length}</Text>
+                  </View>
+                </View>
+                <Ionicons
+                  name={isSectionExpanded('myBooks') ? 'chevron-up' : 'chevron-down'}
+                  size={18}
+                  color={colors.text.secondary}
+                />
+              </TouchableOpacity>
+              {isSectionExpanded('myBooks') && (
+                <View style={styles.sectionGrid}>
+                  {filteredOwnBooks.map((book, index) => (
+                    <View key={book.id || `own-${index}`} style={styles.gridItemWrapper}>
+                      {renderGridItem({ item: book, index })}
+                    </View>
+                  ))}
+                </View>
+              )}
+            </>
+          )}
+
+          {/* ── From Creators You Follow ── */}
+          {filteredFollowedBooks.length > 0 && (
+            <>
+              <TouchableOpacity
+                style={styles.sectionHeader}
+                onPress={() => toggleSection('followedCreators')}
+                activeOpacity={0.7}
+              >
+                <View style={styles.sectionHeaderLeft}>
+                  <Ionicons name="heart-outline" size={18} color={colors.text.primary} />
+                  <Text style={styles.sectionHeaderTitle}>{t('library.sections.followedCreators')}</Text>
+                  <View style={styles.sectionBadge}>
+                    <Text style={styles.sectionBadgeText}>{filteredFollowedBooks.length}</Text>
+                  </View>
+                </View>
+                <Ionicons
+                  name={isSectionExpanded('followedCreators') ? 'chevron-up' : 'chevron-down'}
+                  size={18}
+                  color={colors.text.secondary}
+                />
+              </TouchableOpacity>
+              {isSectionExpanded('followedCreators') && (
+                <View style={styles.sectionGrid}>
+                  {filteredFollowedBooks.map((book, index) => (
+                    <View key={book.id || `followed-${index}`} style={styles.gridItemWrapper}>
+                      {renderGridItem({ item: book, index })}
+                    </View>
+                  ))}
+                </View>
+              )}
+            </>
+          )}
+
+          {/* ── Shared Library ── */}
+          {filteredSharedBooks.length > 0 && (
+            <>
+              <TouchableOpacity
+                style={styles.sectionHeader}
+                onPress={() => toggleSection('sharedLibrary')}
+                activeOpacity={0.7}
+              >
+                <View style={styles.sectionHeaderLeft}>
+                  <Ionicons name="globe-outline" size={18} color={colors.text.primary} />
+                  <Text style={styles.sectionHeaderTitle}>{t('library.sections.sharedLibrary')}</Text>
+                  <View style={styles.sectionBadge}>
+                    <Text style={styles.sectionBadgeText}>{filteredSharedBooks.length}</Text>
+                  </View>
+                </View>
+                <Ionicons
+                  name={isSectionExpanded('sharedLibrary') ? 'chevron-up' : 'chevron-down'}
+                  size={18}
+                  color={colors.text.secondary}
+                />
+              </TouchableOpacity>
+              {isSectionExpanded('sharedLibrary') && (
+                <View style={styles.sectionGrid}>
+                  {filteredSharedBooks.map((book, index) => (
+                    <View key={book.id || `shared-${index}`} style={styles.gridItemWrapper}>
+                      {renderGridItem({ item: book, index })}
+                    </View>
+                  ))}
+                </View>
+              )}
+            </>
+          )}
+
+          {data.isFetchingNextBrowsePage && (
+            <View style={{ paddingVertical: 16, alignItems: 'center' }}>
+              <ActivityIndicator size="small" color={colors.brand.primary} />
+            </View>
+          )}
+        </ScrollView>
       )}
 
       {actionTarget && (
@@ -567,6 +678,48 @@ const createStyles = (colors: ColorScheme) =>
       paddingHorizontal: 8,
       paddingTop: 4,
       paddingBottom: 120,
+    },
+    scrollContent: {
+      paddingBottom: 120,
+    },
+    sectionHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      backgroundColor: colors.background.primary,
+    },
+    sectionHeaderLeft: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+    },
+    sectionHeaderTitle: {
+      fontSize: 15,
+      fontWeight: '600',
+      fontFamily: fontFamilies.body.bold,
+      color: colors.text.primary,
+    },
+    sectionBadge: {
+      backgroundColor: colors.brand.primary + '20',
+      paddingHorizontal: 8,
+      paddingVertical: 2,
+      borderRadius: 10,
+    },
+    sectionBadgeText: {
+      fontSize: 12,
+      fontWeight: '600',
+      color: colors.brand.primary,
+    },
+    sectionGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      paddingHorizontal: 8,
+      paddingTop: 4,
+    },
+    gridItemWrapper: {
+      width: '33.33%' as unknown as number,
     },
     generatingBanner: {
       marginHorizontal: 8,

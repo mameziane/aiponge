@@ -100,6 +100,7 @@ export interface GeneratePlaylistArtworkRequest {
   trackCount?: number;
   playlistId: string;
   userId?: string;
+  visibility?: ContentVisibility;
 }
 
 export interface GenerateArtworkResponse {
@@ -240,7 +241,7 @@ export class AIContentServiceClient implements IAIContentServiceClient {
               cultural_style: request.culturalStyle,
             },
             userId: request.userId,
-            visibility: request.visibility || CONTENT_VISIBILITY.SHARED,
+            visibility: request.visibility || CONTENT_VISIBILITY.PERSONAL,
             destinationPath,
           };
 
@@ -331,7 +332,7 @@ export class AIContentServiceClient implements IAIContentServiceClient {
               description: request.description,
               track_count: request.trackCount,
             },
-            visibility: CONTENT_VISIBILITY.SHARED,
+            visibility: request.visibility || CONTENT_VISIBILITY.PERSONAL,
             destinationPath: `user/${request.userId || 'anonymous'}/artworks`,
           };
 

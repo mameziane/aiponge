@@ -1,19 +1,29 @@
 /**
- * Template Engine - Simple variable substitution for provider templates
- * Handles ${variable} syntax for dynamic request/response mapping
+ * Template Engine - Variable substitution for provider templates
+ * Handles BOTH ${variable} and {{variable}} syntax for dynamic request/response mapping.
+ *
+ * Supports dot notation for nested access: ${response.data.url} or {{response.data.url}}
  */
 
 export class TemplateEngine {
   /**
-   * Render template string with variable substitution
+   * Render template string with variable substitution.
+   * Resolves both ${variable} and {{variable}} placeholders from context.
    */
   render(template: string, context: Record<string, unknown>): string {
     let result = template;
 
     // Replace ${variable} patterns
-    const variablePattern = /\$\{([^}]+)\}/g;
+    const dollarPattern = /\$\{([^}]+)\}/g;
+    result = result.replace(dollarPattern, (match, variable) => {
+      const value = this.resolveVariable(variable.trim(), context);
+      return value !== undefined ? String(value) : match;
+    });
 
-    result = result.replace(variablePattern, (match, variable) => {
+    // Replace {{variable}} patterns (Handlebars-style, simple non-conditional only)
+    // Skip Handlebars block helpers like {{#if}}, {{/if}}, {{else}}, {{> partial}}
+    const handlebarsPattern = /\{\{(?!#|\/|else|>)([^}]+)\}\}/g;
+    result = result.replace(handlebarsPattern, (match, variable) => {
       const value = this.resolveVariable(variable.trim(), context);
       return value !== undefined ? String(value) : match;
     });
@@ -40,17 +50,23 @@ export class TemplateEngine {
   }
 
   /**
-   * Check if template contains variables
+   * Check if template contains variables (either syntax)
    */
   hasVariables(template: string): boolean {
-    return /\$\{[^}]+\}/.test(template);
+    return /\$\{[^}]+\}/.test(template) || /\{\{(?!#|\/|else|>)[^}]+\}\}/.test(template);
   }
 
   /**
-   * Extract all variable names from template
+   * Extract all variable names from template (both syntaxes)
    */
   extractVariables(template: string): string[] {
-    const matches = template.match(/\$\{([^}]+)\}/g) || [];
-    return matches.map(match => match.slice(2, -1).trim());
+    const dollarMatches = template.match(/\$\{([^}]+)\}/g) || [];
+    const handlebarsMatches = template.match(/\{\{(?!#|\/|else|>)([^}]+)\}\}/g) || [];
+
+    const dollarVars = dollarMatches.map(match => match.slice(2, -1).trim());
+    const handlebarsVars = handlebarsMatches.map(match => match.slice(2, -2).trim());
+
+    // Deduplicate
+    return [...new Set([...dollarVars, ...handlebarsVars])];
   }
 }

@@ -1,4 +1,7 @@
 {
+  "app": {
+    "tagline": "Deine Worte werden zu deiner Musik."
+  },
   "search": {
     "musicPlaceholder": "Songs, Künstler suchen...",
     "albumsPlaceholder": "Alben suchen...",
@@ -45,7 +48,6 @@
     "success": "Erfolg",
     "share": "Teilen",
     "or": "ODER",
-    "seeAll": "Alle anzeigen",
     "creating": "Wird erstellt...",
     "deleting": "Wird gelöscht...",
     "durationHoursMinutes": "{{hours}}h {{minutes}}m",
@@ -59,7 +61,9 @@
     "reset": "Zurücksetzen",
     "tracks": "Titel",
     "upgrade": "Upgraden",
-    "yourPhone": "Ihre Telefonnummer"
+    "yourPhone": "Ihre Telefonnummer",
+    "errorTitle": "Could not load content",
+    "networkErrorDesc": "Something went wrong. Tap to try again."
   },
   "errors": {
     "serviceUnavailable": "Dienst vorübergehend nicht verfügbar. Bitte versuche es in Kürze erneut.",
@@ -139,7 +143,6 @@
     }
   },
   "settings": {
-    "title": "Einstellungen",
     "comingSoon": "Demnächst",
     "languageNote": "Ihre Spracheinstellung wird lokal gespeichert.",
     "restartRequired": "Neustart erforderlich",
@@ -155,44 +158,16 @@
     "saveFailed": "Profil konnte nicht gespeichert werden. Bitte versuchen Sie es erneut."
   },
   "navigation": {
-    "create": "Erstellen",
     "myMusic": "Musik",
-    "myCreations": "Meine Kreationen",
     "adminDashboard": "Admin",
-    "config": "Konfiguration",
     "newEntry": "Neuer Eintrag",
-    "newSong": "Neues Lied",
-    "tabCreate": "Erstellen",
-    "tabBook": "Buch",
-    "tabChapter": "Kapitel",
-    "tabEntry": "Eintrag",
-    "tabInsight": "Erkenntnis",
-    "tabSong": "Lied",
-    "profile": "Profil",
     "reflect": "Reflektieren",
     "reflectDisabledTitle": "Noch keine Einträge",
     "reflectDisabledMessage": "Schreibe zuerst einige Tagebucheinträge — Reflektieren analysiert deine Einträge, um Muster und Erkenntnisse zu finden.",
-    "credits": "Guthaben",
-    "creditsAndPlan": "Guthaben & Plan",
-    "store": "Shop",
-    "playlists": "Meine Playlists",
-    "downloads": "Downloads",
-    "sharedLibrary": "Musikbibliothek",
-    "dashboard": "Dashboard",
-    "insights": "Einblicke",
-    "governance": "Governance",
-    "myBooks": "Bücher",
-    "reports": "Teilen",
     "studio": "Studio"
   },
   "librarian": {
     "title": "Bibliothekar",
-    "tabs": {
-      "music": "Musik",
-      "studio": "Studio",
-      "books": "Bücher",
-      "settings": "Einstellungen"
-    },
     "music": {
       "title": "Musikerstellung",
       "description": "Erstelle Alben und Titel für die gemeinsame Musikbibliothek. Erstelle mehrsprachige Inhalte für alle Benutzer.",
@@ -224,7 +199,6 @@
       "publishFailed": "Buch konnte nicht veröffentlicht werden",
       "publishConfirmTitle": "Buch veröffentlichen",
       "publishConfirmMessage": "Dies macht das Buch für alle Benutzer sichtbar. Fortfahren?",
-      "coverFailed": "Cover konnte nicht generiert werden",
       "deleteConfirmTitle": "Buch löschen",
       "deleteConfirmMessage": "Bist du sicher, dass du \"{{title}}\" löschen möchtest? Dies löscht auch alle Kapitel und Einträge.",
       "deleteForbidden": "Sie haben keine Berechtigung, dieses Buch zu löschen",
@@ -236,8 +210,7 @@
       "authorPlaceholder": "Autorenname",
       "descriptionPlaceholder": "Buchbeschreibung",
       "status": "Status",
-      "subtitlePlaceholder": "Ein kurzer Untertitel",
-      "filterByStatus": "Nach Status filtern"
+      "subtitlePlaceholder": "Ein kurzer Untertitel"
     },
     "library": {
       "subtabs": {
@@ -312,7 +285,6 @@
     "feature2": "KI generiert Kapitel & Reflexionen",
     "feature3": "Jeder Eintrag wird ein personalisierter Song",
     "continue": "Weiter",
-    "getStarted": "Los geht's",
     "chooseCategoryTitle": "Welche Art von Buch?",
     "chooseCategorySubtitle": "Wählen Sie ein Thema, das Sie anspricht",
     "describeTitle": "Beschreiben Sie Ihr {{bookTypeName}}",
@@ -320,7 +292,6 @@
     "generateButton": "Mein Buch generieren"
   },
   "manifesto": {
-    "title": "Das aiponge Manifest",
     "section1": {
       "title": "Alte Weisheit",
       "content": "Vor 2.500 Jahren reisten Suchende nach Delphi auf der Suche nach Klarheit und Selbsterkenntnis. Zwei zeitlose Ideen leiteten sie: \"Erkenne dich selbst\" und \"Nichts im Übermaß\". Dieselbe Weisheit leitet jetzt aiponge."
@@ -432,7 +403,7 @@
       "title": "Über aiponge",
       "description": "Version {{version}}",
       "modalTitle": "Über",
-      "tagline": "Dein persönlicher KI-Musikbegleiter",
+      "tagline": "Deine Worte werden zu deiner Musik.",
       "version": "Version",
       "build": "Build",
       "copyright": "© {{year}} aiponge. Alle Rechte vorbehalten."
@@ -478,7 +449,6 @@
     "infoNote": "Diese Filter werden beim Generieren neuer Musik und beim Durchsuchen der Bibliothek angewendet. Bestehende Songs in deiner Bibliothek werden nicht entfernt."
   },
   "subscription": {
-    "title": "Abonnement",
     "continueWithFree": "mit kostenlosen Tools fortfahren",
     "seePlusOptions": "plus-Optionen ansehen",
     "perMonth": "/Monat",
@@ -657,6 +627,10 @@
     },
     "restorePurchases": "schon abonnent? käufe wiederherstellen",
     "legalText": "das abonnement verlängert sich automatisch, es sei denn, die automatische verlängerung wird mindestens 24 stunden vor ende des aktuellen zeitraums deaktiviert.",
+    "explorerFreeWithAccount": "Kostenlos mit Konto",
+    "registerForFree": "Kostenlos registrieren",
+    "currentPlan": "Aktueller Plan",
+    "guestNoAccountNeeded": "Kein Konto erforderlich",
     "accountRequired": {
       "createAccount": "Konto erstellen",
       "message": "Um ein Abonnement abzuschließen und deine Mitgliedschaft zu verwalten, erstelle bitte zuerst ein Konto. Deine generierten Inhalte werden in deinem neuen Konto gespeichert.",
@@ -837,8 +811,6 @@
       "ja": "Japanisch"
     },
     "listening": "Zuhören...",
-    "voiceInputUnavailable": "Spracheingabe nicht verfügbar",
-    "voiceInputRequiresBuild": "Spracheingabe erfordert einen Entwicklungs-Build. Diese Funktion ist in Expo Go nicht verfügbar.",
     "voiceInputError": "Spracheingabefehler",
     "allEntriesEmpty": "Kein Inhalt verfügbar",
     "allEntriesEmptyDescription": "Die ausgewählten Einträge haben noch keinen Inhalt. Schreibe zuerst einige Einträge und versuche es dann erneut.",
@@ -927,7 +899,6 @@
     "albumCount": "{{count}} Album(s)",
     "trackCount": "{{count}} Titel",
     "tracks": "Titel",
-    "albumDetail": "Albumdetails",
     "detailTitle": "Album",
     "generatingAlbum": "Album wird erstellt...",
     "newAlbum": "Neues Album",
@@ -1550,7 +1521,6 @@
     "autoPlay": "Inhalte automatisch abspielen",
     "noReminders": "Noch keine Erinnerungen",
     "noRemindersDesc": "Erstellen Sie Erinnerungen, um gesunde Gewohnheiten beim Schreiben, Lesen, Hören und Meditieren zu entwickeln.",
-    "addReminder": "Erinnerung hinzufügen",
     "error": "Fehler",
     "titleRequired": "Bitte geben Sie einen Titel für Ihre Erinnerung ein",
     "selectAtLeastOneDay": "Bitte wählen Sie mindestens einen Tag aus",
@@ -1558,7 +1528,13 @@
     "failedToToggle": "Erinnerung konnte nicht aktualisiert werden. Bitte versuchen Sie es erneut.",
     "failedToDelete": "Erinnerung konnte nicht gelöscht werden. Bitte versuchen Sie es erneut.",
     "deleteTitle": "Erinnerung löschen",
-    "deleteConfirm": "Möchten Sie \"{{title}}\" wirklich löschen?"
+    "deleteConfirm": "Möchten Sie \"{{title}}\" wirklich löschen?",
+    "repeatLabel": "Wiederholen",
+    "repeatOnce": "Einmal",
+    "repeatDaily": "Täglich",
+    "repeatWeekly": "Wöchentlich",
+    "repeatMonthly": "Monatlich",
+    "repeatYearly": "Jährlich"
   },
   "editTrack": {
     "title": "Track bearbeiten",
@@ -2073,10 +2049,8 @@
     "deleteEntry": "Eintrag löschen",
     "deleteEntryConfirmation": "Möchten Sie diesen Eintrag wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
     "deleteEntryFailed": "Eintrag konnte nicht gelöscht werden",
-    "moveToBook": "Zum Buch verschieben",
     "moveChapterDescription": "\"{{title}}\" und alle Einträge in ein anderes Buch verschieben",
     "chapterMoveFailed": "Kapitel konnte nicht zum Buch verschoben werden",
-    "noOtherBooks": "Erstelle ein weiteres Buch, um Kapitel zwischen ihnen zu verschieben",
     "entries": "Einträge",
     "lockedChapter": "Gesperrt",
     "createFirstSongToUnlock": "Erstelle deinen ersten Song zum Entsperren",
@@ -2213,16 +2187,12 @@
     "loadingBooks": "Bücher werden geladen...",
     "noBooks": "Keine Bücher gefunden",
     "checkBackSoon": "Schauen Sie bald wieder vorbei für kuratierte Weisheitsinhalte",
+    "createPlaylist": "Wiedergabeliste erstellen",
     "sections": {
       "myBooks": "Meine Bücher",
-      "continueReading": "Weiterlesen",
-      "fromYourLibrary": "Aus Ihrer Bibliothek",
-      "basedOnReading": "Basierend auf Ihren Lektüren",
-      "recommendedForYou": "Für Sie empfohlen",
-      "allBooks": "Alle Bücher",
-      "fromCreatorsYouFollow": "Von Erstellern, denen Sie folgen"
-    },
-    "createPlaylist": "Wiedergabeliste erstellen"
+      "followedCreators": "Von Erstellern, denen du folgst",
+      "sharedLibrary": "Gemeinsame Bibliothek"
+    }
   },
   "creatorMembers": {
     "dashboardTitle": "Dein Publikum",
@@ -2290,10 +2260,6 @@
     "usesUnlimited": "{{used}} Nutzungen",
     "followingBenefits": "Wenn du Creatorn folgst, erhältst du Zugang zu ihrer geteilten Musik, Playlists und Weisheitsbüchern."
   },
-  "welcomeJourney": {
-    "journalTitle": "Meine Geschichte",
-    "journalDescription": "Dein persönlicher Raum für Reflexion und Wachstum"
-  },
   "admin": {
     "exitAdminMode": "Admin-Modus verlassen",
     "tabs": {
@@ -2301,7 +2267,6 @@
       "risk": "Risiko",
       "compliance": "Compliance",
       "users": "Benutzer",
-      "support": "Support",
       "prompts": "Prompts",
       "templates": "Vorlagen",
       "frameworks": "Frameworks",
@@ -2318,7 +2283,19 @@
       "performanceMonitoring": "Leistungsüberwachung",
       "health": "Zustand",
       "performance": "Leistung",
-      "alerts": "Alerts"
+      "alerts": "Alerts",
+      "performanceDescription": "Performance forecasting, capacity planning, and anomaly detection will be available here.",
+      "featureTrendCharts": "• Trend charts (hourly/daily/weekly)",
+      "featureCapacityForecasting": "• Capacity forecasting",
+      "featureAnomalyDetection": "• Anomaly detection alerts",
+      "featureBottleneckId": "• Bottleneck identification"
+    },
+    "safety": {
+      "auditLog": "Audit Log",
+      "featureAdminHistory": "• Admin action history",
+      "featureDataAccess": "• Data access logging",
+      "featureSecurityEvents": "• Security event tracking",
+      "featureExportReports": "• Export audit reports"
     },
     "alerts": {
       "resilienceMonitoring": "Resilienzüberwachung",
@@ -2494,6 +2471,9 @@
       "useChapters": "Kapitel nutzen",
       "useTrackAlarms": "Track-Alarme nutzen",
       "usersWith2PlusJournals": "Benutzer mit 2+ Büchern"
+    },
+    "frameworks": {
+      "sortOrder": "Sort Order"
     }
   },
   "audioOutput": {
@@ -2505,14 +2485,11 @@
     "chromecast": "Chromecast",
     "chromecastDevice": "Chromecast-Gerät",
     "connectBluetoothDevice": "Verbinde ein Bluetooth-Gerät oder Kopfhörer, um sie hier zu sehen",
-    "expoGoLimitation": "Entwicklungsbuild erforderlich",
     "noDevices": "Keine Audiogeräte gefunden",
     "playingLocally": "Wiedergabe auf dem Gerät stattdessen",
-    "requiresDevelopmentBuild": "Die Erkennung von Audiogeräten erfordert einen Entwicklungsbuild. Erstelle die App mit 'eas build', um diese Funktion zu aktivieren.",
     "requiresProductionBuild": "Die Auswahl von Audiogeräten erfordert einen Produktions- oder Entwicklungsbuild. Diese Funktion ist in Expo Go nicht verfügbar.",
     "searchCastDevices": "Nach Cast-Geräten suchen",
     "selectDevice": "Audioausgang wählen",
-    "speaker": "Lautsprecher",
     "stopCasting": "Übertragung beenden",
     "switchFailed": "Wechsel fehlgeschlagen",
     "switchFailedDescription": "Wechsel zu diesem Audiogerät nicht möglich. Stelle sicher, dass es verbunden ist, und versuche es erneut.",
