@@ -1,4 +1,5 @@
 // React Native compatible toast hook (stub)
+import { useCallback } from 'react';
 import { Alert } from 'react-native';
 
 export interface ToastProps {
@@ -8,10 +9,9 @@ export interface ToastProps {
 }
 
 export function useToast() {
-  const toast = ({ title, description, variant }: ToastProps) => {
-    // Use React Native Alert as a simple toast replacement
+  const toast = useCallback(({ title, description }: ToastProps) => {
     Alert.alert(title, description);
-  };
+  }, []);
 
   return { toast };
 }

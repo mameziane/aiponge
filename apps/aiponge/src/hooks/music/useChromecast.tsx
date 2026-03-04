@@ -5,7 +5,7 @@
  * Uses react-native-google-cast for native Cast SDK integration.
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Platform } from 'react-native';
 import { logger } from '../../lib/logger';
 
@@ -101,9 +101,9 @@ function useSafeCastState() {
 
     const checkState = async () => {
       try {
-        logger.info('[useChromecast] useSafeCastState: calling getCastState');
+        logger.debug('[useChromecast] useSafeCastState: calling getCastState');
         const castState = await ctx.getCastState?.();
-        logger.info('[useChromecast] useSafeCastState: getCastState returned', { castState });
+        logger.debug('[useChromecast] useSafeCastState: getCastState returned', { castState });
         setState(castState);
       } catch (err) {
         logger.debug('[useChromecast] getCastState not available', { error: err });
@@ -113,12 +113,12 @@ function useSafeCastState() {
     checkState();
 
     try {
-      logger.info('[useChromecast] useSafeCastState: subscribing to onCastStateChanged');
+      logger.debug('[useChromecast] useSafeCastState: subscribing to onCastStateChanged');
       if (typeof ctx.onCastStateChanged === 'function') {
         subscription = ctx.onCastStateChanged((newState: unknown) => {
           setState(newState);
         });
-        logger.info('[useChromecast] useSafeCastState: onCastStateChanged subscribed OK');
+        logger.debug('[useChromecast] useSafeCastState: onCastStateChanged subscribed OK');
       }
     } catch (err) {
       logger.debug('[useChromecast] Could not subscribe to cast state changes', { error: err });
@@ -144,11 +144,11 @@ function useSafeDevices() {
 
     const discoverDevices = async () => {
       try {
-        logger.info('[useChromecast] useSafeDevices: calling getDiscoveredDevices');
+        logger.debug('[useChromecast] useSafeDevices: calling getDiscoveredDevices');
         const sessionManager = CastContext?.getSessionManager?.();
         if (sessionManager) {
           const discoveredDevices = (await sessionManager.getDiscoveredDevices?.()) || [];
-          logger.info('[useChromecast] useSafeDevices: discovered devices', { count: discoveredDevices.length });
+          logger.debug('[useChromecast] useSafeDevices: discovered devices', { count: discoveredDevices.length });
           setDevices(discoveredDevices);
         }
       } catch (err) {
@@ -187,9 +187,7 @@ function useSafeRemoteMediaClient(): RemoteMediaClient | null {
 }
 
 export function useChromecast() {
-  console.log('[TRACE-CAST] useChromecast called - loadCastModule about to run');
   loadCastModule();
-  console.log('[TRACE-CAST] loadCastModule completed - castModuleLoaded:', castModuleLoaded);
 
   const [castState, setCastState] = useState<CastState>({
     isConnected: false,
@@ -199,6 +197,10 @@ export function useChromecast() {
   });
   const [isSupported] = useState(castModuleLoaded);
   const [error, setError] = useState<Error | null>(null);
+  // Track isConnected via ref to break circular dependency:
+  // Effect 2 needs to run when connection status changes, but depending on
+  // castState.isConnected would create a loop since it also calls setCastState.
+  const isConnectedRef = useRef(false);
 
   const nativeCastState = useSafeCastState();
   const nativeDevices = useSafeDevices();
@@ -207,35 +209,45 @@ export function useChromecast() {
   useEffect(() => {
     if (!isSupported) return;
 
-    const stateMap: Record<string, boolean> = {
-      connected: true,
-      connecting: false,
-    };
-
     const isConnected = nativeCastState === 'connected';
     const isConnecting = nativeCastState === 'connecting';
 
-    setCastState(prev => ({
-      ...prev,
-      isConnected,
-      isConnecting,
-      devices: (
-        (nativeDevices as Array<{
-          deviceId: string;
-          friendlyName?: string;
-          deviceName?: string;
-          modelName?: string;
-        }>) || []
-      ).map(d => ({
-        deviceId: d.deviceId,
-        deviceName: d.friendlyName || d.deviceName || 'Cast Device',
-        modelName: d.modelName,
-      })),
+    const mappedDevices = (
+      (nativeDevices as Array<{
+        deviceId: string;
+        friendlyName?: string;
+        deviceName?: string;
+        modelName?: string;
+      }>) || []
+    ).map(d => ({
+      deviceId: d.deviceId,
+      deviceName: d.friendlyName || d.deviceName || 'Cast Device',
+      modelName: d.modelName,
     }));
+
+    // Keep ref in sync for Effect 2 (device fetcher) without creating a circular dependency
+    isConnectedRef.current = isConnected;
+
+    // Only update state if values actually changed to avoid unnecessary re-renders
+    setCastState(prev => {
+      if (
+        prev.isConnected === isConnected &&
+        prev.isConnecting === isConnecting &&
+        prev.devices.length === mappedDevices.length
+      ) {
+        return prev; // Same reference → React bails out of re-render
+      }
+      return { ...prev, isConnected, isConnecting, devices: mappedDevices };
+    });
   }, [nativeCastState, nativeDevices, isSupported]);
 
+  // Fetch current Cast device info when connection state changes.
+  // Depends on nativeCastState (not castState.isConnected) to avoid circular
+  // dependency: this effect calls setCastState, so depending on castState would loop.
   useEffect(() => {
     if (!isSupported || !GoogleCast) return;
+    // Only fetch device info when actually connected
+    if (!isConnectedRef.current) return;
 
     const getCurrentDevice = async () => {
       try {
@@ -259,7 +271,7 @@ export function useChromecast() {
     };
 
     getCurrentDevice();
-  }, [castState.isConnected, isSupported]);
+  }, [nativeCastState, isSupported]);
 
   const showCastDialog = useCallback(async () => {
     if (!isSupported || !GoogleCast) {

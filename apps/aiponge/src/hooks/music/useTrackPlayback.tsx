@@ -141,7 +141,7 @@ export function useTrackPlayback<T extends PlayableTrack>(
 
   // Cast global current track to generic type T for type safety
   const currentTrack = globalCurrentTrack as T | null;
-  const setCurrentTrack = (track: T | null) => setGlobalCurrentTrack(track);
+  const setCurrentTrack = useCallback((track: T | null) => setGlobalCurrentTrack(track), [setGlobalCurrentTrack]);
 
   // Track if we're already handling a track end to prevent duplicate calls
   const isHandlingTrackEnd = useRef(false);

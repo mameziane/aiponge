@@ -9,7 +9,7 @@
  * Play/pause/seek from lock screen and Bluetooth are handled natively by expo-audio.
  */
 
-import { createContext, useContext, useRef, useCallback, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useRef, useCallback, useEffect, useMemo, ReactNode } from 'react';
 import { Platform } from 'react-native';
 import { useAudioPlayer, AudioPlayer } from 'expo-audio';
 import { useAuthStore, selectIsAuthenticated } from '../auth';
@@ -73,9 +73,12 @@ function AudioPlayerProviderReal({ children }: { children: ReactNode }) {
     };
   }, [player]);
 
-  return (
-    <AudioPlayerContext.Provider value={{ player, registerTrackEndListener }}>{children}</AudioPlayerContext.Provider>
-  );
+  // Memoize context value to prevent all consumers from re-rendering when this provider
+  // re-renders due to useAudioPlayer() internal state changes or auth state changes.
+  // Both player (same AudioPlayer instance) and registerTrackEndListener (useCallback) are stable.
+  const contextValue = useMemo(() => ({ player, registerTrackEndListener }), [player, registerTrackEndListener]);
+
+  return <AudioPlayerContext.Provider value={contextValue}>{children}</AudioPlayerContext.Provider>;
 }
 
 // ---------------------------------------------------------------------------
