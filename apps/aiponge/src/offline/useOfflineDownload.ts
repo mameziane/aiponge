@@ -240,6 +240,11 @@ export function useOfflineDownload() {
         return { success: false, error: 'EXPO_GO_NOT_SUPPORTED' };
       }
 
+      if (!track.audioUrl) {
+        logger.warn('[OfflineDownload] Cannot download: no audio URL', { trackId: track.id });
+        return { success: false, error: 'NO_AUDIO_URL' };
+      }
+
       if (!networkStatus.isConnected) {
         logger.warn('[OfflineDownload] Cannot download while offline');
         return { success: false, error: 'OFFLINE' };

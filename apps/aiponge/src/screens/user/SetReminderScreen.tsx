@@ -33,7 +33,7 @@ export function SetReminderScreen() {
   const params = useLocalSearchParams<{
     trackId: string;
     trackTitle: string;
-    trackArtist?: string;
+    trackDisplayName?: string;
     reminderId?: string;
     reminderDate?: string;
     reminderRepeatType?: RepeatType;
@@ -136,10 +136,17 @@ export function SetReminderScreen() {
   ];
 
   const handleSave = async () => {
-    const reminderParams = buildReminderParams(params.trackId, reminder.date, reminder.time, reminder.repeatType, {
-      notifyEnabled: reminder.notifyEnabled,
-      autoPlayEnabled: reminder.autoPlayEnabled,
-    });
+    const reminderParams = buildReminderParams(
+      params.trackId,
+      params.trackTitle || 'Track Reminder',
+      reminder.date,
+      reminder.time,
+      reminder.repeatType,
+      {
+        notifyEnabled: reminder.notifyEnabled,
+        autoPlayEnabled: reminder.autoPlayEnabled,
+      }
+    );
 
     const invalidateAllActivityQueries = () => {
       invalidateOnEvent(queryClient, { type: 'ACTIVITY_CALENDAR_UPDATED' });
@@ -149,10 +156,10 @@ export function SetReminderScreen() {
       updateReminder.mutate(
         {
           reminderId: existingReminderId,
-          baseDate: reminderParams.baseDate,
+          title: reminderParams.title,
+          time: reminderParams.time,
           repeatType: reminderParams.repeatType,
-          dayOfWeek: reminderParams.dayOfWeek,
-          dayOfMonth: reminderParams.dayOfMonth,
+          daysOfWeek: reminderParams.daysOfWeek,
           timezone: reminderParams.timezone,
           notifyEnabled: reminderParams.notifyEnabled,
           autoPlayEnabled: reminderParams.autoPlayEnabled,
@@ -226,9 +233,9 @@ export function SetReminderScreen() {
             <Text style={styles.trackTitle} numberOfLines={1}>
               {params.trackTitle}
             </Text>
-            {params.trackArtist && (
+            {params.trackDisplayName && (
               <Text style={styles.trackArtist} numberOfLines={1}>
-                {params.trackArtist}
+                {params.trackDisplayName}
               </Text>
             )}
           </View>

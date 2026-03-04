@@ -154,7 +154,7 @@ export const useDownloadStore = create<DownloadStore>()(
 
         // Refresh storage info (only if offline supported)
         if (isOfflineSupported) {
-          get().refreshStorageInfo();
+          await get().refreshStorageInfo();
         }
 
         logger.info('[OfflineStore] Removed download', { trackId });
@@ -205,15 +205,21 @@ export const useDownloadStore = create<DownloadStore>()(
       },
 
       cancelDownload: trackId => {
-        set(state => ({
-          queue: state.queue.filter(job => job.trackId !== trackId),
-          downloads: {
-            ...state.downloads,
-            [trackId]: state.downloads[trackId]
-              ? { ...state.downloads[trackId], status: 'pending' as DownloadStatus, progress: 0 }
-              : state.downloads[trackId],
-          },
-        }));
+        // Remove the download entry entirely and clean up files.
+        // Previously this set status to 'pending' which left orphaned entries
+        // that could never be completed, restarted, or cleared from the UI.
+        set(state => {
+          const { [trackId]: removed, ...remainingDownloads } = state.downloads;
+          return {
+            queue: state.queue.filter(job => job.trackId !== trackId),
+            downloads: remainingDownloads,
+          };
+        });
+
+        // Clean up any partially downloaded files
+        deleteTrackFiles(trackId).catch(error => {
+          logger.warn('[OfflineStore] Error cleaning up cancelled download files', { trackId, error });
+        });
       },
 
       retryDownload: trackId => {
