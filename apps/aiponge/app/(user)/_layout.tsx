@@ -15,6 +15,7 @@ import { QueueAutoAdvanceController } from '../../src/components/music/QueueAuto
 import { AuthPlaybackController } from '../../src/components/auth/AuthPlaybackController';
 import { TrackAlarmHandler } from '../../src/components/music/TrackAlarmHandler';
 import { PushNotificationInitializer } from '../../src/components/system/PushNotificationInitializer';
+import { NotificationDeepLinkHandler } from '../../src/components/system/NotificationDeepLinkHandler';
 import { ShareIntentHandler } from '../../src/components/system/ShareIntentHandler';
 import { useProfile } from '../../src/hooks/profile/useProfile';
 import { useSubscriptionData } from '../../src/contexts/SubscriptionContext';
@@ -224,6 +225,7 @@ export default function TabLayout() {
       <AuthPlaybackController />
       <TrackAlarmHandler />
       <PushNotificationInitializer />
+      <NotificationDeepLinkHandler />
       <ShareIntentHandler />
       <Tabs tabBar={renderTabBar} screenOptions={screenOptions}>
         <Tabs.Screen
