@@ -2,7 +2,6 @@ import { Stack } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { UnifiedHeader } from '../../src/components/shared/UnifiedHeader';
-import { MiniPlayer } from '../../src/components/music/MiniPlayer';
 
 export default function CommerceLayout() {
   const { t } = useTranslation();
@@ -22,7 +21,6 @@ export default function CommerceLayout() {
         <Stack.Screen name="paywall" options={{ presentation: 'modal', headerShown: false }} />
         <Stack.Screen name="gift-history" options={{ headerShown: false }} />
       </Stack>
-      <MiniPlayer />
     </View>
   );
 }

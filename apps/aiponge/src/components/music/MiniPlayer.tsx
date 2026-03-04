@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,6 +9,7 @@ import { useUnifiedPlaybackControl } from '../../hooks/music/useUnifiedPlaybackC
 import { AudioRoutePickerCompact } from './AudioRoutePicker';
 import { normalizeMediaUrl } from '../../lib/apiConfig';
 import { useThemeColors, type ColorScheme } from '../../theme';
+import { useMiniPlayerStore } from '../../stores/miniPlayerStore';
 
 // Routes where the mini player should be hidden (full-screen experiences)
 const HIDDEN_ROUTES = ['/private-track-detail', '/book-reader'];
@@ -19,10 +20,26 @@ export function MiniPlayer() {
   const { t } = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
-  const { currentTrack } = usePlaybackState();
+  const { currentTrack, playbackPhase } = usePlaybackState();
   const { togglePlayPause, isPlaying } = useUnifiedPlaybackControl();
+  const { dismissed, dismiss, onTrackChange } = useMiniPlayerStore();
 
-  if (!currentTrack || HIDDEN_ROUTES.some(route => pathname.startsWith(route))) {
+  // Sync track changes to the dismiss store — auto-shows when a new track starts
+  useEffect(() => {
+    onTrackChange(currentTrack?.id ?? null);
+  }, [currentTrack?.id, onTrackChange]);
+
+  // Hide when:
+  // - No track loaded
+  // - Playback is idle (track finished) and no current track
+  // - User explicitly dismissed (stays hidden until a new track starts)
+  // - On a full-screen route (track detail, book reader)
+  if (
+    !currentTrack ||
+    (playbackPhase === 'idle' && !isPlaying) ||
+    dismissed ||
+    HIDDEN_ROUTES.some(route => pathname.startsWith(route))
+  ) {
     return null;
   }
 
@@ -47,6 +64,10 @@ export function MiniPlayer() {
         }),
       },
     });
+  };
+
+  const handleDismiss = () => {
+    dismiss(currentTrack.id);
   };
 
   return (
@@ -92,6 +113,14 @@ export function MiniPlayer() {
           testID="mini-player-play-pause"
         >
           <Ionicons name={isPlaying ? 'pause' : 'play'} size={24} color={colors.text.primary} />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={handleDismiss}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          testID="mini-player-close"
+        >
+          <Ionicons name="close" size={20} color={colors.text.tertiary} />
         </TouchableOpacity>
       </View>
 

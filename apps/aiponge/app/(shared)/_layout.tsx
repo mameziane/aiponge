@@ -2,7 +2,6 @@ import { Stack } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { UnifiedHeader } from '../../src/components/shared/UnifiedHeader';
-import { MiniPlayer } from '../../src/components/music/MiniPlayer';
 
 export default function SharedLayout() {
   const { t } = useTranslation();
@@ -73,7 +72,6 @@ export default function SharedLayout() {
           }}
         />
       </Stack>
-      <MiniPlayer />
     </View>
   );
 }
