@@ -8,7 +8,7 @@
  * - Graceful fallback to local playback on disconnect
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { Alert } from 'react-native';
 import { usePlaybackState, PlaybackTrack } from '../../contexts/PlaybackContext';
 import { useGlobalAudioPlayer } from '../../contexts/AudioPlayerContext';
@@ -272,15 +272,20 @@ export function useCastPlayback(): UseCastPlaybackReturn {
     [isConnected, castSeekControl, player]
   );
 
-  return {
-    isCasting: isConnected,
-    castDevice: device?.deviceName || null,
-    canCast: isSupported,
-    startCasting,
-    stopCasting,
-    transferToCast,
-    castPlay,
-    castPause,
-    castSeek,
-  };
+  const castDeviceName = device?.deviceName || null;
+
+  return useMemo(
+    () => ({
+      isCasting: isConnected,
+      castDevice: castDeviceName,
+      canCast: isSupported,
+      startCasting,
+      stopCasting,
+      transferToCast,
+      castPlay,
+      castPause,
+      castSeek,
+    }),
+    [isConnected, castDeviceName, isSupported, startCasting, stopCasting, transferToCast, castPlay, castPause, castSeek]
+  );
 }

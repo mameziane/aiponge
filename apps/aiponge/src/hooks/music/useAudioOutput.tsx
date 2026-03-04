@@ -7,7 +7,7 @@
  * Metro redirects the require() to a stub on iOS (see metro.config.js).
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Platform } from 'react-native';
 import { logger } from '../../lib/logger';
 import type { IconName } from '../../types/ui.types';
@@ -196,13 +196,16 @@ export function useAudioOutput() {
     }
   }, []);
 
-  return {
-    outputInfo,
-    isLoading,
-    error,
-    allDevices,
-    supportsOutputDiscovery,
-    refreshDevices,
-    selectDevice,
-  };
+  return useMemo(
+    () => ({
+      outputInfo,
+      isLoading,
+      error,
+      allDevices,
+      supportsOutputDiscovery,
+      refreshDevices,
+      selectDevice,
+    }),
+    [outputInfo, isLoading, error, allDevices, supportsOutputDiscovery, refreshDevices, selectDevice]
+  );
 }

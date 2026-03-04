@@ -8,7 +8,7 @@
  * while audio is being cast to an external device.
  */
 
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useGlobalAudioPlayer } from '../../contexts/AudioPlayerContext';
 import { usePlaybackState, PlaybackTrack } from '../../contexts/PlaybackContext';
 import { useCastPlayback } from './useCastPlayback';
@@ -101,14 +101,17 @@ export function useUnifiedPlaybackControl(): UseUnifiedPlaybackControlReturn {
     [isCasting, player, setCurrentTrack, setPlaybackPhase, transferToCast]
   );
 
-  return {
-    play,
-    pause,
-    togglePlayPause,
-    seekTo,
-    playNewTrack,
-    isCasting,
-    isPlaying,
-    currentTrack,
-  };
+  return useMemo(
+    () => ({
+      play,
+      pause,
+      togglePlayPause,
+      seekTo,
+      playNewTrack,
+      isCasting,
+      isPlaying,
+      currentTrack,
+    }),
+    [play, pause, togglePlayPause, seekTo, playNewTrack, isCasting, isPlaying, currentTrack]
+  );
 }

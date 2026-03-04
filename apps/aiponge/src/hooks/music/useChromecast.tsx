@@ -5,7 +5,7 @@
  * Uses react-native-google-cast for native Cast SDK integration.
  */
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Platform } from 'react-native';
 import { logger } from '../../lib/logger';
 
@@ -396,20 +396,23 @@ export function useChromecast() {
     }
   }, [isSupported]);
 
-  return {
-    ...castState,
-    isSupported,
-    error,
-    showCastDialog,
-    castMedia,
-    play,
-    pause,
-    stop,
-    seek,
-    setVolume,
-    disconnect,
-    CastButton,
-  };
+  return useMemo(
+    () => ({
+      ...castState,
+      isSupported,
+      error,
+      showCastDialog,
+      castMedia,
+      play,
+      pause,
+      stop,
+      seek,
+      setVolume,
+      disconnect,
+      CastButton,
+    }),
+    [castState, isSupported, error, showCastDialog, castMedia, play, pause, stop, seek, setVolume, disconnect]
+  );
 }
 
 export { CastButton };

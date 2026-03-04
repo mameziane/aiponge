@@ -11,7 +11,7 @@
  * via setActiveForLockScreen() — no JS-side event bridging needed.
  */
 
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useMemo } from 'react';
 import { Image } from 'expo-image';
 import { useToast } from '../ui/use-toast';
 import { useTranslation } from '../../i18n';
@@ -115,10 +115,13 @@ export function useTrackPlayback<T extends PlayableTrack>(
   const {
     shuffleEnabled = false,
     repeatMode = 'off',
-    availableTracks = [],
+    availableTracks: rawAvailableTracks,
     onNewTrackStarted,
     onTrackFinished,
   } = options;
+  // Stabilize availableTracks: when caller omits it, default [] creates a new array each render
+  // which invalidates handlePlayTrack (useCallback dep) and the auto-advance useEffect.
+  const availableTracks = useMemo(() => rawAvailableTracks ?? [], [rawAvailableTracks]);
   const { toast } = useToast();
   const { t } = useTranslation();
   const player = useGlobalAudioPlayer();
@@ -454,11 +457,12 @@ export function useTrackPlayback<T extends PlayableTrack>(
       clearInterval(checkInterval);
       isHandlingTrackEnd.current = false;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- player.currentTime/duration/playing
+    // are intentionally omitted: the setInterval already polls them every 500ms. Including them
+    // here would cause the effect to tear down and re-create on every frame during playback,
+    // creating a render storm that triggers "Maximum update depth exceeded".
   }, [
     currentTrack,
-    player.currentTime,
-    player.duration,
-    player.playing,
     shuffleEnabled,
     repeatMode,
     availableTracks,
