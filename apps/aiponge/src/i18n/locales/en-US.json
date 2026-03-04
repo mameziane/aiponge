@@ -176,10 +176,20 @@
     "config": "Config",
     "insights": "Insights",
     "governance": "Governance",
-    "profile": "Profile"
+    "profile": "Profile",
+    "creditsAndPlan": "Credits & Plan",
+    "credits": "Credits",
+    "store": "Store",
+    "newSong": "New Song"
   },
   "librarian": {
     "title": "Librarian",
+    "tabs": {
+      "books": "Books",
+      "music": "Music",
+      "studio": "Studio",
+      "settings": "Settings"
+    },
     "music": {
       "title": "Music Generation",
       "description": "Create albums and tracks for the shared music library. Generate multi-language content for all users.",

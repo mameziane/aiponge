@@ -66,6 +66,9 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
   const lastUserIdRef = useRef<string | null>(null);
   // Store listener reference for proper cleanup
   const listenerRef = useRef<((info: CustomerInfo) => void) | null>(null);
+  // Track if a purchase/restore happened in this session — used to trust RevenueCat
+  // immediately after a purchase even before the backend webhook processes it.
+  const purchasedInSessionRef = useRef(false);
 
   // Fetch backend subscription tier (database source of truth for tier)
   useEffect(() => {
@@ -120,7 +123,20 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     fetchConfig();
   }, []);
 
-  // Determine current subscription tier from RevenueCat entitlements + backend fallback
+  // Determine current subscription tier with cross-validation between
+  // RevenueCat (real-time) and backend (verified via webhooks).
+  //
+  // Why cross-validate? RevenueCat's logIn() can transfer entitlements from
+  // the Apple account to a new app user (e.g., same Apple Sandbox account
+  // used with a fresh registration). Without cross-validation, a new free user
+  // could appear as PERSONAL due to stale/transferred entitlements.
+  //
+  // Strategy:
+  // - Admins/Librarians always get STUDIO (role-based override)
+  // - After a purchase THIS session → trust RevenueCat (immediate feedback)
+  // - Otherwise, when backend has loaded and says free but RevenueCat says
+  //   paid → trust backend (prevents stale/transferred entitlements)
+  // - When backend hasn't loaded yet → trust RevenueCat temporarily
   const currentTier = useMemo<SubscriptionTier>(() => {
     if (!user || user.isGuest) {
       return TIER_IDS.GUEST;
@@ -130,19 +146,47 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
       return TIER_IDS.STUDIO;
     }
 
+    // Determine what RevenueCat thinks the tier is
+    let revenueCatTier: TierId | null = null;
     if (customerInfo?.entitlements.active[REVENUECAT_ENTITLEMENTS.STUDIO]) {
-      return TIER_IDS.STUDIO;
-    }
-    if (customerInfo?.entitlements.active[REVENUECAT_ENTITLEMENTS.PRACTICE]) {
-      return TIER_IDS.PRACTICE;
-    }
-    if (customerInfo?.entitlements.active[REVENUECAT_ENTITLEMENTS.PERSONAL]) {
-      return TIER_IDS.PERSONAL;
+      revenueCatTier = TIER_IDS.STUDIO;
+    } else if (customerInfo?.entitlements.active[REVENUECAT_ENTITLEMENTS.PRACTICE]) {
+      revenueCatTier = TIER_IDS.PRACTICE;
+    } else if (customerInfo?.entitlements.active[REVENUECAT_ENTITLEMENTS.PERSONAL]) {
+      revenueCatTier = TIER_IDS.PERSONAL;
     }
 
-    if (backendTier && backendTier !== TIER_IDS.GUEST) {
-      return backendTier;
+    // Cross-validate when backend tier has loaded
+    if (backendTier) {
+      const backendIsFree = !isPaidTierCheck(backendTier);
+      const rcIsPaid = revenueCatTier !== null && isPaidTierCheck(revenueCatTier);
+
+      if (rcIsPaid && backendIsFree && !purchasedInSessionRef.current) {
+        // Conflict: RevenueCat says paid, backend says free, no purchase this session.
+        // This indicates stale or transferred entitlements — trust the backend.
+        logger.warn(
+          'Tier conflict: RevenueCat reports paid tier but backend reports free tier (no purchase this session)',
+          {
+            revenueCatTier,
+            backendTier,
+            userId: user.id,
+          }
+        );
+        return backendTier;
+      }
+
+      if (rcIsPaid) {
+        // RevenueCat says paid AND either backend agrees or user just purchased
+        return revenueCatTier!;
+      }
+
+      // No paid RC entitlement — use backend tier
+      if (backendTier !== TIER_IDS.GUEST) return backendTier;
+      return TIER_IDS.EXPLORER;
     }
+
+    // Backend hasn't loaded yet — trust RevenueCat temporarily for responsiveness
+    if (revenueCatTier) return revenueCatTier;
 
     return TIER_IDS.EXPLORER;
   }, [customerInfo, user, roleVerified, backendTier]);
@@ -230,6 +274,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
           logger.warn('RevenueCat: isConfigured() check failed on logout', { error: String(error) });
         }
         lastUserIdRef.current = null;
+        purchasedInSessionRef.current = false;
         setCustomerInfo(null);
         setIsInitialized(false);
         setIsLoading(false);
@@ -237,6 +282,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
       handleLogout().catch(error => {
         logger.warn('RevenueCat: handleLogout failed', { error: String(error) });
         lastUserIdRef.current = null;
+        purchasedInSessionRef.current = false;
         setCustomerInfo(null);
         setIsInitialized(false);
         setIsLoading(false);
@@ -406,6 +452,10 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
       const isPaidNow = hasStudio || hasPractice || hasPersonal;
 
       if (isPaidNow) {
+        // Mark that a real purchase happened this session — tier cross-validation
+        // will trust RevenueCat immediately instead of waiting for backend webhook.
+        purchasedInSessionRef.current = true;
+
         const tier = hasStudio ? TIER_IDS.STUDIO : hasPractice ? TIER_IDS.PRACTICE : TIER_IDS.PERSONAL;
         const productId = pkg.product.identifier;
         const entitlementId = hasStudio
@@ -539,6 +589,10 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
       const isPaidNow = hasStudio || hasPractice || hasPersonal;
 
       if (isPaidNow) {
+        // Mark that a real restore happened this session — tier cross-validation
+        // will trust RevenueCat immediately instead of waiting for backend webhook.
+        purchasedInSessionRef.current = true;
+
         // Sync restored subscription to backend (mirrors purchasePackage behavior)
         const tier = hasStudio ? TIER_IDS.STUDIO : hasPractice ? TIER_IDS.PRACTICE : TIER_IDS.PERSONAL;
         const activeEntitlement =
