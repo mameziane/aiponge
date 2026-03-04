@@ -1,48 +1,25 @@
-import { useState, useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Alert } from 'react-native';
+import { useMemo } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useThemeColors, type ColorScheme, commonStyles, BORDER_RADIUS } from '../../theme';
 import { spacing } from '../../theme/spacing';
-import {
-  AVAILABLE_LANGUAGES,
-  UPCOMING_LANGUAGES,
-  changeLanguage,
-  reloadAppForRTL,
-  type SupportedLanguage,
-} from '../../i18n';
-import { logger } from '../../lib/logger';
+import { AVAILABLE_LANGUAGES, UPCOMING_LANGUAGES, type SupportedLanguage } from '../../i18n';
 
+// NOTE: This screen is dead code — the /language route redirects to /preferences.
+// Kept on disk for reference; safe to delete entirely in a future cleanup.
 export function LanguageScreen() {
   const colors = useThemeColors();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const { i18n, t } = useTranslation();
-  const [isChanging, setIsChanging] = useState(false);
 
   const currentLanguage = i18n.language as SupportedLanguage;
 
-  const handleLanguageChange = async (language: SupportedLanguage) => {
-    if (language === currentLanguage || isChanging) return;
-
-    setIsChanging(true);
-    try {
-      const result = await changeLanguage(language);
-
-      if (result.requiresReload) {
-        Alert.alert(t('settings.restartRequired'), t('settings.restartMessage'), [
-          { text: t('common.later'), style: 'cancel' },
-          {
-            text: t('common.restartNow'),
-            onPress: () => reloadAppForRTL(),
-          },
-        ]);
-      }
-    } catch (error) {
-      logger.error('[LanguageScreen] Failed to change language', error instanceof Error ? error : undefined, { error });
-    } finally {
-      setIsChanging(false);
-    }
+  // Language picker removed — app now follows device language.
+  // This screen is dead code (route redirects to /preferences).
+  const handleLanguageChange = (_language: SupportedLanguage) => {
+    // No-op: language is controlled by the OS per-app setting
   };
 
   const unavailableLanguages = UPCOMING_LANGUAGES;
@@ -51,16 +28,11 @@ export function LanguageScreen() {
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         <View style={styles.content} testID="language-page">
-          {isChanging && (
-            <ActivityIndicator size="small" color={colors.brand.primary} style={styles.loadingIndicator} />
-          )}
-
           {AVAILABLE_LANGUAGES.map(language => (
             <TouchableOpacity
               key={language.code}
               style={[styles.languageItem, currentLanguage === language.code && styles.selectedLanguageItem]}
               onPress={() => handleLanguageChange(language.code)}
-              disabled={isChanging}
               testID={`language-option-${language.code}`}
             >
               <View style={styles.languageInfo}>

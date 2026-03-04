@@ -1,5 +1,4 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
-import { useFocusEffect } from 'expo-router';
 import {
   View,
   Text,
@@ -15,7 +14,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useThemeColors, type ColorScheme, commonStyles, BORDER_RADIUS } from '../../theme';
 import { fontFamilies } from '../../theme/typography';
-import { useTranslation, i18n } from '../../i18n';
+import { useTranslation } from '../../i18n';
 import { SUPPORTED_LANGUAGES } from '../../i18n/types';
 import { useAuthStore, selectUser } from '../../auth/store';
 import { EmptyState } from '../../components/shared/EmptyState';
@@ -60,14 +59,6 @@ export function BookListScreen({ embedded = false, externalCreateTrigger, onStud
   const { isSectionExpanded, toggleSection } = useCollapsibleSections('bookList');
 
   const data = useBookListData({ userDisplayName, t, followedCreatorIds });
-
-  // Reset language selector to the current app language every time the screen is focused.
-  useFocusEffect(
-    useCallback(() => {
-      const appLang = (i18n.language || 'en').split('-')[0];
-      data.setSelectedLanguage(appLang);
-    }, [data.setSelectedLanguage])
-  );
 
   const pendingGen = usePendingBookGeneration();
 

@@ -39,7 +39,8 @@
         "NSLocationWhenInUseUsageDescription": "aiponge uses your location to personalize music suggestions based on your local time and environment",
         "NSBluetoothAlwaysUsageDescription": "aiponge uses Bluetooth to connect to wireless audio devices for music playback.",
         "NSLocalNetworkUsageDescription": "aiponge uses your local network to discover Cast-compatible audio devices.",
-        "NSBonjourServices": ["_googlecast._tcp", "_CC1AD845._googlecast._tcp"]
+        "NSBonjourServices": ["_googlecast._tcp", "_CC1AD845._googlecast._tcp"],
+        "CFBundleLocalizations": ["en", "es", "pt-BR", "de", "fr", "ar", "ja", "hi"]
       },
       "entitlements": {
         "com.apple.security.application-groups": ["group.com.aiponge"]

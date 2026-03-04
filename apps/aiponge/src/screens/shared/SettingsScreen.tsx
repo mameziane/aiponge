@@ -51,12 +51,6 @@ export function SettingsScreen() {
         ]
       : []),
     {
-      icon: 'language-outline' as const,
-      label: t('settingsPage.language'),
-      route: '/language',
-      testId: 'menu-item-language',
-    },
-    {
       icon: 'shield-checkmark-outline' as const,
       label: t('settingsPage.consent'),
       route: '/consent',

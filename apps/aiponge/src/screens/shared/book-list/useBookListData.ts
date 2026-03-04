@@ -2,7 +2,6 @@ import { useState, useMemo } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useCoverPolling } from '../../../hooks/book/useCoverPolling';
 import { CONTENT_VISIBILITY, BOOK_LIFECYCLE } from '@aiponge/shared-contracts';
-import { i18n } from '../../../i18n';
 import { useAuthStore, selectToken, selectUser } from '../../../auth/store';
 import { apiRequest } from '../../../lib/axiosApiClient';
 import { queryKeys } from '../../../lib/queryKeys';
@@ -23,10 +22,7 @@ export function useBookListData({ userDisplayName, t, followedCreatorIds }: Book
   const token = useAuthStore(selectToken);
   const user = useAuthStore(selectUser);
   const [selectedCategory, setSelectedCategory] = useState<BookTypeCategory | null>(null);
-  const [selectedLanguage, setSelectedLanguage] = useState<string>(() => {
-    const locale = i18n.language || 'en';
-    return locale.split('-')[0];
-  });
+  const [selectedLanguage, setSelectedLanguage] = useState<string>('');
 
   const {
     data: browseBooks,
@@ -113,7 +109,9 @@ export function useBookListData({ userDisplayName, t, followedCreatorIds }: Book
     [ownBooksRaw]
   );
 
-  const activeLang = selectedLanguage || (i18n.language || 'en').split('-')[0];
+  // When selectedLanguage is empty ("All Languages"), filtering is skipped entirely.
+  // activeLang is only used inside `if (selectedLanguage)` guards.
+  const activeLang = selectedLanguage;
 
   const ownBooksData = useMemo((): BookCardData[] => {
     return ownBooksRaw

@@ -10,7 +10,6 @@ export default function SharedLayout() {
     const titleKeys: Record<string, string> = {
       settings: 'settings.title',
       auth: 'settingsPage.signUpOrLogin',
-      language: 'settingsPage.language',
       help: 'settingsPage.help',
       consent: 'settingsPage.consent',
       'explicit-content': 'settingsPage.explicitContent',
@@ -39,12 +38,6 @@ export default function SharedLayout() {
           name="auth"
           options={{
             title: t('settingsPage.signUpOrLogin'),
-          }}
-        />
-        <Stack.Screen
-          name="language"
-          options={{
-            title: t('settingsPage.language'),
           }}
         />
         <Stack.Screen

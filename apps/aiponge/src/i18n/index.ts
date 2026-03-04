@@ -1,7 +1,6 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { getLocales } from 'expo-localization';
-import * as SecureStore from 'expo-secure-store';
 import { I18nManager, Platform } from 'react-native';
 import * as Updates from 'expo-updates';
 import { logger } from '../lib/logger';
@@ -14,7 +13,7 @@ import frFR from './locales/fr-FR.json';
 import ar from './locales/ar.json';
 import jaJP from './locales/ja-JP.json';
 import hiIN from './locales/hi-IN.json';
-import { SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE, LANGUAGE_STORAGE_KEY, type SupportedLanguage } from './types';
+import { SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE, type SupportedLanguage } from './types';
 
 const resources = {
   'en-US': { translation: enUS },
@@ -58,27 +57,6 @@ export const getSupportedLanguageCode = (languageTag: string): SupportedLanguage
   return DEFAULT_LANGUAGE;
 };
 
-export const getStoredLanguage = async (): Promise<SupportedLanguage | null> => {
-  try {
-    const stored = await SecureStore.getItemAsync(LANGUAGE_STORAGE_KEY);
-    if (stored && SUPPORTED_LANGUAGES.some(lang => lang.code === stored)) {
-      return stored as SupportedLanguage;
-    }
-    return null;
-  } catch (error) {
-    logger.warn('i18n failed to read stored language', { error });
-    return null;
-  }
-};
-
-export const setStoredLanguage = async (language: SupportedLanguage): Promise<void> => {
-  try {
-    await SecureStore.setItemAsync(LANGUAGE_STORAGE_KEY, language);
-  } catch (error) {
-    logger.warn('i18n failed to store language', { error });
-  }
-};
-
 export const getDeviceLanguage = (): SupportedLanguage => {
   try {
     const locales = getLocales();
@@ -96,35 +74,22 @@ export const isRTLLanguage = (language: SupportedLanguage): boolean => {
   return langConfig?.isRTL || false;
 };
 
-const RTL_APPLIED_KEY = 'aiponge_rtl_applied';
-
-const setAppliedRTL = async (isRTL: boolean): Promise<void> => {
-  try {
-    await SecureStore.setItemAsync(RTL_APPLIED_KEY, isRTL ? 'true' : 'false');
-  } catch (error) {
-    logger.warn('i18n failed to persist RTL state', { error });
-  }
-};
-
-export const applyRTL = async (language: SupportedLanguage): Promise<boolean> => {
+/**
+ * Ensure the native RTL layout direction matches the language.
+ * Compares against I18nManager.isRTL (the actual native state) to
+ * detect mismatches. Returns true when a reload is needed.
+ */
+export const applyRTL = (language: SupportedLanguage): boolean => {
   const shouldBeRTL = isRTLLanguage(language);
   const currentIsRTL = I18nManager.isRTL;
 
-  // Always compare against I18nManager.isRTL (the actual native state).
-  // Do NOT rely on the stored appliedRTL flag alone — it can drift out of sync
-  // with the native state when users switch languages multiple times without
-  // restarting (e.g. Arabic → English with "Later" on both reload prompts),
-  // or when the app is killed before native persistence flushes.
   if (currentIsRTL !== shouldBeRTL) {
     logger.debug('i18n RTL mismatch — forcing direction change', { currentIsRTL, shouldBeRTL });
     I18nManager.allowRTL(shouldBeRTL);
     I18nManager.forceRTL(shouldBeRTL);
-    await setAppliedRTL(shouldBeRTL);
     return true; // requires reload for layout to update
   }
 
-  // Already correct — just sync stored tracking state
-  await setAppliedRTL(shouldBeRTL);
   return false;
 };
 
@@ -144,65 +109,33 @@ export const reloadAppForRTL = async (): Promise<void> => {
   }
 };
 
-export interface LanguageChangeResult {
-  success: boolean;
-  requiresReload: boolean;
-}
-
-export const changeLanguage = async (language: SupportedLanguage): Promise<LanguageChangeResult> => {
-  try {
-    if (!resources[language]) {
-      logger.warn('i18n no translations for language, falling back to default', {
-        language,
-        fallback: DEFAULT_LANGUAGE,
-      });
-    }
-
-    await i18n.changeLanguage(language);
-    await setStoredLanguage(language);
-    const requiresReload = await applyRTL(language);
-
-    return { success: true, requiresReload };
-  } catch (error) {
-    logger.error('i18n failed to change language', error);
-    return { success: false, requiresReload: false };
-  }
-};
-
 export interface I18nInitResult {
   language: SupportedLanguage;
   requiresRTLReload: boolean;
 }
 
+/**
+ * Complete i18n initialization by detecting the device language and
+ * applying it. No stored preference is read — the OS per-app language
+ * setting (iOS 13+ / Android 13+) controls the device locale that
+ * expo-localization returns.
+ */
 export const initI18n = async (): Promise<I18nInitResult> => {
-  const storedLanguage = await getStoredLanguage();
   const deviceLanguage = getDeviceLanguage();
-  let targetLanguage = storedLanguage || deviceLanguage;
-
-  if (!SUPPORTED_LANGUAGES.some(lang => lang.code === targetLanguage)) {
-    logger.warn('i18n language not supported, falling back to default', {
-      language: targetLanguage,
-      fallback: DEFAULT_LANGUAGE,
-    });
-    targetLanguage = DEFAULT_LANGUAGE;
-    await setStoredLanguage(DEFAULT_LANGUAGE);
-  }
 
   logger.debug('i18n completing initialization', {
-    stored: storedLanguage,
     device: deviceLanguage,
-    selected: targetLanguage,
     current: i18n.language,
   });
 
-  if (i18n.language !== targetLanguage) {
-    await i18n.changeLanguage(targetLanguage);
+  if (i18n.language !== deviceLanguage) {
+    await i18n.changeLanguage(deviceLanguage);
   }
 
-  const requiresRTLReload = await applyRTL(targetLanguage);
+  const requiresRTLReload = applyRTL(deviceLanguage);
 
   return {
-    language: targetLanguage,
+    language: deviceLanguage,
     requiresRTLReload,
   };
 };

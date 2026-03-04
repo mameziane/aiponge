@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, type ReactNode } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Alert, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router, type Href } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -14,7 +14,6 @@ import {
 import { spacing } from '../../src/theme/spacing';
 import { useAuthStore, selectUserId } from '../../src/auth/store';
 import { UnifiedSongPreferences } from '../../src/components/shared/UnifiedSongPreferences';
-import { AVAILABLE_LANGUAGES, changeLanguage, reloadAppForRTL, type SupportedLanguage } from '../../src/i18n';
 import type { IconName } from '../../src/types/ui.types';
 import { LiquidGlassCard } from '../../src/components/ui/LiquidGlassCard';
 
@@ -59,41 +58,17 @@ function CollapsibleSection({
 }
 
 export default function PreferencesScreen() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const colors = useThemeColors();
   const { mode, setMode } = useThemeMode();
   const userId = useAuthStore(selectUserId);
   const styles = useMemo(() => createStyles(colors), [colors]);
 
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
-  const [isChangingLang, setIsChangingLang] = useState(false);
-  const currentLanguage = i18n.language as SupportedLanguage;
-  const currentLangOption = AVAILABLE_LANGUAGES.find(l => l.code === currentLanguage);
 
   const toggleSection = useCallback((key: string) => {
     setExpandedSections(prev => ({ ...prev, [key]: !prev[key] }));
   }, []);
-
-  const handleLanguageChange = useCallback(
-    async (language: SupportedLanguage) => {
-      if (language === currentLanguage || isChangingLang) return;
-      setIsChangingLang(true);
-      try {
-        const result = await changeLanguage(language);
-        if (result.requiresReload) {
-          Alert.alert(t('settings.restartRequired'), t('settings.restartMessage'), [
-            { text: t('common.later'), style: 'cancel' },
-            { text: t('common.restartNow'), onPress: () => reloadAppForRTL() },
-          ]);
-        }
-      } catch (error) {
-        console.error('[PreferencesScreen] Failed to change language:', error);
-      } finally {
-        setIsChangingLang(false);
-      }
-    },
-    [currentLanguage, isChangingLang, t]
-  );
 
   const currentThemeLabel = THEME_OPTIONS.find(o => o.mode === mode);
   const themeSubtitle = currentThemeLabel ? t(currentThemeLabel.label) : '';
@@ -144,40 +119,6 @@ export default function PreferencesScreen() {
               );
             })}
           </View>
-        </CollapsibleSection>
-
-        <CollapsibleSection
-          icon="language-outline"
-          title={t('settingsPage.language')}
-          subtitle={currentLangOption?.nativeLabel}
-          expanded={!!expandedSections.language}
-          onToggle={() => toggleSection('language')}
-          colors={colors}
-          styles={styles}
-        >
-          {isChangingLang && <ActivityIndicator size="small" color={colors.text.tertiary} style={styles.langLoading} />}
-          <View style={styles.languageGrid}>
-            {AVAILABLE_LANGUAGES.map(language => {
-              const isSelected = currentLanguage === language.code;
-              return (
-                <TouchableOpacity
-                  key={language.code}
-                  style={[styles.languageChip, isSelected && styles.languageChipSelected]}
-                  onPress={() => handleLanguageChange(language.code)}
-                  disabled={isChangingLang}
-                  testID={`pref-lang-${language.code}`}
-                >
-                  <Text style={[styles.languageChipText, isSelected && styles.languageChipTextSelected]}>
-                    {language.nativeLabel}
-                  </Text>
-                  {isSelected && (
-                    <Ionicons name="checkmark" size={14} color={colors.brand.primary} style={{ marginLeft: 4 }} />
-                  )}
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-          {currentLangOption && <Text style={styles.languageNote}>{currentLangOption.label}</Text>}
         </CollapsibleSection>
 
         <CollapsibleSection
@@ -267,41 +208,5 @@ const createStyles = (colors: ColorScheme) =>
     themeOptionTextActive: {
       color: colors.brand.primary,
       fontWeight: '600',
-    },
-    langLoading: {
-      marginBottom: 8,
-    },
-    languageGrid: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      gap: 8,
-    },
-    languageChip: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      paddingHorizontal: 14,
-      paddingVertical: 8,
-      borderRadius: BORDER_RADIUS.full,
-      backgroundColor: colors.background.secondary,
-      borderWidth: 1,
-      borderColor: colors.border.primary,
-    },
-    languageChipSelected: {
-      backgroundColor: colors.brand.primary + '20',
-      borderColor: colors.brand.primary,
-    },
-    languageChipText: {
-      fontSize: 14,
-      fontWeight: '500',
-      color: colors.text.secondary,
-    },
-    languageChipTextSelected: {
-      color: colors.brand.primary,
-      fontWeight: '600',
-    },
-    languageNote: {
-      fontSize: 12,
-      color: colors.text.tertiary,
-      marginTop: 8,
     },
   });

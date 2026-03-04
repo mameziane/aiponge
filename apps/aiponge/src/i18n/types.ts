@@ -28,5 +28,3 @@ export const UPCOMING_LANGUAGES: LanguageOption[] = [];
 export const AVAILABLE_LANGUAGES = SUPPORTED_LANGUAGES.filter(lang => lang.hasTranslations);
 
 export const DEFAULT_LANGUAGE: SupportedLanguage = 'en-US';
-
-export const LANGUAGE_STORAGE_KEY = 'aiponge_ui_language';
