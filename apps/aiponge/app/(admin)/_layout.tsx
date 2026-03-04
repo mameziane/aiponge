@@ -80,7 +80,7 @@ export default function AdminLayout() {
             justifyContent: 'center' as const,
             alignItems: 'center' as const,
           },
-          tabBarActiveTintColor: colors.brand.primary,
+          tabBarActiveTintColor: colors.absolute.white,
           tabBarInactiveTintColor: colors.text.secondary,
         })}
       >

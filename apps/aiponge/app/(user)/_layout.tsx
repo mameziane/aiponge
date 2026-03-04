@@ -169,10 +169,10 @@ export default function TabLayout() {
       header: () => <UnifiedHeader title={getTabTitle(route.name)} />,
       tabBarStyle,
       tabBarItemStyle,
-      tabBarActiveTintColor: colors.text.primary,
+      tabBarActiveTintColor: colors.absolute.white,
       tabBarInactiveTintColor: colors.text.secondary,
     }),
-    [getTabTitle, tabBarStyle, tabBarItemStyle, colors.text.primary, colors.text.secondary]
+    [getTabTitle, tabBarStyle, tabBarItemStyle, colors.absolute.white, colors.text.secondary]
   );
 
   const contextValue = React.useMemo(

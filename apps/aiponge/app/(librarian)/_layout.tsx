@@ -156,7 +156,7 @@ export default function LibrarianLayout() {
             justifyContent: 'center',
             alignItems: 'center',
           },
-          tabBarActiveTintColor: colors.brand.primary,
+          tabBarActiveTintColor: colors.absolute.white,
           tabBarInactiveTintColor: colors.text.secondary,
         })}
       >
