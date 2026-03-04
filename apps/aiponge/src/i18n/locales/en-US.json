@@ -697,6 +697,8 @@
     "untitledSong": "Untitled Song",
     "you": "You",
     "entrySelectionHint": "Select an existing entry or type a new one to create personalized song lyrics",
+    "allBooks": "All Books",
+    "selectBook": "Select Book",
     "loadingEntries": "Loading entries...",
     "newEntryPlaceholder": "What's on your mind?",
     "noEntryContent": "No entry content",

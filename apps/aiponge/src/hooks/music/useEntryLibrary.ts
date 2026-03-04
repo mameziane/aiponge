@@ -18,7 +18,7 @@ import type { Entry } from '../../types/profile.types';
 
 export type { Entry };
 
-export function useEntryLibrary() {
+export function useEntryLibrary(bookId?: string | null) {
   const { isGuest } = useAuthState();
   const { toast } = useToast();
   const { t } = useTranslation();
@@ -26,13 +26,14 @@ export function useEntryLibrary() {
 
   // ✅ UNIFIED: Use shared entries hook as single source of truth
   // This fixes the 1/50 vs 1/20 count discrepancy between screens
+  // When bookId is provided, entries are filtered server-side to that book
   const {
     entries,
     total: totalEntries,
     isLoading: isLoadingEntries,
     refetch: refetchEntries,
     invalidateEntries,
-  } = useEntriesSimple();
+  } = useEntriesSimple(bookId);
 
   // Auto-refetch entries when screen gains focus (e.g., navigating from Profile screen)
   // Skipped for guests — they have no personal entries, avoiding a wasted network call

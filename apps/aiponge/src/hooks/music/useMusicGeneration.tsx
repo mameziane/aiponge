@@ -26,7 +26,7 @@ import { useSongGeneration } from './useSongGeneration';
 export type { EntryContextUpdate, EntryContext } from './useEntryContext';
 export type { Entry } from './useEntryLibrary';
 
-export function useMusicGeneration() {
+export function useMusicGeneration(bookId?: string | null) {
   const { userId } = useAuthState();
 
   // ─── Shared Refs ────────────────────────────────────────────────
@@ -69,7 +69,7 @@ export function useMusicGeneration() {
   // ─── Compose focused hooks (order: no circular deps) ───────────
 
   const entryContext = useEntryContext();
-  const entryLibrary = useEntryLibrary();
+  const entryLibrary = useEntryLibrary(bookId);
 
   const entryTracks = useEntryTracks({
     selectedEntryId: entryContext.selectedEntryId,

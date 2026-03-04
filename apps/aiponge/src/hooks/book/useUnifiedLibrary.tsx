@@ -1072,15 +1072,27 @@ export function useEntriesUnified(pageSize = 20, bookId?: string) {
       if (pageParam) params.append('cursor', pageParam as string);
       if (bookId) params.append('bookId', bookId);
 
+      // Backend returns: { success, data: { items: LibEntry[], total, hasMore, nextCursor } }
+      // Handle both flat array (legacy) and { items } wrapper shapes
       const response = await apiClient.get<
-        ServiceResponse<LibEntry[]> & { total?: number; hasMore?: boolean; nextCursor?: string | null }
+        ServiceResponse<
+          LibEntry[] | { items: LibEntry[]; total?: number; hasMore?: boolean; nextCursor?: string | null }
+        >
       >(`/api/v1/app/library/entries?${params}`, { signal });
       if (!response.success) throw new Error(getErrorMessage(response, 'Failed to load entries'));
+      const payload = response.data as
+        | LibEntry[]
+        | { items?: LibEntry[]; total?: number; hasMore?: boolean; nextCursor?: string | null };
+      const items = Array.isArray(payload) ? payload : (payload?.items ?? []);
       return {
-        entries: Array.isArray(response.data) ? response.data : [],
-        total: response.total || 0,
-        hasMore: response.hasMore || false,
-        nextCursor: response.nextCursor ?? null,
+        entries: items,
+        total: (Array.isArray(payload) ? 0 : payload?.total) || (response as { total?: number }).total || 0,
+        hasMore:
+          (Array.isArray(payload) ? false : payload?.hasMore) || (response as { hasMore?: boolean }).hasMore || false,
+        nextCursor:
+          (Array.isArray(payload) ? null : payload?.nextCursor) ??
+          (response as { nextCursor?: string | null }).nextCursor ??
+          null,
       };
     },
     getNextPageParam: lastPage => {
@@ -1238,12 +1250,13 @@ export function useAllChapters({ enabled: callerEnabled = true }: { enabled?: bo
 /**
  * Hook for simple entry access without pagination
  * Returns first page of entries - useful for Create screen
+ * Optionally filters by bookId when provided
  */
-export function useEntriesSimple() {
+export function useEntriesSimple(bookId?: string | null) {
   const userId = useAuthStore(selectUserId);
   const queryClient = useQueryClient();
 
-  // Check if paginated entries are already in cache
+  // Only use paginated cache when no specific book filter is applied
   const ENTRIES_QUERY_KEY = ['library', 'entries', undefined];
   interface PageData {
     entries: LibEntry[];
@@ -1253,24 +1266,27 @@ export function useEntriesSimple() {
   interface PaginatedData {
     pages: Array<{ entries: LibEntry[]; total: number }>;
   }
-  const paginatedData = queryClient.getQueryData<PaginatedData>(ENTRIES_QUERY_KEY);
-  const hasPaginatedCache = paginatedData && paginatedData.pages && paginatedData.pages.length > 0;
+  const paginatedData = !bookId ? queryClient.getQueryData<PaginatedData>(ENTRIES_QUERY_KEY) : undefined;
+  const hasPaginatedCache = !!(paginatedData && paginatedData.pages && paginatedData.pages.length > 0);
 
   const { data, isLoading, refetch } = useQuery({
-    queryKey: ['library', 'entries', 'simple'],
+    queryKey: ['library', 'entries', 'simple', bookId ?? 'all'],
     queryFn: async ({ signal }): Promise<PageData> => {
       const params = new URLSearchParams({ limit: '50', offset: '0' });
-      // Backend returns: { success, data: LibEntry[], total, hasMore }
-      // data is the entries array directly, total/hasMore are top-level
-      const response = await apiClient.get<ServiceResponse<LibEntry[]> & { total?: number; hasMore?: boolean }>(
-        `/api/v1/app/library/entries?${params}`,
-        { signal }
-      );
+      if (bookId) params.append('bookId', bookId);
+      // Backend returns: { success, data: { items: LibEntry[], total, hasMore, nextCursor } }
+      // Handle both flat array (legacy) and { items } wrapper shapes
+      const response = await apiClient.get<
+        ServiceResponse<LibEntry[] | { items: LibEntry[]; total?: number; hasMore?: boolean }>
+      >(`/api/v1/app/library/entries?${params}`, { signal });
       if (!response.success) throw new Error(getErrorMessage(response, 'Failed to load entries'));
+      const payload = response.data as LibEntry[] | { items?: LibEntry[]; total?: number; hasMore?: boolean };
+      const items = Array.isArray(payload) ? payload : (payload?.items ?? []);
       return {
-        entries: Array.isArray(response.data) ? response.data : [],
-        total: response.total || 0,
-        hasMore: response.hasMore || false,
+        entries: items,
+        total: (Array.isArray(payload) ? 0 : payload?.total) || (response as { total?: number }).total || 0,
+        hasMore:
+          (Array.isArray(payload) ? false : payload?.hasMore) || (response as { hasMore?: boolean }).hasMore || false,
       };
     },
     enabled: !!userId && !hasPaginatedCache,

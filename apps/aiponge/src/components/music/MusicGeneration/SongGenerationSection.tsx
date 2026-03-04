@@ -1,8 +1,8 @@
-import { useMemo } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { useMemo, useState } from 'react';
+import { View, Text, TouchableOpacity, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { EntryNavigator } from '../../EntryNavigator';
-import type { Entry } from '@/types/profile.types';
+import type { Entry, LibBook } from '@/types/profile.types';
 import { useThemeColors, type ColorScheme } from '@/theme';
 import { BORDER_RADIUS } from '@/theme/constants';
 import { spacing } from '@/theme/spacing';
@@ -32,6 +32,10 @@ interface SongGenerationSectionProps {
   navigateToEntryId?: string | null;
   onNavigatedToEntry?: () => void;
   onImageLongPress?: (imageUri: string) => void;
+  // Book selector
+  books?: LibBook[];
+  selectedBookId?: string | null;
+  onBookSelect?: (bookId: string | null) => void;
 }
 
 export function SongGenerationSection({
@@ -58,12 +62,27 @@ export function SongGenerationSection({
   navigateToEntryId,
   onNavigatedToEntry,
   onImageLongPress,
+  books,
+  selectedBookId,
+  onBookSelect,
 }: SongGenerationSectionProps) {
   const colors = useThemeColors();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const { t } = useTranslation();
 
+  const [showBookPicker, setShowBookPicker] = useState(false);
+
   const hasContent = currentEntryContent.trim().length > 0;
+  const hasBooks = books && books.length > 0;
+  const selectedBook = useMemo(
+    () => (selectedBookId && books ? books.find(b => b.id === selectedBookId) : null),
+    [selectedBookId, books]
+  );
+
+  const handleBookSelect = (bookId: string | null) => {
+    onBookSelect?.(bookId);
+    setShowBookPicker(false);
+  };
 
   return (
     <View style={styles.preferencesContainer}>
@@ -87,6 +106,80 @@ export function SongGenerationSection({
               <Text style={styles.subsectionTitle}>{t('create.yourEntry')}</Text>
             </View>
             <Text style={styles.preferencesHint}>{t('create.entrySelectionHint')}</Text>
+
+            {/* Book Selector */}
+            {hasBooks && onBookSelect && (
+              <View style={styles.bookSelectorContainer}>
+                <Pressable
+                  style={styles.bookSelectorButton}
+                  onPress={() => setShowBookPicker(prev => !prev)}
+                  testID="button-select-book"
+                >
+                  <Ionicons name="book-outline" size={18} color={colors.brand.primary} />
+                  <Text style={styles.bookSelectorText} numberOfLines={1}>
+                    {selectedBook ? selectedBook.title : t('create.allBooks')}
+                  </Text>
+                  <Ionicons
+                    name={showBookPicker ? 'chevron-up' : 'chevron-down'}
+                    size={16}
+                    color={colors.text.tertiary}
+                  />
+                </Pressable>
+
+                {showBookPicker && (
+                  <View style={styles.bookPickerList}>
+                    <ScrollView style={styles.bookPickerScroll} nestedScrollEnabled>
+                      {/* All Books option */}
+                      <Pressable
+                        style={[styles.bookPickerItem, !selectedBookId && styles.bookPickerItemSelected]}
+                        onPress={() => handleBookSelect(null)}
+                        testID="button-book-all"
+                      >
+                        <Ionicons name="library-outline" size={18} color={colors.text.secondary} />
+                        <Text
+                          style={[styles.bookPickerItemText, !selectedBookId && styles.bookPickerItemTextSelected]}
+                          numberOfLines={1}
+                        >
+                          {t('create.allBooks')}
+                        </Text>
+                        {!selectedBookId && <Ionicons name="checkmark" size={18} color={colors.brand.primary} />}
+                      </Pressable>
+
+                      {/* Individual books */}
+                      {books!.map(book => (
+                        <Pressable
+                          key={book.id}
+                          style={[styles.bookPickerItem, selectedBookId === book.id && styles.bookPickerItemSelected]}
+                          onPress={() => handleBookSelect(book.id)}
+                          testID={`button-book-${book.id}`}
+                        >
+                          <Ionicons name="book" size={18} color={colors.brand.primary} />
+                          <View style={styles.bookPickerItemInfo}>
+                            <Text
+                              style={[
+                                styles.bookPickerItemText,
+                                selectedBookId === book.id && styles.bookPickerItemTextSelected,
+                              ]}
+                              numberOfLines={1}
+                            >
+                              {book.title}
+                            </Text>
+                            {book.entryCount != null && book.entryCount > 0 && (
+                              <Text style={styles.bookPickerItemSubtext}>
+                                {book.entryCount} {book.entryCount === 1 ? 'entry' : 'entries'}
+                              </Text>
+                            )}
+                          </View>
+                          {selectedBookId === book.id && (
+                            <Ionicons name="checkmark" size={18} color={colors.brand.primary} />
+                          )}
+                        </Pressable>
+                      ))}
+                    </ScrollView>
+                  </View>
+                )}
+              </View>
+            )}
 
             {/* Entry Navigator - Create new or select/edit existing entries */}
             <View style={styles.entryNavigatorContainer}>
@@ -185,6 +278,66 @@ const createStyles = (colors: ColorScheme) =>
       marginBottom: 8,
       lineHeight: 18,
     },
+    // Book selector
+    bookSelectorContainer: {
+      marginBottom: 8,
+    },
+    bookSelectorButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      backgroundColor: colors.background.primary,
+      borderRadius: BORDER_RADIUS.sm,
+      paddingVertical: 10,
+      paddingHorizontal: 12,
+      borderWidth: 1,
+      borderColor: colors.border.primary,
+    },
+    bookSelectorText: {
+      flex: 1,
+      fontSize: 14,
+      fontWeight: '500',
+      color: colors.text.primary,
+    },
+    bookPickerList: {
+      marginTop: 4,
+      backgroundColor: colors.background.primary,
+      borderRadius: BORDER_RADIUS.sm,
+      borderWidth: 1,
+      borderColor: colors.border.primary,
+      overflow: 'hidden',
+    },
+    bookPickerScroll: {
+      maxHeight: 200,
+    },
+    bookPickerItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+      paddingVertical: 10,
+      paddingHorizontal: 12,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: colors.border.muted,
+    },
+    bookPickerItemSelected: {
+      backgroundColor: colors.background.secondary,
+    },
+    bookPickerItemInfo: {
+      flex: 1,
+    },
+    bookPickerItemText: {
+      fontSize: 14,
+      color: colors.text.primary,
+    },
+    bookPickerItemTextSelected: {
+      fontWeight: '600',
+    },
+    bookPickerItemSubtext: {
+      fontSize: 12,
+      color: colors.text.tertiary,
+      marginTop: 2,
+    },
+    // Entry navigator
     entryNavigatorContainer: {
       marginBottom: 4,
       backgroundColor: colors.background.secondary,

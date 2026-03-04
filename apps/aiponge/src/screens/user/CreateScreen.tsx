@@ -9,7 +9,7 @@ import { useCredits } from '../../hooks/commerce/useCredits';
 import { useUsageTracking } from '../../hooks/profile/useUsageTracking';
 import { useGuestConversion } from '../../hooks/auth/useGuestConversion';
 import { useMusicPreferences } from '../../hooks/music/useMusicPreferences';
-import { useAllChapters } from '../../hooks/book/useUnifiedLibrary';
+import { useAllChapters, useMyBooks } from '../../hooks/book/useUnifiedLibrary';
 import { GuestConversionPrompt } from '../../components/auth/GuestConversionPrompt';
 import type { Entry } from '@/types/profile.types';
 import { UpgradePrompt } from '../../components/commerce/UpgradePrompt';
@@ -48,6 +48,7 @@ export function CreateScreen() {
   const [pictureContext, setPictureContext] = React.useState('');
   const [currentEntryContent, setCurrentEntryContent] = React.useState('');
   const [currentEmotionalState, setCurrentEmotionalState] = React.useState<0 | 1 | 2>(1);
+  const [selectedBookId, setSelectedBookId] = React.useState<string | null>(null);
 
   const { currentTier } = useSubscriptionData();
   const isGuest = currentTier === TIER_IDS.GUEST;
@@ -103,7 +104,10 @@ export function CreateScreen() {
     setUsageLimitModal,
     refetchEntries,
     generateSong,
-  } = useMusicGeneration();
+  } = useMusicGeneration(selectedBookId);
+
+  // Fetch user's books for the book selector dropdown
+  const { data: myBooks = [] } = useMyBooks();
 
   // Skip the books→chapters waterfall when source content is already in params — it's not needed
   const { chapters, loading: chaptersLoading } = useAllChapters({ enabled: !params.isSourceMode });
@@ -333,6 +337,9 @@ export function CreateScreen() {
               navigateToEntryId={lifecycle.navigateToEntryId}
               onNavigatedToEntry={lifecycle.handleNavigatedToEntry}
               onImageLongPress={handleImageLongPress}
+              books={myBooks}
+              selectedBookId={selectedBookId}
+              onBookSelect={setSelectedBookId}
             />
           )}
 
