@@ -806,9 +806,9 @@ const createStyles = (colors: ColorScheme) =>
     modalWrapper: {
       width: '100%',
       maxWidth: 500,
+      maxHeight: '85%',
     },
     modalContainer: {
-      maxHeight: '85%',
       padding: 0,
     },
     header: {
