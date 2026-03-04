@@ -47,6 +47,14 @@ export const usrReminders = pgTable(
     activeIdx: index('idx_usr_reminders_active')
       .on(table.id)
       .where(sql`deleted_at IS NULL`),
+    // Composite: user's active enabled reminders (high-traffic query)
+    userEnabledIdx: index('idx_usr_reminders_user_enabled')
+      .on(table.userId, table.enabled)
+      .where(sql`deleted_at IS NULL`),
+    // Composite: user's reminders filtered by type (notification scheduling)
+    userTypeEnabledIdx: index('idx_usr_reminders_user_type_enabled')
+      .on(table.userId, table.reminderType, table.enabled)
+      .where(sql`deleted_at IS NULL`),
   })
 );
 

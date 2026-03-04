@@ -34,8 +34,22 @@ export class InitializeUserOnboardingUseCase {
     logger.info('Initializing user onboarding', { userId });
 
     const { usrProfiles } = await import('../../../infrastructure/database/schemas/profile-schema');
-    const { eq } = await import('drizzle-orm');
+    const { eq, and } = await import('drizzle-orm');
 
+    // Atomic conditional update — no read-then-write race possible.
+    // Only sets onboardingInitialized if it was previously false.
+    const updated = await this.db
+      .update(usrProfiles)
+      .set({ onboardingInitialized: true })
+      .where(and(eq(usrProfiles.userId, userId), eq(usrProfiles.onboardingInitialized, false)))
+      .returning({ userId: usrProfiles.userId });
+
+    if (updated.length > 0) {
+      logger.info('User onboarding initialized successfully', { userId });
+      return { success: true, message: 'Onboarding completed' };
+    }
+
+    // No rows updated — either already initialized or profile doesn't exist
     const [profile] = await this.db
       .select({ onboardingInitialized: usrProfiles.onboardingInitialized })
       .from(usrProfiles)
@@ -45,21 +59,7 @@ export class InitializeUserOnboardingUseCase {
       throw ProfileError.notFound('Profile', userId);
     }
 
-    if (profile.onboardingInitialized) {
-      logger.info('User onboarding already initialized - returning success (idempotent)', { userId });
-      return {
-        success: true,
-        message: 'Onboarding already completed',
-      };
-    }
-
-    await this.db.update(usrProfiles).set({ onboardingInitialized: true }).where(eq(usrProfiles.userId, userId));
-
-    logger.info('User onboarding initialized successfully', { userId });
-
-    return {
-      success: true,
-      message: 'Onboarding completed',
-    };
+    logger.info('User onboarding already initialized - returning success (idempotent)', { userId });
+    return { success: true, message: 'Onboarding already completed' };
   }
 }

@@ -307,6 +307,9 @@ export const favoriteAlbums = pgTable(
     index('idx_mus_favorite_albums_active')
       .on(table.id)
       .where(sql`deleted_at IS NULL`),
+    index('idx_mus_favorite_albums_user_album')
+      .on(table.userId, table.albumId)
+      .where(sql`deleted_at IS NULL`),
   ]
 );
 
@@ -628,6 +631,10 @@ export const albumRequests = pgTable(
     index('idx_mus_album_requests_active')
       .on(table.id)
       .where(sql`deleted_at IS NULL`),
+    // Composite: active generation tracking per user (dashboard queries)
+    index('idx_mus_album_requests_user_status')
+      .on(table.userId, table.status)
+      .where(sql`deleted_at IS NULL`),
   ]
 );
 
@@ -664,6 +671,10 @@ export const songRequests = pgTable(
     index('idx_mus_song_requests_created_at').on(table.createdAt),
     index('idx_mus_song_requests_active')
       .on(table.id)
+      .where(sql`deleted_at IS NULL`),
+    // Composite: active generation tracking per user (polling & dashboard)
+    index('idx_mus_song_requests_user_status')
+      .on(table.userId, table.status)
       .where(sql`deleted_at IS NULL`),
   ]
 );

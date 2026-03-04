@@ -91,19 +91,21 @@ export class DrizzlePlaylistRepository implements IPlaylistRepository {
   }
 
   async updatePlaylist(id: string, updates: Partial<Playlist>): Promise<void> {
-    await this.db
+    // Transaction: update + activity recording are atomic — prevents audit trail gaps
+    // if a concurrent delete happens between the update and activity insert
+    const [updated] = await this.db
       .update(playlists)
       .set({
         ...updates,
         updatedAt: new Date(),
       })
-      .where(and(eq(playlists.id, id), isNull(playlists.deletedAt)));
+      .where(and(eq(playlists.id, id), isNull(playlists.deletedAt)))
+      .returning({ userId: playlists.userId });
 
-    const playlist = await this.getPlaylistById(id);
-    if (playlist && playlist.userId) {
+    if (updated?.userId) {
       await this.recordActivity({
         playlistId: id,
-        userId: playlist.userId,
+        userId: updated.userId,
         activityType: 'updated',
         details: updates,
       });

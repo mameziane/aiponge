@@ -97,22 +97,7 @@ export class GuestConversionRepository implements IGuestConversionRepository {
   }
 
   async trackEvent(userId: string, eventType: GuestEventType): Promise<TrackEventResult> {
-    const stateResult = await this.getGuestState(userId);
-
-    let state: GuestConversionState;
-    if (Result.isFail(stateResult)) {
-      logger.error('Database error getting guest state - cannot track event', {
-        userId,
-        eventType,
-        error: stateResult.error,
-      });
-      throw AuthError.internalError(`Database error: ${stateResult.error.message}`);
-    } else if (!stateResult.data) {
-      state = await this.createGuestState(userId);
-    } else {
-      state = stateResult.data;
-    }
-
+    // Policy is read-only and rarely changes — safe to read outside the transaction
     const policyResult = await this.getActivePolicy();
     let config: GuestConversionPolicy | typeof DEFAULT_GUEST_CONVERSION_POLICY;
     if (Result.isFail(policyResult)) {
@@ -122,55 +107,90 @@ export class GuestConversionRepository implements IGuestConversionRepository {
       config = policyResult.data || DEFAULT_GUEST_CONVERSION_POLICY;
     }
 
-    const fieldMap: Record<GuestEventType, 'songsGenerated' | 'tracksPlayed' | 'entriesSaved'> = {
-      song_created: 'songsGenerated',
-      track_played: 'tracksPlayed',
-      entry_created: 'entriesSaved',
-    };
+    // Transaction wraps: read state → create-if-needed → increment → prompt update
+    // Prevents lost increments and double prompt triggers under concurrent events
+    return await this.db.transaction(async tx => {
+      // Step 1: Get or create guest state atomically
+      let [state] = await tx.select().from(usrGuestConversionState).where(eq(usrGuestConversionState.userId, userId));
 
-    const field = fieldMap[eventType];
-    const newValue = state[field] + 1;
+      if (!state) {
+        const [created] = await tx
+          .insert(usrGuestConversionState)
+          .values({
+            userId,
+            songsGenerated: 0,
+            tracksPlayed: 0,
+            entriesSaved: 0,
+            promptCount: 0,
+          })
+          .onConflictDoNothing()
+          .returning();
 
-    const updateData = {
-      songsGenerated: field === 'songsGenerated' ? newValue : state.songsGenerated,
-      tracksPlayed: field === 'tracksPlayed' ? newValue : state.tracksPlayed,
-      entriesSaved: field === 'entriesSaved' ? newValue : state.entriesSaved,
-      updatedAt: new Date(),
-    };
+        if (created) {
+          state = created;
+          logger.info('Guest conversion state created (in transaction)', { userId });
+        } else {
+          // Concurrent insert won the race — re-read within same transaction
+          [state] = await tx.select().from(usrGuestConversionState).where(eq(usrGuestConversionState.userId, userId));
+        }
+      }
 
-    const [updatedState] = await this.db
-      .update(usrGuestConversionState)
-      .set(updateData)
-      .where(eq(usrGuestConversionState.userId, userId))
-      .returning();
+      if (!state) {
+        throw AuthError.internalError('Failed to get or create guest conversion state');
+      }
 
-    const promptDecision = this.evaluatePromptTrigger(updatedState, config, eventType);
+      // Step 2: Increment the relevant counter
+      const fieldMap: Record<GuestEventType, 'songsGenerated' | 'tracksPlayed' | 'entriesSaved'> = {
+        song_created: 'songsGenerated',
+        track_played: 'tracksPlayed',
+        entry_created: 'entriesSaved',
+      };
 
-    if (promptDecision.shouldPrompt) {
-      await this.db
+      const field = fieldMap[eventType];
+      const newValue = state[field] + 1;
+
+      const updateData = {
+        songsGenerated: field === 'songsGenerated' ? newValue : state.songsGenerated,
+        tracksPlayed: field === 'tracksPlayed' ? newValue : state.tracksPlayed,
+        entriesSaved: field === 'entriesSaved' ? newValue : state.entriesSaved,
+        updatedAt: new Date(),
+      };
+
+      const [updatedState] = await tx
         .update(usrGuestConversionState)
-        .set({
-          lastPromptShown: new Date(),
-          promptCount: updatedState.promptCount + 1,
-          updatedAt: new Date(),
-        })
-        .where(eq(usrGuestConversionState.userId, userId));
+        .set(updateData)
+        .where(eq(usrGuestConversionState.userId, userId))
+        .returning();
 
-      logger.info('Guest conversion prompt triggered', {
-        userId,
-        eventType,
-        promptType: promptDecision.promptType,
-      });
-    }
+      // Step 3: Evaluate and apply prompt trigger within same transaction
+      const promptDecision = this.evaluatePromptTrigger(updatedState, config, eventType);
 
-    return {
-      ...promptDecision,
-      stats: {
-        songsCreated: updatedState.songsGenerated,
-        tracksPlayed: updatedState.tracksPlayed,
-        entriesCreated: updatedState.entriesSaved,
-      },
-    };
+      if (promptDecision.shouldPrompt) {
+        await tx
+          .update(usrGuestConversionState)
+          .set({
+            lastPromptShown: new Date(),
+            promptCount: updatedState.promptCount + 1,
+            updatedAt: new Date(),
+          })
+          .where(eq(usrGuestConversionState.userId, userId));
+
+        logger.info('Guest conversion prompt triggered', {
+          userId,
+          eventType,
+          promptType: promptDecision.promptType,
+        });
+      }
+
+      return {
+        ...promptDecision,
+        stats: {
+          songsCreated: updatedState.songsGenerated,
+          tracksPlayed: updatedState.tracksPlayed,
+          entriesCreated: updatedState.entriesSaved,
+        },
+      };
+    });
   }
 
   async markConverted(userId: string): Promise<void> {
