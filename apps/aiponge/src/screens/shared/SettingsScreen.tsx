@@ -57,18 +57,6 @@ export function SettingsScreen() {
       testId: 'menu-item-language',
     },
     {
-      icon: 'sparkles-outline' as const,
-      label: t('settingsPage.ethicsValues'),
-      route: '/ethics',
-      testId: 'menu-item-ethics',
-    },
-    {
-      icon: 'help-circle-outline' as const,
-      label: t('settingsPage.help'),
-      route: '/help',
-      testId: 'menu-item-help',
-    },
-    {
       icon: 'shield-checkmark-outline' as const,
       label: t('settingsPage.consent'),
       route: '/consent',

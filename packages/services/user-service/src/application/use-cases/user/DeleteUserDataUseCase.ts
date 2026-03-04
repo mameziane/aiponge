@@ -136,36 +136,26 @@ export class DeleteUserDataUseCase {
     logger.info('GDPR: Phase 1 - Deleting external service data first', { userId: dto.userId });
     const externalServices = await this.deleteExternalServiceData(dto.userId, libraryAssetUrls);
 
-    // Gate local deletion on external service success to ensure GDPR cascade integrity
-    // If external services fail, we must NOT delete local data (makes retries impossible)
-    const externalSuccess =
-      externalServices.musicService.success &&
-      externalServices.analyticsService.success &&
-      externalServices.storageService.success &&
-      externalServices.systemService.success;
+    // Log external service failures but proceed with local deletion (GDPR Article 17: "without undue delay")
+    // External service cleanup is best-effort — user-service data is the authoritative record
+    const failedServices = [];
+    if (!externalServices.musicService.success)
+      failedServices.push(`music-service: ${externalServices.musicService.error}`);
+    if (!externalServices.analyticsService.success)
+      failedServices.push(`analytics-service: ${externalServices.analyticsService.error}`);
+    if (!externalServices.storageService.success)
+      failedServices.push(`storage-service: ${externalServices.storageService.error}`);
+    if (!externalServices.systemService.success)
+      failedServices.push(`system-service: ${externalServices.systemService.error}`);
 
-    if (!externalSuccess) {
-      const failedServices = [];
-      if (!externalServices.musicService.success)
-        failedServices.push(`music-service: ${externalServices.musicService.error}`);
-      if (!externalServices.analyticsService.success)
-        failedServices.push(`analytics-service: ${externalServices.analyticsService.error}`);
-      if (!externalServices.storageService.success)
-        failedServices.push(`storage-service: ${externalServices.storageService.error}`);
-      if (!externalServices.systemService.success)
-        failedServices.push(`system-service: ${externalServices.systemService.error}`);
-
-      logger.error('GDPR: External service deletion failed - aborting local deletion to preserve retry capability', {
+    if (failedServices.length > 0) {
+      logger.warn('GDPR: Some external service deletions failed — proceeding with local deletion (best-effort)', {
         userId: dto.userId,
         failedServices,
       });
-
-      throw AuthError.internalError(
-        `GDPR deletion incomplete: external services failed (${failedServices.join('; ')}). Local data preserved for retry.`
-      );
     }
 
-    // Only proceed with user-service data deletion if ALL external services succeeded
+    // Proceed with user-service data deletion regardless of external service results
     logger.info('GDPR: Phase 2 - Deleting user-service data (all external services succeeded)', { userId: dto.userId });
     const deletedRecords = await this.deleteAllUserServiceData(dto.userId);
 

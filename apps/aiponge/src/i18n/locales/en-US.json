@@ -2902,6 +2902,9 @@
     "noBooks": "No Books Found",
     "checkBackSoon": "Check back soon for curated wisdom content",
     "createPlaylist": "Create Playlist",
+    "searchPlaceholder": "Search books...",
+    "noSearchResults": "No matching books",
+    "tryDifferentSearch": "Try a different search term",
     "sections": {
       "myBooks": "My Books",
       "followedCreators": "From Creators You Follow",
@@ -3190,7 +3193,10 @@
       "therapeuticGoals": "Therapeutic Goals",
       "triggerPatterns": "Trigger Patterns",
       "songStructureHint": "Song Structure Hint",
-      "sortOrder": "Sort Order"
+      "sortOrder": "Sort Order",
+      "allWithCount": "All ({{count}})",
+      "principlesCount": "{{count}} principles",
+      "triggersCount": "{{count}} triggers"
     },
     "metrics": {
       "productMetrics": "Product Metrics",

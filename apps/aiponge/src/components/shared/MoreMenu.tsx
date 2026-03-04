@@ -80,19 +80,6 @@ export function MoreMenu({ onClose }: MoreMenuProps) {
           testID="menu-reminders"
         />
         <MenuItem
-          icon="shield-checkmark-outline"
-          label={t('settingsPage.consent')}
-          onPress={() => handleNavigate('/consent')}
-          testID="menu-consent"
-        />
-        <MenuItem
-          icon="warning-outline"
-          label={t('settingsPage.explicitContent')}
-          onPress={() => handleNavigate('/explicit-content')}
-          testID="menu-explicit-content"
-        />
-
-        <MenuItem
           icon="book-outline"
           label={t('components.moreMenu.manifesto')}
           onPress={() => handleNavigate('/manifesto')}

@@ -130,7 +130,7 @@ export function AdminFrameworksSection() {
           onPress={() => handleSelectCategory(null)}
         >
           <Text style={[styles.categoryChipText, !selectedCategory && styles.categoryChipTextActive]}>
-            All ({frameworks.length})
+            {t('admin.frameworks.allWithCount', { count: frameworks.length, defaultValue: 'All ({{count}})' })}
           </Text>
         </TouchableOpacity>
         {FRAMEWORK_CATEGORIES.map(cat => (
@@ -185,9 +185,19 @@ export function AdminFrameworksSection() {
                 {framework.description}
               </Text>
               <View style={styles.frameworkStats}>
-                <Text style={styles.frameworkStatText}>{framework.keyPrinciples.length} principles</Text>
+                <Text style={styles.frameworkStatText}>
+                  {t('admin.frameworks.principlesCount', {
+                    count: framework.keyPrinciples.length,
+                    defaultValue: '{{count}} principles',
+                  })}
+                </Text>
                 <Text style={styles.frameworkStatDot}>•</Text>
-                <Text style={styles.frameworkStatText}>{framework.triggerPatterns.length} triggers</Text>
+                <Text style={styles.frameworkStatText}>
+                  {t('admin.frameworks.triggersCount', {
+                    count: framework.triggerPatterns.length,
+                    defaultValue: '{{count}} triggers',
+                  })}
+                </Text>
               </View>
             </TouchableOpacity>
           ))}
@@ -270,7 +280,7 @@ export function AdminFrameworksSection() {
                           selectedFramework.enabled ? styles.statusTextEnabled : styles.statusTextDisabled,
                         ]}
                       >
-                        {selectedFramework.enabled ? 'Enabled' : 'Disabled'}
+                        {selectedFramework.enabled ? t('common.enabled') : t('common.disabled')}
                       </Text>
                     </View>
                     <View style={styles.categoryBadge}>

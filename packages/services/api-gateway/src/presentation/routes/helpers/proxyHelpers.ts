@@ -119,6 +119,7 @@ const createProxyFunction =
 
 export const proxyToSystemService = createProxyFunction('system-service');
 export const proxyToAiContentService = createProxyFunction('ai-content-service');
+export const proxyToAiConfigService = createProxyFunction('ai-config-service');
 
 export const proxyToUserService = async (
   req: Request,

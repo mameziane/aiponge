@@ -130,6 +130,7 @@ export const DEFAULT_LIBRARIAN_DEFAULTS: LibrarianDefaults = {
       { key: 'orchestral', labelKey: 'create.genres.orchestral' },
       { key: 'cinematic', labelKey: 'create.genres.cinematic' },
       { key: 'meditation', labelKey: 'create.genres.meditation' },
+      { key: 'podcast', labelKey: 'create.genres.podcast' },
     ],
     moods: [
       { key: 'calm', labelKey: 'create.moods.calm' },

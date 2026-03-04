@@ -77,7 +77,7 @@ export function useFrameworks(): UseFrameworksResult {
     queryKey: queryKeys.frameworks.list(),
     queryFn: async () => {
       try {
-        const response = await apiClient.get<ServiceResponse<RawFramework[]>>('/api/v1/frameworks');
+        const response = await apiClient.get<ServiceResponse<RawFramework[]>>('/api/v1/app/frameworks');
         // Handle both direct array response and ServiceResponse wrapper
         if (Array.isArray(response)) return response;
         if (response?.success === false) throw new Error('Failed to fetch frameworks');

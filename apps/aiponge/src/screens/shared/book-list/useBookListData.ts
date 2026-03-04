@@ -106,13 +106,22 @@ export function useBookListData({ userDisplayName, t, followedCreatorIds }: Book
 
   const ownBookIds = useMemo(() => new Set(ownBooksRaw.map(b => b.id)), [ownBooksRaw]);
 
+  // IDs of the user's personal (private) books — only these go into "My Books"
+  const personalBookIds = useMemo(
+    () =>
+      new Set(ownBooksRaw.filter(b => !b.visibility || b.visibility === CONTENT_VISIBILITY.PERSONAL).map(b => b.id)),
+    [ownBooksRaw]
+  );
+
   const activeLang = selectedLanguage || (i18n.language || 'en').split('-')[0];
 
   const ownBooksData = useMemo((): BookCardData[] => {
     return ownBooksRaw
       .filter(book => {
         if (selectedCategoryTypeIds && (!book.typeId || !selectedCategoryTypeIds.has(book.typeId))) return false;
-        // Own books are always visible regardless of language filter
+        // Only PERSONAL visibility books belong in "My Books"
+        // SHARED/PUBLIC books by the user appear in the public sections instead
+        if (book.visibility && book.visibility !== CONTENT_VISIBILITY.PERSONAL) return false;
         return true;
       })
       .map(
@@ -162,7 +171,8 @@ export function useBookListData({ userDisplayName, t, followedCreatorIds }: Book
     if (!browseBooks) return [];
     return browseBooks
       .filter(book => {
-        if (ownBookIds.has((book as LibBook).id)) return false;
+        // Exclude only personal (private) books — the user's shared/public books belong here
+        if (personalBookIds.has((book as LibBook).id)) return false;
         const typeId = (book as LibBook & { typeId?: string }).typeId;
         if (selectedCategoryTypeIds && (!typeId || !selectedCategoryTypeIds.has(typeId))) return false;
         if (selectedLanguage) {
@@ -174,7 +184,7 @@ export function useBookListData({ userDisplayName, t, followedCreatorIds }: Book
       .map(book =>
         mapBookToCard(book as LibBook & { coverIllustrationUrl?: string; chapters?: LibChapter[]; userId?: string })
       );
-  }, [browseBooks, ownBookIds, selectedCategoryTypeIds, selectedLanguage, activeLang]);
+  }, [browseBooks, personalBookIds, selectedCategoryTypeIds, selectedLanguage, activeLang]);
 
   // Split public books into followed-creator books vs shared/public books
   const { followedCreatorBooks, sharedBooks } = useMemo(() => {

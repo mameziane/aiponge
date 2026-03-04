@@ -374,24 +374,45 @@ export type UpdatePuzzleProgressInput = z.infer<typeof UpdatePuzzleProgressSchem
 // =============================================================================
 
 export const CreateReminderSchema = z.object({
-  type: z.enum(['daily_reflection', 'journal_prompt', 'custom']),
+  type: z.enum(['book', 'reading', 'listening', 'meditation']),
   title: z.string().min(1, 'Title is required').max(255, 'Title cannot exceed 255 characters'),
-  message: z.string().max(500, 'Message cannot exceed 500 characters').optional(),
-  scheduledTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Time must be in HH:MM format'),
-  daysOfWeek: z.array(z.number().int().min(0).max(6)).min(1, 'At least one day is required').optional(),
-  isEnabled: z.boolean().optional().default(true),
+  prompt: z.string().max(500, 'Prompt cannot exceed 500 characters').optional(),
+  time: z.string().regex(/^([01]?\d|2[0-3]):[0-5]\d$/, 'Time must be in HH:MM format'),
+  repeatType: z.enum(['once', 'daily', 'weekly', 'monthly', 'yearly']).optional(),
+  daysOfWeek: z.array(z.number().int().min(0).max(6)).optional(),
+  enabled: z.boolean().optional().default(true),
+  notifyEnabled: z.boolean().optional(),
+  autoPlayEnabled: z.boolean().optional(),
+  bookId: z.string().uuid().optional(),
+  bookTitle: z.string().max(255).optional(),
+  albumId: z.string().uuid().optional(),
+  albumTitle: z.string().max(255).optional(),
+  trackId: z.string().uuid().optional(),
+  userTrackId: z.string().uuid().optional(),
+  trackTitle: z.string().max(255).optional(),
+  timezone: z.string().optional(),
 });
 export type CreateReminderInput = z.infer<typeof CreateReminderSchema>;
 
 export const UpdateReminderSchema = z.object({
   title: z.string().min(1, 'Title cannot be empty').max(255).optional(),
-  message: z.string().max(500).optional(),
-  scheduledTime: z
+  prompt: z.string().max(500).optional(),
+  time: z
     .string()
-    .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Time must be in HH:MM format')
+    .regex(/^([01]?\d|2[0-3]):[0-5]\d$/, 'Time must be in HH:MM format')
     .optional(),
+  repeatType: z.enum(['once', 'daily', 'weekly', 'monthly', 'yearly']).optional(),
   daysOfWeek: z.array(z.number().int().min(0).max(6)).optional(),
-  isEnabled: z.boolean().optional(),
+  enabled: z.boolean().optional(),
+  notifyEnabled: z.boolean().optional(),
+  autoPlayEnabled: z.boolean().optional(),
+  bookId: z.string().uuid().nullable().optional(),
+  bookTitle: z.string().max(255).nullable().optional(),
+  albumId: z.string().uuid().nullable().optional(),
+  albumTitle: z.string().max(255).nullable().optional(),
+  trackId: z.string().uuid().nullable().optional(),
+  userTrackId: z.string().uuid().nullable().optional(),
+  trackTitle: z.string().max(255).nullable().optional(),
 });
 export type UpdateReminderInput = z.infer<typeof UpdateReminderSchema>;
 
