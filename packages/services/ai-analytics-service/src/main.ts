@@ -171,6 +171,8 @@ async function main(): Promise<void> {
         });
 
         registerShutdownHook(async () => {
+          const { closeTracePool } = await import('./presentation/controllers/TraceController');
+          await closeTracePool();
           const { DatabaseConnectionFactory } = await import('./infrastructure/database/DatabaseConnectionFactory');
           await DatabaseConnectionFactory.close();
         });

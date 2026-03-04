@@ -1,4 +1,4 @@
-import { eq, desc, and, isNull } from 'drizzle-orm';
+import { eq, desc, and, isNull, sql } from 'drizzle-orm';
 import { songRequests, type SongRequest, type NewSongRequest } from '../../schema/music-schema';
 import { getLogger } from '../../config/service-urls';
 import type { DatabaseConnection } from './DatabaseConnectionFactory';
@@ -152,9 +152,12 @@ export class DrizzleSongRequestRepository {
     if (update.completedAt !== undefined) updateData.completedAt = update.completedAt;
 
     if (update.lyrics !== undefined) {
-      const existingRequest = await this.findById(id);
-      const existingMetadata = (existingRequest?.metadata as Record<string, unknown>) || {};
-      updateData.metadata = { ...existingMetadata, originalLyrics: update.lyrics };
+      // Merge originalLyrics into existing metadata atomically (avoids read-before-update N+1)
+      (updateData as Record<string, unknown>).metadata = sql`jsonb_set(
+        COALESCE(${songRequests.metadata}, '{}'::jsonb),
+        '{originalLyrics}',
+        to_jsonb(${update.lyrics}::text)
+      )`;
     }
 
     await this.db

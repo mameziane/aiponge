@@ -3,7 +3,7 @@
  * Tracks background album generation jobs with progress updates
  */
 
-import { eq, desc, and, asc, isNull, inArray } from 'drizzle-orm';
+import { eq, desc, and, asc, isNull, inArray, sql } from 'drizzle-orm';
 import { albumRequests, albums, tracks, type AlbumRequest, type NewAlbumRequest } from '../../schema/music-schema';
 import { getLogger } from '../../config/service-urls';
 import type { DatabaseConnection } from './DatabaseConnectionFactory';
@@ -145,19 +145,18 @@ export class DrizzleAlbumRequestRepository {
     const needsMetadataUpdate =
       update.albumArtworkUrl !== undefined || update.albumTitle !== undefined || update.trackCardDetails !== undefined;
     if (needsMetadataUpdate) {
-      const existingRecord = await this.findById(id);
-      const existingMetadata = (existingRecord?.metadata as Record<string, unknown>) || {};
-      const metadataUpdate: Record<string, unknown> = { ...existingMetadata };
+      // Merge metadata fields atomically in SQL (avoids read-before-update N+1)
+      let metaSql = sql`COALESCE(${albumRequests.metadata}, '{}'::jsonb)`;
       if (update.trackCardDetails !== undefined) {
-        metadataUpdate.trackCardDetails = update.trackCardDetails;
+        metaSql = sql`jsonb_set(${metaSql}, '{trackCardDetails}', ${JSON.stringify(update.trackCardDetails)}::jsonb)`;
       }
       if (update.albumArtworkUrl !== undefined) {
-        metadataUpdate.albumArtworkUrl = update.albumArtworkUrl;
+        metaSql = sql`jsonb_set(${metaSql}, '{albumArtworkUrl}', to_jsonb(${update.albumArtworkUrl}::text))`;
       }
       if (update.albumTitle !== undefined) {
-        metadataUpdate.albumTitle = update.albumTitle;
+        metaSql = sql`jsonb_set(${metaSql}, '{albumTitle}', to_jsonb(${update.albumTitle}::text))`;
       }
-      updateData.metadata = metadataUpdate;
+      (updateData as Record<string, unknown>).metadata = metaSql;
     }
 
     await this.db

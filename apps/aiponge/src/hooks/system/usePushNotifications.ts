@@ -50,11 +50,12 @@ export function usePushNotifications() {
 
   useEffect(() => {
     if (IS_EXPO_GO) return;
+    let isMounted = true;
 
     const loadStoredToken = async () => {
       try {
         const storedToken = await AsyncStorage.getItem(PUSH_TOKEN_KEY);
-        if (storedToken) {
+        if (storedToken && isMounted) {
           setState(prev => ({ ...prev, expoPushToken: storedToken }));
           setTokenRestored(true);
           logger.debug('[PushNotifications] Restored token from storage');
@@ -64,6 +65,10 @@ export function usePushNotifications() {
       }
     };
     loadStoredToken();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const checkPermissionStatus = useCallback(async () => {

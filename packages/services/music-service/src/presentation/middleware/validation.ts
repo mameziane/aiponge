@@ -107,10 +107,22 @@ export const validationSchemas = {
 
   'update-playlist': z.object({
     name: z.string().min(1).max(100).optional(),
-    description: z.string().optional(),
+    description: z.string().max(1000).optional(),
     musicIds: z.array(z.string().uuid()).optional(),
     visibility: ContentVisibilitySchema.optional(),
     tags: z.array(z.string()).optional(),
+    artworkUrl: z.string().url().nullable().optional(),
+    mood: z.string().max(100).optional(),
+    genre: z.string().max(100).optional(),
+    category: z.enum(['user', 'featured', 'algorithm']).nullable().optional(),
+    icon: z.string().max(10).nullable().optional(),
+    color: z
+      .string()
+      .max(20)
+      .regex(/^#[0-9a-fA-F]{3,8}$/, 'Must be a valid hex color')
+      .nullable()
+      .optional(),
+    playlistType: z.enum(['manual', 'smart', 'hybrid']).nullable().optional(),
   }),
 
   'record-event': z.object({

@@ -41,5 +41,7 @@ export function setupSse(app: express.Application, ctx: GatewayAppContext): void
         error: serializeError(error),
       });
     }
-  })();
+  })().catch(err => {
+    ctx.logger.error('SSE event bus bridge fatal initialization error', { error: serializeError(err) });
+  });
 }

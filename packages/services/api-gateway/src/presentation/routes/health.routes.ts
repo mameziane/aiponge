@@ -111,7 +111,13 @@ export class HealthRoutes {
 
     // Detailed health check - comprehensive status information
     this.router.get('/health/detailed', (req, res): void => {
-      void this.detailedHealthCheck(req as GatewayRequest, res);
+      this.detailedHealthCheck(req as GatewayRequest, res).catch(err => {
+        if (!res.headersSent) {
+          res
+            .status(500)
+            .json({ success: false, error: { code: 'HEALTH_CHECK_ERROR', message: 'Detailed health check failed' } });
+        }
+      });
     });
 
     // Kubernetes-compatible health probes (standardized paths)

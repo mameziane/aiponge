@@ -103,9 +103,12 @@ export function setupRouting(app: express.Application, ctx: GatewayAppContext): 
         const logger = getLogger('APIGateway');
         logger.error('Health check failed', { error: error instanceof Error ? error.message : String(error) });
         ServiceErrors.fromException(res, error, 'Health check failed', req);
-        return;
       }
-    })();
+    })().catch(err => {
+      if (!res.headersSent) {
+        ServiceErrors.fromException(res, err, 'Health check fatal error', req);
+      }
+    });
   });
 
   // Health routes — MUST be before dynamic router

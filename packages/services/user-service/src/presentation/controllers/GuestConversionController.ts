@@ -57,7 +57,8 @@ export class GuestConversionController {
    */
   async getState(req: Request, res: Response): Promise<void> {
     try {
-      const userId = req.params.userId ?? extractAuthContext(req).userId;
+      // Always use auth context — never trust req.params.userId (IDOR prevention)
+      const userId = extractAuthContext(req).userId;
       if (!userId) {
         ServiceErrors.unauthorized(res, 'User ID is required', req);
         return;
@@ -100,7 +101,8 @@ export class GuestConversionController {
    * Body: { eventType: 'song_created' | 'track_played' | 'entry_created' }
    */
   async trackEvent(req: Request, res: Response): Promise<void> {
-    const userId = req.params.userId ?? extractAuthContext(req).userId;
+    // Always use auth context — never trust req.params.userId (IDOR prevention)
+    const userId = extractAuthContext(req).userId;
     if (!userId) {
       ServiceErrors.unauthorized(res, 'User ID is required', req);
       return;
@@ -131,7 +133,8 @@ export class GuestConversionController {
       res,
       errorMessage: 'Failed to mark guest as converted',
       handler: async () => {
-        const userId = req.params.userId ?? extractAuthContext(req).userId;
+        // Always use auth context — never trust req.params.userId (IDOR prevention)
+        const userId = extractAuthContext(req).userId;
         if (!userId) {
           throw new Error('User ID is required');
         }

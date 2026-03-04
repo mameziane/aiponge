@@ -89,7 +89,9 @@ let cacheStats = {
 function statIncrBy(field: 'hits' | 'misses' | 'evictions' | 'redisErrors', amount = 1): void {
   cacheStats[field] += amount;
   if (redisAvailable && redisClient) {
-    void redisClient.incrby(`${STATS_KEY_PREFIX}${field}`, amount).catch(() => {});
+    void redisClient
+      .incrby(`${STATS_KEY_PREFIX}${field}`, amount)
+      .catch(err => logger.debug('Redis stat increment failed', { field, error: err.message }));
   }
 }
 
@@ -397,9 +399,15 @@ export function createResponseCacheMiddleware(
         if (isStale) {
           tryAcquireRevalidationLock(cacheKey)
             .then(acquired => {
-              if (acquired) void revalidateInBackground(req, cacheKey, mergedConfig);
+              if (acquired) {
+                revalidateInBackground(req, cacheKey, mergedConfig).catch(err =>
+                  logger.warn('Background revalidation failed', { cacheKey, error: serializeError(err) })
+                );
+              }
             })
-            .catch(() => {});
+            .catch(err =>
+              logger.warn('Revalidation lock acquisition failed', { cacheKey, error: serializeError(err) })
+            );
         }
         return;
       }
@@ -538,7 +546,9 @@ export function clearCache(): void {
   cacheStats = { hits: 0, misses: 0, evictions: 0, redisErrors: 0 };
   if (redisAvailable && redisClient) {
     const fields = ['hits', 'misses', 'evictions', 'redisErrors'];
-    void redisClient.del(fields.map(f => `${STATS_KEY_PREFIX}${f}`)).catch(() => {});
+    void redisClient
+      .del(fields.map(f => `${STATS_KEY_PREFIX}${f}`))
+      .catch(err => logger.debug('Redis stat cleanup failed', { error: err.message }));
   }
   logger.info('Response cache cleared');
 }

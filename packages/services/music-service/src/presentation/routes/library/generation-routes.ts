@@ -520,153 +520,161 @@ router.post('/generate-album', internalAuthMiddleware, async (req, res) => {
       }
     };
 
-    setImmediate(async () => {
-      try {
-        if (albumTaskController.signal.aborted) {
-          await markAlbumAborted();
-          return;
-        }
+    setImmediate(() => {
+      void (async () => {
+        try {
+          if (albumTaskController.signal.aborted) {
+            await markAlbumAborted();
+            return;
+          }
 
-        const perRequestProgressCallback = reqRepo
-          ? async (progress: ProgressUpdate) => {
-              if (albumTaskController.signal.aborted) return;
-              try {
-                await reqRepo.updateProgress(albumRequestId, {
-                  status: progress.status || GENERATION_STATUS.PROCESSING,
-                  phase: progress.phase || 'generating_track',
-                  subPhase: progress.subPhase || null,
-                  currentTrack: progress.currentTrack,
-                  percentComplete: progress.percentComplete,
-                  successfulTracks:
-                    progress.successfulTracks ?? progress.trackResults?.filter(t => t.success).length ?? 0,
-                  failedTracks: progress.failedTracks ?? progress.trackResults?.filter(t => !t.success).length ?? 0,
-                  trackResults: progress.trackResults || [],
-                  trackCardDetails: progress.trackCardDetails || [],
-                  albumArtworkUrl: progress.albumArtworkUrl,
-                  albumTitle: progress.albumTitle || undefined,
-                  startedAt: new Date(),
-                });
-              } catch (progressErr) {
-                logger.warn('Failed to update progress', {
-                  albumRequestId,
-                  error: serializeError(progressErr),
-                });
+          const perRequestProgressCallback = reqRepo
+            ? async (progress: ProgressUpdate) => {
+                if (albumTaskController.signal.aborted) return;
+                try {
+                  await reqRepo.updateProgress(albumRequestId, {
+                    status: progress.status || GENERATION_STATUS.PROCESSING,
+                    phase: progress.phase || 'generating_track',
+                    subPhase: progress.subPhase || null,
+                    currentTrack: progress.currentTrack,
+                    percentComplete: progress.percentComplete,
+                    successfulTracks:
+                      progress.successfulTracks ?? progress.trackResults?.filter(t => t.success).length ?? 0,
+                    failedTracks: progress.failedTracks ?? progress.trackResults?.filter(t => !t.success).length ?? 0,
+                    trackResults: progress.trackResults || [],
+                    trackCardDetails: progress.trackCardDetails || [],
+                    albumArtworkUrl: progress.albumArtworkUrl,
+                    albumTitle: progress.albumTitle || undefined,
+                    startedAt: new Date(),
+                  });
+                } catch (progressErr) {
+                  logger.warn('Failed to update progress', {
+                    albumRequestId,
+                    error: serializeError(progressErr),
+                  });
+                }
               }
-            }
-          : undefined;
+            : undefined;
 
-        const result = await service.generate(
-          {
-            userId: librarianUserId,
-            targetVisibility: CONTENT_VISIBILITY.SHARED,
-            chapterId: data.chapterId || undefined,
-            chapterTitle: data.chapterTitle || undefined,
-            bookId: data.bookId,
-            bookTitle: data.bookTitle,
-            bookType: data.bookType ?? undefined,
-            bookDescription: data.bookDescription ?? undefined,
-            bookCategory: data.bookCategory ?? undefined,
-            bookTags: data.bookTags ?? undefined,
-            bookThemes: data.bookThemes ?? undefined,
-            entries: data.entries,
-            style: data.style ?? undefined,
-            genre: data.genre ?? undefined,
-            mood: data.mood ?? undefined,
-            language: data.language ?? undefined,
-            culturalLanguages: data.culturalLanguages ?? undefined,
-            languageMode: data.languageMode ?? undefined,
-            targetLanguages: data.targetLanguages ?? undefined,
-            culturalStyle: data.culturalStyle ?? undefined,
-            instrumentType: data.instrumentType ?? undefined,
-            negativeTags: data.negativeTags ?? undefined,
-            vocalGender: data.vocalGender ?? undefined,
-            preCreatedAlbumId: data.preCreatedAlbumId ?? undefined,
-            displayName: data.displayName ?? undefined,
-          },
-          perRequestProgressCallback
-        );
+          const result = await service.generate(
+            {
+              userId: librarianUserId,
+              targetVisibility: CONTENT_VISIBILITY.SHARED,
+              chapterId: data.chapterId || undefined,
+              chapterTitle: data.chapterTitle || undefined,
+              bookId: data.bookId,
+              bookTitle: data.bookTitle,
+              bookType: data.bookType ?? undefined,
+              bookDescription: data.bookDescription ?? undefined,
+              bookCategory: data.bookCategory ?? undefined,
+              bookTags: data.bookTags ?? undefined,
+              bookThemes: data.bookThemes ?? undefined,
+              entries: data.entries,
+              style: data.style ?? undefined,
+              genre: data.genre ?? undefined,
+              mood: data.mood ?? undefined,
+              language: data.language ?? undefined,
+              culturalLanguages: data.culturalLanguages ?? undefined,
+              languageMode: data.languageMode ?? undefined,
+              targetLanguages: data.targetLanguages ?? undefined,
+              culturalStyle: data.culturalStyle ?? undefined,
+              instrumentType: data.instrumentType ?? undefined,
+              negativeTags: data.negativeTags ?? undefined,
+              vocalGender: data.vocalGender ?? undefined,
+              preCreatedAlbumId: data.preCreatedAlbumId ?? undefined,
+              displayName: data.displayName ?? undefined,
+            },
+            perRequestProgressCallback
+          );
 
-        if (albumTaskController.signal.aborted) {
-          logger.warn('Album background task aborted after generation completed', { albumRequestId });
-          await markAlbumAborted();
-          return;
-        }
+          if (albumTaskController.signal.aborted) {
+            logger.warn('Album background task aborted after generation completed', { albumRequestId });
+            await markAlbumAborted();
+            return;
+          }
 
-        if (reqRepo) {
-          try {
-            const updateData: Record<string, unknown> = {
-              status: result.success ? GENERATION_STATUS.COMPLETED : GENERATION_STATUS.FAILED,
-              phase: result.success ? GENERATION_STATUS.COMPLETED : GENERATION_STATUS.FAILED,
-              successfulTracks: result.successfulTracks || 0,
-              failedTracks: result.failedTracks || 0,
-              percentComplete: 100,
-              trackResults: result.tracks || [],
-              errorMessage: result.error || null,
-              completedAt: new Date(),
-            };
-            if (result.albumId) {
-              updateData.albumId = result.albumId;
+          if (reqRepo) {
+            try {
+              const updateData: Record<string, unknown> = {
+                status: result.success ? GENERATION_STATUS.COMPLETED : GENERATION_STATUS.FAILED,
+                phase: result.success ? GENERATION_STATUS.COMPLETED : GENERATION_STATUS.FAILED,
+                successfulTracks: result.successfulTracks || 0,
+                failedTracks: result.failedTracks || 0,
+                percentComplete: 100,
+                trackResults: result.tracks || [],
+                errorMessage: result.error || null,
+                completedAt: new Date(),
+              };
+              if (result.albumId) {
+                updateData.albumId = result.albumId;
+              }
+              if (result.generatedLanguages && result.generatedLanguages.length > 0) {
+                updateData.generatedLanguages = result.generatedLanguages;
+              }
+              if (result.failedLanguages && result.failedLanguages.length > 0) {
+                updateData.failedLanguages = result.failedLanguages;
+              }
+              await reqRepo.updateProgress(albumRequestId, updateData);
+            } catch (updateErr) {
+              logger.error('Failed to update album request record', {
+                albumRequestId,
+                error: serializeError(updateErr),
+              });
             }
-            if (result.generatedLanguages && result.generatedLanguages.length > 0) {
-              updateData.generatedLanguages = result.generatedLanguages;
-            }
-            if (result.failedLanguages && result.failedLanguages.length > 0) {
-              updateData.failedLanguages = result.failedLanguages;
-            }
-            await reqRepo.updateProgress(albumRequestId, updateData);
-          } catch (updateErr) {
-            logger.error('Failed to update album request record', {
+          }
+
+          if (result.success) {
+            logger.info('Background library album generation completed', {
               albumRequestId,
-              error: serializeError(updateErr),
+              librarianUserId,
+              albumId: result.albumId,
+              successfulTracks: result.successfulTracks,
+              failedTracks: result.failedTracks,
+            });
+          } else {
+            logger.error('Background library album generation failed', {
+              albumRequestId,
+              librarianUserId,
+              error: result.error,
             });
           }
-        }
-
-        if (result.success) {
-          logger.info('Background library album generation completed', {
-            albumRequestId,
-            librarianUserId,
-            albumId: result.albumId,
-            successfulTracks: result.successfulTracks,
-            failedTracks: result.failedTracks,
-          });
-        } else {
-          logger.error('Background library album generation failed', {
-            albumRequestId,
-            librarianUserId,
-            error: result.error,
-          });
-        }
-      } catch (error) {
-        if (albumTaskController.signal.aborted) {
-          logger.info('Album background task aborted during execution', { albumRequestId });
-          await markAlbumAborted();
-          return;
-        }
-        if (reqRepo) {
-          try {
-            await reqRepo.updateProgress(albumRequestId, {
-              status: GENERATION_STATUS.FAILED,
-              phase: GENERATION_STATUS.FAILED,
-              errorMessage: error instanceof Error ? error.message : String(error),
-              completedAt: new Date(),
-            });
-          } catch (updateErr) {
-            logger.error('Failed to update album request record on error', {
-              albumRequestId,
-              error: serializeError(updateErr),
-            });
+        } catch (error) {
+          if (albumTaskController.signal.aborted) {
+            logger.info('Album background task aborted during execution', { albumRequestId });
+            await markAlbumAborted();
+            return;
           }
-        }
+          if (reqRepo) {
+            try {
+              await reqRepo.updateProgress(albumRequestId, {
+                status: GENERATION_STATUS.FAILED,
+                phase: GENERATION_STATUS.FAILED,
+                errorMessage: error instanceof Error ? error.message : String(error),
+                completedAt: new Date(),
+              });
+            } catch (updateErr) {
+              logger.error('Failed to update album request record on error', {
+                albumRequestId,
+                error: serializeError(updateErr),
+              });
+            }
+          }
 
-        logger.error('Background library album generation exception', {
+          logger.error('Background library album generation exception', {
+            albumRequestId,
+            librarianUserId,
+            error: serializeError(error),
+          });
+        } finally {
+          untrackBackgroundTask(albumRequestId);
+        }
+      })().catch(err => {
+        logger.error('Album background task fatal unhandled error', {
           albumRequestId,
-          librarianUserId,
-          error: serializeError(error),
+          error: serializeError(err),
         });
-      } finally {
         untrackBackgroundTask(albumRequestId);
-      }
+      });
     });
   } catch (error) {
     logger.error('Library album generate endpoint error', {

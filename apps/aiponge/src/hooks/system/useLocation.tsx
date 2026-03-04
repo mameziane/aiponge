@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { logger } from '../../lib/logger';
 
@@ -56,14 +56,20 @@ export function useLocation() {
     isLoading: true,
   });
   const [hasAskedConsent, setHasAskedConsent] = useState(false);
+  const isMountedRef = useRef(true);
 
   useEffect(() => {
+    isMountedRef.current = true;
     checkLocationConsent();
+    return () => {
+      isMountedRef.current = false;
+    };
   }, []);
 
   const checkLocationConsent = async () => {
     try {
       const consent = await AsyncStorage.getItem(LOCATION_CONSENT_KEY);
+      if (!isMountedRef.current) return;
       if (consent === 'granted') {
         setHasAskedConsent(true);
         await fetchLocation();
@@ -75,21 +81,25 @@ export function useLocation() {
       }
     } catch (error) {
       logger.error('[useLocation] Failed to check consent', { error });
-      setLocationContext(prev => ({ ...prev, isLoading: false }));
+      if (isMountedRef.current) {
+        setLocationContext(prev => ({ ...prev, isLoading: false }));
+      }
     }
   };
 
   const requestLocationPermission = useCallback(async (): Promise<boolean> => {
     if (!Location) {
       logger.warn('[useLocation] Location module not available');
-      setLocationContext(prev => ({ ...prev, isLoading: false }));
+      if (isMountedRef.current) setLocationContext(prev => ({ ...prev, isLoading: false }));
       return false;
     }
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
+      if (!isMountedRef.current) return false;
       const granted = status === 'granted';
 
       await AsyncStorage.setItem(LOCATION_CONSENT_KEY, granted ? 'granted' : 'denied');
+      if (!isMountedRef.current) return granted;
       setHasAskedConsent(true);
 
       if (granted) {
@@ -101,20 +111,21 @@ export function useLocation() {
       return granted;
     } catch (error) {
       logger.error('[useLocation] Failed to request permission', { error });
-      setLocationContext(prev => ({ ...prev, isLoading: false }));
+      if (isMountedRef.current) setLocationContext(prev => ({ ...prev, isLoading: false }));
       return false;
     }
   }, []);
 
   const fetchLocation = async () => {
     if (!Location) {
-      setLocationContext(prev => ({ ...prev, isLoading: false }));
+      if (isMountedRef.current) setLocationContext(prev => ({ ...prev, isLoading: false }));
       return;
     }
     try {
-      setLocationContext(prev => ({ ...prev, isLoading: true }));
+      if (isMountedRef.current) setLocationContext(prev => ({ ...prev, isLoading: true }));
 
       const cachedData = await AsyncStorage.getItem(LOCATION_CACHE_KEY);
+      if (!isMountedRef.current) return;
       if (cachedData) {
         const cached: CachedLocation = JSON.parse(cachedData);
         if (Date.now() - cached.timestamp < CACHE_DURATION_MS) {
@@ -133,11 +144,13 @@ export function useLocation() {
       const location = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.Low,
       });
+      if (!isMountedRef.current) return;
 
       const [address] = await Location.reverseGeocodeAsync({
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
       });
+      if (!isMountedRef.current) return;
 
       const locationData: CachedLocation = {
         city: address?.city || address?.subregion || undefined,
@@ -147,6 +160,7 @@ export function useLocation() {
       };
 
       await AsyncStorage.setItem(LOCATION_CACHE_KEY, JSON.stringify(locationData));
+      if (!isMountedRef.current) return;
 
       setLocationContext({
         city: locationData.city,
@@ -160,11 +174,13 @@ export function useLocation() {
       logger.debug('[useLocation] Location fetched', { city: locationData.city });
     } catch (error) {
       logger.error('[useLocation] Failed to get location', { error });
-      setLocationContext(prev => ({
-        ...prev,
-        timeOfDay: getTimeOfDay(),
-        isLoading: false,
-      }));
+      if (isMountedRef.current) {
+        setLocationContext(prev => ({
+          ...prev,
+          timeOfDay: getTimeOfDay(),
+          isLoading: false,
+        }));
+      }
     }
   };
 

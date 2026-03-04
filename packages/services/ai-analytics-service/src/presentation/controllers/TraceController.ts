@@ -23,12 +23,14 @@ const traceModules: {
   SearchTracesUseCase: (new (repo: unknown) => { execute: (params: unknown) => Promise<unknown> }) | null;
   GetSlowRequestsUseCase: (new (repo: unknown) => { execute: (params: unknown) => Promise<unknown> }) | null;
   traceRepository: Record<string, unknown> | null;
+  pool: { end: () => Promise<void> } | null;
 } = {
   TraceRepository: null,
   GetRequestTraceUseCase: null,
   SearchTracesUseCase: null,
   GetSlowRequestsUseCase: null,
   traceRepository: null,
+  pool: null,
 };
 
 // Initialize trace modules asynchronously
@@ -51,6 +53,7 @@ void (async () => {
         ? DATABASE_URL.replace('sslmode=require', 'sslmode=verify-full')
         : DATABASE_URL;
       const pool = new Pool({ connectionString: connStr });
+      traceModules.pool = pool;
       const db = drizzle(pool);
       traceModules.traceRepository = new traceModules.TraceRepository!(db);
     }
@@ -58,7 +61,18 @@ void (async () => {
   } catch (err) {
     logger.warn('TraceRepository initialization skipped', { error: serializeError(err) });
   }
-})();
+})().catch(err => {
+  logger.error('TraceController module initialization fatal error', { error: serializeError(err) });
+});
+
+/** Close the TraceController's dedicated DB pool on shutdown */
+export async function closeTracePool(): Promise<void> {
+  if (traceModules.pool) {
+    await traceModules.pool.end();
+    traceModules.pool = null;
+    logger.debug('TraceController DB pool closed');
+  }
+}
 
 export class TraceController {
   async getTrace(req: Request, res: Response): Promise<void> {

@@ -1,5 +1,6 @@
 import express from 'express';
 import { safe } from '../middleware/safe';
+import { validationMiddleware } from '../middleware/validation';
 import { PlaylistController } from '../controllers/PlaylistController';
 import { PlaylistService } from '../../application/services/PlaylistService';
 import { SmartPlaylistEngine } from '../../application/services/SmartPlaylistEngine';
@@ -51,10 +52,12 @@ export function createPlaylistRoutes(playlistService: PlaylistService): express.
   );
   router.post(
     '/',
+    validationMiddleware('create-playlist'),
     safe((req, res) => controller.createPlaylist(req, res))
   );
   router.patch(
     '/:playlistId',
+    validationMiddleware('update-playlist'),
     safe((req, res) => controller.updatePlaylist(req, res))
   );
   router.delete(
