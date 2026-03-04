@@ -7,7 +7,13 @@ import { Request, Response } from 'express';
 import { ServiceFactory } from '@infrastructure/composition/ServiceFactory';
 import { getLogger } from '@config/service-urls';
 import { sendSuccess, sendCreated, ServiceErrors } from '../utils/response-helpers';
-import { normalizeRole, RefreshTokenSchema, getCorrelationId } from '@aiponge/shared-contracts';
+import {
+  normalizeRole,
+  RefreshTokenSchema,
+  RegisterUserSchema,
+  LoginUserSchema,
+  getCorrelationId,
+} from '@aiponge/shared-contracts';
 
 import { serializeError, getAuditService, extractAuthContext } from '@aiponge/platform-core';
 
@@ -15,9 +21,17 @@ const logger = getLogger('auth-controller');
 
 export class AuthController {
   async register(req: Request, res: Response): Promise<void> {
+    const parsed = RegisterUserSchema.safeParse(req.body);
+    if (!parsed.success) {
+      const message = parsed.error.errors.map(e => e.message).join(', ');
+      ServiceErrors.badRequest(res, message, req);
+      return;
+    }
+    const validatedBody = parsed.data as { email: string; password: string } & typeof parsed.data;
+
     try {
       const useCase = ServiceFactory.createRegisterUserUseCase();
-      const result = await useCase.execute(req.body);
+      const result = await useCase.execute(validatedBody);
 
       if (!result.success || !result.user || !result.token) {
         ServiceErrors.badRequest(res, result.error || 'Registration failed', req);
@@ -48,9 +62,17 @@ export class AuthController {
   }
 
   async login(req: Request, res: Response): Promise<void> {
+    const parsed = LoginUserSchema.safeParse(req.body);
+    if (!parsed.success) {
+      const message = parsed.error.errors.map(e => e.message).join(', ');
+      ServiceErrors.badRequest(res, message, req);
+      return;
+    }
+    const validatedBody = parsed.data as { identifier: string; password: string };
+
     try {
       const useCase = ServiceFactory.createLoginUserUseCase();
-      const result = await useCase.execute(req.body);
+      const result = await useCase.execute(validatedBody);
 
       if (!result.success || !result.user || !result.token) {
         ServiceErrors.unauthorized(res, result.error || 'Login failed', req);
@@ -143,9 +165,17 @@ export class AuthController {
   }
 
   async registerUser(req: Request, res: Response): Promise<void> {
+    const parsed = RegisterUserSchema.safeParse(req.body);
+    if (!parsed.success) {
+      const message = parsed.error.errors.map(e => e.message).join(', ');
+      ServiceErrors.badRequest(res, message, req);
+      return;
+    }
+    const validatedBody = parsed.data as { email: string; password: string } & typeof parsed.data;
+
     try {
       const useCase = ServiceFactory.createRegisterUserUseCase();
-      const result = await useCase.execute(req.body);
+      const result = await useCase.execute(validatedBody);
 
       if (!result.success) {
         ServiceErrors.badRequest(res, result.error || 'User registration failed', req);

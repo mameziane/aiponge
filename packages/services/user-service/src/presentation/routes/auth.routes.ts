@@ -40,7 +40,13 @@ export function registerAuthRoutes(router: Router, deps: AuthRouteDeps): void {
   router.delete('/auth/delete-account', (req, res) => authController.deleteAccount(req, res));
 
   // Guest conversion routes
+  // Non-parameterized routes (preferred) — userId extracted from x-user-id header
   router.get('/guest-conversion/policy', (req, res) => guestConversionController.getPolicy(req, res));
+  router.get('/guest-conversion/state', (req, res) => guestConversionController.getState(req, res));
+  router.post('/guest-conversion/event', (req, res) => guestConversionController.trackEvent(req, res));
+  router.post('/guest-conversion/convert', (req, res) => guestConversionController.markConverted(req, res));
+
+  // Legacy parameterized routes (backward compat with gateway — userId still comes from auth context)
   router.get('/guest-conversion/:userId/state', (req, res) => guestConversionController.getState(req, res));
   router.post('/guest-conversion/:userId/event', (req, res) => guestConversionController.trackEvent(req, res));
   router.post('/guest-conversion/:userId/convert', (req, res) => guestConversionController.markConverted(req, res));

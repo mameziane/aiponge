@@ -10,7 +10,7 @@
  * - Studio: subscription_monthly_studio, subscription_yearly_studio
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, StyleSheet, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -94,6 +94,7 @@ export function PaywallScreen() {
   const user = useAuthStore(selectUser);
   const isGuest = !user || user.isGuest;
   const [purchaseLoading, setPurchaseLoading] = useState(false);
+  const purchaseInFlightRef = useRef(false);
   const [selectedTier, setSelectedTier] = useState<SelectedTier>(() => {
     // Pre-select the next tier up for existing paid users
     if (currentTier === TIER_IDS.PERSONAL) return TIER_IDS.PRACTICE;
@@ -173,6 +174,7 @@ export function PaywallScreen() {
   }, [currentTierPackages]);
 
   const handlePurchase = async () => {
+    if (purchaseInFlightRef.current) return;
     if (!selectedPackage) {
       Alert.alert(t('common.error'), t('paywall.noPackages'));
       return;
@@ -201,6 +203,7 @@ export function PaywallScreen() {
     }
 
     try {
+      purchaseInFlightRef.current = true;
       setPurchaseLoading(true);
       await purchasePackage(selectedPackage.pkg);
       Alert.alert(t('common.success'), t('paywall.welcomeToPremium'));
@@ -211,12 +214,15 @@ export function PaywallScreen() {
         Alert.alert(t('common.error'), t('paywall.purchaseFailed'));
       }
     } finally {
+      purchaseInFlightRef.current = false;
       setPurchaseLoading(false);
     }
   };
 
   const handleRestore = async () => {
+    if (purchaseInFlightRef.current) return;
     try {
+      purchaseInFlightRef.current = true;
       setPurchaseLoading(true);
       await restorePurchases();
       Alert.alert(t('common.success'), t('paywall.purchasesRestored'));
@@ -224,6 +230,7 @@ export function PaywallScreen() {
     } catch {
       Alert.alert(t('common.error'), t('paywall.restoreFailed'));
     } finally {
+      purchaseInFlightRef.current = false;
       setPurchaseLoading(false);
     }
   };
@@ -432,6 +439,7 @@ export function PaywallScreen() {
                 <Text style={styles.freeBadgeText}>{t('common.free', { defaultValue: 'Free' })}</Text>
               </View>
             </View>
+            <Text style={styles.guestSubBadge}>{t('paywall.guestNoAccountNeeded')}</Text>
             <Text style={styles.guestDescription}>{t('subscription.tiers.guest.description')}</Text>
             <View style={styles.freeTierFeatures}>
               {getTierDisplay(TIER_IDS.GUEST).features.map((feature, idx) => (
@@ -450,12 +458,28 @@ export function PaywallScreen() {
                 <Text style={styles.freeBadgeText}>{t('common.free', { defaultValue: 'Free' })}</Text>
               </View>
             </View>
+            <Text style={styles.explorerSubBadge}>{t('paywall.explorerFreeWithAccount')}</Text>
             <Text style={styles.guestDescription}>{t('subscription.tiers.explorer.description')}</Text>
             <View style={styles.freeTierFeatures}>
               {getTierDisplay(TIER_IDS.EXPLORER).features.map((feature, idx) => (
                 <FeatureItem key={idx} text={t(feature.i18nKey, feature.i18nParams)} />
               ))}
             </View>
+            {isGuest ? (
+              <TouchableOpacity
+                style={styles.registerButton}
+                onPress={() => router.push({ pathname: '/(auth)/register', params: { returnTo: '/paywall' } } as never)}
+                testID="button-register-explorer"
+              >
+                <Ionicons name="person-add-outline" size={16} color={colors.absolute.white} />
+                <Text style={styles.registerButtonText}>{t('paywall.registerForFree')}</Text>
+              </TouchableOpacity>
+            ) : currentTier === TIER_IDS.EXPLORER ? (
+              <View style={styles.currentPlanBadge}>
+                <Ionicons name="checkmark-circle" size={16} color={colors.semantic.success} />
+                <Text style={styles.currentPlanText}>{t('paywall.currentPlan')}</Text>
+              </View>
+            ) : null}
           </LiquidGlassCard>
 
           <TouchableOpacity
@@ -881,12 +905,53 @@ const createStyles = (colors: ColorScheme) =>
       fontFamily: fontFamilies.body.bold,
       color: colors.text.primary,
     },
+    guestSubBadge: {
+      fontSize: 12,
+      fontFamily: fontFamilies.body.medium,
+      color: colors.text.gray[400],
+      marginBottom: 8,
+    },
+    explorerSubBadge: {
+      fontSize: 12,
+      fontFamily: fontFamilies.body.bold,
+      color: colors.brand.purple[400],
+      marginBottom: 8,
+    },
     guestDescription: {
       fontSize: 14,
       fontFamily: fontFamilies.body.regular,
       color: colors.text.gray[400],
       lineHeight: 20,
       marginBottom: 12,
+    },
+    registerButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 8,
+      backgroundColor: colors.brand.purple[400],
+      paddingVertical: 12,
+      paddingHorizontal: 20,
+      borderRadius: BORDER_RADIUS.md,
+      marginTop: 12,
+    },
+    registerButtonText: {
+      fontSize: 15,
+      fontFamily: fontFamilies.body.bold,
+      color: colors.absolute.white,
+    },
+    currentPlanBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 6,
+      marginTop: 12,
+      paddingVertical: 8,
+    },
+    currentPlanText: {
+      fontSize: 14,
+      fontFamily: fontFamilies.body.semibold,
+      color: colors.semantic.success,
     },
     continueGuestButton: {
       alignSelf: 'center',

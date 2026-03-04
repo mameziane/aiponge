@@ -438,6 +438,23 @@ export type MusicGenerateInput = z.infer<typeof MusicGenerateSchema>;
 // AUTH INPUT SCHEMAS
 // =============================================================================
 
+export const RegisterUserSchema = z.object({
+  email: z.string().email('Valid email is required').max(255),
+  password: z.string().min(8, 'Password must be at least 8 characters').max(128),
+  firstName: z.string().max(100).optional(),
+  lastName: z.string().max(100).optional(),
+  role: z.string().max(50).optional(),
+  phoneNumber: z.string().max(20).optional(),
+  guestUserId: z.string().uuid().optional(),
+});
+export type RegisterUserInput = z.infer<typeof RegisterUserSchema>;
+
+export const LoginUserSchema = z.object({
+  identifier: z.string().min(1, 'Email or phone is required').max(255),
+  password: z.string().min(1, 'Password is required').max(128),
+});
+export type LoginUserInput = z.infer<typeof LoginUserSchema>;
+
 export const RefreshTokenSchema = z.object({
   refreshToken: z.string().min(1, 'Refresh token is required'),
   sessionId: z.string().uuid('Session ID must be a valid UUID'),

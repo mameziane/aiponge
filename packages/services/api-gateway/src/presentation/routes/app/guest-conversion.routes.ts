@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import { extractAuthContext } from '@aiponge/platform-core';
 import { createProxyHandler, createPolicyRoute } from '../helpers/routeHelpers';
 
 const router: Router = Router();
@@ -23,7 +22,7 @@ router.get(
   '/state',
   ...createPolicyRoute({
     service: SERVICE,
-    path: req => `/api/guest-conversion/${extractAuthContext(req).userId}/state`,
+    path: '/api/guest-conversion/state',
     logPrefix: '[GUEST-CONVERSION]',
     errorMessage: 'Failed to fetch guest conversion state',
   })
@@ -33,7 +32,7 @@ router.post(
   '/event',
   ...createPolicyRoute({
     service: SERVICE,
-    path: req => `/api/guest-conversion/${extractAuthContext(req).userId}/event`,
+    path: '/api/guest-conversion/event',
     logPrefix: '[GUEST-CONVERSION]',
     errorMessage: 'Failed to track guest event',
   })
@@ -43,7 +42,7 @@ router.post(
   '/convert',
   ...createPolicyRoute({
     service: SERVICE,
-    path: req => `/api/guest-conversion/${extractAuthContext(req).userId}/convert`,
+    path: '/api/guest-conversion/convert',
     logPrefix: '[GUEST-CONVERSION]',
     errorMessage: 'Failed to mark guest as converted',
   })

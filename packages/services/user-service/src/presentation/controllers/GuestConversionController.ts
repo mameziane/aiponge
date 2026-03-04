@@ -9,7 +9,7 @@ import { ServiceErrors, sendSuccess } from '../utils/response-helpers';
 import { GuestConversionRepository, GuestEventType } from '@infrastructure/repositories';
 import { DEFAULT_GUEST_CONVERSION_POLICY } from '@infrastructure/database/schemas/subscription-schema';
 import { Result } from '@aiponge/shared-contracts';
-import { createControllerHelpers, serializeError } from '@aiponge/platform-core';
+import { createControllerHelpers, serializeError, extractAuthContext } from '@aiponge/platform-core';
 
 const logger = getLogger('guest-conversion-controller');
 
@@ -52,12 +52,16 @@ export class GuestConversionController {
   }
 
   /**
-   * Get guest conversion state for a user
-   * GET /guest-conversion/:userId/state
+   * Get guest conversion state for the authenticated user
+   * GET /guest-conversion/state
    */
   async getState(req: Request, res: Response): Promise<void> {
     try {
-      const userId = req.params.userId as string;
+      const userId = req.params.userId ?? extractAuthContext(req).userId;
+      if (!userId) {
+        ServiceErrors.unauthorized(res, 'User ID is required', req);
+        return;
+      }
 
       const stateResult = await this.guestConversionRepository.getGuestState(userId);
 
@@ -92,11 +96,15 @@ export class GuestConversionController {
 
   /**
    * Track a guest event and evaluate prompt trigger
-   * POST /guest-conversion/:userId/event
+   * POST /guest-conversion/event
    * Body: { eventType: 'song_created' | 'track_played' | 'entry_created' }
    */
   async trackEvent(req: Request, res: Response): Promise<void> {
-    const userId = req.params.userId as string;
+    const userId = req.params.userId ?? extractAuthContext(req).userId;
+    if (!userId) {
+      ServiceErrors.unauthorized(res, 'User ID is required', req);
+      return;
+    }
     const { eventType } = req.body;
 
     const validEvents: GuestEventType[] = ['song_created', 'track_played', 'entry_created'];
@@ -115,7 +123,7 @@ export class GuestConversionController {
 
   /**
    * Mark guest as converted (after registration)
-   * POST /guest-conversion/:userId/convert
+   * POST /guest-conversion/convert
    */
   async markConverted(req: Request, res: Response): Promise<void> {
     await handleRequest({
@@ -123,7 +131,10 @@ export class GuestConversionController {
       res,
       errorMessage: 'Failed to mark guest as converted',
       handler: async () => {
-        const userId = req.params.userId as string;
+        const userId = req.params.userId ?? extractAuthContext(req).userId;
+        if (!userId) {
+          throw new Error('User ID is required');
+        }
         await this.guestConversionRepository.markConverted(userId);
         return { message: 'Guest marked as converted' };
       },
