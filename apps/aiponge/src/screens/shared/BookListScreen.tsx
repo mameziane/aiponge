@@ -647,12 +647,10 @@ const createStyles = (colors: ColorScheme) =>
       borderRadius: BORDER_RADIUS.sm,
       borderWidth: 1,
       borderColor: colors.border.primary,
-      flex: 1,
     },
     dropdownText: {
       fontSize: 13,
       color: colors.text.secondary,
-      flex: 1,
     },
     studioButton: {
       flexDirection: 'row',

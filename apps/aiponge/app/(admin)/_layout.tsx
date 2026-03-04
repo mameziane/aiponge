@@ -1,6 +1,6 @@
-import { Tabs, Redirect } from 'expo-router';
+import { Tabs, Redirect, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { View, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useThemeColors } from '../../src/theme';
 import { useAuthStore } from '../../src/auth/store';
@@ -58,6 +58,14 @@ export default function AdminLayout() {
     return t(titleKeys[routeName] || routeName);
   };
 
+  const router = useRouter();
+
+  const handleCreatePress = () => {
+    // Navigate to dashboard — the actual create action is dispatched via AdminCreateContext
+    // based on which admin screen registers a create action
+    router.push('/(admin)/dashboard');
+  };
+
   return (
     <AdminCreateProvider>
       <Tabs
@@ -103,6 +111,29 @@ export default function AdminLayout() {
           }}
         />
         <Tabs.Screen
+          name="create"
+          options={{
+            title: t('navigation.tabCreate'),
+            tabBarIcon: () => (
+              <View style={styles.createIconWrapper}>
+                <Ionicons name="add-circle" color={colors.text.primary} size={48} />
+              </View>
+            ),
+            tabBarItemStyle: {
+              flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+              overflow: 'visible',
+            },
+          }}
+          listeners={{
+            tabPress: e => {
+              e.preventDefault();
+              handleCreatePress();
+            },
+          }}
+        />
+        <Tabs.Screen
           name="insights"
           options={{
             title: t('navigation.insights'),
@@ -142,3 +173,13 @@ export default function AdminLayout() {
     </AdminCreateProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  createIconWrapper: {
+    width: 52,
+    height: 52,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: -12,
+  },
+});

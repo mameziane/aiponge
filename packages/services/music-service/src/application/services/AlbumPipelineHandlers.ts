@@ -7,6 +7,7 @@
 
 import { getLogger, getServiceUrl, createServiceHttpClient, type HttpClient } from '../../config/service-urls';
 import { getDatabase } from '../../infrastructure/database/DatabaseConnectionFactory';
+import { getServiceRegistry } from '../../infrastructure/ServiceFactory';
 import { albums, tracks as tracksTable } from '../../schema/music-schema';
 import { eq, inArray, sum } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
@@ -75,6 +76,20 @@ export class DefaultAlbumCreationHandler implements AlbumCreationHandler {
     if (config.mood) descriptionParts.push(`Mood: ${config.mood}`);
     const description = descriptionParts.join(' · ');
 
+    // Resolve display name: use config value, or fetch from user-service
+    let resolvedDisplayName = config.displayName || '';
+    if (!resolvedDisplayName) {
+      try {
+        const profileResult = await getServiceRegistry().userClient.getUserDisplayName(config.userId);
+        resolvedDisplayName = profileResult.success && profileResult.displayName ? profileResult.displayName : '';
+      } catch (err) {
+        logger.warn('Failed to resolve display name for album, using empty', {
+          userId: config.userId,
+          error: err instanceof Error ? err.message : String(err),
+        });
+      }
+    }
+
     await db.insert(albums).values({
       id: albumId,
       title: context.albumTitle,
@@ -94,7 +109,7 @@ export class DefaultAlbumCreationHandler implements AlbumCreationHandler {
         languageMode: config.languageMode || 'single',
         targetLanguages: config.targetLanguages || [config.language || 'en-US'],
         ...(isShared ? { generatedBy: config.userId } : {}),
-        ...(config.displayName ? { displayName: config.displayName } : {}),
+        ...(resolvedDisplayName ? { displayName: resolvedDisplayName } : {}),
       },
     } as typeof albums.$inferInsert);
 

@@ -130,7 +130,7 @@ export function AdminDashboardSection() {
   const metrics = metricsQuery.data;
 
   const getOverallStatus = () => {
-    if (!health) return 'unknown';
+    if (!health) return 'loading';
     if (health.healthyServices === health.totalServices) return 'healthy';
     if (health.healthyServices === 0) return 'unhealthy';
     return 'degraded';
@@ -209,7 +209,11 @@ export function AdminDashboardSection() {
               <MetricCard label={t('admin.dashboard.healthy')} value={health.healthyServices ?? 0} status="healthy" />
               <MetricCard
                 label={t('admin.dashboard.uptime')}
-                value={health.uptime ? `${Math.floor(health.uptime / 3600)}h` : 'N/A'}
+                value={
+                  health.uptime
+                    ? `${Math.floor(health.uptime / 3600)}h ${Math.floor((health.uptime % 3600) / 60)}m`
+                    : 'N/A'
+                }
               />
             </View>
           </View>
