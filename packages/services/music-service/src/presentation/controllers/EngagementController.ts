@@ -5,7 +5,13 @@ import { GetUserLibraryUseCase } from '../../application/use-cases/library/GetUs
 import { libraryOperationsService } from '../../application/services/LibraryOperationsService';
 import { getLogger, createServiceHttpClient } from '../../config/service-urls';
 import { serializeError, extractAuthContext, getResponseHelpers } from '@aiponge/platform-core';
-import { USER_ROLES, type UserRole, CONTENT_VISIBILITY, TRACK_LIFECYCLE } from '@aiponge/shared-contracts';
+import {
+  USER_ROLES,
+  PRIVILEGED_ROLES,
+  type UserRole,
+  CONTENT_VISIBILITY,
+  TRACK_LIFECYCLE,
+} from '@aiponge/shared-contracts';
 
 const { sendSuccess, ServiceErrors } = getResponseHelpers();
 const internalHttpClient = createServiceHttpClient('internal');
@@ -453,9 +459,9 @@ export class EngagementController {
       });
 
       const normalizedAdminRole = userRole?.toLowerCase() as UserRole;
-      if (normalizedAdminRole !== USER_ROLES.ADMIN) {
-        logger.warn('Admin Delete Shared Track - Non-admin attempted access', { adminUserId, actualRole: userRole });
-        ServiceErrors.forbidden(res, 'Admin access required', req);
+      if (!PRIVILEGED_ROLES.includes(normalizedAdminRole)) {
+        logger.warn('Delete Shared Track - Unprivileged user attempted access', { adminUserId, actualRole: userRole });
+        ServiceErrors.forbidden(res, 'Admin or librarian access required', req);
         return;
       }
 
@@ -512,9 +518,9 @@ export class EngagementController {
       });
 
       const normalizedMoveRole = userRole?.toLowerCase() as UserRole;
-      if (normalizedMoveRole !== USER_ROLES.ADMIN) {
-        logger.warn('Admin Move to Public - Non-admin attempted access', { adminUserId, actualRole: userRole });
-        ServiceErrors.forbidden(res, 'Admin access required', req);
+      if (!PRIVILEGED_ROLES.includes(normalizedMoveRole)) {
+        logger.warn('Move to Public - Unprivileged user attempted access', { adminUserId, actualRole: userRole });
+        ServiceErrors.forbidden(res, 'Admin or librarian access required', req);
         return;
       }
 
