@@ -32,6 +32,7 @@ import {
   LikeButton,
   MoreOptionsButton,
 } from '../shared/TrackComponents';
+import { OfflineIndicator } from '../shared/OfflineIndicator';
 
 interface CompactTrackRowProps {
   id: string;
@@ -134,6 +135,7 @@ export const CompactTrackRow = memo(function CompactTrackRow({
                 {displayName}
               </Text>
               <View style={styles.compactActions}>
+                <OfflineIndicator trackId={id} size={14} />
                 {isPlaying && (
                   <View style={styles.compactNowPlayingIndicator}>
                     <AnimatedWaveform size="small" color={colors.brand.primary} />
@@ -156,6 +158,7 @@ export const CompactTrackRow = memo(function CompactTrackRow({
 
         {!isCompact && (
           <>
+            <OfflineIndicator trackId={id} size={16} />
             <View style={styles.playCountContainer}>
               {playCount !== undefined && playCount > 0 ? (
                 <Text style={styles.playCount} testID={`play-count-${id}`}>

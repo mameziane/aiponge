@@ -28,6 +28,7 @@ import { AnimatedWaveform } from './AnimatedWaveform';
 import { ArtworkImage } from '../shared/ArtworkImage';
 import { TrackOptionsMenu } from './TrackOptionsMenu';
 import { useTrackOptionsMenu, PlayingOverlay, LikeButton, MoreOptionsButton } from '../shared/TrackComponents';
+import { OfflineIndicator } from '../shared/OfflineIndicator';
 import type { IconProps } from '../../types';
 
 type SimpleIconProps = Omit<IconProps, 'name'>;
@@ -140,6 +141,9 @@ function TrackItemComponent({
             </Text>
           )}
         </View>
+
+        {/* Offline Download Indicator */}
+        <OfflineIndicator trackId={track.id} size={16} />
 
         {/* Playing Waveform Indicator */}
         {isActive && isPlaying && (

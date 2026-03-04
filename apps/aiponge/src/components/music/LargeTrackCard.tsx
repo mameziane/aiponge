@@ -12,6 +12,7 @@ import {
   LikeButton,
   MoreOptionsButton,
 } from '../shared/TrackComponents';
+import { OfflineIndicator } from '../shared/OfflineIndicator';
 
 interface LargeTrackCardProps {
   id: string;
@@ -95,6 +96,8 @@ export const LargeTrackCard = memo(function LargeTrackCard({
           }
         >
           {isPlaying && <PlayingOverlay size="medium" backgroundColor="rgba(68, 9, 114, 0.85)" />}
+
+          <OfflineIndicator trackId={id} size={18} variant="badge" />
 
           {playCount !== undefined && playCount > 0 && !isPlaying && (
             <View style={styles.playCountBadge}>
