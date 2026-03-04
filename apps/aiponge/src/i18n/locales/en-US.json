@@ -158,12 +158,25 @@
   },
   "navigation": {
     "myMusic": "Music",
+    "myBooks": "Books",
+    "create": "Create",
+    "reports": "Community",
     "adminDashboard": "Admin",
     "newEntry": "New Entry",
     "reflect": "Reflect",
     "reflectDisabledTitle": "No Entries Yet",
     "reflectDisabledMessage": "Write some journal entries first — Reflect analyzes your entries to find patterns and insights.",
-    "studio": "Studio"
+    "studio": "Studio",
+    "tabCreate": "Create",
+    "tabBook": "Book",
+    "tabEntry": "Entry",
+    "tabInsight": "Insight",
+    "tabSong": "Song",
+    "dashboard": "Dashboard",
+    "config": "Config",
+    "insights": "Insights",
+    "governance": "Governance",
+    "profile": "Profile"
   },
   "librarian": {
     "title": "Librarian",
