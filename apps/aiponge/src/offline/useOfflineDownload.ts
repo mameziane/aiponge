@@ -9,7 +9,7 @@
 
 import { useCallback, useRef, useEffect } from 'react';
 import { Alert } from 'react-native';
-import { useDownloadStore, OFFLINE_DIR, ensureTrackDir } from './store';
+import { useDownloadStore, OFFLINE_DIR, ensureTrackDir, selectDownloads } from './store';
 import { useNetworkStatus } from '../hooks/system/useNetworkStatus';
 import { logger } from '../lib/logger';
 import { FileSystem, isOfflineSupported } from './offlineEnv';
@@ -24,8 +24,10 @@ export function useOfflineDownload() {
   const networkStatus = useNetworkStatus();
   const activeDownloadsRef = useRef<Map<string, DownloadResumableRef>>(new Map());
 
+  // Filtered downloads scoped to the current user (for UI display)
+  const userDownloads = useDownloadStore(selectDownloads);
+
   const {
-    downloads,
     queue,
     isProcessing,
     storageInfo,
@@ -280,17 +282,17 @@ export function useOfflineDownload() {
     [networkStatus.isConnected, addToQueue]
   );
 
-  // Get all completed downloads
+  // Get all completed downloads (filtered by current user)
   const getCompletedDownloads = useCallback((): OfflineTrack[] => {
-    return Object.values(downloads).filter(d => d.status === 'completed');
-  }, [downloads]);
+    return Object.values(userDownloads).filter(d => d.status === 'completed');
+  }, [userDownloads]);
 
-  // Get download by trackId
+  // Get download by trackId (filtered by current user)
   const getDownload = useCallback(
     (trackId: string): OfflineTrack | undefined => {
-      return downloads[trackId];
+      return userDownloads[trackId];
     },
-    [downloads]
+    [userDownloads]
   );
 
   // Check if track has offline version
@@ -316,8 +318,8 @@ export function useOfflineDownload() {
   );
 
   return {
-    // State
-    downloads,
+    // State (downloads filtered to current user)
+    downloads: userDownloads,
     queue,
     isProcessing,
     storageInfo,

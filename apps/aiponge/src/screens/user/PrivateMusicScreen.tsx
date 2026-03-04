@@ -24,7 +24,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { logger } from '../../lib/logger';
 import { invalidateOnEvent } from '../../lib/cacheManager';
 import { queryKeys } from '../../lib/queryKeys';
-import { useDownloadStore } from '../../offline/store';
+import { useDownloadStore, selectDownloads } from '../../offline/store';
 import { LiquidGlassCard } from '../../components/ui';
 import { usePlaybackQueue } from '../../contexts/PlaybackContext';
 
@@ -349,8 +349,8 @@ export function PrivateMusicScreen() {
     router.push('/create');
   }, [router]);
 
-  // Offline downloads count
-  const downloads = useDownloadStore(state => state.downloads);
+  // Offline downloads count (filtered to current user)
+  const downloads = useDownloadStore(selectDownloads);
   const downloadCount = Object.values(downloads).filter(d => d.status === 'completed' && d.localAudioPath).length;
 
   const renderTrackItem = useCallback(

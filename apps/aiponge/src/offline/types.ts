@@ -14,6 +14,7 @@ export type DownloadStatus =
 export interface OfflineTrack {
   id: string;
   trackId: string;
+  userId?: string;
   title: string;
   displayName: string;
   duration: number;
@@ -52,6 +53,7 @@ export interface StorageInfo {
 }
 
 export interface DownloadManagerState {
+  currentUserId: string | null;
   downloads: Record<string, OfflineTrack>;
   queue: DownloadJob[];
   isProcessing: boolean;
@@ -60,6 +62,7 @@ export interface DownloadManagerState {
 }
 
 export interface DownloadManagerActions {
+  setCurrentUser: (userId: string | null) => void;
   addToQueue: (track: DownloadJob['track']) => Promise<void>;
   removeDownload: (trackId: string) => Promise<void>;
   pauseDownload: (trackId: string) => void;

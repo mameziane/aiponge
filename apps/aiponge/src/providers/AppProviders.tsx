@@ -10,6 +10,7 @@ import { SubscriptionProvider } from '../contexts/SubscriptionContext';
 import { BackendStatusProvider } from '../contexts/BackendStatusContext';
 import { ThemeProvider } from '../theme/ThemeProvider';
 import { queryClient } from '../lib/reactQueryClient';
+import { useDownloadUserSync } from '../offline/useDownloadUserSync';
 import type { ViewStyle } from 'react-native';
 
 const flexStyle: ViewStyle = { flex: 1 };
@@ -19,6 +20,9 @@ interface AppProvidersProps {
 }
 
 export function AppProviders({ children }: AppProvidersProps) {
+  // Sync auth userId → download store so downloads are scoped per user
+  useDownloadUserSync();
+
   return (
     <ThemeProvider>
       <ShareIntentProvider>

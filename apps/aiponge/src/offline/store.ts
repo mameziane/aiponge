@@ -18,6 +18,7 @@ const OFFLINE_DIR = getOfflineDirectory() || '';
 const DEFAULT_STORAGE_LIMIT = 2 * 1024 * 1024 * 1024; // 2GB default
 
 const initialState: DownloadManagerState = {
+  currentUserId: null,
   downloads: {},
   queue: [],
   isProcessing: false,
@@ -73,6 +74,13 @@ export const useDownloadStore = create<DownloadStore>()(
     (set, get) => ({
       ...initialState,
 
+      setCurrentUser: (userId: string | null) => {
+        const prev = get().currentUserId;
+        if (prev === userId) return;
+        logger.info('[OfflineStore] User changed', { from: prev, to: userId });
+        set({ currentUserId: userId });
+      },
+
       addToQueue: async track => {
         // Guard for Expo Go - offline downloads not supported
         if (!isOfflineSupported) {
@@ -113,10 +121,11 @@ export const useDownloadStore = create<DownloadStore>()(
           createdAt: Date.now(),
         };
 
-        // Create pending offline track entry
+        // Create pending offline track entry (stamped with current userId)
         const offlineTrack: OfflineTrack = {
           id: track.id,
           trackId: track.id,
+          userId: get().currentUserId || undefined,
           title: track.title,
           displayName: track.displayName,
           duration: track.duration,
@@ -235,21 +244,43 @@ export const useDownloadStore = create<DownloadStore>()(
         // Skip entirely in Expo Go - no offline data exists
         if (!isOfflineSupported) {
           logger.debug('[OfflineStore] Skipping clearAllDownloads in Expo Go');
-          set({ ...initialState });
+          set(state => ({
+            ...initialState,
+            currentUserId: state.currentUserId,
+          }));
           return;
         }
 
-        // Delete entire offline directory
-        if (OFFLINE_DIR) {
-          try {
-            await FileSystem.deleteAsync(OFFLINE_DIR, { idempotent: true });
-          } catch (error) {
-            logger.warn('[OfflineStore] Error clearing all downloads', { error });
+        const { downloads, currentUserId } = get();
+
+        // Only clear downloads belonging to the current user
+        const ownedTrackIds: string[] = [];
+        const remainingDownloads: Record<string, OfflineTrack> = {};
+
+        for (const [id, dl] of Object.entries(downloads)) {
+          if (isOwnedByCurrentUser(dl, currentUserId)) {
+            ownedTrackIds.push(id);
+          } else {
+            remainingDownloads[id] = dl;
           }
         }
 
-        set({ ...initialState });
-        logger.info('[OfflineStore] Cleared all downloads');
+        // Delete file directories for current user's tracks only
+        await Promise.all(ownedTrackIds.map(trackId => deleteTrackFiles(trackId)));
+
+        set(state => ({
+          downloads: remainingDownloads,
+          queue: state.queue.filter(job => !ownedTrackIds.includes(job.trackId)),
+          isProcessing: false,
+          storageInfo: { ...initialState.storageInfo, limitBytes: state.storageLimit },
+          storageLimit: state.storageLimit,
+          currentUserId: state.currentUserId,
+        }));
+
+        logger.info('[OfflineStore] Cleared downloads for current user', {
+          userId: currentUserId,
+          count: ownedTrackIds.length,
+        });
       },
 
       updateProgress: (trackId, progress) => {
@@ -358,16 +389,24 @@ export const useDownloadStore = create<DownloadStore>()(
       },
 
       getLocalAudioPath: trackId => {
-        const download = get().downloads[trackId];
-        if (download?.status === 'completed' && download.localAudioPath) {
+        const { downloads, currentUserId } = get();
+        const download = downloads[trackId];
+        if (
+          download?.status === 'completed' &&
+          download.localAudioPath &&
+          isOwnedByCurrentUser(download, currentUserId)
+        ) {
           return download.localAudioPath;
         }
         return undefined;
       },
 
       isDownloaded: trackId => {
-        const download = get().downloads[trackId];
-        return download?.status === 'completed' && !!download.localAudioPath;
+        const { downloads, currentUserId } = get();
+        const download = downloads[trackId];
+        return (
+          download?.status === 'completed' && !!download.localAudioPath && isOwnedByCurrentUser(download, currentUserId)
+        );
       },
 
       loadFromStorage: async () => {
@@ -411,6 +450,7 @@ export const useDownloadStore = create<DownloadStore>()(
       name: 'aiponge-offline-downloads',
       storage: createJSONStorage(() => AsyncStorage),
       partialize: state => ({
+        currentUserId: state.currentUserId,
         downloads: state.downloads,
         storageLimit: state.storageLimit,
       }),
@@ -429,15 +469,39 @@ export const useDownloadStore = create<DownloadStore>()(
   )
 );
 
-// Selectors for optimal re-renders
-export const selectDownloads = (state: DownloadStore) => state.downloads;
+// Helper: filter downloads belonging to the current user
+// Downloads without a userId (pre-migration) are visible to all users
+function isOwnedByCurrentUser(download: OfflineTrack, currentUserId: string | null): boolean {
+  if (!download.userId) return true; // Legacy download (pre-migration), show to all
+  if (!currentUserId) return false; // No user logged in, hide user-specific downloads
+  return download.userId === currentUserId;
+}
+
+// Selectors for optimal re-renders (filtered by current user)
+export const selectDownloads = (state: DownloadStore) => {
+  const { downloads, currentUserId } = state;
+  const filtered: Record<string, OfflineTrack> = {};
+  for (const [id, dl] of Object.entries(downloads)) {
+    if (isOwnedByCurrentUser(dl, currentUserId)) {
+      filtered[id] = dl;
+    }
+  }
+  return filtered;
+};
 export const selectQueue = (state: DownloadStore) => state.queue;
 export const selectStorageInfo = (state: DownloadStore) => state.storageInfo;
-export const selectIsDownloaded = (trackId: string) => (state: DownloadStore) =>
-  state.downloads[trackId]?.status === 'completed';
-export const selectDownloadStatus = (trackId: string) => (state: DownloadStore) => state.downloads[trackId]?.status;
-export const selectDownloadProgress = (trackId: string) => (state: DownloadStore) =>
-  state.downloads[trackId]?.progress ?? 0;
+export const selectIsDownloaded = (trackId: string) => (state: DownloadStore) => {
+  const dl = state.downloads[trackId];
+  return dl?.status === 'completed' && isOwnedByCurrentUser(dl, state.currentUserId);
+};
+export const selectDownloadStatus = (trackId: string) => (state: DownloadStore) => {
+  const dl = state.downloads[trackId];
+  return dl && isOwnedByCurrentUser(dl, state.currentUserId) ? dl.status : undefined;
+};
+export const selectDownloadProgress = (trackId: string) => (state: DownloadStore) => {
+  const dl = state.downloads[trackId];
+  return dl && isOwnedByCurrentUser(dl, state.currentUserId) ? dl.progress : 0;
+};
 
 // Export directory constant for use in download hook
 export { OFFLINE_DIR, ensureTrackDir };
