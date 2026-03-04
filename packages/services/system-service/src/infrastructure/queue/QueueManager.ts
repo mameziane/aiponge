@@ -58,6 +58,7 @@ class QueueManagerClass {
 
     const queue = new Queue(name, { connection: this.connection });
 
+    const JOB_TIMEOUT_MS = 120_000; // 2-minute timeout for system jobs
     const worker = new Worker<T>(
       name,
       async (job: Job<T>) => {
@@ -70,6 +71,8 @@ class QueueManagerClass {
       {
         connection: this.connection,
         concurrency: 1,
+        lockDuration: JOB_TIMEOUT_MS, // jobs exceeding this are marked stalled
+        stalledInterval: 30_000,
         removeOnComplete: { count: 100 },
         removeOnFail: { count: 50 },
       }
@@ -90,8 +93,16 @@ class QueueManagerClass {
       });
     });
 
+    worker.on('stalled', (jobId: string) => {
+      logger.error(`Job ${jobId} stalled on queue "${name}" (exceeded lockDuration: ${JOB_TIMEOUT_MS}ms)`);
+    });
+
+    worker.on('error', (err: Error) => {
+      logger.error(`Worker error on queue "${name}"`, { error: err.message });
+    });
+
     this.queues.set(name, { queue, worker });
-    logger.info(`Queue "${name}" registered with worker`);
+    logger.info(`Queue "${name}" registered with worker`, { lockDuration: JOB_TIMEOUT_MS });
   }
 
   async enqueue<T = unknown>(

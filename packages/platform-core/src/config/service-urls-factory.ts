@@ -44,10 +44,17 @@ function buildServiceUrl(serviceName: string): string {
   const fullUrl = process.env[urlEnvVar];
   if (fullUrl) return fullUrl;
 
-  const host = process.env.SERVICE_HOST || 'localhost';
-  const port = resolveServicePort(serviceName);
+  const host = process.env.SERVICE_HOST;
+  if (!host && process.env.NODE_ENV === 'production') {
+    throw new DomainError(
+      `Neither ${urlEnvVar} nor SERVICE_HOST is set. ` +
+        `In production, one of these environment variables is required to resolve ${serviceName}.`,
+      500
+    );
+  }
 
-  return `http://${host}:${port}`;
+  const port = resolveServicePort(serviceName);
+  return `http://${host || 'localhost'}:${port}`;
 }
 
 export type HttpClientType = keyof typeof HttpConfigs;

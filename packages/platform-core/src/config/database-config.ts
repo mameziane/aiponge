@@ -23,10 +23,21 @@ export function getDatabaseUrl(): string {
 }
 
 /**
- * Get Redis URL with environment override
+ * Get Redis URL with environment override.
+ * In production, REDIS_URL must be explicitly set — no silent localhost fallback.
  */
 export function getRedisUrl(): string {
-  return process.env.REDIS_URL || 'redis://localhost:6379';
+  const url = process.env.REDIS_URL;
+  if (url) return url;
+
+  if (process.env.NODE_ENV === 'production') {
+    throw new DomainError(
+      'REDIS_URL environment variable is required in production. ' + 'Set it in your deployment environment.',
+      500
+    );
+  }
+
+  return 'redis://localhost:6379';
 }
 
 /**

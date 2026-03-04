@@ -200,6 +200,8 @@ export class MusicGenerationQueue extends EventEmitter {
     this.worker = new Worker<MusicGenerationJobData, MusicGenerationJobResult>(this.QUEUE_NAME, processor, {
       connection: this.workerConnection,
       concurrency: this.config.concurrency,
+      lockDuration: this.config.jobTimeoutMs, // prevent stalled-job false positives during long generations
+      stalledInterval: Math.max(30000, Math.floor(this.config.jobTimeoutMs / 5)), // check stalled jobs periodically
     });
 
     this.worker.on('completed', (job, result) => {
@@ -210,11 +212,18 @@ export class MusicGenerationQueue extends EventEmitter {
       logger.error('Worker job failed', { jobId: job?.id, error: error.message });
     });
 
+    this.worker.on('stalled', jobId => {
+      logger.error('Worker job stalled (exceeded lockDuration)', { jobId, lockDuration: this.config.jobTimeoutMs });
+    });
+
     this.worker.on('error', error => {
       logger.error('Worker error', { error: error.message });
     });
 
-    logger.info('Music generation worker started', { concurrency: this.config.concurrency });
+    logger.info('Music generation worker started', {
+      concurrency: this.config.concurrency,
+      lockDuration: this.config.jobTimeoutMs,
+    });
   }
 
   async shutdown(): Promise<void> {

@@ -34,6 +34,7 @@ router.post(
     logPrefix: '[MUSIC GENERATE]',
     errorMessage: 'Failed to generate music',
     middleware: [validateBody(MusicGenerateSchema)],
+    policies: { rateLimit: { preset: 'strict', segment: 'music-gen' } },
     transformBody: (req, userId) => ({
       ...req.body,
       userId,
@@ -58,6 +59,7 @@ router.post(
     },
     logPrefix: '[ALBUM GENERATE]',
     errorMessage: 'Failed to generate album',
+    policies: { rateLimit: { preset: 'strict', segment: 'music-gen' } },
     transformBody: (req, userId) => ({ ...req.body, userId }),
   })
 );
@@ -77,6 +79,7 @@ router.post(
     },
     logPrefix: '[ALBUM GENERATE ASYNC]',
     errorMessage: 'Failed to start album generation',
+    policies: { rateLimit: { preset: 'strict', segment: 'music-gen' } },
     transformBody: (req, userId) => ({ ...req.body, userId }),
   })
 );
@@ -158,6 +161,7 @@ router.post(
     path: '/api/music/analyze-preferences',
     logPrefix: '[ANALYZE PREFERENCES]',
     errorMessage: 'Failed to analyze preferences',
+    policies: { rateLimit: { preset: 'strict', segment: 'music-gen' } },
   })
 );
 
