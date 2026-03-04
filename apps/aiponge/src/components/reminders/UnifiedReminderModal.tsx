@@ -656,12 +656,16 @@ export function ReminderModal({ visible, onClose, reminder, onSave, defaultType,
                     <Text style={styles.sectionLabel}>{t('reminders.time')}</Text>
                     <Pressable
                       style={styles.timeButton}
-                      onPress={() => setShowTimePicker(true)}
+                      onPress={() => setShowTimePicker(prev => !prev)}
                       testID="button-select-time"
                     >
                       <Ionicons name="time-outline" size={22} color={currentPreset.color} />
                       <Text style={styles.timeButtonText}>{formatTime(config.time)}</Text>
-                      <Ionicons name="chevron-forward" size={18} color={colors.text.tertiary} />
+                      <Ionicons
+                        name={showTimePicker ? 'chevron-up' : 'chevron-forward'}
+                        size={18}
+                        color={colors.text.tertiary}
+                      />
                     </Pressable>
                   </View>
 
