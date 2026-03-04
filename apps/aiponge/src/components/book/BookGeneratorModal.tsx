@@ -139,17 +139,14 @@ export function BookGeneratorModal({
     } else if (status === 'completed' && blueprint) {
       if (!creationInitiatedRef.current) {
         creationInitiatedRef.current = true;
-        onCreateBookRef
-          .current({ ...blueprint, language: selectedLanguage })
-          .then(() => {
-            onCloseRef.current();
-          })
-          .catch(e => {
-            logger.warn('[BookGenerator] Failed to create book from blueprint', e);
-            creationInitiatedRef.current = false;
-            setStep('input');
-            setIsCreating(false);
-          });
+        // Close the modal FIRST to prevent a stuck spinner.
+        // Previously, navigation (router.push) inside onCreateBook happened
+        // before onClose, causing the native Modal to persist on iOS when
+        // the parent screen was no longer focused.
+        onCloseRef.current();
+        onCreateBookRef.current({ ...blueprint, language: selectedLanguage }).catch(e => {
+          logger.warn('[BookGenerator] Failed to create book from blueprint', e);
+        });
       }
     } else if (status === 'failed') {
       setStep('input');
