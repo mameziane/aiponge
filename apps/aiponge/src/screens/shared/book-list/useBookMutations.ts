@@ -54,7 +54,7 @@ export function useBookMutations({ refetchManageBooks, t, userId }: BookMutation
     options?: { skipNavigation?: boolean; visibility?: string }
   ): Promise<void> => {
     try {
-      const vis = options?.visibility || CONTENT_VISIBILITY.SHARED;
+      const vis = options?.visibility || CONTENT_VISIBILITY.PERSONAL;
       const response = (await apiRequest('/api/v1/app/library/books', {
         method: 'POST',
         data: {
