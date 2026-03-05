@@ -1,5 +1,6 @@
 import { View, ScrollView, StyleSheet, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { CONTENT_VISIBILITY } from '@aiponge/shared-contracts';
 import { useThemeColors, commonStyles, BORDER_RADIUS, type ColorScheme } from '../../theme';
@@ -38,6 +39,7 @@ export default function LibrarianMusicScreen({
 }: LibrarianMusicScreenProps) {
   const { t } = useTranslation();
   const { toast } = useToast();
+  const router = useRouter();
   const colors = useThemeColors();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const [showBatchModal, setShowBatchModal] = useState(false);
@@ -245,9 +247,14 @@ export default function LibrarianMusicScreen({
           description: t('librarian.music.batchFailedDesc'),
           variant: 'destructive',
         });
+      } else if (!isLibrarianProp) {
+        // Navigate user-mode Studio back to the Music tab where DraftAlbumCards
+        // show generation progress — avoids leaving the user on a hidden tab
+        // that looks like the Books view.
+        router.replace('/(user)/music' as any);
       }
     },
-    [balance?.currentBalance, policy?.musicGeneration?.costPerSong, startGeneration, t, toast]
+    [balance?.currentBalance, policy?.musicGeneration?.costPerSong, startGeneration, t, toast, isLibrarianProp, router]
   );
 
   return (

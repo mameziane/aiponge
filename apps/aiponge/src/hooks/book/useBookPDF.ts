@@ -558,6 +558,11 @@ export function useBookPDF(book: BookDisplay | null) {
         Alert.alert('PDF Generated', `Saved to: ${destUri}`);
       }
     } catch (err) {
+      // Share sheet can also reject when user dismisses it — not a real failure
+      if (err instanceof Error) {
+        const lower = err.message.toLowerCase();
+        if (lower.includes('cancel') || lower.includes('dismiss')) return;
+      }
       const msg = err instanceof Error ? err.message : 'Unknown error';
       Alert.alert('Export Failed', `Could not generate PDF: ${msg}`);
     } finally {
@@ -575,7 +580,12 @@ export function useBookPDF(book: BookDisplay | null) {
       if (!Print) throw new Error('PDF printing is not available on this device.');
       await Print.printAsync({ html });
     } catch (err) {
-      if (err instanceof Error && err.message.includes('cancelled')) return;
+      // Native print dialog can reject with various messages when user dismisses:
+      // iOS: "Cancelled", "cancelled", Android: "canceled", or empty/unknown rejections
+      if (err instanceof Error) {
+        const lower = err.message.toLowerCase();
+        if (lower.includes('cancel') || lower.includes('dismiss')) return;
+      }
       const msg = err instanceof Error ? err.message : 'Unknown error';
       Alert.alert('Print Failed', `Could not open print dialog: ${msg}`);
     } finally {

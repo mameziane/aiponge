@@ -187,7 +187,11 @@ export class BookController {
       book.isReadOnly = true;
     }
 
-    await this.generateCoverIfReadOnly(book, bookData, context);
+    // Generate cover for any book that was created with chapters (content to enrich cover themes).
+    // Previously gated on isReadOnly which blocked personal books from getting covers.
+    if (hasChapters) {
+      await this.generateCoverAsync(book, bookData, context);
+    }
 
     sendCreated(res, {
       ...book,
@@ -319,15 +323,11 @@ export class BookController {
     return { success: true, totalEntries: entries.length };
   }
 
-  private async generateCoverIfReadOnly(
+  private async generateCoverAsync(
     book: { id: string; isReadOnly: boolean | null; title: string; description: string | null },
     bookData: { typeId?: string },
     context: ContentAccessContext
   ): Promise<void> {
-    if (!book.isReadOnly) {
-      return;
-    }
-
     try {
       const coverResult = await this.deps.generateBookCoverUseCase.execute(
         {
