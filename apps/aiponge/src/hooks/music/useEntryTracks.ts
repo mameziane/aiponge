@@ -11,6 +11,7 @@ import { apiRequest } from '../../lib/axiosApiClient';
 import { useAuthState } from '../auth/useAuthState';
 import { queryKeys } from '../../lib/queryKeys';
 import { QUERY_STALE_TIME } from '../../constants/appConfig';
+import { normalizeMediaUrl } from '../../lib/apiConfig';
 import type { ServiceResponse } from '@aiponge/shared-contracts';
 
 type PrivateTracksResponse = ServiceResponse<{
@@ -56,21 +57,29 @@ export function useEntryTracks({ selectedEntryId }: UseEntryTracksParams) {
   });
 
   // Filter tracks generated from the selected entry, or include last generated track for guests
+  // Normalize media URLs so relative paths (e.g. /uploads/...) become absolute for expo-av/expo-image
   const entryTracks = React.useMemo(() => {
     if (!privateTracksResponse?.data?.tracks) return [];
 
+    let filtered: PrivateTrack[];
+
     // If we have a selected entry ID, filter by it
     if (selectedEntryId) {
-      return privateTracksResponse.data.tracks.filter((track: PrivateTrack) => track.entryId === selectedEntryId);
+      filtered = privateTracksResponse.data.tracks.filter((track: PrivateTrack) => track.entryId === selectedEntryId);
+    } else if (lastGeneratedTrackId) {
+      // For users without a saved entry (e.g., guests typing fresh content),
+      // include the most recently generated track so they can see/play it
+      filtered = privateTracksResponse.data.tracks.filter((track: PrivateTrack) => track.id === lastGeneratedTrackId);
+    } else {
+      return [];
     }
 
-    // For users without a saved entry (e.g., guests typing fresh content),
-    // include the most recently generated track so they can see/play it
-    if (lastGeneratedTrackId) {
-      return privateTracksResponse.data.tracks.filter((track: PrivateTrack) => track.id === lastGeneratedTrackId);
-    }
-
-    return [];
+    // Normalize URLs for mobile playback/display
+    return filtered.map(track => ({
+      ...track,
+      audioUrl: normalizeMediaUrl(track.audioUrl) || track.audioUrl,
+      artworkUrl: normalizeMediaUrl(track.artworkUrl) || track.artworkUrl,
+    }));
   }, [selectedEntryId, privateTracksResponse, lastGeneratedTrackId]);
 
   return React.useMemo(

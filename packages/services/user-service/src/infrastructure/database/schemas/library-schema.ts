@@ -75,6 +75,7 @@ export const libBooks = pgTable(
 
     // System book type (for auto-provisioned books like Bookmarks)
     systemType: varchar('system_type', { length: 50 }),
+    isSystem: boolean('is_system').default(false).notNull(), // Platform-provisioned content (e.g. welcome books) — filtered by language
 
     // Counters
     chapterCount: integer('chapter_count').default(0).notNull(),

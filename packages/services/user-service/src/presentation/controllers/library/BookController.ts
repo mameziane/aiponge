@@ -12,7 +12,7 @@ import {
   LibTemplateChapterSchema as templateChapterSchema,
 } from '@aiponge/shared-contracts';
 import type { ContentAccessContext } from '@aiponge/shared-contracts';
-import { GENERATION_STATUS } from '@aiponge/shared-contracts';
+import { GENERATION_STATUS, toShortLanguageCode } from '@aiponge/shared-contracts';
 import { CreatorMemberRepository } from '@infrastructure/repositories/CreatorMemberRepository';
 import type { LibraryControllerDeps } from './library-helpers';
 import { logger, formatZodErrors, buildContext, handleUseCaseResult, buildEnrichedContext } from './library-helpers';
@@ -52,6 +52,12 @@ export class BookController {
       const { typeId, category, language, visibility, status, search, limit, cursor, scope } = req.query;
       const context = buildContext(req);
 
+      // Resolve user's app language for system content filtering
+      // Priority: explicit ?language param > Accept-Language header > 'en' fallback
+      const acceptLang = req.headers['accept-language'];
+      const userAppLanguage =
+        (language as string) || (acceptLang ? toShortLanguageCode(acceptLang.split(',')[0]) : 'en');
+
       const filters = {
         typeId: typeId as string,
         category: category as string,
@@ -61,6 +67,7 @@ export class BookController {
         search: search as string,
         limit: limit ? parseInt(limit as string) : undefined,
         cursor: cursor as string | undefined,
+        userAppLanguage,
       };
 
       if (isContentPubliclyAccessible(scope as string) && context.userId && contextIsPrivileged(context)) {

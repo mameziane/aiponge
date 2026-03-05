@@ -73,6 +73,7 @@ export interface BookFilters {
   limit?: number;
   offset?: number;
   cursor?: string;
+  userAppLanguage?: string; // For system content language filtering (ISO 639-1)
 }
 
 export interface BookWithCounts extends Book {
@@ -224,6 +225,18 @@ export class BookRepository {
           ilike(libBooks.author, `%${filters.search}%`),
           ilike(libBooks.description, `%${filters.search}%`),
           sql`(SELECT u.profile->>'displayName' FROM usr_accounts u WHERE u.id = ${libBooks.userId} LIMIT 1) ILIKE ${`%${filters.search}%`}`
+        )!
+      );
+    }
+
+    // System content language filter: platform-provisioned content (is_system = true)
+    // is only visible when its language matches the user's app language.
+    // Non-system content (is_system = false) passes through unfiltered.
+    if (filters.userAppLanguage) {
+      conditions.push(
+        or(
+          eq(libBooks.isSystem, false),
+          sql`(${libBooks.isSystem} = true AND LOWER(${libBooks.language}) = LOWER(${filters.userAppLanguage}))`
         )!
       );
     }

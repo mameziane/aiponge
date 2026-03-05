@@ -65,7 +65,7 @@ export const BOOK_TYPES: Record<BookTypeId, BookTypeConfig> = {
     icon: 'book-outline',
     iconFilled: 'book',
     colorKey: 'brand.primary',
-    canQuickCreate: true,
+    canQuickCreate: false, // Same flow as all types: go directly to BookGeneratorModal with prompt field
     hasTemplates: true,
     hasDepthSelection: false,
     defaultVisibility: CONTENT_VISIBILITY.PERSONAL,

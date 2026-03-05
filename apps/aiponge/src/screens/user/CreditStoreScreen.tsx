@@ -32,7 +32,7 @@ export default function CreditStoreScreen() {
   const { t } = useTranslation();
   const userId = useAuthStore(selectUserId);
   const { creditsOffering, isLoading: subscriptionLoading } = useSubscriptionData();
-  const { purchaseCredits } = useSubscriptionActions();
+  const { purchaseCredits, refreshOfferings } = useSubscriptionActions();
   const { creditCostPerSong } = useCredits();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -50,18 +50,26 @@ export default function CreditStoreScreen() {
         setLoading(true);
       }
 
+      // Refresh RevenueCat offerings + credit balance in parallel
+      // This recovers from network failures during initial RevenueCat initialization
+      const promises: Promise<void>[] = [refreshOfferings()];
+
       if (userId) {
-        const balanceResponse =
-          await apiClient.get<ServiceResponse<{ currentBalance: number; totalSpent: number }>>(
-            '/api/v1/app/credits/balance'
-          );
-        if (balanceResponse.success && balanceResponse.data) {
-          setBalance({
-            currentBalance: balanceResponse.data.currentBalance,
-            totalSpent: balanceResponse.data.totalSpent,
-          });
-        }
+        promises.push(
+          apiClient
+            .get<ServiceResponse<{ currentBalance: number; totalSpent: number }>>('/api/v1/app/credits/balance')
+            .then(balanceResponse => {
+              if (balanceResponse.success && balanceResponse.data) {
+                setBalance({
+                  currentBalance: balanceResponse.data.currentBalance,
+                  totalSpent: balanceResponse.data.totalSpent,
+                });
+              }
+            })
+        );
       }
+
+      await Promise.allSettled(promises);
     } catch (error) {
       logger.error('Failed to fetch store data', error);
     } finally {

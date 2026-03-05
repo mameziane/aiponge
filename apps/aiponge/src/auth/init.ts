@@ -6,6 +6,8 @@
 import { apiClient } from '../lib/axiosApiClient';
 import { useAuthStore, selectToken } from './store';
 import { logger } from '../lib/logger';
+import i18n from 'i18next';
+import { toShortLanguageCode } from '@aiponge/shared-contracts';
 
 let initialized = false;
 
@@ -16,6 +18,12 @@ export function initAuth() {
 
   apiClient.setAuthTokenRetriever(() => {
     return selectToken(useAuthStore.getState());
+  });
+
+  // Send user's app language on every API request (Accept-Language header)
+  // Used by server to filter system content by language
+  apiClient.setAppLanguageRetriever(() => {
+    return toShortLanguageCode(i18n.language || 'en');
   });
 
   apiClient.setRefreshTokenRetriever(() => {

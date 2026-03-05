@@ -455,6 +455,43 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  // Retry fetching offerings + credits (e.g., after network recovery or pull-to-refresh on store screen)
+  const refreshOfferings = useCallback(async () => {
+    try {
+      const availableOfferings = await Purchases.getOfferings();
+
+      // Credits offering refresh
+      const creditsOffer =
+        availableOfferings.all['credits'] ||
+        Object.values(availableOfferings.all).find(o => o.identifier.toLowerCase() === 'credits');
+
+      if (creditsOffer) {
+        setCreditsOffering(creditsOffer);
+        logger.info('RevenueCat: Credits offering refreshed', {
+          packageCount: creditsOffer.availablePackages.length,
+        });
+      }
+
+      // Subscription offerings refresh
+      const namedTierOfferings = ['personal', 'practice', 'studio']
+        .map(name => availableOfferings.all[name])
+        .filter(Boolean);
+
+      if (namedTierOfferings.length > 0) {
+        const mergedPackages = namedTierOfferings.flatMap(o => o!.availablePackages);
+        setOfferings({
+          ...namedTierOfferings[0]!,
+          identifier: 'merged_subscriptions',
+          availablePackages: mergedPackages,
+        } as PurchasesOffering);
+      } else if (availableOfferings.current) {
+        setOfferings(availableOfferings.current);
+      }
+    } catch (error) {
+      logger.warn('RevenueCat: refreshOfferings failed', { error: String(error) });
+    }
+  }, []);
+
   const purchasePackage = useCallback(async (pkg: PurchasesPackage): Promise<boolean> => {
     try {
       setIsLoading(true);
@@ -700,13 +737,22 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
   const actionsValue = useMemo<SubscriptionActionsValue>(
     () => ({
       refreshCustomerInfo,
+      refreshOfferings,
       purchasePackage,
       purchaseCredits,
       restorePurchases,
       showPaywall,
       showCustomerCenter,
     }),
-    [refreshCustomerInfo, purchasePackage, purchaseCredits, restorePurchases, showPaywall, showCustomerCenter]
+    [
+      refreshCustomerInfo,
+      refreshOfferings,
+      purchasePackage,
+      purchaseCredits,
+      restorePurchases,
+      showPaywall,
+      showCustomerCenter,
+    ]
   );
 
   return (

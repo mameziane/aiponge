@@ -25,6 +25,7 @@ class AxiosApiClient {
   private axiosInstance: AxiosInstance;
   private pendingRequests: Map<string, Promise<unknown>> = new Map();
   private authTokenRetriever: (() => string | null) | null = null;
+  private appLanguageRetriever: (() => string) | null = null;
   private backendErrorReporter: ((error: unknown) => void) | null = null;
   private isLoggingOut: boolean = false;
   private refreshTokenRetriever: (() => { refreshToken: string | null; sessionId: string | null }) | null = null;
@@ -43,6 +44,7 @@ class AxiosApiClient {
     this.axiosInstance.interceptors.request.use(
       createRequestMetaInterceptor({
         getAuthToken: () => this.authTokenRetriever?.() ?? null,
+        getAppLanguage: () => this.appLanguageRetriever?.() ?? 'en',
       })
     );
 
@@ -71,6 +73,10 @@ class AxiosApiClient {
 
   setAuthTokenRetriever(retriever: () => string | null): void {
     this.authTokenRetriever = retriever;
+  }
+
+  setAppLanguageRetriever(retriever: () => string): void {
+    this.appLanguageRetriever = retriever;
   }
 
   setBackendErrorReporter(reporter: (error: unknown) => void): void {

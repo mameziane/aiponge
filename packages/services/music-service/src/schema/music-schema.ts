@@ -49,6 +49,8 @@ export const albums = pgTable(
     visibility: varchar('visibility', { length: 20 }).notNull().default(CONTENT_VISIBILITY.PERSONAL), // Content visibility: personal, shared, public
     chapterId: uuid('chapter_id'), // Reference to originating chapter (cross-service, nullable for Singles albums)
     mood: varchar('mood', { length: 100 }), // Emotional context (unified from user albums)
+    language: varchar('language', { length: 10 }).default('en'), // ISO 639-1 language code
+    isSystem: boolean('is_system').default(false).notNull(), // Platform-provisioned content — filtered by language
     status: varchar('status').notNull(), // draft, published, archived'
     playCount: integer('play_count').notNull().default(0),
     metadata: jsonb('metadata').notNull().default({}), // Includes chapterSnapshot for fallback
@@ -115,6 +117,7 @@ export const tracks = pgTable(
     likeCount: integer('like_count').notNull().default(0),
     language: varchar('language').notNull().default('en'), // ISO 639-1 language code (e.g., 'en', 'es', 'fr')
     variantGroupId: uuid('variant_group_id'), // Links same song across different languages (for multi-language album generation)
+    isSystem: boolean('is_system').default(false).notNull(), // Platform-provisioned content — filtered by language
     sourceType: varchar('source_type', { length: 50 }).notNull().default('generated'), // uploaded, generated (unified from user tracks)
     generationRequestId: uuid('generation_request_id'),
     playOnDate: timestamp('play_on_date'), // Date when track should be auto-played in Radio mode (unified from user tracks)
@@ -167,6 +170,7 @@ export const playlists = pgTable(
       .notNull()
       .default(sql`ARRAY[]::text[]`),
     category: varchar('category'), // user, featured, algorithm
+    language: varchar('language', { length: 10 }).default('en'), // ISO 639-1 language code
     mood: varchar('mood'),
     genre: varchar('genre'),
     status: varchar('status', { length: 50 }).notNull().default('active'), // CHECK constraint: active, archived, deleted

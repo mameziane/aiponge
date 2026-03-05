@@ -5,6 +5,7 @@ import { logger } from '../logger';
 
 interface RequestMetaDeps {
   getAuthToken: () => string | null;
+  getAppLanguage?: () => string;
 }
 
 export function createRequestMetaInterceptor(deps: RequestMetaDeps) {
@@ -15,6 +16,12 @@ export function createRequestMetaInterceptor(deps: RequestMetaDeps) {
     const token = deps.getAuthToken();
     const authHeaders = createAuthHeader(token);
     Object.assign(config.headers, authHeaders);
+
+    // Send user's app language so the server can filter system content by language
+    const appLanguage = deps.getAppLanguage?.();
+    if (appLanguage) {
+      config.headers['Accept-Language'] = appLanguage;
+    }
 
     const method = config.method?.toUpperCase() || 'GET';
     if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {

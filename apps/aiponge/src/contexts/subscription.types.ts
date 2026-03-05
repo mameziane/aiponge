@@ -115,6 +115,7 @@ export interface SubscriptionDataValue {
 
 export interface SubscriptionActionsValue {
   refreshCustomerInfo: () => Promise<void>;
+  refreshOfferings: () => Promise<void>;
   purchasePackage: (pkg: PurchasesPackage) => Promise<boolean>;
   purchaseCredits: (product: PurchasesStoreProduct) => Promise<{ success: boolean; creditsGranted?: number }>;
   restorePurchases: () => Promise<boolean>;

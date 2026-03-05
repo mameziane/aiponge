@@ -102,7 +102,7 @@ export function useAlbumDetail(albumId: string | undefined) {
       (Array.isArray(data?.data?.tracks) ? data.data.tracks : []).map(track => ({
         ...track,
         audioUrl: normalizeMediaUrl(track.audioUrl) || track.audioUrl,
-        artworkUrl: normalizeMediaUrl(track.artworkUrl),
+        artworkUrl: normalizeMediaUrl(track.artworkUrl) || track.artworkUrl,
       })),
     [data?.data?.tracks]
   );

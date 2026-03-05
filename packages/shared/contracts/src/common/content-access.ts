@@ -109,3 +109,24 @@ export function isContentPublic(visibility: ContentVisibility | string): boolean
 export function isContentPubliclyAccessible(visibility: ContentVisibility | string): boolean {
   return visibility === CONTENT_VISIBILITY.SHARED || visibility === CONTENT_VISIBILITY.PUBLIC;
 }
+
+/**
+ * Check if system content should be visible for a given user language.
+ * Content-type agnostic: works for books, tracks, albums, playlists, etc.
+ *
+ * - Non-system content (isSystem = false) → always visible (returns true)
+ * - System content (isSystem = true) → only visible if content.language matches userLanguage
+ *
+ * @param isSystem - Whether the content is platform-provisioned
+ * @param contentLanguage - The content's language (ISO 639-1, e.g. 'en', 'fr')
+ * @param userLanguage - The user's app language (ISO 639-1)
+ */
+export function isSystemContentVisibleForLanguage(
+  isSystem: boolean,
+  contentLanguage: string | null | undefined,
+  userLanguage: string
+): boolean {
+  if (!isSystem) return true;
+  const lang = (contentLanguage || 'en').toLowerCase();
+  return lang === userLanguage.toLowerCase();
+}
