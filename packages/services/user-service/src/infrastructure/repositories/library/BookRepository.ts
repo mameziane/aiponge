@@ -198,8 +198,10 @@ export class BookRepository {
       accessCondition = sharedFromLibrarians ? or(publicBooksCondition, sharedFromLibrarians)! : publicBooksCondition;
     }
 
+    // System content (is_system = true) bypasses ownership/visibility access rules.
+    // It's still gated by the language filter below.
     if (accessCondition) {
-      conditions.push(accessCondition);
+      conditions.push(or(eq(libBooks.isSystem, true), accessCondition)!);
     }
 
     if (filters.typeId) {
