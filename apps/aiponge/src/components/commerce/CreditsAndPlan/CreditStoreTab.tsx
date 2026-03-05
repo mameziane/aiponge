@@ -180,6 +180,16 @@ export function CreditStoreTab() {
           <View style={styles.emptyState}>
             <Ionicons name="alert-circle-outline" size={48} color={colors.text.tertiary} />
             <Text style={styles.emptyStateText}>{t('creditStore.noProductsAvailable')}</Text>
+            {__DEV__ && creditsOffering && (
+              <Text style={[styles.emptyStateText, { fontSize: 11, marginTop: 8 }]}>
+                {`[DEV] Offering "${creditsOffering.identifier}" found with ${creditsOffering.availablePackages.length} resolvable packages (StoreKit may not resolve product IDs)`}
+              </Text>
+            )}
+            {__DEV__ && !creditsOffering && (
+              <Text style={[styles.emptyStateText, { fontSize: 11, marginTop: 8 }]}>
+                {`[DEV] No "credits" offering returned by RevenueCat SDK`}
+              </Text>
+            )}
           </View>
         )}
       </View>

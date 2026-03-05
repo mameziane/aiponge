@@ -402,6 +402,21 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
               packageCount: creditsOffer.availablePackages.length,
               packages: creditsOffer.availablePackages.map(p => p.identifier),
             });
+
+            // DEV diagnostic: if offering exists but has 0 packages, StoreKit can't resolve product IDs.
+            // Try direct product resolution to surface exact failure.
+            if (__DEV__ && creditsOffer.availablePackages.length === 0) {
+              logger.warn('RevenueCat: Credits offering found but 0 packages resolved by StoreKit');
+              try {
+                const directProducts = await Purchases.getProducts(['credits_50', 'credits_150', 'credits_500']);
+                logger.info('RevenueCat: Direct product resolution result', {
+                  resolved: directProducts.map(p => p.identifier),
+                  count: directProducts.length,
+                });
+              } catch (prodErr) {
+                logger.warn('RevenueCat: Direct getProducts() failed', { error: String(prodErr) });
+              }
+            }
           } else {
             logger.warn('RevenueCat: No credits offering found', {
               availableOfferingIds: allOfferingIds,
@@ -469,6 +484,15 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
         setCreditsOffering(creditsOffer);
         logger.info('RevenueCat: Credits offering refreshed', {
           packageCount: creditsOffer.availablePackages.length,
+          packages: creditsOffer.availablePackages.map(p => ({
+            id: p.identifier,
+            productId: p.product.identifier,
+            price: p.product.priceString,
+          })),
+        });
+      } else {
+        logger.warn('RevenueCat: refreshOfferings found no credits offering', {
+          allOfferingIds: Object.keys(availableOfferings.all),
         });
       }
 
