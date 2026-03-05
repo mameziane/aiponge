@@ -252,6 +252,8 @@ export class BookRepository {
     const decoded = filters.cursor ? decodeCursor<BookCursor>(filters.cursor) : null;
 
     if (decoded) {
+      // System books are always pinned to page 1; exclude them on subsequent pages
+      conditions.push(eq(libBooks.isSystem, false));
       conditions.push(
         sql`(${libBooks.createdAt}, ${libBooks.id}) < (${decoded.createdAt}::timestamptz, ${decoded.id})`
       );
@@ -261,7 +263,7 @@ export class BookRepository {
       .select(bookColumnsWithAuthor)
       .from(libBooks)
       .where(and(...conditions))
-      .orderBy(desc(libBooks.createdAt), desc(libBooks.id))
+      .orderBy(desc(libBooks.isSystem), desc(libBooks.createdAt), desc(libBooks.id))
       .limit(limit + 1);
 
     const hasMore = rows.length > limit;
@@ -318,6 +320,8 @@ export class BookRepository {
     const decoded = filters.cursor ? decodeCursor<BookCursor>(filters.cursor) : null;
 
     if (decoded) {
+      // System books are always pinned to page 1; exclude them on subsequent pages
+      conditions.push(eq(libBooks.isSystem, false));
       conditions.push(
         sql`(${libBooks.createdAt}, ${libBooks.id}) < (${decoded.createdAt}::timestamptz, ${decoded.id})`
       );
@@ -358,7 +362,7 @@ export class BookRepository {
       })
       .from(libBooks)
       .where(whereClause)
-      .orderBy(desc(libBooks.createdAt), desc(libBooks.id))
+      .orderBy(desc(libBooks.isSystem), desc(libBooks.createdAt), desc(libBooks.id))
       .limit(limit + 1);
 
     const hasMore = results.length > limit;

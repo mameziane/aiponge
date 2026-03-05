@@ -328,6 +328,12 @@ export function createProxyHandler(config: ProxyConfig): RequestHandler {
         headers['x-forwarded-host'] = forwardedHost;
       }
 
+      // Forward Accept-Language so downstream services can resolve user's app language
+      const acceptLanguage = req.headers['accept-language'] as string;
+      if (acceptLanguage) {
+        headers['accept-language'] = acceptLanguage;
+      }
+
       // Forward Authorization header for admin/privileged operations
       if (config.forwardAuth && req.headers.authorization) {
         headers['Authorization'] = req.headers.authorization;

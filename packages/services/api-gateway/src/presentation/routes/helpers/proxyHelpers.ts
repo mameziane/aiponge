@@ -59,6 +59,11 @@ const createProxyFunction =
       headers['authorization'] = req.headers['authorization'] as string;
     }
 
+    // Forward Accept-Language so downstream services can resolve user's app language
+    if (req.headers['accept-language']) {
+      headers['accept-language'] = req.headers['accept-language'] as string;
+    }
+
     const { controller, cleanup } = createRequestAbortController(req);
 
     const fetchOptions: RequestInit = {
@@ -149,6 +154,11 @@ export const proxyToUserService = async (
 
   if (req.headers['authorization']) {
     headers['authorization'] = req.headers['authorization'] as string;
+  }
+
+  // Forward Accept-Language so downstream services can resolve user's app language
+  if (req.headers['accept-language']) {
+    headers['accept-language'] = req.headers['accept-language'] as string;
   }
 
   const { controller, cleanup } = createRequestAbortController(req);
