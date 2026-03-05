@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '../../lib/axiosApiClient';
 import { useToast } from '../ui/use-toast';
@@ -158,32 +158,35 @@ export function useMyMusic() {
     },
   });
 
-  const handleDeleteTrack = async (trackId: string) => {
-    try {
-      await deleteMutation.mutateAsync(trackId);
-    } catch (error) {
-      // Error already handled in onError
-    }
-  };
+  const handleDeleteTrack = useCallback(
+    async (trackId: string) => {
+      try {
+        await deleteMutation.mutateAsync(trackId);
+      } catch (error) {
+        // Error already handled in onError
+      }
+    },
+    [deleteMutation.mutateAsync]
+  );
 
   // Navigate to next track
-  const handleNextTrack = () => {
+  const handleNextTrack = useCallback(() => {
     const nextTrack = getNextTrack(tracks, currentTrack, shuffleEnabled, repeatMode);
     if (nextTrack) {
       handlePlayTrack(nextTrack);
     }
-  };
+  }, [tracks, currentTrack, shuffleEnabled, repeatMode, handlePlayTrack]);
 
   // Navigate to previous track
-  const handlePreviousTrack = () => {
+  const handlePreviousTrack = useCallback(() => {
     const prevTrack = getPreviousTrack(tracks, currentTrack, shuffleEnabled, repeatMode);
     if (prevTrack) {
       handlePlayTrack(prevTrack);
     }
-  };
+  }, [tracks, currentTrack, shuffleEnabled, repeatMode, handlePlayTrack]);
 
   // Toggle play/pause
-  const handleTogglePlayPause = () => {
+  const handleTogglePlayPause = useCallback(() => {
     if (!currentTrack && tracks.length > 0) {
       // No track playing, start from first track
       handlePlayTrack(tracks[0]);
@@ -195,7 +198,7 @@ export function useMyMusic() {
         resume();
       }
     }
-  };
+  }, [currentTrack, tracks, isPlaying, handlePlayTrack, pause, resume]);
 
   return {
     // Data

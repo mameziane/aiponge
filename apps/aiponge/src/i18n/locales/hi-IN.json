@@ -276,7 +276,8 @@
   "creditsAndPlan": {
     "myPlan": "मेरा प्लान",
     "getCredits": "क्रेडिट खरीदें",
-    "history": "इतिहास"
+    "history": "इतिहास",
+    "giftCredits": "क्रेडिट उपहार"
   },
   "onboardingFlow": {
     "welcomeTitle": "अपनी पहली AI किताब बनाएं",

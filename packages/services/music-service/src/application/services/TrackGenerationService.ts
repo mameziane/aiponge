@@ -247,7 +247,11 @@ export class TrackGenerationService {
       const storageBaseUrl = SERVICE_URLS.storageService;
       const [artworkResult, extractedDuration] = await Promise.all([
         artworkPromise,
-        FileStorageUtils.extractAudioDuration(audioStorageResult.publicUrl, storageBaseUrl),
+        FileStorageUtils.extractAudioDuration(
+          audioStorageResult.publicUrl,
+          storageBaseUrl,
+          audioStorageResult.fileSize ?? undefined
+        ),
       ]);
 
       if (artworkResult.success && artworkResult.artworkUrl) {
@@ -287,7 +291,8 @@ export class TrackGenerationService {
         audioResult,
         lyricsResult,
         albumInfo,
-        targetVisibility
+        targetVisibility,
+        requestId
       );
 
       compensation.trackId = savedTrack.id;
@@ -629,26 +634,58 @@ export class TrackGenerationService {
     }
 
     await this.sessionService.updatePhase(sessionId, 'generating_artwork', 30);
-    return this.generationUtils
-      .generateArtwork(
-        {
-          lyrics: sanitizedLyrics,
-          title,
-          style: suggestedStyle ?? undefined,
-          mood: suggestedMood ?? undefined,
-          userId: request.userId,
-          visibility: targetVisibility,
-        },
-        storageConfig,
-        requestId
-      )
-      .catch((err): ArtworkResult => {
-        logger.error('Artwork generation threw exception', { error: err instanceof Error ? err.message : String(err) });
-        return {
-          success: false,
-          error: err instanceof Error ? err.message : 'Artwork generation failed with exception',
-        };
+
+    const artworkParams = {
+      lyrics: sanitizedLyrics,
+      title,
+      style: suggestedStyle ?? undefined,
+      mood: suggestedMood ?? undefined,
+      userId: request.userId,
+      visibility: targetVisibility,
+    };
+
+    let artworkResult: ArtworkResult;
+    try {
+      artworkResult = await this.generationUtils.generateArtwork(artworkParams, storageConfig, requestId);
+    } catch (err) {
+      logger.error('Artwork generation threw exception', { error: err instanceof Error ? err.message : String(err) });
+      artworkResult = {
+        success: false,
+        error: err instanceof Error ? err.message : 'Artwork generation failed with exception',
+      };
+    }
+
+    // Retry artwork generation if first attempt failed (matches album pipeline behavior)
+    if (!artworkResult.success || !artworkResult.artworkUrl) {
+      const ARTWORK_RETRY_DELAY_MS = 3000;
+      const ARTWORK_MAX_RETRIES = 2;
+      logger.warn('Artwork generation failed on first attempt, retrying...', {
+        requestId,
+        error: artworkResult.error,
       });
+      for (let attempt = 1; attempt <= ARTWORK_MAX_RETRIES; attempt++) {
+        await new Promise(resolve => setTimeout(resolve, ARTWORK_RETRY_DELAY_MS));
+        try {
+          artworkResult = await this.generationUtils.generateArtwork(artworkParams, storageConfig, requestId);
+          if (artworkResult.success && artworkResult.artworkUrl) {
+            logger.info('Artwork generation succeeded on retry', { requestId, attempt });
+            break;
+          }
+        } catch (retryErr) {
+          logger.warn('Artwork retry attempt failed', {
+            requestId,
+            attempt,
+            error: retryErr instanceof Error ? retryErr.message : String(retryErr),
+          });
+          artworkResult = {
+            success: false,
+            error: retryErr instanceof Error ? retryErr.message : 'Artwork retry failed',
+          };
+        }
+      }
+    }
+
+    return artworkResult;
   }
 
   private async resolveDisplayName(request: TrackGenerationRequest): Promise<string> {
@@ -675,7 +712,8 @@ export class TrackGenerationService {
     audioResult: { duration?: number; clipId?: string },
     lyricsResult: { lyricsId?: string | null },
     albumInfo: { albumId: string; trackNumber?: number },
-    targetVisibility: TrackVisibility
+    targetVisibility: TrackVisibility,
+    requestId?: string
   ): Promise<{ id: string }> {
     const resolvedDisplayName = await this.resolveDisplayName(request);
 
@@ -695,8 +733,14 @@ export class TrackGenerationService {
         lyricsId: lyricsResult.lyricsId ?? undefined,
         hasSyncedLyrics: false,
         generatedByUserId: request.userId,
+        generationRequestId: requestId,
         language: sharedLanguage,
         status: TRACK_LIFECYCLE.PUBLISHED,
+        visibility: targetVisibility,
+        sourceType: 'generated',
+        generationNumber: 1,
+        variantGroupId: trackId,
+        trackNumber: albumInfo.trackNumber,
         playCount: 0,
         metadata: {
           generatedAt: new Date().toISOString(),
@@ -732,7 +776,10 @@ export class TrackGenerationService {
       albumId: albumInfo.albumId,
       lyricsId: lyricsResult.lyricsId ?? undefined,
       hasSyncedLyrics: false,
+      generatedByUserId: request.userId,
+      generationRequestId: requestId,
       generationNumber: 1,
+      variantGroupId: trackId,
       trackNumber: albumInfo.trackNumber,
       playOnDate: request.playOnDate ?? undefined,
       metadata: {

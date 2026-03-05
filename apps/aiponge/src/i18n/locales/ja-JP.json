@@ -275,7 +275,8 @@
   "creditsAndPlan": {
     "myPlan": "マイプラン",
     "getCredits": "クレジット購入",
-    "history": "履歴"
+    "history": "履歴",
+    "giftCredits": "クレジットを贈る"
   },
   "onboardingFlow": {
     "welcomeTitle": "初めてのAIブックを作成",

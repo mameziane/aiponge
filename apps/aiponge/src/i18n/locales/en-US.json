@@ -299,7 +299,8 @@
   "creditsAndPlan": {
     "myPlan": "My Plan",
     "getCredits": "Get Credits",
-    "history": "History"
+    "history": "History",
+    "giftCredits": "Gift Credits"
   },
   "onboardingFlow": {
     "welcomeTitle": "Create your first AI book",

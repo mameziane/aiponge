@@ -203,36 +203,37 @@ export class FileStorageUtils {
   }
 
   /**
-   * Extract audio duration from an audio URL using ffprobe
+   * Extract audio duration from an audio URL using ffprobe.
+   * Falls back to file-size estimation if ffprobe is not installed.
    * @param audioUrl URL of the audio file (can be relative path or full URL)
    * @param baseUrl Optional base URL to prepend to relative paths (e.g., storage service URL)
+   * @param fileSize Optional file size in bytes for fallback estimation
    * @returns Duration in seconds, or 0 if extraction fails
    */
-  static async extractAudioDuration(audioUrl: string, baseUrl?: string): Promise<number> {
+  static async extractAudioDuration(audioUrl: string, baseUrl?: string, fileSize?: number): Promise<number> {
     if (!audioUrl) {
       logger.warn('No audio URL provided for duration extraction');
       return 0;
     }
 
-    try {
-      // Convert relative paths to full URLs if baseUrl is provided
-      let resolvedUrl = audioUrl;
-      if (audioUrl.startsWith('/') && baseUrl) {
-        resolvedUrl = `${baseUrl.replace(/\/$/, '')}${audioUrl}`;
-      } else if (audioUrl.startsWith('/') && !baseUrl) {
-        // For relative paths without baseUrl, use SERVICE_URLS.storageService
-        const storageUrl = SERVICE_URLS.storageService;
-        if (storageUrl) {
-          resolvedUrl = `${storageUrl.replace(/\/$/, '')}${audioUrl}`;
-        } else {
-          logger.warn('Cannot resolve relative URL without storage service URL', {
-            audioUrl: audioUrl.substring(0, 50) + '...',
-          });
-          return 0;
-        }
+    // Resolve relative paths to full URLs
+    let resolvedUrl = audioUrl;
+    if (audioUrl.startsWith('/') && baseUrl) {
+      resolvedUrl = `${baseUrl.replace(/\/$/, '')}${audioUrl}`;
+    } else if (audioUrl.startsWith('/') && !baseUrl) {
+      const storageUrl = SERVICE_URLS.storageService;
+      if (storageUrl) {
+        resolvedUrl = `${storageUrl.replace(/\/$/, '')}${audioUrl}`;
+      } else {
+        logger.warn('Cannot resolve relative URL without storage service URL', {
+          audioUrl: audioUrl.substring(0, 50) + '...',
+        });
+        return FileStorageUtils.estimateDurationFromFileSize(fileSize);
       }
+    }
 
-      // Use execFile with arguments array to avoid shell injection
+    // Primary: use ffprobe for accurate duration
+    try {
       const { stdout } = await execFileAsync(
         'ffprobe',
         ['-v', 'quiet', '-print_format', 'json', '-show_format', resolvedUrl],
@@ -244,7 +245,7 @@ export class FileStorageUtils {
 
       if (durationStr) {
         const duration = Math.round(parseFloat(durationStr));
-        logger.info('Audio duration extracted', {
+        logger.info('Audio duration extracted via ffprobe', {
           resolvedUrl: resolvedUrl.substring(0, 50) + '...',
           duration,
         });
@@ -254,19 +255,39 @@ export class FileStorageUtils {
       logger.warn('No duration found in ffprobe output', {
         resolvedUrl: resolvedUrl.substring(0, 50) + '...',
       });
-      return 0;
     } catch (error) {
-      // Handle ffprobe not installed or other execution errors
       const errorMessage = error instanceof Error ? error.message : String(error);
       if (errorMessage.includes('ENOENT') || errorMessage.includes('not found')) {
-        logger.warn('ffprobe not available, duration extraction skipped');
+        logger.warn('ffprobe not available, falling back to file-size estimation');
       } else {
-        logger.warn('Failed to extract audio duration', {
+        logger.warn('ffprobe failed, falling back to file-size estimation', {
           error: errorMessage,
           audioUrl: audioUrl.substring(0, 50) + '...',
         });
       }
-      return 0;
     }
+
+    // Fallback: estimate duration from file size assuming 320kbps MP3
+    return FileStorageUtils.estimateDurationFromFileSize(fileSize);
+  }
+
+  /**
+   * Estimate MP3 duration from file size.
+   * MusicAPI.ai (Suno) generates MP3 files at 320kbps. This gives a reasonable
+   * approximation when ffprobe is not available (e.g., Railway without ffmpeg).
+   */
+  static estimateDurationFromFileSize(fileSize?: number | null): number {
+    if (!fileSize || fileSize <= 0) return 0;
+
+    // Suno outputs 320kbps MP3; subtract ~2KB for headers/metadata
+    const BITRATE_BPS = 320_000;
+    const HEADER_BYTES = 2048;
+    const audioBits = Math.max(0, fileSize - HEADER_BYTES) * 8;
+    const duration = Math.round(audioBits / BITRATE_BPS);
+
+    if (duration > 0) {
+      logger.info('Audio duration estimated from file size', { fileSize, estimatedDuration: duration });
+    }
+    return duration;
   }
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { logger } from '../../lib/logger';
 import { SUPPORTED_LANGUAGES } from '../../i18n/types';
 import { formatTrackDuration, getNextTrack, getPreviousTrack } from '../../utils/trackUtils';
@@ -55,21 +55,21 @@ export function useSharedLibrary() {
 
   const { handleDeleteTrack, isDeletingTrack } = useSharedLibraryAdminActions();
 
-  const handleNextTrack = () => {
+  const handleNextTrack = useCallback(() => {
     const nextTrack = getNextTrack(tracks, currentTrack, shuffleEnabled, repeatMode);
     if (nextTrack) {
       handlePlayTrack(nextTrack);
     }
-  };
+  }, [tracks, currentTrack, shuffleEnabled, repeatMode, handlePlayTrack]);
 
-  const handlePreviousTrack = () => {
+  const handlePreviousTrack = useCallback(() => {
     const prevTrack = getPreviousTrack(tracks, currentTrack, shuffleEnabled, repeatMode);
     if (prevTrack) {
       handlePlayTrack(prevTrack);
     }
-  };
+  }, [tracks, currentTrack, shuffleEnabled, repeatMode, handlePlayTrack]);
 
-  const handleTogglePlayPause = () => {
+  const handleTogglePlayPause = useCallback(() => {
     if (!currentTrack && tracks.length > 0) {
       handlePlayTrack(tracks[0]);
     } else if (currentTrack) {
@@ -79,7 +79,7 @@ export function useSharedLibrary() {
         resume();
       }
     }
-  };
+  }, [currentTrack, tracks, isPlaying, handlePlayTrack, pause, resume]);
 
   // Client-side filtering — works for all endpoint types (shared library, smart playlists, regular playlists)
   const filteredTracks = useMemo(() => {

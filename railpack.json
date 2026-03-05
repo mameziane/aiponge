@@ -8,5 +8,8 @@
         "npm install --include=dev"
       ]
     }
+  },
+  "deploy": {
+    "aptPackages": ["ffmpeg"]
   }
 }

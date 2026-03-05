@@ -240,7 +240,11 @@ export class RefactoredTrackGenerationHandler implements TrackGenerationHandler 
       // The stored file path is a relative path like /api/files/... that needs the storage service base URL
       // Use SERVICE_URLS.storageService which properly resolves from env vars or defaults
       const storageBaseUrl = SERVICE_URLS.storageService;
-      const extractedDuration = await FileStorageUtils.extractAudioDuration(audioFileResult.publicUrl, storageBaseUrl);
+      const extractedDuration = await FileStorageUtils.extractAudioDuration(
+        audioFileResult.publicUrl,
+        storageBaseUrl,
+        audioFileResult.fileSize ?? undefined
+      );
 
       if (onSubPhase)
         await onSubPhase('saving', 2, {
@@ -363,10 +367,13 @@ export class RefactoredTrackGenerationHandler implements TrackGenerationHandler 
         generationNumber: params.generationNumber,
         genres: params.config.genre ? [params.config.genre] : [],
         status: TRACK_LIFECYCLE.PUBLISHED,
+        visibility: params.context.persistenceContext?.visibility || CONTENT_VISIBILITY.SHARED,
+        sourceType: 'generated',
         language: baseLanguage,
         generatedByUserId: params.config.userId,
         generationRequestId: params.requestId,
         metadata: {
+          generatedAt: new Date().toISOString(),
           entryId: params.entryId,
           language: params.language,
           variantGroupId: params.variantGroupId,
@@ -411,6 +418,7 @@ export class RefactoredTrackGenerationHandler implements TrackGenerationHandler 
         generatedByUserId: params.config.userId,
         generationRequestId: params.requestId,
         metadata: {
+          generatedAt: new Date().toISOString(),
           entryId: params.entryId,
           language: params.language,
           variantGroupId: params.variantGroupId,

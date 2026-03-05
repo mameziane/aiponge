@@ -99,6 +99,7 @@ export function SendGiftModal({ visible, onClose }: SendGiftModalProps) {
       title={t('credits.gifts.title')}
       headerIcon="gift"
       avoidKeyboard
+      maxHeight="85%"
       testID="modal-send-gift"
     >
       <View style={styles.container}>

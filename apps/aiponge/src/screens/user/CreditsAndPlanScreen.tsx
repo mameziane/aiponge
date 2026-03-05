@@ -10,7 +10,7 @@ import { useTranslation } from '../../i18n';
 import { useThemeColors, type ColorScheme, commonStyles } from '../../theme';
 import { TabBar, type TabConfig } from '../../components/shared/TabBar';
 import { SubscriptionTab } from '../../components/commerce/SubscriptionTabScreen';
-import { CreditStoreTab, CreditHistoryTab } from '../../components/commerce/CreditsAndPlan';
+import { CreditStoreTab, GiftCreditsTab } from '../../components/commerce/CreditsAndPlan';
 
 export default function CreditsAndPlanScreen() {
   const colors = useThemeColors();
@@ -20,7 +20,7 @@ export default function CreditsAndPlanScreen() {
 
   const getInitialTab = () => {
     if (params.tab === 'store') return 'store';
-    if (params.tab === 'history') return 'history';
+    if (params.tab === 'history' || params.tab === 'giftCredits') return 'giftCredits';
     return 'plan';
   };
 
@@ -31,13 +31,13 @@ export default function CreditsAndPlanScreen() {
     () => [
       { id: 'plan', label: t('creditsAndPlan.myPlan') },
       { id: 'store', label: t('creditsAndPlan.getCredits') },
-      { id: 'history', label: t('creditsAndPlan.history') },
+      { id: 'giftCredits', label: t('creditsAndPlan.giftCredits') },
     ],
     [t]
   );
 
   const handleTabChange = useCallback((tab: string) => {
-    const validTabs = ['plan', 'store', 'history'];
+    const validTabs = ['plan', 'store', 'giftCredits'];
     setActiveTab(validTabs.includes(tab) ? tab : 'plan');
   }, []);
 
@@ -69,7 +69,7 @@ export default function CreditsAndPlanScreen() {
       >
         {activeTab === 'plan' && <SubscriptionTab />}
         {activeTab === 'store' && <CreditStoreTab />}
-        {activeTab === 'history' && <CreditHistoryTab />}
+        {activeTab === 'giftCredits' && <GiftCreditsTab />}
       </ScrollView>
     </View>
   );

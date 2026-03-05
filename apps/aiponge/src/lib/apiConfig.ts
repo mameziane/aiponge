@@ -84,29 +84,39 @@ export const getApiUrl = (path: string): string => {
 };
 
 /**
- * Normalize media URL by replacing localhost with the external API Gateway URL
- * and converting relative URLs to absolute URLs
- * This ensures media URLs work on mobile devices even if backend returns localhost or relative paths
+ * Normalize media URL by replacing internal/localhost hostnames with the
+ * external API Gateway URL and converting relative URLs to absolute URLs.
+ *
+ * Handles three problematic patterns from the backend:
+ * 1. localhost URLs (local dev): http://localhost:8080/uploads/...
+ * 2. Railway internal URLs (production): http://api-gateway.railway.internal:8080/uploads/...
+ * 3. Relative URLs: /uploads/...
  */
 export function normalizeMediaUrl(url: string | null | undefined): string | undefined {
   if (!url) return undefined;
 
   // Already an absolute URL (starts with http:// or https://)
   if (url.startsWith('http://') || url.startsWith('https://')) {
-    // If it contains localhost, replace with external gateway URL
+    const apiUrl = getApiGatewayUrl();
+
+    // Replace localhost with external gateway URL
     if (url.includes('localhost')) {
-      const apiUrl = getApiGatewayUrl();
-      const normalized = url.replace(/http:\/\/localhost(?::\d+)?/, apiUrl);
-      return normalized;
+      return url.replace(/http:\/\/localhost(?::\d+)?/, apiUrl);
     }
+
+    // Replace Railway internal DNS with external gateway URL
+    // Backend services resolve api-gateway as *.railway.internal which mobile can't reach
+    if (url.includes('.railway.internal')) {
+      return url.replace(/https?:\/\/[^/]*\.railway\.internal(?::\d+)?/, apiUrl);
+    }
+
     return url;
   }
 
   // Relative URL (starts with /) - prepend base API URL
   if (url.startsWith('/')) {
     const apiUrl = getApiGatewayUrl();
-    const normalized = `${apiUrl}${url}`;
-    return normalized;
+    return `${apiUrl}${url}`;
   }
 
   // Other formats - return as-is

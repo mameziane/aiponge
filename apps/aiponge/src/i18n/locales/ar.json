@@ -248,7 +248,8 @@
   "creditsAndPlan": {
     "myPlan": "اشتراكي",
     "getCredits": "الحصول على رصيد",
-    "history": "السجل"
+    "history": "السجل",
+    "giftCredits": "إهداء رصيد"
   },
   "onboardingFlow": {
     "welcomeTitle": "أنشئ كتابك الأول بالذكاء الاصطناعي",

@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '../../lib/axiosApiClient';
 import { useToast } from '../ui/use-toast';
@@ -56,8 +57,13 @@ export function useSharedLibraryAdminActions(): UseSharedLibraryAdminActionsRetu
     },
   });
 
+  const handleDeleteTrack = useCallback(
+    (trackId: string) => deleteTrackMutation.mutate(trackId),
+    [deleteTrackMutation.mutate]
+  );
+
   return {
-    handleDeleteTrack: (trackId: string) => deleteTrackMutation.mutate(trackId),
+    handleDeleteTrack,
     isDeletingTrack: deleteTrackMutation.isPending,
   };
 }

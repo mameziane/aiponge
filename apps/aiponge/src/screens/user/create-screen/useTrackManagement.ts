@@ -166,11 +166,16 @@ export function useTrackManagement({ userId, entryTracks, currentTrackId, isPlay
     invalidateOnEvent(queryClient, { type: 'PRIVATE_LIBRARY_UPDATED' });
   }, [queryClient]);
 
+  const handleDeleteTrack = useCallback(
+    (trackId: string) => deleteTrackMutation.mutateAsync(trackId),
+    [deleteTrackMutation.mutateAsync]
+  );
+
   const { getMenuPropsForTrack } = useTrackOptionsScreen<TrackForMenu>('musicGeneration', {
     handleShowLyrics: handleShowLyricsForTrack,
     toggleFavorite,
     isFavorite,
-    handleDeleteTrack: (trackId: string) => deleteTrackMutation.mutateAsync(trackId),
+    handleDeleteTrack,
     handleTrackUpdated,
   });
 

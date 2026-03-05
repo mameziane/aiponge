@@ -48,25 +48,39 @@ export function useTrackOptionsScreen<T extends TrackForMenu>(
   const isAdmin = useIsAdmin();
   const isOwnerScreen = OWNER_SCREENS.includes(screenContext);
 
+  // Destructure handlers so useCallback depends on individual stable function refs
+  // rather than on the handlers object (which is typically a new reference every render).
+  const { handleShowLyrics, toggleFavorite, isFavorite, handleDeleteTrack, handleTrackUpdated } = handlers;
+
   const getMenuPropsForTrack = useCallback(
     (track: T): TrackMenuProps => {
       const hasLyrics = !!track.lyricsId;
       const isUserContent = track.isUserGenerated ?? false;
-      const trackIsFavorite = isAuthenticated ? handlers.isFavorite(track.id) : false;
+      const trackIsFavorite = isAuthenticated ? isFavorite(track.id) : false;
 
       return {
         isFavorite: trackIsFavorite,
-        onToggleFavorite: isAuthenticated ? () => handlers.toggleFavorite(track.id) : undefined,
-        onShowLyrics: hasLyrics ? () => handlers.handleShowLyrics(track) : undefined,
+        onToggleFavorite: isAuthenticated ? () => toggleFavorite(track.id) : undefined,
+        onShowLyrics: hasLyrics ? () => handleShowLyrics(track) : undefined,
         onRemoveFromLibrary:
-          canDeleteTrack(screenContext, isOwnerScreen, isAdmin) && handlers.handleDeleteTrack
-            ? () => handlers.handleDeleteTrack!(track.id)
+          canDeleteTrack(screenContext, isOwnerScreen, isAdmin) && handleDeleteTrack
+            ? () => handleDeleteTrack(track.id)
             : undefined,
-        onTrackUpdated: handlers.handleTrackUpdated,
+        onTrackUpdated: handleTrackUpdated,
         showEditOption: isOwnerScreen && isUserContent,
       };
     },
-    [isAuthenticated, isOwnerScreen, isAdmin, screenContext, handlers]
+    [
+      isAuthenticated,
+      isOwnerScreen,
+      isAdmin,
+      screenContext,
+      handleShowLyrics,
+      toggleFavorite,
+      isFavorite,
+      handleDeleteTrack,
+      handleTrackUpdated,
+    ]
   );
 
   return {

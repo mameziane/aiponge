@@ -276,7 +276,8 @@
   "creditsAndPlan": {
     "myPlan": "Mein Plan",
     "getCredits": "Guthaben kaufen",
-    "history": "Verlauf"
+    "history": "Verlauf",
+    "giftCredits": "Guthaben verschenken"
   },
   "onboardingFlow": {
     "welcomeTitle": "Erstellen Sie Ihr erstes KI-Buch",

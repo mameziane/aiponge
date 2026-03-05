@@ -276,7 +276,8 @@
   "creditsAndPlan": {
     "myPlan": "Meu Plano",
     "getCredits": "Obter Créditos",
-    "history": "Histórico"
+    "history": "Histórico",
+    "giftCredits": "Presentear Créditos"
   },
   "onboardingFlow": {
     "welcomeTitle": "Crie seu primeiro livro com IA",
