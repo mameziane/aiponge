@@ -262,7 +262,7 @@ export function createGenerationStore<TProgress extends BaseGenerationProgress>(
             }
           } else {
             const hasLocalActive = Object.values(currentGenerations).some(gen => config.isActive(gen));
-            if (!hasLocalActive) {
+            if (!hasLocalActive && Object.keys(currentGenerations).length > 0) {
               set({ activeGenerations: {} as Record<string, TProgress> });
             }
           }

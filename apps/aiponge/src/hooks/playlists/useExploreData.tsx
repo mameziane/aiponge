@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import type { ServiceResponse } from '@aiponge/shared-contracts';
 import { apiRequest } from '../../lib/axiosApiClient';
@@ -68,6 +69,13 @@ export interface ExploreData {
   worksInProgress: WorkInProgress[];
 }
 
+// Module-level stable empty arrays — prevents new references on every render
+const EMPTY_TRACKS: ExploreTrack[] = [];
+const EMPTY_CREATIONS: UserCreation[] = [];
+const EMPTY_PLAYLISTS: ExplorePlaylist[] = [];
+const EMPTY_CHARTS: ChartTrack[] = [];
+const EMPTY_WIP: WorkInProgress[] = [];
+
 export function useExploreData() {
   const {
     data: exploreResponse,
@@ -115,14 +123,15 @@ export function useExploreData() {
 
   const exploreData = exploreResponse?.data;
 
-  // Backend now returns absolute URLs - no normalization needed
-  const recentlyPlayed = exploreData?.recentlyPlayed || [];
-  const yourCreations = exploreData?.yourCreations || [];
-  const yourTopSongs = exploreData?.yourTopSongs || [];
-  const popularTracks = exploreData?.popularTracks || [];
-  const topCharts = exploreData?.topCharts || [];
-  const recommendations = exploreData?.recommendations || [];
-  const worksInProgress = exploreData?.worksInProgress || [];
+  // Stable references: use module-level constants instead of inline `|| []`
+  const recentlyPlayed = exploreData?.recentlyPlayed ?? EMPTY_TRACKS;
+  const yourCreations = exploreData?.yourCreations ?? EMPTY_CREATIONS;
+  const yourTopSongs = exploreData?.yourTopSongs ?? EMPTY_TRACKS;
+  const popularTracks = exploreData?.popularTracks ?? EMPTY_TRACKS;
+  const topCharts = exploreData?.topCharts ?? EMPTY_CHARTS;
+  const recommendations = exploreData?.recommendations ?? EMPTY_TRACKS;
+  const worksInProgress = exploreData?.worksInProgress ?? EMPTY_WIP;
+  const featuredPlaylists = exploreData?.featuredPlaylists ?? EMPTY_PLAYLISTS;
 
   // Helper function to format duration
   const formatDuration = (seconds: number): string => {
@@ -132,39 +141,56 @@ export function useExploreData() {
   };
 
   // Check if user created music recently (within 7 days)
-  const hasRecentCreations = yourCreations.some(creation => {
-    const createdDate = new Date(creation.createdAt);
-    const daysSinceCreation = (Date.now() - createdDate.getTime()) / (1000 * 60 * 60 * 24);
-    return daysSinceCreation <= 7;
-  });
+  const hasRecentCreations = useMemo(
+    () =>
+      yourCreations.some(creation => {
+        const createdDate = new Date(creation.createdAt);
+        const daysSinceCreation = (Date.now() - createdDate.getTime()) / (1000 * 60 * 60 * 24);
+        return daysSinceCreation <= 7;
+      }),
+    [yourCreations]
+  );
 
-  return {
-    // Data (backend returns absolute URLs)
-    recentlyPlayed,
-    yourCreations,
-    yourTopSongs,
-    featuredPlaylists: exploreData?.featuredPlaylists || [],
-    popularTracks,
-    topCharts,
-    recommendations,
-    worksInProgress,
+  const hasNoContent =
+    !isLoading &&
+    !isFetching &&
+    recentlyPlayed.length === 0 &&
+    yourCreations.length === 0 &&
+    popularTracks.length === 0;
 
-    // State
-    isLoading,
-    isError,
-    error,
-
-    // Helpers
-    formatDuration,
-    hasRecentCreations,
-    refetch,
-
-    // Empty states - also check isFetching to prevent flash during background refetch
-    hasNoContent:
-      !isLoading &&
-      !isFetching &&
-      recentlyPlayed.length === 0 &&
-      yourCreations.length === 0 &&
-      popularTracks.length === 0,
-  };
+  return useMemo(
+    () => ({
+      recentlyPlayed,
+      yourCreations,
+      yourTopSongs,
+      featuredPlaylists,
+      popularTracks,
+      topCharts,
+      recommendations,
+      worksInProgress,
+      isLoading,
+      isError,
+      error,
+      formatDuration,
+      hasRecentCreations,
+      refetch,
+      hasNoContent,
+    }),
+    [
+      recentlyPlayed,
+      yourCreations,
+      yourTopSongs,
+      featuredPlaylists,
+      popularTracks,
+      topCharts,
+      recommendations,
+      worksInProgress,
+      isLoading,
+      isError,
+      error,
+      hasRecentCreations,
+      refetch,
+      hasNoContent,
+    ]
+  );
 }

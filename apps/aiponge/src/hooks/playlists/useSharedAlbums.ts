@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { normalizeMediaUrl } from '../../lib/apiConfig';
 import { useApiQuery } from '../system/useAppQuery';
 import { useAuthStore, selectUserRole, selectRoleVerified } from '../../auth/store';
@@ -50,19 +51,26 @@ export function useSharedAlbums() {
     },
   });
 
-  const albums = (Array.isArray(data?.data?.albums) ? data.data.albums : []).map((album: SharedAlbum) => ({
-    ...album,
-    coverArtworkUrl: normalizeMediaUrl(album.coverArtworkUrl),
-  }));
+  const albums = useMemo(
+    () =>
+      (Array.isArray(data?.data?.albums) ? data.data.albums : []).map((album: SharedAlbum) => ({
+        ...album,
+        coverArtworkUrl: normalizeMediaUrl(album.coverArtworkUrl),
+      })),
+    [data?.data?.albums]
+  );
 
-  return {
-    albums,
-    total: data?.data?.total || 0,
-    isLoading,
-    isError,
-    refetch,
-    isLibrarian,
-  };
+  return useMemo(
+    () => ({
+      albums,
+      total: data?.data?.total || 0,
+      isLoading,
+      isError,
+      refetch,
+      isLibrarian,
+    }),
+    [albums, data?.data?.total, isLoading, isError, refetch, isLibrarian]
+  );
 }
 
 export function useSharedAlbumDetail(albumId: string | undefined) {

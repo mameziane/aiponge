@@ -102,27 +102,35 @@ export function DiscoverScreen() {
     onAutoPlayReady: handleAutoPlayReady,
   });
 
-  // Auto-play the final track when it becomes available after refetch
+  // Keep a ref to yourCreations so the auto-play effect can access the latest
+  // data without depending on the array reference (which changes on every fetch).
+  const yourCreationsRef = useRef(yourCreations);
+  yourCreationsRef.current = yourCreations;
+
+  // Auto-play the final track when it becomes available after refetch.
+  // Only runs when yourCreations changes AND a pending auto-play track is set.
   useEffect(() => {
     const pendingId = pendingAutoPlayTrackId.current;
     if (!pendingId) return;
 
+    const creations = yourCreationsRef.current;
+
     logger.debug('[MusicScreen] Auto-play check', {
       pending: pendingId,
-      creationsCount: yourCreations?.length || 0,
+      creationsCount: creations?.length || 0,
     });
 
-    if (!yourCreations || yourCreations.length === 0) {
+    if (!creations || creations.length === 0) {
       logger.debug('[MusicScreen] No creations yet, waiting for refetch');
       return;
     }
 
     // Find the newly completed track in creations
-    const newTrack = yourCreations.find(c => c.id === pendingId);
+    const newTrack = creations.find(c => c.id === pendingId);
 
     if (!newTrack) {
       logger.debug('[MusicScreen] Track not found in creations yet', {
-        availableIds: yourCreations.slice(0, 5).map(c => c.id),
+        availableIds: creations.slice(0, 5).map(c => c.id),
       });
       return;
     }
