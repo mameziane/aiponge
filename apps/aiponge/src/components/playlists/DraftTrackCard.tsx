@@ -156,6 +156,8 @@ export const DraftTrackCard = memo(
       if (!isPlayingPreview || !player.playing) return;
 
       // Update position every 500ms while playing
+      // NOTE: player.currentTime is intentionally NOT in deps — the interval reads it directly.
+      // Including it would teardown/recreate the interval on every frame, causing a render storm.
       const interval = setInterval(() => {
         if (player.currentTime != null) {
           updatePreviewPosition(generation.id, player.currentTime);
@@ -163,7 +165,8 @@ export const DraftTrackCard = memo(
       }, 500);
 
       return () => clearInterval(interval);
-    }, [isPlayingPreview, player.playing, player.currentTime, generation.id]);
+      // eslint-disable-next-line react-hooks/exhaustive-deps -- player.currentTime polled via setInterval
+    }, [isPlayingPreview, player.playing, generation.id]);
 
     // Cleanup: stop preview when component unmounts, but NOT if track completed
     // (MusicScreen handles seamless transition to final track on completion)

@@ -6,7 +6,7 @@
  * The frontend only displays the results
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuthState } from '../auth/useAuthState';
 import type { ServiceResponse } from '@aiponge/shared-contracts';
 import { apiRequest } from '../../lib/axiosApiClient';
@@ -198,15 +198,32 @@ export function useGuestConversion() {
     };
   }, [promptType, promptContent, policy, t, getPromptTriggerAction]);
 
-  return {
-    isGuest,
-    showPrompt,
-    promptContent: getPromptContent(),
-    trackSongCreated,
-    trackTrackPlayed,
-    trackEntryCreated,
-    closePrompt,
-    stats: state,
-    loading,
-  };
+  // Memoize prompt content — getPromptContent() returns a new object on every call.
+  // Without useMemo this creates a new reference every render, amplifying re-render cascades.
+  const memoizedPromptContent = useMemo(() => getPromptContent(), [getPromptContent]);
+
+  return useMemo(
+    () => ({
+      isGuest,
+      showPrompt,
+      promptContent: memoizedPromptContent,
+      trackSongCreated,
+      trackTrackPlayed,
+      trackEntryCreated,
+      closePrompt,
+      stats: state,
+      loading,
+    }),
+    [
+      isGuest,
+      showPrompt,
+      memoizedPromptContent,
+      trackSongCreated,
+      trackTrackPlayed,
+      trackEntryCreated,
+      closePrompt,
+      state,
+      loading,
+    ]
+  );
 }

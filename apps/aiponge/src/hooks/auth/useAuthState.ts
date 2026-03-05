@@ -8,6 +8,7 @@
  * if the user exists at all (null user case).
  */
 
+import { useMemo } from 'react';
 import { useAuthStore, selectUser, selectAuthStatus } from '../../auth/store';
 import type { User, AuthState } from '../../auth/types';
 
@@ -65,16 +66,19 @@ export function useAuthState(): AuthStateResult {
   const isLoggedOut = !hasSession;
   const isLoading = status === 'loading';
 
-  return {
-    user,
-    isAuthenticated,
-    isGuest,
-    isLoggedOut,
-    hasSession,
-    userId: user?.id,
-    status,
-    isLoading,
-  };
+  return useMemo(
+    () => ({
+      user,
+      isAuthenticated,
+      isGuest,
+      isLoggedOut,
+      hasSession,
+      userId: user?.id,
+      status,
+      isLoading,
+    }),
+    [user, status]
+  );
 }
 
 /**

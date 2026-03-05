@@ -396,6 +396,10 @@ export function useTrackPlayback<T extends PlayableTrack>(
   // Transitions: buffering → playing when player starts, playing → paused when player stops
   // IMPORTANT: Do NOT transition buffering → paused automatically (buffering is optimistic, wait for player to start)
   useEffect(() => {
+    // Skip when no track is loaded — expo-audio on iOS can emit spurious player.playing
+    // changes during audio session setup, which would trigger unwanted phase transitions
+    if (!currentTrack) return;
+
     if (player.playing && playbackPhase === 'buffering') {
       // Player successfully started, transition from buffering to playing
       updatePlaybackPhase('playing');
@@ -411,7 +415,7 @@ export function useTrackPlayback<T extends PlayableTrack>(
       // BUT only if we're not in the middle of loading a new track
       updatePlaybackPhase('paused');
     }
-  }, [player.playing, playbackPhase, updatePlaybackPhase]);
+  }, [player.playing, playbackPhase, updatePlaybackPhase, currentTrack]);
 
   /**
    * Auto-advance to next track when current track finishes
