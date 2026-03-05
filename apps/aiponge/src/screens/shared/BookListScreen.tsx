@@ -132,7 +132,7 @@ export function BookListScreen({ embedded = false, externalCreateTrigger, onStud
 
   const languageOptions = useMemo(
     () => [
-      { value: '', label: t('components.sharedLibrary.allLanguages') || 'All Languages' },
+      { value: 'all', label: t('components.sharedLibrary.allLanguages') || 'All Languages' },
       ...SUPPORTED_LANGUAGES.map(lang => ({
         value: lang.code.split('-')[0],
         label: lang.nativeLabel,

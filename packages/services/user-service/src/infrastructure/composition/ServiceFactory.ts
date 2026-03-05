@@ -9,7 +9,6 @@ import { IntelligenceRepository } from '../repositories/IntelligenceRepository';
 import { AnalysisRepository } from '../repositories/AnalysisRepository';
 // EntryRepository - using UnifiedEntryRepositoryAdapter from LibraryRepository
 import { CreditRepository } from '../repositories/credit';
-import { CreditProductRepository } from '../repositories/CreditProductRepository';
 import { SubscriptionRepository } from '../repositories/SubscriptionRepository';
 import { GuestConversionRepository } from '../repositories/GuestConversionRepository';
 import { PatternRepository } from '../repositories/PatternRepository';
@@ -173,7 +172,6 @@ export class ServiceFactory {
   private static analysisRepo = createDrizzleRepository(AnalysisRepository);
   // entryRepo - using unifiedEntryRepo instead (see below)
   private static creditRepo = createDrizzleRepository(CreditRepository);
-  private static creditProductRepo = createDrizzleRepository(CreditProductRepository);
   private static subscriptionRepo = createDrizzleRepository(SubscriptionRepository);
   private static guestConversionRepo = createDrizzleRepository(GuestConversionRepository);
   private static patternRepo = createDrizzleRepository(PatternRepository);
@@ -517,10 +515,6 @@ export class ServiceFactory {
 
   static getCreditRepository() {
     return this.creditRepo;
-  }
-
-  static getCreditProductRepository() {
-    return this.creditProductRepo;
   }
 
   static createGetTransactionHistoryUseCase() {

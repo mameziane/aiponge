@@ -52,6 +52,20 @@ export interface SubscriptionTierFeatures {
   songBranding?: SongBranding;
 }
 
+export interface TierCreditCosts {
+  songGeneration: number;
+  lyricsGeneration: number;
+  insightGeneration: number;
+  bookGeneration: number;
+}
+
+export interface TierGenerationSettings {
+  parallelTrackLimit: number;
+  staggerDelayMs: number;
+  maxQuality: 'draft' | 'standard' | 'premium' | 'studio';
+  priorityBoost: number;
+}
+
 export interface SubscriptionTierConfig {
   name: string;
   entitlementId: string | null;
@@ -59,6 +73,8 @@ export interface SubscriptionTierConfig {
   annualPrice?: string | null;
   limits: SubscriptionTierLimits;
   features: SubscriptionTierFeatures;
+  creditCosts: TierCreditCosts;
+  generationSettings: TierGenerationSettings;
 }
 
 /**
@@ -110,6 +126,8 @@ export const SUBSCRIPTION_TIERS: Record<TierId, SubscriptionTierConfig> = {
       canSwitchTiers: false,
       hasPrioritySupport: false,
     },
+    creditCosts: { songGeneration: 15, lyricsGeneration: 0, insightGeneration: 0, bookGeneration: 5 },
+    generationSettings: { parallelTrackLimit: 1, staggerDelayMs: 5000, maxQuality: 'draft', priorityBoost: 0 },
   },
   [TIER_IDS.EXPLORER]: {
     name: 'Explorer',
@@ -140,6 +158,8 @@ export const SUBSCRIPTION_TIERS: Record<TierId, SubscriptionTierConfig> = {
       canSwitchTiers: true,
       hasPrioritySupport: false,
     },
+    creditCosts: { songGeneration: 15, lyricsGeneration: 0, insightGeneration: 0, bookGeneration: 5 },
+    generationSettings: { parallelTrackLimit: 1, staggerDelayMs: 5000, maxQuality: 'standard', priorityBoost: 0 },
   },
   [TIER_IDS.PERSONAL]: {
     name: 'Personal',
@@ -170,6 +190,8 @@ export const SUBSCRIPTION_TIERS: Record<TierId, SubscriptionTierConfig> = {
       canSwitchTiers: true,
       hasPrioritySupport: false,
     },
+    creditCosts: { songGeneration: 15, lyricsGeneration: 0, insightGeneration: 0, bookGeneration: 5 },
+    generationSettings: { parallelTrackLimit: 2, staggerDelayMs: 4000, maxQuality: 'standard', priorityBoost: 1 },
   },
   [TIER_IDS.PRACTICE]: {
     name: 'Practice',
@@ -206,6 +228,8 @@ export const SUBSCRIPTION_TIERS: Record<TierId, SubscriptionTierConfig> = {
       canBatchGenerate: true,
       songBranding: 'aiponge',
     },
+    creditCosts: { songGeneration: 15, lyricsGeneration: 0, insightGeneration: 0, bookGeneration: 5 },
+    generationSettings: { parallelTrackLimit: 3, staggerDelayMs: 3500, maxQuality: 'premium', priorityBoost: 2 },
   },
   [TIER_IDS.STUDIO]: {
     name: 'Studio',
@@ -244,6 +268,8 @@ export const SUBSCRIPTION_TIERS: Record<TierId, SubscriptionTierConfig> = {
       canAccessAPI: true,
       songBranding: 'custom',
     },
+    creditCosts: { songGeneration: 15, lyricsGeneration: 0, insightGeneration: 0, bookGeneration: 5 },
+    generationSettings: { parallelTrackLimit: 4, staggerDelayMs: 3000, maxQuality: 'studio', priorityBoost: 3 },
   },
 } as const;
 
@@ -510,4 +536,38 @@ export function getSongExpiryHours(tier: string | null | undefined): number | nu
 export function getMaxSharedClients(tier: string | null | undefined): number {
   const limits = getTierLimits(tier);
   return limits.maxSharedClients ?? 0;
+}
+
+/**
+ * Get credit costs for a tier
+ * Returns the canonical credit cost configuration
+ */
+export function getTierCreditCosts(tier: string | null | undefined): TierCreditCosts {
+  return getTierConfig(tier).creditCosts;
+}
+
+/**
+ * Get the credit cost for a specific action on a tier
+ * @param action - 'songs' | 'lyrics' | 'insights' | 'books'
+ */
+export function getCreditCost(
+  tier: string | null | undefined,
+  action: 'songs' | 'lyrics' | 'insights' | 'books'
+): number {
+  const costs = getTierCreditCosts(tier);
+  const costMap: Record<string, number> = {
+    songs: costs.songGeneration,
+    lyrics: costs.lyricsGeneration,
+    insights: costs.insightGeneration,
+    books: costs.bookGeneration,
+  };
+  return costMap[action] ?? 0;
+}
+
+/**
+ * Get generation settings for a tier
+ * Controls parallelism, quality, and prioritization
+ */
+export function getGenerationSettings(tier: string | null | undefined): TierGenerationSettings {
+  return getTierConfig(tier).generationSettings;
 }

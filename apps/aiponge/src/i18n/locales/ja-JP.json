@@ -1048,7 +1048,7 @@
     "musicApiTitle": "MusicAPI.ai",
     "musicApiDescription": "AI音楽生成に使用されます。現在の残高についてはMusicAPIダッシュボードを確認してください。",
     "creditsLabel": "クレジット",
-    "generationUsage": "各生成で20クレジット（2曲）を使用",
+    "generationUsage": "各生成で15クレジット（2曲）を使用",
     "openaiApiTitle": "OpenAI API",
     "test": "テスト",
     "available": "利用可能",
@@ -1057,7 +1057,7 @@
     "aipongeCreditsSubtitle": "プラットフォームでの音楽生成用の内部クレジット",
     "transactionHistory": "取引履歴",
     "noTransactions": "まだ取引がありません",
-    "songGenerationCost": "各曲の生成には20クレジットかかります",
+    "songGenerationCost": "各曲の生成には15クレジットかかります",
     "pageInfo": "{{current}} / {{total}}ページ",
     "songsAvailable": "利用可能な曲",
     "purchased": "購入済み",
@@ -1544,6 +1544,10 @@
       "personal": {
         "name": "個人日記",
         "description": "あなたの考えと振り返りのためのプライベートスペース"
+      },
+      "guide": {
+        "name": "ガイド",
+        "description": "プラットフォームガイドとオンボーディングコンテンツ"
       },
       "wisdom": {
         "name": "知恵の書",

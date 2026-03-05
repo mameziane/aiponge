@@ -230,7 +230,7 @@ export const welcomeBooksSeed: SeedModule = {
 
       const bookInsert = await db.execute(
         `INSERT INTO lib_books (user_id, type_id, title, description, author, language, visibility, status, system_type, is_read_only, is_system, chapter_count, entry_count, created_by, updated_by)
-         VALUES ('${LIBRARIAN_USER_ID}', 'personal', '${escSql(structure.title)}', '${escSql(structure.description)}', 'aiponge', '${lang.code}', 'shared', 'active', '${systemType}', true, true, ${structure.chapters.length}, ${structure.chapters.reduce((sum, ch) => sum + ch.entries.length, 0)}, '${LIBRARIAN_USER_ID}', '${LIBRARIAN_USER_ID}')
+         VALUES ('${LIBRARIAN_USER_ID}', 'guide', '${escSql(structure.title)}', '${escSql(structure.description)}', 'aiponge', '${lang.code}', 'shared', 'active', '${systemType}', true, true, ${structure.chapters.length}, ${structure.chapters.reduce((sum, ch) => sum + ch.entries.length, 0)}, '${LIBRARIAN_USER_ID}', '${LIBRARIAN_USER_ID}')
          RETURNING id`
       );
 

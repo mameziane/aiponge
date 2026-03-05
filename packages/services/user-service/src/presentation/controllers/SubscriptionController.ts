@@ -10,11 +10,9 @@ import { SubscriptionRepository } from '@infrastructure/repositories';
 import { CheckUsageEligibilityUseCase } from '@application/use-cases/billing';
 import { SUBSCRIPTION_TIERS, TIER_IDS } from '@infrastructure/database/schemas/subscription-schema';
 import { createControllerHelpers, serializeError } from '@aiponge/platform-core';
-import { SUBSCRIPTION_STATUS } from '@aiponge/shared-contracts';
+import { SUBSCRIPTION_STATUS, getCreditCost, TIER_IDS as SHARED_TIER_IDS } from '@aiponge/shared-contracts';
 
 const logger = getLogger('subscription-controller');
-
-const CREDIT_COST_PER_SONG = 15;
 
 const { handleRequest } = createControllerHelpers('user-service', (res, error, message, req) =>
   ServiceErrors.fromException(res, error, message, req)
@@ -303,7 +301,7 @@ export class SubscriptionController {
 
         return {
           tiers: exposedTiers,
-          creditCostPerSong: CREDIT_COST_PER_SONG,
+          creditCostPerSong: getCreditCost(SHARED_TIER_IDS.GUEST, 'songs'),
           defaultTier: TIER_IDS.GUEST,
         };
       },

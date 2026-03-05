@@ -32,31 +32,6 @@ function createMockState(overrides: Record<string, unknown> = {}) {
   };
 }
 
-function createMockPolicy(overrides: Record<string, unknown> = {}) {
-  return {
-    id: 1,
-    policyName: 'default',
-    isActive: true,
-    songsThreshold: 1,
-    tracksThreshold: 5,
-    entriesCreatedThreshold: 3,
-    cooldownHours: 24,
-    createdAt: new Date('2025-01-01'),
-    updatedAt: new Date('2025-01-01'),
-    ...overrides,
-  };
-}
-
-function createSelectChain(resolvedValue: unknown[]) {
-  return {
-    from: vi.fn().mockReturnValue({
-      where: vi.fn().mockReturnValue({
-        limit: vi.fn().mockResolvedValue(resolvedValue),
-      }),
-    }),
-  };
-}
-
 function createSelectChainNoLimit(resolvedValue: unknown[]) {
   return {
     from: vi.fn().mockReturnValue({
@@ -73,6 +48,16 @@ function createInsertChain(returnValue: unknown[]) {
   };
 }
 
+function createInsertChainWithConflict(returnValue: unknown[]) {
+  return {
+    values: vi.fn().mockReturnValue({
+      onConflictDoNothing: vi.fn().mockReturnValue({
+        returning: vi.fn().mockResolvedValue(returnValue),
+      }),
+    }),
+  };
+}
+
 function createUpdateChain(returnValue?: unknown[]) {
   return {
     set: vi.fn().mockReturnValue({
@@ -84,12 +69,16 @@ function createUpdateChain(returnValue?: unknown[]) {
 }
 
 function createMockDb() {
-  return {
+  const db = {
     insert: vi.fn(),
     select: vi.fn(),
     update: vi.fn(),
     delete: vi.fn(),
+    // trackEvent uses this.db.transaction(async tx => {...})
+    // The tx object receives the same mock methods
+    transaction: vi.fn(),
   } as unknown as Record<string, unknown>;
+  return db;
 }
 
 describe('GuestConversionRepository', () => {
@@ -103,28 +92,24 @@ describe('GuestConversionRepository', () => {
   });
 
   describe('getActivePolicy', () => {
-    it('should return Result.ok with policy data when active policy exists', async () => {
-      const mockPolicy = createMockPolicy();
-      mockDb.select.mockReturnValue(createSelectChain([mockPolicy]));
-
+    it('should return Result.ok with the code-based policy constant', async () => {
       const result = await repo.getActivePolicy();
 
       expect(Result.isOk(result)).toBe(true);
       if (Result.isOk(result)) {
-        expect(result.data).not.toBeNull();
-        expect(result.data!.policyName).toBe('default');
-        expect(result.data!.isActive).toBe(true);
-        expect(result.data!.songsThreshold).toBeGreaterThanOrEqual(0);
-        expect(result.data!.tracksThreshold).toBeGreaterThanOrEqual(0);
-        expect(result.data!.entriesCreatedThreshold).toBeGreaterThanOrEqual(0);
-        expect(result.data!.cooldownHours).toBeGreaterThanOrEqual(0);
+        expect(result.data).toBe(DEFAULT_GUEST_CONVERSION_POLICY);
+        expect(result.data!.firstSongThreshold).toBe(1);
+        expect(result.data!.tracksPlayedThreshold).toBe(5);
+        expect(result.data!.entriesCreatedThreshold).toBe(3);
+        expect(result.data!.promptCooldownMs).toBeGreaterThan(0);
+        expect(result.data!.promptMessages).toBeDefined();
       }
     });
   });
 
   describe('getGuestState', () => {
     it('should return Result.ok with null for non-existent user', async () => {
-      mockDb.select.mockReturnValue(createSelectChainNoLimit([]));
+      (mockDb as Record<string, ReturnType<typeof vi.fn>>).select.mockReturnValue(createSelectChainNoLimit([]));
 
       const result = await repo.getGuestState('non-existent-id');
 
@@ -136,7 +121,9 @@ describe('GuestConversionRepository', () => {
 
     it('should return Result.ok with state after creation', async () => {
       const mockState = createMockState();
-      mockDb.select.mockReturnValue(createSelectChainNoLimit([mockState]));
+      (mockDb as Record<string, ReturnType<typeof vi.fn>>).select.mockReturnValue(
+        createSelectChainNoLimit([mockState])
+      );
 
       const result = await repo.getGuestState(TEST_USER_ID);
 
@@ -155,7 +142,7 @@ describe('GuestConversionRepository', () => {
     it('should create guest state with zero counters', async () => {
       const mockState = createMockState();
       const insertChain = createInsertChain([mockState]);
-      mockDb.insert.mockReturnValue(insertChain);
+      (mockDb as Record<string, ReturnType<typeof vi.fn>>).insert.mockReturnValue(insertChain);
 
       const state = await repo.createGuestState(TEST_USER_ID);
 
@@ -175,16 +162,33 @@ describe('GuestConversionRepository', () => {
   });
 
   describe('trackEvent', () => {
+    /**
+     * trackEvent uses this.db.transaction(async tx => { ... }).
+     * We mock transaction to execute the callback with a tx object
+     * that has the same select/insert/update mocks.
+     */
+    function setupTransactionMock(txSetup: (tx: Record<string, ReturnType<typeof vi.fn>>) => void) {
+      const tx = {
+        select: vi.fn(),
+        insert: vi.fn(),
+        update: vi.fn(),
+      };
+      txSetup(tx);
+      (mockDb as Record<string, ReturnType<typeof vi.fn>>).transaction.mockImplementation(
+        async (cb: (tx: unknown) => Promise<unknown>) => cb(tx)
+      );
+      return tx;
+    }
+
     it('should track song_created event and increment counter', async () => {
       const existingState = createMockState();
       const updatedState = createMockState({ songsGenerated: 1 });
 
-      mockDb.select
-        .mockReturnValueOnce(createSelectChainNoLimit([existingState]))
-        .mockReturnValueOnce(createSelectChain([]));
-
-      mockDb.update.mockReturnValueOnce(createUpdateChain([updatedState]));
-      mockDb.update.mockReturnValueOnce(createUpdateChain());
+      setupTransactionMock(tx => {
+        tx.select.mockReturnValueOnce(createSelectChainNoLimit([existingState]));
+        tx.update.mockReturnValueOnce(createUpdateChain([updatedState]));
+        tx.update.mockReturnValueOnce(createUpdateChain()); // prompt update
+      });
 
       const result = await repo.trackEvent(TEST_USER_ID, 'song_created');
 
@@ -197,11 +201,10 @@ describe('GuestConversionRepository', () => {
       const existingState = createMockState({ tracksPlayed: 2 });
       const updatedState = createMockState({ tracksPlayed: 3 });
 
-      mockDb.select
-        .mockReturnValueOnce(createSelectChainNoLimit([existingState]))
-        .mockReturnValueOnce(createSelectChain([]));
-
-      mockDb.update.mockReturnValueOnce(createUpdateChain([updatedState]));
+      setupTransactionMock(tx => {
+        tx.select.mockReturnValueOnce(createSelectChainNoLimit([existingState]));
+        tx.update.mockReturnValueOnce(createUpdateChain([updatedState]));
+      });
 
       const result = await repo.trackEvent(TEST_USER_ID, 'track_played');
 
@@ -212,11 +215,10 @@ describe('GuestConversionRepository', () => {
       const existingState = createMockState();
       const updatedState = createMockState({ entriesSaved: 1 });
 
-      mockDb.select
-        .mockReturnValueOnce(createSelectChainNoLimit([existingState]))
-        .mockReturnValueOnce(createSelectChain([]));
-
-      mockDb.update.mockReturnValueOnce(createUpdateChain([updatedState]));
+      setupTransactionMock(tx => {
+        tx.select.mockReturnValueOnce(createSelectChainNoLimit([existingState]));
+        tx.update.mockReturnValueOnce(createUpdateChain([updatedState]));
+      });
 
       const result = await repo.trackEvent(TEST_USER_ID, 'entry_created');
 
@@ -227,12 +229,14 @@ describe('GuestConversionRepository', () => {
       const createdState = createMockState();
       const updatedState = createMockState({ songsGenerated: 1 });
 
-      mockDb.select.mockReturnValueOnce(createSelectChainNoLimit([])).mockReturnValueOnce(createSelectChain([]));
+      const insertChain = createInsertChainWithConflict([createdState]);
 
-      const insertChain = createInsertChain([createdState]);
-      mockDb.insert.mockReturnValue(insertChain);
-      mockDb.update.mockReturnValueOnce(createUpdateChain([updatedState]));
-      mockDb.update.mockReturnValueOnce(createUpdateChain());
+      setupTransactionMock(tx => {
+        tx.select.mockReturnValueOnce(createSelectChainNoLimit([])); // state not found
+        tx.insert.mockReturnValue(insertChain);
+        tx.update.mockReturnValueOnce(createUpdateChain([updatedState]));
+        tx.update.mockReturnValueOnce(createUpdateChain()); // prompt update
+      });
 
       const result = await repo.trackEvent(TEST_USER_ID, 'song_created');
 
@@ -246,12 +250,11 @@ describe('GuestConversionRepository', () => {
       const existingState = createMockState();
       const updatedState = createMockState({ songsGenerated: 1 });
 
-      mockDb.select
-        .mockReturnValueOnce(createSelectChainNoLimit([existingState]))
-        .mockReturnValueOnce(createSelectChain([]));
-
-      mockDb.update.mockReturnValueOnce(createUpdateChain([updatedState]));
-      mockDb.update.mockReturnValueOnce(createUpdateChain());
+      setupTransactionMock(tx => {
+        tx.select.mockReturnValueOnce(createSelectChainNoLimit([existingState]));
+        tx.update.mockReturnValueOnce(createUpdateChain([updatedState]));
+        tx.update.mockReturnValueOnce(createUpdateChain()); // prompt update
+      });
 
       const result = await repo.trackEvent(TEST_USER_ID, 'song_created');
 
@@ -270,11 +273,11 @@ describe('GuestConversionRepository', () => {
           where: vi.fn().mockResolvedValue(undefined),
         }),
       };
-      mockDb.update.mockReturnValue(updateChain);
+      (mockDb as Record<string, ReturnType<typeof vi.fn>>).update.mockReturnValue(updateChain);
 
       await repo.markConverted(TEST_USER_ID);
 
-      expect(mockDb.update).toHaveBeenCalledTimes(1);
+      expect((mockDb as Record<string, ReturnType<typeof vi.fn>>).update).toHaveBeenCalledTimes(1);
       const setCall = updateChain.set.mock.calls[0][0];
       expect(setCall.converted).toBe(true);
       expect(setCall.convertedAt).toBeInstanceOf(Date);

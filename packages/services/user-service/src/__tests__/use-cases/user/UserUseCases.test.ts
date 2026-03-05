@@ -77,6 +77,20 @@ vi.mock('../../../infrastructure/events/UserEventPublisher', () => ({
   },
 }));
 
+vi.mock('../../../infrastructure/events/UserLifecyclePublisher', () => ({
+  UserLifecyclePublisher: {
+    userDeleted: vi.fn(),
+    userSignedUp: vi.fn(),
+  },
+}));
+
+vi.mock('../../../infrastructure/events/UserAnalyticsEmitter', () => ({
+  UserAnalyticsEmitter: {
+    userRegistered: vi.fn(),
+    userLoggedIn: vi.fn(),
+  },
+}));
+
 vi.mock('../../../infrastructure/database/DatabaseConnectionFactory', () => ({
   getDatabase: vi.fn(() => ({
     select: vi.fn().mockReturnValue({
@@ -111,7 +125,9 @@ vi.mock('../../../infrastructure/database/DatabaseConnectionFactory', () => ({
     }),
     update: vi.fn().mockReturnValue({
       set: vi.fn().mockReturnValue({
-        where: vi.fn().mockResolvedValue(undefined),
+        where: vi.fn().mockReturnValue({
+          returning: vi.fn().mockResolvedValue([]),
+        }),
       }),
     }),
   })),
@@ -1009,7 +1025,9 @@ describe('InitializeUserOnboardingUseCase', () => {
       }),
       update: vi.fn().mockReturnValue({
         set: vi.fn().mockReturnValue({
-          where: vi.fn().mockResolvedValue(undefined),
+          where: vi.fn().mockReturnValue({
+            returning: vi.fn().mockResolvedValue([{ userId: 'user-123' }]),
+          }),
         }),
       }),
     };
@@ -1025,6 +1043,13 @@ describe('InitializeUserOnboardingUseCase', () => {
   });
 
   it('should return success when onboarding is already initialized (idempotent)', async () => {
+    mockDb.update.mockReturnValue({
+      set: vi.fn().mockReturnValue({
+        where: vi.fn().mockReturnValue({
+          returning: vi.fn().mockResolvedValue([]),
+        }),
+      }),
+    });
     mockDb.select.mockReturnValue({
       from: vi.fn().mockReturnValue({
         where: vi.fn().mockResolvedValue([{ onboardingInitialized: true }]),
@@ -1035,10 +1060,18 @@ describe('InitializeUserOnboardingUseCase', () => {
 
     expect(result.success).toBe(true);
     expect(result.message).toBe('Onboarding already completed');
-    expect(mockDb.update).not.toHaveBeenCalled();
   });
 
   it('should throw when profile not found', async () => {
+    // returning([]) means no rows were updated (profile doesn't exist)
+    mockDb.update.mockReturnValue({
+      set: vi.fn().mockReturnValue({
+        where: vi.fn().mockReturnValue({
+          returning: vi.fn().mockResolvedValue([]),
+        }),
+      }),
+    });
+    // select also returns [] → no profile found → throws ProfileError.notFound
     mockDb.select.mockReturnValue({
       from: vi.fn().mockReturnValue({
         where: vi.fn().mockResolvedValue([]),

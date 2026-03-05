@@ -31,13 +31,10 @@ export function registerBillingRoutes(router: Router, deps: BillingRouteDeps): v
   const { creditController, subscriptionController } = deps;
 
   // ==============================================
-  // CREDIT ROUTES (12 endpoints)
+  // CREDIT ROUTES
   // ==============================================
 
   router.get('/credits/policy', (req, res) => creditController.getCreditPolicy(req, res));
-  router.get('/credits/catalog', (req, res) => creditController.getProductCatalog(req, res));
-  router.get('/credits/products', (req, res) => creditController.getProducts(req, res));
-  router.post('/credits/products/seed', (req, res) => creditController.seedProducts(req, res));
   router.get('/credits/:userId/balance', (req, res) => creditController.getBalance(req, res));
   router.post('/credits/:userId/validate', validateValidateCredits, (req, res) =>
     creditController.validateCredits(req, res)

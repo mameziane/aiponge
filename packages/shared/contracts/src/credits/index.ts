@@ -99,3 +99,23 @@ export type CreditOrderStatus = z.infer<typeof CreditOrderStatusSchema>;
 
 export const CreditGiftStatusSchema = z.enum(['pending', 'claimed', 'expired', 'cancelled']);
 export type CreditGiftStatus = z.infer<typeof CreditGiftStatusSchema>;
+
+/**
+ * RevenueCat product ID → credits granted mapping.
+ * This is the single source of truth for how many credits each product grants.
+ * Product names, prices, and descriptions come from RevenueCat/StoreKit.
+ * IDs must match RevenueCat dashboard configuration.
+ */
+export const CREDIT_PRODUCT_MAP: Record<string, { credits: number; type: string }> = {
+  credits_50: { credits: 50, type: 'credit_pack' },
+  credits_150: { credits: 150, type: 'credit_pack' },
+  credits_500: { credits: 400, type: 'credit_pack' },
+};
+
+/**
+ * Resolve the number of credits granted by a RevenueCat product ID.
+ * Returns null if the product is unknown (not a credit product).
+ */
+export function getCreditsForProduct(productId: string): number | null {
+  return CREDIT_PRODUCT_MAP[productId]?.credits ?? null;
+}

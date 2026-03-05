@@ -148,16 +148,6 @@ describe('Store Routes', () => {
     app.use('/api/app/store', mod.default);
   });
 
-  describe('GET /catalog', () => {
-    it('should return 200 (public endpoint)', async () => {
-      mockGatewayFetch.mockResolvedValueOnce(mockResponse({ success: true, data: { products: [] } }));
-
-      const res = await request(app).get('/api/app/store/catalog');
-      expect(res.status).toBe(200);
-      expect(mockGatewayFetch).toHaveBeenCalledWith(expect.stringContaining('/api/credits/catalog'), expect.anything());
-    });
-  });
-
   describe('GET /config', () => {
     it('should return 200 with payment config', async () => {
       const res = await request(app).get('/api/app/store/config');

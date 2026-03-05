@@ -1049,7 +1049,7 @@
     "musicApiTitle": "MusicAPI.ai",
     "musicApiDescription": "Usado para geração de música com IA. Consulte seu painel da MusicAPI para o saldo atual.",
     "creditsLabel": "créditos",
-    "generationUsage": "Cada geração usa 20 créditos (2 músicas)",
+    "generationUsage": "Cada geração usa 15 créditos (2 músicas)",
     "openaiApiTitle": "API OpenAI",
     "test": "Testar",
     "available": "Disponível",
@@ -1057,7 +1057,7 @@
     "aipongeCredits": "Créditos aiponge",
     "transactionHistory": "Histórico de Transações",
     "noTransactions": "Sem transações ainda",
-    "songGenerationCost": "Cada geração de música custa 20 créditos",
+    "songGenerationCost": "Cada geração de música custa 15 créditos",
     "pageInfo": "Página {{current}} de {{total}}",
     "songsAvailable": "Músicas Disponíveis",
     "purchased": "Compradas",
@@ -1611,6 +1611,10 @@
       "personal": {
         "name": "Diário pessoal",
         "description": "Um espaço privado para seus pensamentos e reflexões"
+      },
+      "guide": {
+        "name": "Guia",
+        "description": "Guias da plataforma e conteúdo de integração"
       },
       "wisdom": {
         "name": "Livro de sabedoria",

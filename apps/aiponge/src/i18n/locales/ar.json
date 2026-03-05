@@ -970,7 +970,7 @@
     "musicApiTitle": "MusicAPI.ai",
     "musicApiDescription": "يُستخدم لإنشاء الموسيقى بالذكاء الاصطناعي. راجع لوحة تحكم MusicAPI للرصيد الحالي.",
     "creditsLabel": "اعتمادات",
-    "generationUsage": "كل إنشاء يستخدم 20 اعتماد (أغنيتين)",
+    "generationUsage": "كل إنشاء يستخدم 15 اعتماد (أغنيتين)",
     "openaiApiTitle": "واجهة برمجة OpenAI",
     "test": "اختبار",
     "available": "متاح",
@@ -978,7 +978,7 @@
     "aipongeCredits": "اعتمادات aiponge",
     "transactionHistory": "سجل المعاملات",
     "noTransactions": "لا توجد معاملات بعد",
-    "songGenerationCost": "كل إنشاء أغنية يكلف 20 اعتماد",
+    "songGenerationCost": "كل إنشاء أغنية يكلف 15 اعتماد",
     "pageInfo": "صفحة {{current}} من {{total}}",
     "songsAvailable": "الأغاني المتاحة",
     "purchased": "المشتراة",
@@ -1513,6 +1513,10 @@
       "personal": {
         "name": "مذكرات شخصية",
         "description": "مساحة خاصة لأفكارك وتأملاتك"
+      },
+      "guide": {
+        "name": "دليل",
+        "description": "أدلة المنصة ومحتوى الترحيب"
       },
       "wisdom": {
         "name": "كتاب حكمة",

@@ -1,9 +1,9 @@
 /**
  * Credit Store Routes
- * Handles credit pack catalog and order history
+ * Handles order history and gift management
  *
  * Note: Stripe has been removed. Payments are handled via RevenueCat in-app purchases.
- * Product catalog is now database-driven via user-service for dynamic pricing updates.
+ * Product catalog comes from RevenueCat/StoreKit (CREDIT_PRODUCT_MAP in shared-contracts).
  */
 
 import { Router } from 'express';
@@ -21,26 +21,8 @@ const router: Router = Router();
 const SERVICE = 'user-service';
 
 // ============================================================================
-// CATALOG (Database-driven via user-service)
+// CONFIG
 // ============================================================================
-
-router.get(
-  '/catalog',
-  createProxyHandler({
-    service: SERVICE,
-    path: () => '/api/credits/catalog',
-    errorMessage: 'Failed to fetch product catalog',
-  })
-);
-
-router.get(
-  '/products',
-  createProxyHandler({
-    service: SERVICE,
-    path: () => '/api/credits/products',
-    errorMessage: 'Failed to fetch products',
-  })
-);
 
 router.get(
   '/config',

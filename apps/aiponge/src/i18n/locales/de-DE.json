@@ -1049,7 +1049,7 @@
     "musicApiTitle": "MusicAPI.ai",
     "musicApiDescription": "Wird für KI-Musikgenerierung verwendet. Prüfe dein MusicAPI-Dashboard für den aktuellen Kontostand.",
     "creditsLabel": "Credits",
-    "generationUsage": "Jede Generierung verbraucht 20 Credits (2 Songs)",
+    "generationUsage": "Jede Generierung verbraucht 15 Credits (2 Songs)",
     "openaiApiTitle": "OpenAI-API",
     "test": "Testen",
     "available": "Verfügbar",
@@ -1057,7 +1057,7 @@
     "aipongeCredits": "aiponge-Credits",
     "transactionHistory": "Transaktionsverlauf",
     "noTransactions": "Noch keine Transaktionen",
-    "songGenerationCost": "Jede Song-Generierung kostet 20 Credits",
+    "songGenerationCost": "Jede Song-Generierung kostet 15 Credits",
     "pageInfo": "Seite {{current}} von {{total}}",
     "songsAvailable": "Verfügbare Songs",
     "purchased": "Gekauft",
@@ -1592,6 +1592,10 @@
       "personal": {
         "name": "Persönliches Tagebuch",
         "description": "Ein privater Raum für Ihre Gedanken und Reflexionen"
+      },
+      "guide": {
+        "name": "Leitfaden",
+        "description": "Plattform-Leitfäden und Einführungsinhalte"
       },
       "wisdom": {
         "name": "Weisheitsbuch",

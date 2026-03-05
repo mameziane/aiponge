@@ -54,14 +54,18 @@ export class BookController {
 
       // Resolve user's app language for system content filtering
       // Priority: explicit ?language param > Accept-Language header > 'en' fallback
+      // 'all' = user explicitly chose "All Languages" → disable system content language gating
       const acceptLang = req.headers['accept-language'];
+      const explicitLang = language as string | undefined;
       const userAppLanguage =
-        (language as string) || (acceptLang ? toShortLanguageCode(acceptLang.split(',')[0]) : 'en');
+        explicitLang === 'all'
+          ? undefined
+          : explicitLang || (acceptLang ? toShortLanguageCode(acceptLang.split(',')[0]) : 'en');
 
       const filters = {
         typeId: typeId as string,
         category: category as string,
-        language: language as string,
+        language: explicitLang && explicitLang !== 'all' ? explicitLang : undefined,
         visibility: visibility as string,
         status: status as string,
         search: search as string,

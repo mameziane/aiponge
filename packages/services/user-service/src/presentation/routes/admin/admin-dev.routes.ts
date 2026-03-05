@@ -50,12 +50,15 @@ function extractRows<T>(result: unknown): T[] {
 async function resetLibraryBooks(tx: DatabaseConnection): Promise<void> {
   const { fs, path, uploadsDir } = await getUploadsDir();
 
+  // Preserve personal journals and system guide books during dev reset
+  const preservedTypes = sql`(${BOOK_TYPE_IDS.PERSONAL}, ${BOOK_TYPE_IDS.GUIDE})`;
+
   const coverUrlsResult = await tx.execute(sql`
-    SELECT i.url 
+    SELECT i.url
     FROM lib_illustrations i
     JOIN lib_books b ON i.book_id = b.id
-    WHERE b.type_id != ${BOOK_TYPE_IDS.PERSONAL} 
-      AND i.illustration_type = 'cover' 
+    WHERE b.type_id NOT IN ${preservedTypes}
+      AND i.illustration_type = 'cover'
       AND i.url IS NOT NULL
   `);
   const coverUrls = extractRows<{ url: string }>(coverUrlsResult);
@@ -63,21 +66,21 @@ async function resetLibraryBooks(tx: DatabaseConnection): Promise<void> {
   await deleteFilesByUrl(fs, uploadsDir, path, coverUrls, 'url', 'book cover');
 
   await tx.execute(
-    sql`DELETE FROM lib_illustrations WHERE book_id IN (SELECT id FROM lib_books WHERE type_id != ${BOOK_TYPE_IDS.PERSONAL})`
+    sql`DELETE FROM lib_illustrations WHERE book_id IN (SELECT id FROM lib_books WHERE type_id NOT IN ${preservedTypes})`
   );
   await tx.execute(
-    sql`DELETE FROM lib_user_library WHERE book_id IN (SELECT id FROM lib_books WHERE type_id != ${BOOK_TYPE_IDS.PERSONAL})`
+    sql`DELETE FROM lib_user_library WHERE book_id IN (SELECT id FROM lib_books WHERE type_id NOT IN ${preservedTypes})`
   );
   await tx.execute(
-    sql`DELETE FROM lib_illustrations WHERE entry_id IN (SELECT id FROM lib_entries WHERE book_id IN (SELECT id FROM lib_books WHERE type_id != ${BOOK_TYPE_IDS.PERSONAL}))`
+    sql`DELETE FROM lib_illustrations WHERE entry_id IN (SELECT id FROM lib_entries WHERE book_id IN (SELECT id FROM lib_books WHERE type_id NOT IN ${preservedTypes}))`
   );
   await tx.execute(
-    sql`DELETE FROM lib_entries WHERE book_id IN (SELECT id FROM lib_books WHERE type_id != ${BOOK_TYPE_IDS.PERSONAL})`
+    sql`DELETE FROM lib_entries WHERE book_id IN (SELECT id FROM lib_books WHERE type_id NOT IN ${preservedTypes})`
   );
   await tx.execute(
-    sql`DELETE FROM lib_chapters WHERE book_id IN (SELECT id FROM lib_books WHERE type_id != ${BOOK_TYPE_IDS.PERSONAL})`
+    sql`DELETE FROM lib_chapters WHERE book_id IN (SELECT id FROM lib_books WHERE type_id NOT IN ${preservedTypes})`
   );
-  await tx.execute(sql`DELETE FROM lib_books WHERE type_id != ${BOOK_TYPE_IDS.PERSONAL}`);
+  await tx.execute(sql`DELETE FROM lib_books WHERE type_id NOT IN ${preservedTypes}`);
 }
 
 async function resetMusicLibrary(tx: DatabaseConnection): Promise<void> {

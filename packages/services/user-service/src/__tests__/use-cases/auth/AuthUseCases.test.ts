@@ -125,6 +125,20 @@ vi.mock('../../../infrastructure/database/schemas/user-schema', () => ({
   TokenRevocationReason: { LOGOUT: 'LOGOUT', SECURITY: 'SECURITY' },
 }));
 
+vi.mock('../../../infrastructure/events/UserAnalyticsEmitter', () => ({
+  UserAnalyticsEmitter: {
+    userRegistered: vi.fn(),
+    userLoggedIn: vi.fn(),
+  },
+}));
+
+vi.mock('../../../infrastructure/events/UserLifecyclePublisher', () => ({
+  UserLifecyclePublisher: {
+    userSignedUp: vi.fn(),
+    userDeleted: vi.fn(),
+  },
+}));
+
 vi.mock('../../../infrastructure/services/EmailService', () => ({
   emailService: {
     sendPasswordResetCode: vi.fn().mockResolvedValue({ success: true }),

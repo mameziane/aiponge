@@ -22,7 +22,7 @@ export function useBookListData({ userDisplayName, t, followedCreatorIds }: Book
   const token = useAuthStore(selectToken);
   const user = useAuthStore(selectUser);
   const [selectedCategory, setSelectedCategory] = useState<BookTypeCategory | null>(null);
-  const [selectedLanguage, setSelectedLanguage] = useState<string>('');
+  const [selectedLanguage, setSelectedLanguage] = useState<string>('all');
 
   const {
     data: browseBooks,
@@ -173,7 +173,7 @@ export function useBookListData({ userDisplayName, t, followedCreatorIds }: Book
         if (personalBookIds.has((book as LibBook).id)) return false;
         const typeId = (book as LibBook & { typeId?: string }).typeId;
         if (selectedCategoryTypeIds && (!typeId || !selectedCategoryTypeIds.has(typeId))) return false;
-        if (selectedLanguage) {
+        if (selectedLanguage && selectedLanguage !== 'all') {
           const bookLang = (book as LibBook).language;
           if (bookLang && !bookLang.toLowerCase().startsWith(activeLang.toLowerCase())) return false;
         }

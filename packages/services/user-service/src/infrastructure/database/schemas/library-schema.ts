@@ -401,6 +401,7 @@ export type UserLibrary = typeof libUserLibrary.$inferSelect;
 
 export const BOOK_TYPE_IDS = {
   PERSONAL: 'personal',
+  GUIDE: 'guide',
   WISDOM: 'wisdom',
   QUOTES: 'quotes',
   SCIENTIFIC: 'scientific',

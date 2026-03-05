@@ -6,9 +6,7 @@
 import { eq } from 'drizzle-orm';
 import { DatabaseConnection } from '../database/DatabaseConnectionFactory';
 import {
-  usrGuestConversionPolicy,
   usrGuestConversionState,
-  GuestConversionPolicy,
   GuestConversionState,
   DEFAULT_GUEST_CONVERSION_POLICY,
 } from '../database/schemas/subscription-schema';
@@ -36,7 +34,7 @@ export interface TrackEventResult {
 }
 
 export interface IGuestConversionRepository {
-  getActivePolicy(): Promise<Result<GuestConversionPolicy | null>>;
+  getActivePolicy(): Promise<Result<typeof DEFAULT_GUEST_CONVERSION_POLICY>>;
   getGuestState(userId: string): Promise<Result<GuestConversionState | null>>;
   createGuestState(userId: string): Promise<GuestConversionState>;
   trackEvent(userId: string, eventType: GuestEventType): Promise<TrackEventResult>;
@@ -46,24 +44,8 @@ export interface IGuestConversionRepository {
 export class GuestConversionRepository implements IGuestConversionRepository {
   constructor(private readonly db: DatabaseConnection) {}
 
-  async getActivePolicy(): Promise<Result<GuestConversionPolicy | null>> {
-    try {
-      const [policy] = await this.db
-        .select()
-        .from(usrGuestConversionPolicy)
-        .where(eq(usrGuestConversionPolicy.isActive, true))
-        .limit(1);
-
-      if (!policy) {
-        logger.debug('No active policy found, using defaults');
-        return Result.ok(null);
-      }
-
-      return Result.ok(policy);
-    } catch (error) {
-      logger.error('Failed to get guest conversion policy', { error });
-      return Result.fail('DATABASE_ERROR', 'Failed to get guest conversion policy', error);
-    }
+  async getActivePolicy(): Promise<Result<typeof DEFAULT_GUEST_CONVERSION_POLICY>> {
+    return Result.ok(DEFAULT_GUEST_CONVERSION_POLICY);
   }
 
   async getGuestState(userId: string): Promise<Result<GuestConversionState | null>> {
@@ -97,15 +79,7 @@ export class GuestConversionRepository implements IGuestConversionRepository {
   }
 
   async trackEvent(userId: string, eventType: GuestEventType): Promise<TrackEventResult> {
-    // Policy is read-only and rarely changes — safe to read outside the transaction
-    const policyResult = await this.getActivePolicy();
-    let config: GuestConversionPolicy | typeof DEFAULT_GUEST_CONVERSION_POLICY;
-    if (Result.isFail(policyResult)) {
-      logger.warn('Database error getting policy, using defaults', { error: policyResult.error });
-      config = DEFAULT_GUEST_CONVERSION_POLICY;
-    } else {
-      config = policyResult.data || DEFAULT_GUEST_CONVERSION_POLICY;
-    }
+    const config = DEFAULT_GUEST_CONVERSION_POLICY;
 
     // Transaction wraps: read state → create-if-needed → increment → prompt update
     // Prevents lost increments and double prompt triggers under concurrent events
@@ -208,26 +182,19 @@ export class GuestConversionRepository implements IGuestConversionRepository {
 
   private evaluatePromptTrigger(
     state: GuestConversionState,
-    config: GuestConversionPolicy | typeof DEFAULT_GUEST_CONVERSION_POLICY,
+    config: typeof DEFAULT_GUEST_CONVERSION_POLICY,
     eventType: GuestEventType
   ): { shouldPrompt: boolean; promptType: PromptType; promptContent?: { title: string; message: string } } {
     if (state.lastPromptShown) {
       const timeSincePrompt = Date.now() - state.lastPromptShown.getTime();
-      const cooldownMs = this.getCooldownMs(config);
-      if (timeSincePrompt < cooldownMs) {
+      if (timeSincePrompt < config.promptCooldownMs) {
         return { shouldPrompt: false, promptType: null };
       }
     }
 
-    const thresholds = {
-      firstSongThreshold: this.getSongsThreshold(config),
-      tracksPlayedThreshold: this.getTracksThreshold(config),
-      entriesCreatedThreshold: this.getEntriesThreshold(config),
-    };
+    const messages = config.promptMessages;
 
-    const messages = DEFAULT_GUEST_CONVERSION_POLICY.promptMessages;
-
-    if (eventType === 'song_created' && state.songsGenerated === thresholds.firstSongThreshold) {
+    if (eventType === 'song_created' && state.songsGenerated === config.firstSongThreshold) {
       return {
         shouldPrompt: true,
         promptType: 'first-song',
@@ -235,7 +202,7 @@ export class GuestConversionRepository implements IGuestConversionRepository {
       };
     }
 
-    if (eventType === 'track_played' && state.tracksPlayed === thresholds.tracksPlayedThreshold) {
+    if (eventType === 'track_played' && state.tracksPlayed === config.tracksPlayedThreshold) {
       return {
         shouldPrompt: true,
         promptType: 'multiple-tracks',
@@ -243,7 +210,7 @@ export class GuestConversionRepository implements IGuestConversionRepository {
       };
     }
 
-    if (eventType === 'entry_created' && state.entriesSaved === thresholds.entriesCreatedThreshold) {
+    if (eventType === 'entry_created' && state.entriesSaved === config.entriesCreatedThreshold) {
       return {
         shouldPrompt: true,
         promptType: 'entries',
@@ -252,33 +219,5 @@ export class GuestConversionRepository implements IGuestConversionRepository {
     }
 
     return { shouldPrompt: false, promptType: null };
-  }
-
-  private getCooldownMs(config: GuestConversionPolicy | typeof DEFAULT_GUEST_CONVERSION_POLICY): number {
-    if ('cooldownHours' in config) {
-      return config.cooldownHours * 60 * 60 * 1000;
-    }
-    return DEFAULT_GUEST_CONVERSION_POLICY.promptCooldownMs;
-  }
-
-  private getSongsThreshold(config: GuestConversionPolicy | typeof DEFAULT_GUEST_CONVERSION_POLICY): number {
-    if ('songsThreshold' in config) {
-      return config.songsThreshold;
-    }
-    return DEFAULT_GUEST_CONVERSION_POLICY.firstSongThreshold;
-  }
-
-  private getTracksThreshold(config: GuestConversionPolicy | typeof DEFAULT_GUEST_CONVERSION_POLICY): number {
-    if ('tracksThreshold' in config) {
-      return config.tracksThreshold;
-    }
-    return DEFAULT_GUEST_CONVERSION_POLICY.tracksPlayedThreshold;
-  }
-
-  private getEntriesThreshold(config: GuestConversionPolicy | typeof DEFAULT_GUEST_CONVERSION_POLICY): number {
-    if ('entriesCreatedThreshold' in config) {
-      return config.entriesCreatedThreshold;
-    }
-    return DEFAULT_GUEST_CONVERSION_POLICY.entriesCreatedThreshold;
   }
 }

@@ -1,9 +1,10 @@
 /**
  * Lifecycle Repository Implementation
- * Drizzle-based persistence for lifecycle events, subscriptions, daily metrics, cohorts, and attribution.
+ * Drizzle-based persistence for lifecycle events, daily metrics, cohorts, and attribution.
+ * Subscription data is read/written cross-service via raw SQL on usr_subscription_events (user-service).
  */
 
-import { eq, and, between, sql, desc, isNull, gte, lte, count, sum } from 'drizzle-orm';
+import { eq, and, sql, gte, lte } from 'drizzle-orm';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { createLogger } from '@aiponge/platform-core';
 import type { ILifecycleRepository } from '../../domains/repositories/ILifecycleRepository';
@@ -22,7 +23,6 @@ import type {
 } from '../../domains/entities/Lifecycle';
 import {
   userLifecycleEvents,
-  subscriptionHistory,
   dailyMetrics,
   cohortSnapshots,
   acquisitionAttribution,
@@ -85,25 +85,35 @@ export class LifecycleRepository implements ILifecycleRepository {
   }
 
   async insertSubscriptionChange(change: SubscriptionChangeEntity): Promise<string> {
-    const [row] = await this.db
-      .insert(subscriptionHistory)
-      .values({
-        userId: change.userId,
-        fromTier: change.fromTier,
-        toTier: change.toTier,
-        billingCycle: change.billingCycle,
-        trigger: change.trigger,
-        grossAmount: change.grossAmount,
-        netAmount: change.netAmount,
-        store: change.store,
-        platform: change.platform,
-        cancellationReason: change.cancellationReason,
-        trialConverted: change.trialConverted,
-        correlationId: change.correlationId,
-        effectiveAt: change.effectiveAt,
-      })
-      .returning({ id: subscriptionHistory.id });
-    return row.id;
+    const eventData = JSON.stringify({
+      billingCycle: change.billingCycle,
+      grossAmount: change.grossAmount,
+      netAmount: change.netAmount,
+      store: change.store,
+      platform: change.platform,
+      cancellationReason: change.cancellationReason,
+      trialConverted: change.trialConverted,
+      correlationId: change.correlationId,
+      effectiveAt: change.effectiveAt?.toISOString(),
+    });
+
+    const result = await this.db.execute(sql`
+      INSERT INTO usr_subscription_events (subscription_id, user_id, event_type, event_source, previous_tier, new_tier, event_data)
+      SELECT
+        COALESCE(
+          (SELECT id FROM usr_subscriptions WHERE user_id = ${change.userId}::uuid LIMIT 1),
+          gen_random_uuid()
+        ),
+        ${change.userId}::uuid,
+        ${change.trigger},
+        'analytics',
+        ${change.fromTier},
+        ${change.toTier},
+        ${eventData}::jsonb
+      RETURNING id
+    `);
+    const rows = result.rows as unknown as { id: string }[];
+    return rows[0]?.id ?? '';
   }
 
   async upsertAcquisitionAttribution(attribution: AcquisitionAttributionEntity): Promise<string> {
@@ -281,10 +291,10 @@ export class LifecycleRepository implements ILifecycleRepository {
         ule.user_id as "userId",
         MIN(ule.created_at) as "signupDate",
         MAX(CASE WHEN ule.event_type = 'user.session_started' THEN ule.created_at END) as "lastActiveDate",
-        (SELECT sh.to_tier FROM aia_subscription_history sh
-         WHERE sh.user_id = ule.user_id ORDER BY sh.effective_at DESC LIMIT 1) as "tier",
-        COALESCE((SELECT SUM(sh.gross_amount::numeric) FROM aia_subscription_history sh
-         WHERE sh.user_id = ule.user_id AND sh.gross_amount IS NOT NULL), 0) as "totalRevenue"
+        (SELECT se.new_tier FROM usr_subscription_events se
+         WHERE se.user_id = ule.user_id::uuid ORDER BY se.created_at DESC LIMIT 1) as "tier",
+        COALESCE((SELECT SUM((se.event_data->>'grossAmount')::numeric) FROM usr_subscription_events se
+         WHERE se.user_id = ule.user_id::uuid AND se.event_data->>'grossAmount' IS NOT NULL), 0) as "totalRevenue"
       FROM aia_user_lifecycle_events ule
       WHERE ule.event_type = 'user.signed_up'
         AND ule.created_at >= ${startOfMonth}
@@ -375,28 +385,44 @@ export class LifecycleRepository implements ILifecycleRepository {
   }
 
   async getSubscriptionHistory(userId: string): Promise<SubscriptionChangeEntity[]> {
-    const rows = await this.db
-      .select()
-      .from(subscriptionHistory)
-      .where(eq(subscriptionHistory.userId, userId))
-      .orderBy(desc(subscriptionHistory.effectiveAt));
+    const result = await this.db.execute(sql`
+      SELECT
+        se.id,
+        se.user_id as "userId",
+        se.previous_tier as "fromTier",
+        se.new_tier as "toTier",
+        COALESCE(se.event_data->>'billingCycle', 'monthly') as "billingCycle",
+        se.event_type as "trigger",
+        se.event_data->>'grossAmount' as "grossAmount",
+        se.event_data->>'netAmount' as "netAmount",
+        se.event_data->>'store' as "store",
+        se.event_data->>'platform' as "platform",
+        se.event_data->>'cancellationReason' as "cancellationReason",
+        COALESCE((se.event_data->>'trialConverted')::boolean, false) as "trialConverted",
+        COALESCE(se.event_data->>'correlationId', '') as "correlationId",
+        COALESCE((se.event_data->>'effectiveAt')::timestamptz, se.created_at) as "effectiveAt",
+        se.created_at as "createdAt"
+      FROM usr_subscription_events se
+      WHERE se.user_id = ${userId}::uuid
+      ORDER BY se.created_at DESC
+    `);
 
-    return rows.map(r => ({
-      id: r.id,
-      userId: r.userId,
-      fromTier: r.fromTier,
-      toTier: r.toTier,
-      billingCycle: r.billingCycle,
-      trigger: r.trigger,
-      grossAmount: r.grossAmount,
-      netAmount: r.netAmount,
-      store: r.store,
-      platform: r.platform,
-      cancellationReason: r.cancellationReason,
-      trialConverted: r.trialConverted ?? false,
-      correlationId: r.correlationId,
-      effectiveAt: r.effectiveAt,
-      createdAt: r.createdAt ?? undefined,
+    return (result.rows as unknown as Record<string, unknown>[]).map(r => ({
+      id: String(r.id),
+      userId: String(r.userId),
+      fromTier: r.fromTier as string | null,
+      toTier: String(r.toTier ?? 'explorer'),
+      billingCycle: String(r.billingCycle ?? 'monthly'),
+      trigger: String(r.trigger),
+      grossAmount: r.grossAmount as string | null,
+      netAmount: r.netAmount as string | null,
+      store: r.store as string | null,
+      platform: r.platform as string | null,
+      cancellationReason: r.cancellationReason as string | null,
+      trialConverted: Boolean(r.trialConverted),
+      correlationId: String(r.correlationId ?? ''),
+      effectiveAt: new Date(r.effectiveAt as string),
+      createdAt: r.createdAt ? new Date(r.createdAt as string) : undefined,
     }));
   }
 
@@ -408,7 +434,7 @@ export class LifecycleRepository implements ILifecycleRepository {
         COUNT(*)::int as "users",
         COUNT(CASE WHEN aa.first_payment_tier IS NOT NULL THEN 1 END)::int as "paidUsers",
         COALESCE(SUM(
-          (SELECT SUM(sh.gross_amount::numeric) FROM aia_subscription_history sh WHERE sh.user_id = aa.user_id)
+          (SELECT SUM((se.event_data->>'grossAmount')::numeric) FROM usr_subscription_events se WHERE se.user_id = aa.user_id::uuid)
         ), 0)::float as "revenue",
         AVG(CASE WHEN aa.first_payment_at IS NOT NULL
           THEN EXTRACT(EPOCH FROM (aa.first_payment_at - aa.created_at)) / 86400.0
@@ -551,13 +577,13 @@ export class LifecycleRepository implements ILifecycleRepository {
 
   async getPaidUserCount(): Promise<number> {
     const result = await this.db.execute(sql`
-      SELECT COUNT(DISTINCT sh.user_id)::int as count
-      FROM aia_subscription_history sh
-      WHERE sh.to_tier IN ('personal', 'practice', 'studio')
-        AND sh.id = (
-          SELECT sh2.id FROM aia_subscription_history sh2
-          WHERE sh2.user_id = sh.user_id
-          ORDER BY sh2.effective_at DESC LIMIT 1
+      SELECT COUNT(DISTINCT se.user_id)::int as count
+      FROM usr_subscription_events se
+      WHERE se.new_tier IN ('personal', 'practice', 'studio')
+        AND se.id = (
+          SELECT se2.id FROM usr_subscription_events se2
+          WHERE se2.user_id = se.user_id
+          ORDER BY se2.created_at DESC LIMIT 1
         )
     `);
     const row = result.rows[0] as Record<string, unknown> | undefined;
@@ -570,20 +596,20 @@ export class LifecycleRepository implements ILifecycleRepository {
 
     const result = await this.db.execute(sql`
       SELECT COALESCE(SUM(
-        CASE WHEN sh.billing_cycle = 'yearly'
-          THEN sh.gross_amount::numeric / 12
-          ELSE sh.gross_amount::numeric
+        CASE WHEN (se.event_data->>'billingCycle') = 'yearly'
+          THEN (se.event_data->>'grossAmount')::numeric / 12
+          ELSE (se.event_data->>'grossAmount')::numeric
         END
       ), 0)::float as mrr
-      FROM aia_subscription_history sh
-      WHERE sh.to_tier IN ('personal', 'practice', 'studio')
-        AND sh.trigger NOT IN ('cancellation', 'payment_failure')
-        AND sh.id = (
-          SELECT sh2.id FROM aia_subscription_history sh2
-          WHERE sh2.user_id = sh.user_id
-          ORDER BY sh2.effective_at DESC LIMIT 1
+      FROM usr_subscription_events se
+      WHERE se.new_tier IN ('personal', 'practice', 'studio')
+        AND se.event_type NOT IN ('cancellation', 'payment_failure')
+        AND se.id = (
+          SELECT se2.id FROM usr_subscription_events se2
+          WHERE se2.user_id = se.user_id
+          ORDER BY se2.created_at DESC LIMIT 1
         )
-        AND sh.gross_amount IS NOT NULL
+        AND se.event_data->>'grossAmount' IS NOT NULL
     `);
     const row = result.rows[0] as Record<string, unknown> | undefined;
     return Number(row?.mrr ?? 0);

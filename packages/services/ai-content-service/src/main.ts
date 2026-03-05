@@ -38,7 +38,6 @@ import { contentServiceConfig, validateConfig } from './config/service-config';
 
 // Import route modules
 import { createContentRoutes } from './presentation/routes/content-routes';
-import { createTierConfigRoutes } from './presentation/routes/tier-config-routes';
 import { createAIRoutes } from './presentation/routes/ai-routes';
 
 // Controllers
@@ -194,7 +193,6 @@ async function main(): Promise<void> {
 
     // Mount API routes using proper routing
     const contentRoutes = createContentRoutes(contentController, templateController, healthController);
-    const tierConfigRoutes = createTierConfigRoutes();
     const aiRoutes = createAIRoutes(
       textAnalysisController,
       reflectionController,
@@ -219,7 +217,6 @@ async function main(): Promise<void> {
           analysis: '/api/analysis',
           reflections: '/api/reflections',
           ai: '/api/ai',
-          tierConfig: '/api/config/tiers',
         },
       });
     });
@@ -282,7 +279,6 @@ async function main(): Promise<void> {
         // Register all routes
         bootstrapApp.use('/api', contentRoutes);
         bootstrapApp.use('/api/ai', aiRoutes);
-        bootstrapApp.use('/api/config', tierConfigRoutes);
         bootstrapApp.use('/', statusRouter);
 
         setupSentryErrorHandler(bootstrapApp as unknown as import('express').Express);

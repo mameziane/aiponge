@@ -164,29 +164,6 @@ export type SubscriptionEvent = typeof usrSubscriptionEvents.$inferSelect;
 export type NewSubscriptionEvent = typeof usrSubscriptionEvents.$inferInsert;
 export type InsertSubscriptionEvent = z.infer<typeof insertSubscriptionEventSchema>;
 
-// Guest Conversion Policy Table - Configurable thresholds for conversion prompts
-// Schema aligned with existing database structure
-export const usrGuestConversionPolicy = pgTable(
-  'usr_guest_conversion_policy',
-  {
-    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
-    policyName: varchar('policy_name', { length: 100 }).notNull().default('default'),
-    isActive: boolean('is_active').default(true).notNull(),
-    // Thresholds for different triggers (using database column names)
-    songsThreshold: integer('songs_threshold').default(1).notNull(),
-    tracksThreshold: integer('tracks_threshold').default(5).notNull(),
-    entriesCreatedThreshold: integer('entries_created_threshold').default(3).notNull(),
-    // Cooldown period in hours (database stores as hours, not milliseconds)
-    cooldownHours: integer('cooldown_hours').default(24).notNull(),
-    createdAt: timestamp('created_at').defaultNow().notNull(),
-    updatedAt: timestamp('updated_at').defaultNow().notNull(),
-  },
-  table => ({
-    policyNameIdx: index('usr_guest_conversion_policy_name_idx').on(table.policyName),
-    activeIdx: index('usr_guest_conversion_policy_active_idx').on(table.isActive),
-  })
-);
-
 // Guest Conversion State Table - Per-user tracking of guest actions
 // Schema aligned with existing database structure
 export const usrGuestConversionState = pgTable(
@@ -213,12 +190,6 @@ export const usrGuestConversionState = pgTable(
 );
 
 // Zod schemas for guest conversion
-export const insertGuestConversionPolicySchema = createInsertSchema(usrGuestConversionPolicy).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
-
 export const insertGuestConversionStateSchema = createInsertSchema(usrGuestConversionState).omit({
   id: true,
   createdAt: true,
@@ -226,52 +197,9 @@ export const insertGuestConversionStateSchema = createInsertSchema(usrGuestConve
 });
 
 // TypeScript types for guest conversion
-export type GuestConversionPolicy = typeof usrGuestConversionPolicy.$inferSelect;
-export type NewGuestConversionPolicy = typeof usrGuestConversionPolicy.$inferInsert;
-export type InsertGuestConversionPolicy = z.infer<typeof insertGuestConversionPolicySchema>;
-
 export type GuestConversionState = typeof usrGuestConversionState.$inferSelect;
 export type NewGuestConversionState = typeof usrGuestConversionState.$inferInsert;
 export type InsertGuestConversionState = z.infer<typeof insertGuestConversionStateSchema>;
-
-// Credit Products Table - Database-driven credit pack pricing and configuration
-export const usrCreditProducts = pgTable(
-  'usr_credit_products',
-  {
-    id: uuid('id')
-      .primaryKey()
-      .default(sql`gen_random_uuid()`),
-    productId: varchar('product_id', { length: 100 }).notNull().unique(),
-    productType: varchar('product_type', { length: 50 }).notNull(), // 'pack', 'premium_session', 'gift'
-    name: varchar('name', { length: 255 }).notNull(),
-    description: text('description'),
-    credits: integer('credits').notNull().default(0),
-    priceUsd: integer('price_usd').notNull(), // Price in cents
-    isActive: boolean('is_active').default(true).notNull(),
-    isPopular: boolean('is_popular').default(false).notNull(),
-    sortOrder: integer('sort_order').default(0).notNull(),
-    metadata: jsonb('metadata').default('{}'),
-    createdAt: timestamp('created_at').defaultNow().notNull(),
-    updatedAt: timestamp('updated_at').defaultNow().notNull(),
-  },
-  table => ({
-    productIdIdx: index('usr_credit_products_product_id_idx').on(table.productId),
-    productTypeIdx: index('usr_credit_products_product_type_idx').on(table.productType),
-    activeIdx: index('usr_credit_products_active_idx').on(table.isActive),
-  })
-);
-
-// Zod schema for credit products
-export const insertCreditProductSchema = createInsertSchema(usrCreditProducts).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
-
-// TypeScript types for credit products
-export type CreditProduct = typeof usrCreditProducts.$inferSelect;
-export type NewCreditProduct = typeof usrCreditProducts.$inferInsert;
-export type InsertCreditProduct = z.infer<typeof insertCreditProductSchema>;
 
 // Guest Data Migrations Table - Tracks guest-to-user data migration status
 export const usrGuestDataMigrations = pgTable(

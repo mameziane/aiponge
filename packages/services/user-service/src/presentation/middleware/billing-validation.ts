@@ -95,12 +95,10 @@ export const CreatePendingOrderSchema = z.object({
   status: z.string().max(50).optional(),
 });
 
-// CreditController.sendGift: stub (not yet implemented)
+// CreditController.sendGift: { recipientEmail, creditsAmount, message? }
 export const SendGiftSchema = z.object({
-  senderId: z.string().uuid().optional(),
-  recipientEmail: z.string().email().optional(),
-  recipientId: z.string().uuid().optional(),
-  amount: z.number().positive('Gift amount must be positive'),
+  recipientEmail: z.string().email('Valid recipient email is required'),
+  creditsAmount: z.number().positive('Gift amount must be positive'),
   message: z.string().max(500).optional(),
 });
 

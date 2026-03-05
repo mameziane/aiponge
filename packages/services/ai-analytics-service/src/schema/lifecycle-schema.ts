@@ -1,21 +1,10 @@
 /**
  * Lifecycle Analytics Database Schema
- * Tables for user lifecycle tracking, subscription economics, cohort retention, and revenue metrics.
+ * Tables for user lifecycle tracking, cohort retention, and revenue metrics.
+ * Subscription history is read cross-service from usr_subscription_events (user-service).
  */
 
-import {
-  pgTable,
-  uuid,
-  text,
-  timestamp,
-  date,
-  integer,
-  boolean,
-  jsonb,
-  numeric,
-  index,
-  unique,
-} from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, timestamp, date, integer, jsonb, numeric, index, unique } from 'drizzle-orm/pg-core';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import { sql } from 'drizzle-orm';
 
@@ -49,43 +38,6 @@ export const userLifecycleEvents = pgTable(
     index('idx_aia_ule_created_at').on(table.createdAt),
     index('idx_aia_ule_user_created').on(table.userId, table.createdAt),
     index('idx_aia_ule_type_created').on(table.eventType, table.createdAt),
-  ]
-);
-
-// ================================
-// SUBSCRIPTION HISTORY
-// ================================
-
-/**
- * One row per subscription state change.
- * Denormalized for fast queries — no joins needed for subscription analytics.
- */
-export const subscriptionHistory = pgTable(
-  'aia_subscription_history',
-  {
-    id: uuid('id')
-      .primaryKey()
-      .default(sql`gen_random_uuid()`),
-    userId: text('user_id').notNull(),
-    fromTier: text('from_tier'),
-    toTier: text('to_tier').notNull(),
-    billingCycle: text('billing_cycle').notNull(),
-    trigger: text('trigger').notNull(),
-    grossAmount: numeric('gross_amount', { precision: 10, scale: 2 }),
-    netAmount: numeric('net_amount', { precision: 10, scale: 2 }),
-    store: text('store'),
-    platform: text('platform'),
-    cancellationReason: text('cancellation_reason'),
-    trialConverted: boolean('trial_converted').default(false),
-    correlationId: text('correlation_id').notNull(),
-    effectiveAt: timestamp('effective_at', { withTimezone: true }).notNull(),
-    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
-  },
-  table => [
-    index('idx_aia_sh_user_id').on(table.userId),
-    index('idx_aia_sh_effective_at').on(table.effectiveAt),
-    index('idx_aia_sh_user_effective').on(table.userId, table.effectiveAt),
-    index('idx_aia_sh_to_tier').on(table.toTier, table.effectiveAt),
   ]
 );
 
@@ -205,9 +157,6 @@ export const acquisitionAttribution = pgTable(
 export const insertUserLifecycleEventSchema = createInsertSchema(userLifecycleEvents);
 export const selectUserLifecycleEventSchema = createSelectSchema(userLifecycleEvents);
 
-export const insertSubscriptionHistorySchema = createInsertSchema(subscriptionHistory);
-export const selectSubscriptionHistorySchema = createSelectSchema(subscriptionHistory);
-
 export const insertDailyMetricsSchema = createInsertSchema(dailyMetrics);
 export const selectDailyMetricsSchema = createSelectSchema(dailyMetrics);
 
@@ -223,9 +172,6 @@ export const selectAcquisitionAttributionSchema = createSelectSchema(acquisition
 
 export type UserLifecycleEventRow = typeof userLifecycleEvents.$inferSelect;
 export type InsertUserLifecycleEventRow = typeof userLifecycleEvents.$inferInsert;
-
-export type SubscriptionHistoryRow = typeof subscriptionHistory.$inferSelect;
-export type InsertSubscriptionHistoryRow = typeof subscriptionHistory.$inferInsert;
 
 export type DailyMetricsRow = typeof dailyMetrics.$inferSelect;
 export type InsertDailyMetricsRow = typeof dailyMetrics.$inferInsert;

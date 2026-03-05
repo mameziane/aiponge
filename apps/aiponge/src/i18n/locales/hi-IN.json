@@ -1049,7 +1049,7 @@
     "musicApiTitle": "MusicAPI.ai",
     "musicApiDescription": "AI संगीत जनरेशन के लिए उपयोग किया जाता है। वर्तमान शेष के लिए अपना MusicAPI डैशबोर्ड देखें।",
     "creditsLabel": "क्रेडिट",
-    "generationUsage": "हर जनरेशन 20 क्रेडिट उपयोग करता है (2 गाने)",
+    "generationUsage": "हर जनरेशन 15 क्रेडिट उपयोग करता है (2 गाने)",
     "openaiApiTitle": "OpenAI API",
     "test": "परीक्षण",
     "available": "उपलब्ध",
@@ -1057,7 +1057,7 @@
     "aipongeCredits": "aiponge क्रेडिट",
     "transactionHistory": "लेनदेन इतिहास",
     "noTransactions": "अभी तक कोई लेनदेन नहीं",
-    "songGenerationCost": "हर गाना जनरेशन की लागत 20 क्रेडिट है",
+    "songGenerationCost": "हर गाना जनरेशन की लागत 15 क्रेडिट है",
     "pageInfo": "पृष्ठ {{current}} / {{total}}",
     "songsAvailable": "उपलब्ध गाने",
     "purchased": "खरीदे गए",
@@ -1625,6 +1625,10 @@
       "personal": {
         "name": "व्यक्तिगत जर्नल",
         "description": "आपके विचारों और चिंतन के लिए एक निजी स्थान"
+      },
+      "guide": {
+        "name": "गाइड",
+        "description": "प्लेटफ़ॉर्म गाइड और ऑनबोर्डिंग सामग्री"
       },
       "wisdom": {
         "name": "ज्ञान पुस्तक",

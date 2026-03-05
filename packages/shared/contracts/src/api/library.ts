@@ -20,6 +20,7 @@ import { BookLifecycleSchema, BOOK_LIFECYCLE } from '../common/content-lifecycle
 
 export const BOOK_TYPE_IDS = {
   PERSONAL: 'personal',
+  GUIDE: 'guide', // System-provisioned onboarding/reference content (is_user_creatable: false)
   WISDOM: 'wisdom',
   QUOTES: 'quotes',
   SCIENTIFIC: 'scientific',
@@ -128,6 +129,7 @@ export type ReminderTypeId = (typeof REMINDER_TYPES)[keyof typeof REMINDER_TYPES
 
 export const LibBookTypeIdSchema = z.enum([
   BOOK_TYPE_IDS.PERSONAL,
+  BOOK_TYPE_IDS.GUIDE,
   BOOK_TYPE_IDS.WISDOM,
   BOOK_TYPE_IDS.QUOTES,
   BOOK_TYPE_IDS.SCIENTIFIC,

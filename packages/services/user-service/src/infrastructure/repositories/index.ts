@@ -1,6 +1,5 @@
 export * from './AnalysisRepository';
 export * from './AuthRepository';
-export * from './CreditProductRepository';
 export * from './credit';
 export * from './BookGenerationRepository';
 // EventPublisher exported from ../services to avoid conflicts

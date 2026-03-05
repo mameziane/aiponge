@@ -405,77 +405,6 @@ export const contentAnalytics = pgTable(
 );
 
 // =============================================================================
-// TIER CONFIGURATIONS
-// Centralized, data-driven tier configuration for features and limits
-// =============================================================================
-
-export interface TierLimitsConfig {
-  songsPerMonth: number;
-  lyricsPerMonth: number;
-  insightsPerMonth: number;
-  booksPerMonth: number;
-}
-
-export interface TierFeaturesConfig {
-  canGenerateMusic: boolean;
-  canGenerateBooks: boolean;
-  maxBookDepth: 'brief' | 'standard' | 'deep' | null;
-  canAccessLibrary: boolean;
-  canAccessActivityCalendar: boolean;
-  canAccessMentorLine: boolean;
-  canAccessInsightsReports: boolean;
-}
-
-export interface TierUiConfig {
-  badgeColor?: string;
-  sortOrder?: number;
-}
-
-export interface TierCreditCosts {
-  songGeneration: number;
-  lyricsGeneration: number;
-  insightGeneration: number;
-  bookGeneration: number;
-}
-
-export interface TierGenerationSettings {
-  parallelTrackLimit: number;
-  staggerDelayMs: number;
-  maxQuality: 'draft' | 'standard' | 'premium' | 'studio';
-  priorityBoost: number;
-}
-
-export interface TierConfigJson {
-  displayName: string;
-  entitlementId: string | null;
-  price: string | null;
-  limits: TierLimitsConfig;
-  features: TierFeaturesConfig;
-  creditCosts?: TierCreditCosts;
-  generationSettings?: TierGenerationSettings;
-  ui?: TierUiConfig;
-}
-
-export const tierConfigs = pgTable(
-  'aic_tier_configs',
-  {
-    id: uuid('id')
-      .primaryKey()
-      .default(sql`gen_random_uuid()`),
-    tier: varchar('tier', { length: 50 }).notNull().unique(),
-    config: jsonb('config').$type<TierConfigJson>().notNull(),
-    isActive: boolean('is_active').default(true).notNull(),
-    version: integer('version').default(1).notNull(),
-    createdAt: timestamp('created_at').defaultNow().notNull(),
-    updatedAt: timestamp('updated_at').defaultNow().notNull(),
-  },
-  table => [
-    index('aic_tier_configs_tier_idx').on(table.tier),
-    index('aic_tier_configs_is_active_idx').on(table.isActive),
-  ]
-);
-
-// =============================================================================
 // DRIZZLE SCHEMA EXPORTS
 // =============================================================================
 
@@ -485,7 +414,6 @@ export const contentSchema = {
   promptTemplates,
   contentFeedback,
   contentAnalytics,
-  tierConfigs,
 };
 
 // =============================================================================
@@ -527,57 +455,6 @@ export const insertContentAnalyticsSchema = createInsertSchema(contentAnalytics)
 export const selectContentAnalyticsSchema = createSelectSchema(contentAnalytics);
 export type InsertContentAnalytics = z.infer<typeof insertContentAnalyticsSchema>;
 export type SelectContentAnalytics = z.infer<typeof selectContentAnalyticsSchema>;
-
-// Tier Config Schemas
-export const tierCreditCostsSchema = z.object({
-  songGeneration: z.number(),
-  lyricsGeneration: z.number(),
-  insightGeneration: z.number(),
-  bookGeneration: z.number(),
-});
-
-export const tierGenerationSettingsSchema = z.object({
-  parallelTrackLimit: z.number(),
-  staggerDelayMs: z.number(),
-  maxQuality: z.enum(['draft', 'standard', 'premium', 'studio']),
-  priorityBoost: z.number(),
-});
-
-export const tierConfigJsonSchema = z.object({
-  displayName: z.string(),
-  entitlementId: z.string().nullable(),
-  price: z.string().nullable(),
-  limits: z.object({
-    songsPerMonth: z.number(),
-    lyricsPerMonth: z.number(),
-    insightsPerMonth: z.number(),
-    booksPerMonth: z.number(),
-  }),
-  features: z.object({
-    canGenerateMusic: z.boolean(),
-    canGenerateBooks: z.boolean(),
-    maxBookDepth: z.enum(['brief', 'standard', 'deep']).nullable(),
-    canAccessLibrary: z.boolean(),
-    canAccessActivityCalendar: z.boolean(),
-    canAccessMentorLine: z.boolean(),
-    canAccessInsightsReports: z.boolean(),
-  }),
-  creditCosts: tierCreditCostsSchema.optional(),
-  generationSettings: tierGenerationSettingsSchema.optional(),
-  ui: z
-    .object({
-      badgeColor: z.string().optional(),
-      sortOrder: z.number().optional(),
-    })
-    .optional(),
-});
-
-export const insertTierConfigSchema = createInsertSchema(tierConfigs, {
-  config: tierConfigJsonSchema,
-});
-export const selectTierConfigSchema = createSelectSchema(tierConfigs);
-export type InsertTierConfig = z.infer<typeof insertTierConfigSchema>;
-export type SelectTierConfig = z.infer<typeof selectTierConfigSchema>;
 
 // =============================================================================
 // RELATIONS (Optional - for query building)

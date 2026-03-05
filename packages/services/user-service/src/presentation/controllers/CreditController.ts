@@ -11,7 +11,9 @@ import { getLogger } from '@config/service-urls';
 import { sendSuccess, ServiceErrors } from '../utils/response-helpers';
 import { BillingError } from '../../application/errors';
 import { createControllerHelpers, serializeError, extractAuthContext } from '@aiponge/platform-core';
+import { getCreditCost, TIER_IDS, getCreditsForProduct } from '@aiponge/shared-contracts';
 import { emailService } from '@infrastructure/services/EmailService';
+import crypto from 'crypto';
 
 const logger = getLogger('credit-controller');
 
@@ -302,7 +304,7 @@ export class CreditController {
       handler: async () => {
         const policy = {
           musicGeneration: {
-            costPerSong: 20,
+            costPerSong: getCreditCost(TIER_IDS.GUEST, 'songs'),
             description: 'Cost per music generation (creates 2 song variations)',
           },
           minimumBalance: {
@@ -314,88 +316,6 @@ export class CreditController {
         logger.info('Credit policy retrieved successfully');
 
         return policy;
-      },
-    });
-  }
-
-  async getProductCatalog(req: Request, res: Response): Promise<void> {
-    await handleRequest({
-      req,
-      res,
-      errorMessage: 'Failed to get product catalog',
-      handler: async () => {
-        const creditProductRepo = ServiceFactory.getCreditProductRepository();
-        const catalog = await creditProductRepo.getProductCatalog();
-
-        logger.info('Product catalog retrieved successfully');
-
-        return {
-          creditPacks: catalog.creditPacks.map(p => ({
-            id: p.productId,
-            name: p.name,
-            credits: p.credits,
-            priceUsd: p.priceUsd,
-            description: p.description,
-            popular: p.isPopular,
-          })),
-          premiumSessions: catalog.premiumSessions.map(p => ({
-            id: p.productId,
-            name: p.name,
-            credits: p.credits,
-            priceUsd: p.priceUsd,
-            description: p.description,
-          })),
-          giftCredits: catalog.giftCredits.map(p => ({
-            id: p.productId,
-            name: p.name,
-            credits: p.credits,
-            priceUsd: p.priceUsd,
-            description: p.description,
-          })),
-          paymentMethod: catalog.paymentMethod,
-        };
-      },
-    });
-  }
-
-  async getProducts(req: Request, res: Response): Promise<void> {
-    await handleRequest({
-      req,
-      res,
-      errorMessage: 'Failed to get products',
-      handler: async () => {
-        const creditProductRepo = ServiceFactory.getCreditProductRepository();
-        const products = await creditProductRepo.getProductsByType('pack');
-
-        logger.info('Products retrieved successfully');
-
-        return {
-          products: products.map(p => ({
-            id: p.productId,
-            name: p.name,
-            credits: p.credits,
-            priceUsd: p.priceUsd,
-            description: p.description,
-            popular: p.isPopular,
-          })),
-          message: 'Products available via in-app purchase',
-        };
-      },
-    });
-  }
-
-  async seedProducts(req: Request, res: Response): Promise<void> {
-    await handleRequest({
-      req,
-      res,
-      errorMessage: 'Failed to seed products',
-      handler: async () => {
-        const creditProductRepo = ServiceFactory.getCreditProductRepository();
-        await creditProductRepo.seedDefaultProducts();
-
-        logger.info('Credit products seeded successfully');
-
-        return { message: 'Default credit products seeded successfully' };
       },
     });
   }
@@ -584,11 +504,113 @@ export class CreditController {
   }
 
   async sendGift(req: Request, res: Response): Promise<void> {
-    ServiceErrors.badRequest(res, 'Gift sending is not yet implemented', req);
+    try {
+      const userId = getUserId(req as AuthenticatedRequest);
+      const { recipientEmail, creditsAmount, message } = req.body;
+
+      if (!userId) {
+        ServiceErrors.unauthorized(res, 'Unauthorized - User ID not found', req);
+        return;
+      }
+
+      if (!recipientEmail) {
+        ServiceErrors.badRequest(res, 'recipientEmail is required', req);
+        return;
+      }
+
+      if (!creditsAmount || creditsAmount <= 0) {
+        ServiceErrors.badRequest(res, 'creditsAmount must be a positive number', req);
+        return;
+      }
+
+      // Verify sender has sufficient balance
+      const creditRepository = createDrizzleRepository(CreditRepository);
+      const balance = await creditRepository.getBalance(userId);
+      if (!balance || balance.currentBalance < creditsAmount) {
+        ServiceErrors.paymentRequired(res, 'Insufficient credits to send gift', req, {
+          currentBalance: balance?.currentBalance ?? 0,
+          required: creditsAmount,
+        });
+        return;
+      }
+
+      // Deduct from sender and create gift record
+      const claimToken = crypto.randomUUID();
+      const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
+
+      const result = await creditRepository.createGift({
+        senderId: userId,
+        recipientEmail,
+        creditsAmount,
+        claimToken,
+        message,
+        expiresAt,
+      });
+
+      // Send notification email (fire-and-forget, don't block response)
+      const senderReq = req as AuthenticatedRequest;
+      const senderName = senderReq.user?.email ?? 'Someone';
+      emailService.sendGiftNotification(recipientEmail, senderName, creditsAmount, claimToken, message).catch(err => {
+        logger.warn('Failed to send gift notification email', {
+          giftId: result.giftId,
+          error: err instanceof Error ? err.message : String(err),
+        });
+      });
+
+      sendSuccess(res, {
+        giftId: result.giftId,
+        creditsAmount,
+        recipientEmail,
+        expiresAt: expiresAt.toISOString(),
+      });
+
+      logger.info('Gift sent', { userId, recipientEmail, creditsAmount, giftId: result.giftId });
+    } catch (error) {
+      logger.error('Send gift error', { error: serializeError(error) });
+      ServiceErrors.fromException(res, error, 'Failed to send gift', req);
+      return;
+    }
   }
 
   async grantRevenueCatCredits(req: Request, res: Response): Promise<void> {
-    ServiceErrors.badRequest(res, 'RevenueCat credit grants are not yet implemented', req);
+    try {
+      const userId = getUserId(req as AuthenticatedRequest);
+      const { productId, transactionId } = req.body;
+
+      if (!userId) {
+        ServiceErrors.unauthorized(res, 'Unauthorized - User ID not found', req);
+        return;
+      }
+
+      // Resolve credits from the canonical product map (RevenueCat SSOT)
+      const creditsAmount = getCreditsForProduct(productId);
+      if (creditsAmount === null) {
+        ServiceErrors.badRequest(res, `Unknown product ID: ${productId}`, req);
+        return;
+      }
+
+      const creditRepository = createDrizzleRepository(CreditRepository);
+      const result = await creditRepository.grantRevenueCatCredits({
+        userId,
+        productId,
+        transactionId,
+        creditsAmount,
+      });
+
+      sendSuccess(res, result);
+
+      logger.info('RevenueCat credits grant processed', {
+        userId,
+        productId,
+        transactionId,
+        creditsAmount,
+        alreadyGranted: result.alreadyGranted,
+      });
+    } catch (error) {
+      logger.error('Grant RevenueCat credits error', { error: serializeError(error) });
+      ServiceErrors.fromException(res, error, 'Failed to grant RevenueCat credits', req);
+      return;
+    }
   }
 
   async updatePendingOrderTransaction(req: Request, res: Response): Promise<void> {

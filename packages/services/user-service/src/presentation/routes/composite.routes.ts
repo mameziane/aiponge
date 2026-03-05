@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { createLogger } from '@aiponge/platform-core';
-import { normalizeRole, Result } from '@aiponge/shared-contracts';
+import { normalizeRole, getCreditCost, TIER_IDS } from '@aiponge/shared-contracts';
 import { ServiceFactory } from '@infrastructure/composition/ServiceFactory';
 import { sendSuccess, ServiceErrors } from '../utils/response-helpers';
 import { createContentAccessContext } from '@application/use-cases/library';
@@ -38,7 +38,7 @@ export function registerCompositeRoutes(router: Router): void {
         (async () => {
           return {
             musicGeneration: {
-              costPerSong: 20,
+              costPerSong: getCreditCost(TIER_IDS.GUEST, 'songs'),
               description: 'Cost per music generation (creates 2 song variations)',
             },
             minimumBalance: {
@@ -49,26 +49,13 @@ export function registerCompositeRoutes(router: Router): void {
         })(),
 
         (async () => {
-          const repo = ServiceFactory.getGuestConversionRepository();
-          const policyResult = await repo.getActivePolicy();
-          if (Result.isFail(policyResult)) {
-            return {
-              firstSongThreshold: DEFAULT_GUEST_CONVERSION_POLICY.firstSongThreshold,
-              tracksPlayedThreshold: DEFAULT_GUEST_CONVERSION_POLICY.tracksPlayedThreshold,
-              entriesCreatedThreshold: DEFAULT_GUEST_CONVERSION_POLICY.entriesCreatedThreshold,
-              promptCooldownMs: DEFAULT_GUEST_CONVERSION_POLICY.promptCooldownMs,
-              promptMessages: DEFAULT_GUEST_CONVERSION_POLICY.promptMessages,
-            };
-          }
-          return (
-            policyResult.data || {
-              firstSongThreshold: DEFAULT_GUEST_CONVERSION_POLICY.firstSongThreshold,
-              tracksPlayedThreshold: DEFAULT_GUEST_CONVERSION_POLICY.tracksPlayedThreshold,
-              entriesCreatedThreshold: DEFAULT_GUEST_CONVERSION_POLICY.entriesCreatedThreshold,
-              promptCooldownMs: DEFAULT_GUEST_CONVERSION_POLICY.promptCooldownMs,
-              promptMessages: DEFAULT_GUEST_CONVERSION_POLICY.promptMessages,
-            }
-          );
+          return {
+            firstSongThreshold: DEFAULT_GUEST_CONVERSION_POLICY.firstSongThreshold,
+            tracksPlayedThreshold: DEFAULT_GUEST_CONVERSION_POLICY.tracksPlayedThreshold,
+            entriesCreatedThreshold: DEFAULT_GUEST_CONVERSION_POLICY.entriesCreatedThreshold,
+            promptCooldownMs: DEFAULT_GUEST_CONVERSION_POLICY.promptCooldownMs,
+            promptMessages: DEFAULT_GUEST_CONVERSION_POLICY.promptMessages,
+          };
         })(),
 
         (async () => {

@@ -19,6 +19,24 @@
     "prompt_template_id": "personal-book"
   },
   {
+    "id": "guide",
+    "name": "Guide",
+    "description": "System-provisioned onboarding and reference content. Read-only guides created by the platform.",
+    "category": "knowledge_wisdom",
+    "default_settings": {
+      "coverThemes": "guidance and discovery",
+      "defaultChapters": 4,
+      "coverDescriptionPrefix": "A guide about"
+    },
+    "icon_name": "compass-outline",
+    "is_user_creatable": false,
+    "is_editable": false,
+    "sort_order": 0,
+    "created_at": "2026-03-05T00:00:00.000000",
+    "updated_at": "2026-03-05T00:00:00.000000",
+    "prompt_template_id": null
+  },
+  {
     "id": "wisdom",
     "name": "Wisdom Book",
     "description": "Curated collection of pre-written wisdom insights from philosophy, psychology, and spiritual traditions. Read-only content for contemplation.",
