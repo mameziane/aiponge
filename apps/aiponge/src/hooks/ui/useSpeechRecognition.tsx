@@ -11,7 +11,7 @@ import { useState, useCallback, useRef } from 'react';
 import { Platform } from 'react-native';
 import { ExpoSpeechRecognitionModule, useSpeechRecognitionEvent } from 'expo-speech-recognition';
 import { logger } from '../../lib/logger';
-import { resetAudioSession } from '../music/audioSession';
+import { resetAudioSession, yieldAudioSessionForRecording } from '../music/audioSession';
 
 export interface SpeechRecognitionState {
   isListening: boolean;
@@ -86,6 +86,13 @@ export function useSpeechRecognition(options: SpeechRecognitionOptions = {}) {
 
   useSpeechRecognitionEvent('speechend', () => {
     addDebug('EVT speechend (voice stopped)');
+  });
+
+  // Volume monitoring — shows actual mic input level in dB
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  useSpeechRecognitionEvent('volumechange' as any, (event: any) => {
+    const vol = typeof event?.value === 'number' ? event.value.toFixed(0) : '?';
+    addDebug(`VOL ${vol}dB`);
   });
 
   useSpeechRecognitionEvent('result', event => {
@@ -174,27 +181,34 @@ export function useSpeechRecognition(options: SpeechRecognitionOptions = {}) {
         const recognitionLang = lang || optionsRef.current.lang || 'en-US';
         const mappedLang = LANGUAGE_MAP[recognitionLang] || recognitionLang;
 
+        // Yield expo-audio's exclusive doNotMix session BEFORE speech recognition
+        // tries to create its own AVAudioEngine. Without this, the engine "starts"
+        // but gets silent buffers because iOS won't route mic data to a competing
+        // audio category.
+        if (Platform.OS === 'ios') {
+          addDebug('yielding audio session...');
+          await yieldAudioSessionForRecording();
+          addDebug('audio session yielded');
+        }
+
         const startOptions: Record<string, unknown> = {
           lang: mappedLang,
           interimResults: optionsRef.current.interimResults ?? true,
           maxAlternatives: optionsRef.current.maxAlternatives ?? 1,
           continuous: optionsRef.current.continuous ?? false,
-          // On-device recognition avoids Apple server rate-limits and network
-          // round-trips that can cause instant "no-speech" failures.
           requiresOnDeviceRecognition: true,
           addsPunctuation: true,
+          // Enable volume monitoring so we can see actual mic input levels
+          volumeChangeEventOptions: { enabled: true, intervalMillis: 300 },
         };
 
         if (Platform.OS === 'ios') {
-          // voiceChat mode explicitly enables voice input routing and Bluetooth.
-          // The default `measurement` mode forces the built-in mic only and can
-          // conflict with expo-audio's doNotMix playback session.
+          // Use playAndRecord with default mode — least invasive config
           startOptions.iosCategory = {
             category: 'playAndRecord',
             categoryOptions: ['defaultToSpeaker', 'allowBluetooth', 'allowBluetoothA2DP'],
-            mode: 'voiceChat',
+            mode: 'default',
           };
-          // Hint: dictation optimizes for longer-form spoken input
           startOptions.iosTaskHint = 'dictation';
         }
 

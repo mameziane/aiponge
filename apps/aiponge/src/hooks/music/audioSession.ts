@@ -41,3 +41,30 @@ export async function configureAudioSession(): Promise<void> {
 export function resetAudioSession(): void {
   sessionConfigured = false;
 }
+
+/**
+ * Yield the audio session so speech recognition can take over.
+ *
+ * expo-audio's `doNotMix` interruption mode tells iOS "no other audio category
+ * should be active while mine is." When expo-speech-recognition creates its own
+ * AVAudioEngine with playAndRecord, iOS may partially activate the engine (the
+ * `audiostart` event fires) but not actually route mic data — resulting in silent
+ * buffers and an instant "No speech was detected" error.
+ *
+ * This function switches to `mixWithOthers` to release the exclusive lock, then
+ * resets the configured flag so music playback will re-apply `doNotMix` on next play.
+ */
+export async function yieldAudioSessionForRecording(): Promise<void> {
+  try {
+    await setAudioModeAsync({
+      playsInSilentMode: true,
+      interruptionMode: 'mixWithOthers',
+      interruptionModeAndroid: 'mixWithOthers',
+      shouldPlayInBackground: false,
+    });
+    sessionConfigured = false;
+    logger.debug('[AudioSession] Yielded audio session for recording');
+  } catch (error) {
+    logger.error('[AudioSession] Failed to yield audio session', error);
+  }
+}
