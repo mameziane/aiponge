@@ -66,12 +66,18 @@ export function useFavorites(userId: string) {
   useEffect(() => {
     if (!favoritesTracksData) return;
     const tracks = favoritesTracksData?.data?.tracks;
-    const ids = new Set<string>((tracks || []).map((t: FavoritesTrack) => t.id));
-    logger.debug('[useFavorites] Setting favorite track IDs', {
-      count: ids.size,
-      trackIds: Array.from(ids).slice(0, 5),
+    const newIds = (tracks || []).map((t: FavoritesTrack) => t.id);
+    // Only update state if the actual IDs changed — prevents creating a new Set reference
+    // on every React Query refetch, which was cascading through isFavorite/toggleFavorite
+    // callbacks and breaking memo() on all DiscoverScreen section components.
+    setTrackIdsInFavorites(prev => {
+      if (prev.size === newIds.length && newIds.every(id => prev.has(id))) return prev;
+      logger.debug('[useFavorites] Setting favorite track IDs', {
+        count: newIds.length,
+        trackIds: newIds.slice(0, 5),
+      });
+      return new Set(newIds);
     });
-    setTrackIdsInFavorites(ids);
   }, [favoritesTracksData]);
 
   // Create Favorites playlist mutation

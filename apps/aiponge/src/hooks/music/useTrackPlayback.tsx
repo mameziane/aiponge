@@ -24,7 +24,6 @@ import { usePlaybackState, type PlaybackTrack } from '../../contexts/PlaybackCon
 import { useCastPlayback } from './useCastPlayback';
 import { apiRequest } from '../../lib/axiosApiClient';
 import { useDownloadStore } from '../../offline/store';
-import { forceRefreshExplore } from '../../auth/cacheUtils';
 import { updateMediaSessionTrack, clearMediaSession, type MediaSessionTrack } from './MediaSessionService';
 import type { PlayableTrack } from '../../types';
 import { CONFIG } from '../../constants/appConfig';
@@ -72,7 +71,10 @@ async function recordTrackPlay(
         },
       });
 
-      await forceRefreshExplore();
+      // NOTE: forceRefreshExplore() was removed here because it created a feedback loop:
+      // recordTrackPlay → invalidate explore query → refetch → new array references →
+      // handlePlayTrack recreated → auto-advance effect restarts → re-render cascade.
+      // The explore feed will naturally refresh when the user navigates back to it.
       return;
     } catch (error) {
       const status = (error as { response?: { status?: number } })?.response?.status;
@@ -157,14 +159,20 @@ export function useTrackPlayback<T extends PlayableTrack>(
 
   // CRITICAL: Refs for values that change frequently but are only READ inside handlePlayTrack.
   // Using refs instead of useCallback deps prevents handlePlayTrack from being recreated on every
-  // PlaybackContext update (currentTrack/isPlaying change). Without this, handlePlayTrack had 19
-  // deps and was recreated on every play/pause/track change, causing the auto-advance effect to
-  // tear down and recreate its setInterval — contributing to the cascading update storm that
-  // triggers "Maximum update depth exceeded".
+  // PlaybackContext update (currentTrack/isPlaying change) or data refetch (availableTracks change).
+  // Without this, handlePlayTrack had 19 deps and was recreated on every play/pause/track change
+  // AND every React Query refetch — causing the auto-advance effect to tear down and recreate its
+  // setInterval, contributing to the cascading update storm that triggers "Maximum update depth exceeded".
   const currentTrackRef = useRef(currentTrack);
   currentTrackRef.current = currentTrack;
   const isPlayingRef = useRef(isPlaying);
   isPlayingRef.current = isPlaying;
+  // availableTracks gets a new array reference on every React Query refetch because
+  // normalizeTracks() creates new objects. Reading via ref prevents handlePlayTrack
+  // from being recreated, which was the PRIMARY cause of the render cascade for users
+  // with data across multiple explore sections (15+ tracks).
+  const availableTracksCallbackRef = useRef(availableTracks);
+  availableTracksCallbackRef.current = availableTracks;
 
   /**
    * Helper to update playback phase.
@@ -329,7 +337,12 @@ export function useTrackPlayback<T extends PlayableTrack>(
               if (onNewTrackStarted) {
                 onNewTrackStarted(track.id);
               }
-              const nextTrack = getNextTrack(availableTracks as T[], track, shuffleEnabled, repeatMode);
+              const nextTrack = getNextTrack(
+                availableTracksCallbackRef.current as T[],
+                track,
+                shuffleEnabled,
+                repeatMode
+              );
               if (nextTrack?.artworkUrl) {
                 prefetchArtwork(nextTrack.artworkUrl).catch(e =>
                   logger.warn('[Playback] Failed to prefetch artwork', e)
@@ -363,7 +376,7 @@ export function useTrackPlayback<T extends PlayableTrack>(
           }
 
           // Prefetch artwork for next track to improve perceived performance
-          const nextTrack = getNextTrack(availableTracks as T[], track, shuffleEnabled, repeatMode);
+          const nextTrack = getNextTrack(availableTracksCallbackRef.current as T[], track, shuffleEnabled, repeatMode);
           if (nextTrack?.artworkUrl) {
             prefetchArtwork(nextTrack.artworkUrl).catch(e => logger.warn('[Playback] Failed to prefetch artwork', e));
           }
@@ -386,10 +399,11 @@ export function useTrackPlayback<T extends PlayableTrack>(
         });
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- currentTrack and isPlaying
-    // intentionally read via refs (currentTrackRef, isPlayingRef) to prevent this callback
-    // from being recreated on every PlaybackContext update. Previously had 19 deps which
-    // meant the auto-advance effect's setInterval was constantly torn down and recreated.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- currentTrack, isPlaying, and
+    // availableTracks intentionally read via refs to prevent this callback from being recreated
+    // on every PlaybackContext update or React Query refetch. availableTracks changes on every
+    // refetch (normalizeTracks creates new objects), which was the PRIMARY cause of the infinite
+    // render cascade for users with data across multiple explore sections.
     [
       player,
       setCurrentTrack,
@@ -397,7 +411,6 @@ export function useTrackPlayback<T extends PlayableTrack>(
       updateLockScreen,
       toast,
       onNewTrackStarted,
-      availableTracks,
       shuffleEnabled,
       repeatMode,
       resolveAudioUrl,

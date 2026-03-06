@@ -42,8 +42,8 @@ export const TopChartsSection = memo(function TopChartsSection({
       </View>
       <ChartList
         tracks={topCharts}
-        onTrackPress={track => onTrackPress(track)}
-        onTrackLongPress={track => onTrackLongPress(track)}
+        onTrackPress={onTrackPress}
+        onTrackLongPress={onTrackLongPress}
         onToggleFavorite={canLike ? onToggleFavorite : undefined}
         isFavorite={isLiked}
         currentTrackId={currentTrackId}
