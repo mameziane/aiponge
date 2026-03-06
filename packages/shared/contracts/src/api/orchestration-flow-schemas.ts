@@ -231,6 +231,6 @@ export const WellnessLLMPlanOutputSchema = z.object({
   interpretation: WellnessInterpretationSchema,
   book: WellnessBookPlanSchema,
   album: WellnessAlbumPlanSchema,
-  firstTrack: WellnessFirstTrackPlanSchema,
+  firstTrack: WellnessFirstTrackPlanSchema.optional(),
 });
 export type WellnessLLMPlanOutput = z.infer<typeof WellnessLLMPlanOutputSchema>;

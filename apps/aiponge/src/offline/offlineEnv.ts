@@ -85,11 +85,19 @@ const fileSystemStub: FileSystemInterface = {
 let FileSystem: FileSystemInterface = fileSystemStub;
 
 try {
-  const fs = require('expo-file-system');
+  // Use legacy API which exports documentDirectory, makeDirectoryAsync, etc.
+  // The main expo-file-system export in v19+ uses the new File/Paths API instead.
+  const fs = require('expo-file-system/legacy');
   FileSystem = fs as FileSystemInterface;
-  logger.info('[offlineEnv] Loaded expo-file-system module');
-} catch (error) {
-  logger.warn('[offlineEnv] Failed to load expo-file-system, using stub', { error });
+  logger.info('[offlineEnv] Loaded expo-file-system/legacy module');
+} catch {
+  try {
+    const fs = require('expo-file-system');
+    FileSystem = fs as FileSystemInterface;
+    logger.info('[offlineEnv] Loaded expo-file-system module (fallback)');
+  } catch (error) {
+    logger.warn('[offlineEnv] Failed to load expo-file-system, using stub', { error });
+  }
 }
 
 export { FileSystem };

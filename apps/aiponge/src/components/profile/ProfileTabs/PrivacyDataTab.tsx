@@ -30,7 +30,7 @@ export const PrivacyDataTab: React.FC<PrivacyDataTabProps> = ({ userId }) => {
       // Step 1: Fetch user data from API
       let data: unknown;
       try {
-        data = await apiRequest('/api/v1/app/privacy/export');
+        data = await apiRequest('/api/v1/app/privacy/export', { timeout: 60000 });
       } catch (apiError) {
         const err = apiError as Error & { response?: { status?: number } };
         logger.error('Data export API call failed', { userId, status: err.response?.status, error: err.message });

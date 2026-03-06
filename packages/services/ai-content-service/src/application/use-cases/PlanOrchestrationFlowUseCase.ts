@@ -133,11 +133,25 @@ export class PlanOrchestrationFlowUseCase {
 
       const validation = WellnessLLMPlanOutputSchema.safeParse(parsedPlan);
       if (!validation.success) {
-        logger.warn('LLM plan validation failed', { errors: validation.error.message });
-        return { success: false, error: `Invalid plan structure: ${validation.error.message}` };
+        logger.warn('LLM plan validation failed', {
+          errors: validation.error.message,
+          receivedKeys: Object.keys(parsedPlan),
+        });
+        return { success: false, error: 'Plan generation produced an incomplete result. Please try again.' };
       }
 
       const plan = validation.data;
+
+      // 7b. Derive firstTrack from album plan if the LLM omitted it
+      if (!plan.firstTrack) {
+        plan.firstTrack = {
+          prompt: plan.album.suggestedTitle,
+          mood: plan.album.mood,
+          genre: plan.album.genres[0] || 'ambient',
+          style: plan.album.style,
+        };
+        logger.info('Derived firstTrack from album plan (LLM omitted it)');
+      }
 
       // 8. Determine visibility
       const visibility = isSelf ? CONTENT_VISIBILITY.PERSONAL : CONTENT_VISIBILITY.SHARED;

@@ -52,6 +52,7 @@ router.get(
           'x-request-id': (req.headers['x-request-id'] as string) || 'unknown',
           ...signedHeaders,
         },
+        timeoutMs: 120000,
       });
 
       if (!response.ok) {

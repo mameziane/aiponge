@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "aiponge - Music & Mindfulness",
+    "name": "aiponge",
     "slug": "aiponge",
     "entryPoint": "./index",
     "platforms": ["ios", "android"],

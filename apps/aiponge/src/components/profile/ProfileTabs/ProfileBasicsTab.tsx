@@ -295,31 +295,34 @@ export const ProfileBasicsTab: React.FC<ProfileBasicsTabProps> = ({
       {Platform.OS === 'ios' ? (
         <Modal visible={showDatePicker} transparent animationType="slide" onRequestClose={handleDatePickerCancel}>
           <Pressable style={datePickerStyles.datePickerOverlay} onPress={handleDatePickerCancel}>
-            <LiquidGlassView
-              intensity="strong"
-              borderRadius={16}
-              showBorder={false}
-              style={datePickerStyles.datePickerContainer}
-            >
-              <View style={datePickerStyles.datePickerHeader}>
-                <TouchableOpacity onPress={handleDatePickerCancel}>
-                  <Text style={datePickerStyles.datePickerCancel}>{t('common.cancel')}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={handleDatePickerDone}>
-                  <Text style={datePickerStyles.datePickerDone}>{t('common.done')}</Text>
-                </TouchableOpacity>
-              </View>
-              <DateTimePicker
-                value={pendingBirthdateValue || birthdateValue || new Date(2000, 0, 1)}
-                mode="date"
-                display="spinner"
-                onChange={handleDateChange}
-                maximumDate={maxDate}
-                minimumDate={minDate}
-                textColor={colors.text.dark}
-                style={datePickerStyles.datePicker}
-              />
-            </LiquidGlassView>
+            {/* Inner Pressable stops event propagation so Cancel/Done buttons work */}
+            <Pressable onPress={e => e.stopPropagation()}>
+              <LiquidGlassView
+                intensity="strong"
+                borderRadius={16}
+                showBorder={false}
+                style={datePickerStyles.datePickerContainer}
+              >
+                <View style={datePickerStyles.datePickerHeader}>
+                  <TouchableOpacity onPress={handleDatePickerCancel} hitSlop={8}>
+                    <Text style={datePickerStyles.datePickerCancel}>{t('common.cancel')}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={handleDatePickerDone} hitSlop={8}>
+                    <Text style={datePickerStyles.datePickerDone}>{t('common.done')}</Text>
+                  </TouchableOpacity>
+                </View>
+                <DateTimePicker
+                  value={pendingBirthdateValue || birthdateValue || new Date(2000, 0, 1)}
+                  mode="date"
+                  display="spinner"
+                  onChange={handleDateChange}
+                  maximumDate={maxDate}
+                  minimumDate={minDate}
+                  textColor={colors.text.dark}
+                  style={datePickerStyles.datePicker}
+                />
+              </LiquidGlassView>
+            </Pressable>
           </Pressable>
         </Modal>
       ) : (
@@ -450,6 +453,7 @@ const createDatePickerStyles = (colors: ColorScheme) =>
       backgroundColor: colors.background.surface,
       borderTopLeftRadius: 16,
       borderTopRightRadius: 16,
+      paddingBottom: 34, // Safe area for home indicator
     },
     datePickerHeader: {
       flexDirection: 'row',

@@ -9,7 +9,7 @@
 
 import { useCallback, useRef, useEffect, useMemo } from 'react';
 import { Alert } from 'react-native';
-import { useDownloadStore, OFFLINE_DIR, ensureTrackDir, selectDownloads } from './store';
+import { useDownloadStore, ensureTrackDir, selectDownloads } from './store';
 import { useNetworkStatus } from '../hooks/system/useNetworkStatus';
 import { useAuthStore } from '../auth/store';
 import { normalizeMediaUrl } from '../lib/apiConfig';
@@ -29,22 +29,14 @@ export function useOfflineDownload() {
   // Filtered downloads scoped to the current user (for UI display)
   const userDownloads = useDownloadStore(selectDownloads);
 
-  const {
-    queue,
-    isProcessing,
-    storageInfo,
-    addToQueue,
-    removeDownload: storeRemoveDownload,
-    pauseDownload: storePause,
-    resumeDownload: storeResume,
-    cancelDownload: storeCancel,
-    updateProgress,
-    setDownloadStatus,
-    setLocalPaths,
-    refreshStorageInfo: storeRefreshStorageInfo,
-    getLocalAudioPath,
-    isDownloaded,
-  } = useDownloadStore();
+  // Subscribe to reactive state only — actions are accessed via getState() to
+  // avoid new function references on every render (which cause re-render loops).
+  const queue = useDownloadStore(s => s.queue);
+  const isProcessing = useDownloadStore(s => s.isProcessing);
+  const storageInfo = useDownloadStore(s => s.storageInfo);
+  const addToQueue = useDownloadStore(s => s.addToQueue);
+  const isDownloaded = useDownloadStore(s => s.isDownloaded);
+  const getLocalAudioPath = useDownloadStore(s => s.getLocalAudioPath);
 
   const processQueue = useCallback(async () => {
     const state = useDownloadStore.getState();
@@ -116,7 +108,7 @@ export function useOfflineDownload() {
             downloadProgress.totalBytesExpectedToWrite > 0
               ? downloadProgress.totalBytesWritten / downloadProgress.totalBytesExpectedToWrite
               : 0;
-          updateProgress(job.trackId, progress);
+          useDownloadStore.getState().updateProgress(job.trackId, progress);
         }
       );
 
@@ -127,7 +119,7 @@ export function useOfflineDownload() {
       });
 
       // Start download
-      setDownloadStatus(job.trackId, 'downloading');
+      useDownloadStore.getState().setDownloadStatus(job.trackId, 'downloading');
       const result = await downloadResumable.downloadAsync();
 
       if (result?.uri) {
@@ -151,7 +143,7 @@ export function useOfflineDownload() {
         const size = fileInfo.exists && 'size' in fileInfo ? fileInfo.size || 0 : 0;
 
         // Update store with success
-        setLocalPaths(job.trackId, result.uri, artworkPath);
+        useDownloadStore.getState().setLocalPaths(job.trackId, result.uri, artworkPath);
         useDownloadStore.setState(state => ({
           downloads: {
             ...state.downloads,
@@ -161,7 +153,7 @@ export function useOfflineDownload() {
             },
           },
         }));
-        setDownloadStatus(job.trackId, 'completed');
+        useDownloadStore.getState().setDownloadStatus(job.trackId, 'completed');
 
         logger.info('[OfflineDownload] Download completed', {
           trackId: job.trackId,
@@ -175,7 +167,7 @@ export function useOfflineDownload() {
         error: errorMessage,
         audioUrl: job.track.audioUrl?.substring(0, 80),
       });
-      setDownloadStatus(job.trackId, 'failed', errorMessage);
+      useDownloadStore.getState().setDownloadStatus(job.trackId, 'failed', errorMessage);
       Alert.alert('Download Failed', `"${job.track.title}" could not be downloaded.\n\n${errorMessage}`);
     } finally {
       // Remove from active downloads
@@ -192,7 +184,7 @@ export function useOfflineDownload() {
         }
       }, 100);
     }
-  }, [networkStatus.isConnected, updateProgress, setDownloadStatus, setLocalPaths]);
+  }, [networkStatus.isConnected]);
 
   // Start processing queue when items are added
   useEffect(() => {
@@ -202,61 +194,49 @@ export function useOfflineDownload() {
   }, [queue.length, isProcessing, networkStatus.isConnected, processQueue]);
 
   // Pause download
-  const pauseDownload = useCallback(
-    async (trackId: string) => {
-      const activeDownload = activeDownloadsRef.current.get(trackId);
-      if (activeDownload) {
-        try {
-          await activeDownload.resumable.pauseAsync();
-          storePause(trackId);
-          logger.info('[OfflineDownload] Download paused', { trackId });
-        } catch (error) {
-          logger.warn('[OfflineDownload] Error pausing download', { trackId, error });
-        }
+  const pauseDownload = useCallback(async (trackId: string) => {
+    const activeDownload = activeDownloadsRef.current.get(trackId);
+    if (activeDownload) {
+      try {
+        await activeDownload.resumable.pauseAsync();
+        useDownloadStore.getState().pauseDownload(trackId);
+        logger.info('[OfflineDownload] Download paused', { trackId });
+      } catch (error) {
+        logger.warn('[OfflineDownload] Error pausing download', { trackId, error });
       }
-    },
-    [storePause]
-  );
+    }
+  }, []);
 
   // Resume download
-  const resumeDownload = useCallback(
-    async (trackId: string) => {
-      storeResume(trackId);
-      // Queue will be processed automatically
-    },
-    [storeResume]
-  );
+  const resumeDownload = useCallback(async (trackId: string) => {
+    useDownloadStore.getState().resumeDownload(trackId);
+    // Queue will be processed automatically
+  }, []);
 
   // Cancel download
-  const cancelDownload = useCallback(
-    async (trackId: string) => {
-      const activeDownload = activeDownloadsRef.current.get(trackId);
-      if (activeDownload) {
-        try {
-          await activeDownload.resumable.pauseAsync();
-        } catch {
-          // Ignore errors when canceling
-        }
-        activeDownloadsRef.current.delete(trackId);
+  const cancelDownload = useCallback(async (trackId: string) => {
+    const activeDownload = activeDownloadsRef.current.get(trackId);
+    if (activeDownload) {
+      try {
+        await activeDownload.resumable.pauseAsync();
+      } catch {
+        // Ignore errors when canceling
       }
-      storeCancel(trackId);
-      logger.info('[OfflineDownload] Download cancelled', { trackId });
-    },
-    [storeCancel]
-  );
+      activeDownloadsRef.current.delete(trackId);
+    }
+    useDownloadStore.getState().cancelDownload(trackId);
+    logger.info('[OfflineDownload] Download cancelled', { trackId });
+  }, []);
 
   // Remove download wrapper
-  const removeDownload = useCallback(
-    async (trackId: string) => {
-      await storeRemoveDownload(trackId);
-    },
-    [storeRemoveDownload]
-  );
+  const removeDownload = useCallback(async (trackId: string) => {
+    await useDownloadStore.getState().removeDownload(trackId);
+  }, []);
 
   // Refresh storage info wrapper
   const refreshStorageInfo = useCallback(async () => {
-    await storeRefreshStorageInfo();
-  }, [storeRefreshStorageInfo]);
+    await useDownloadStore.getState().refreshStorageInfo();
+  }, []);
 
   // Download a track - returns success status and optional error message
   const downloadTrack = useCallback(

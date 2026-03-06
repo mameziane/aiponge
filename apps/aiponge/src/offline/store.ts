@@ -318,9 +318,10 @@ export const useDownloadStore = create<DownloadStore>()(
               : state.queue,
         }));
 
-        // Refresh storage info after download completes
+        // Refresh storage info after download completes (deferred to avoid
+        // synchronous cascading set() calls which trigger re-render loops)
         if (status === 'completed') {
-          get().refreshStorageInfo();
+          setTimeout(() => get().refreshStorageInfo(), 0);
         }
       },
 

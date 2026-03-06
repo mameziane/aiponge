@@ -420,45 +420,38 @@ export class ExportUserDataUseCase {
         })),
       };
 
-      if (dto.includeMusic !== false) {
-        try {
-          const musicData = await this.fetchMusicData(dto.userId);
-          if (musicData) {
-            exportData.music = musicData;
-          }
-        } catch (error) {
-          logger.warn('Failed to fetch music data for export', {
+      // Fetch from external services in parallel to avoid sequential timeouts
+      const [musicData, analyticsData, storageData] = await Promise.all([
+        dto.includeMusic !== false
+          ? this.fetchMusicData(dto.userId).catch(error => {
+              logger.warn('Failed to fetch music data for export', {
+                userId: dto.userId,
+                error: serializeError(error),
+              });
+              return null;
+            })
+          : null,
+        dto.includeAnalytics !== false
+          ? this.fetchAnalyticsData(dto.userId).catch(error => {
+              logger.warn('Failed to fetch analytics data for export', {
+                userId: dto.userId,
+                error: serializeError(error),
+              });
+              return null;
+            })
+          : null,
+        this.fetchStorageData(dto.userId).catch(error => {
+          logger.warn('Failed to fetch storage data for export', {
             userId: dto.userId,
             error: serializeError(error),
           });
-        }
-      }
+          return null;
+        }),
+      ]);
 
-      if (dto.includeAnalytics !== false) {
-        try {
-          const analyticsData = await this.fetchAnalyticsData(dto.userId);
-          if (analyticsData) {
-            exportData.activity = analyticsData;
-          }
-        } catch (error) {
-          logger.warn('Failed to fetch analytics data for export', {
-            userId: dto.userId,
-            error: serializeError(error),
-          });
-        }
-      }
-
-      try {
-        const storageData = await this.fetchStorageData(dto.userId);
-        if (storageData) {
-          exportData.files = storageData;
-        }
-      } catch (error) {
-        logger.warn('Failed to fetch storage data for export', {
-          userId: dto.userId,
-          error: serializeError(error),
-        });
-      }
+      if (musicData) exportData.music = musicData;
+      if (analyticsData) exportData.activity = analyticsData;
+      if (storageData) exportData.files = storageData;
 
       const jsonString = JSON.stringify(exportData, null, 2);
       const sizeBytes = Buffer.byteLength(jsonString, 'utf8');

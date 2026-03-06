@@ -36,6 +36,8 @@ export function useProfileScreenState() {
   const [refreshing, setRefreshing] = useState(false);
   const [isSavingAvatar, setIsSavingAvatar] = useState(false);
   const [isSavingBirthdate, setIsSavingBirthdate] = useState(false);
+  // Optimistic name override — prevents stale cache flash after save
+  const [optimisticName, setOptimisticName] = useState<string | null>(null);
 
   const profileData: ProfileData | null = useMemo(() => {
     if (!sharedProfileData || !userId) return null;
@@ -44,7 +46,7 @@ export function useProfileScreenState() {
       userId: userId,
       email: sharedProfileData.email,
       profile: {
-        name: sharedProfileData.profile?.name,
+        name: optimisticName ?? sharedProfileData.profile?.name,
         bio: sharedProfileData.profile?.bio,
       },
       preferences: {
@@ -58,7 +60,12 @@ export function useProfileScreenState() {
         totalEntries: sharedProfileData.stats?.totalEntries || 0,
       },
     };
-  }, [sharedProfileData, userId]);
+  }, [sharedProfileData, userId, optimisticName]);
+
+  // Clear optimistic override once server data catches up
+  if (optimisticName !== null && sharedProfileData?.profile?.name === optimisticName) {
+    setOptimisticName(null);
+  }
 
   const profileForm = useMemo(
     () => ({
@@ -87,6 +94,9 @@ export function useProfileScreenState() {
       });
 
       if (result.success) {
+        // Set optimistic name to prevent stale cache flash
+        setOptimisticName(name);
+
         // Update auth store with new display name immediately for local UI
         const currentUser = useAuthStore.getState().user;
         if (currentUser) {

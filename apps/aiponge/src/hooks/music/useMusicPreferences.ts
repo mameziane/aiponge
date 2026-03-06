@@ -2,7 +2,7 @@ import React from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { ServiceResponse } from '@aiponge/shared-contracts';
 import { apiClient } from '../../lib/axiosApiClient';
-import { invalidateOnEvent } from '../../lib/cacheManager';
+
 import { queryKeys } from '../../lib/queryKeys';
 import { logger } from '../../lib/logger';
 import { DEFAULT_MOOD } from '../../constants/musicPreferences';
@@ -204,8 +204,11 @@ export function useMusicPreferences(userId: string | undefined): UseMusicPrefere
             return false;
           }
 
-          invalidateOnEvent(queryClient, { type: 'PROFILE_UPDATED' });
-          invalidateOnEvent(queryClient, { type: 'MUSIC_PREFERENCES_UPDATED' });
+          // Directly update cache to avoid stale gateway response cache (30s TTL).
+          // Invalidation would trigger a refetch that returns cached old data.
+          queryClient.setQueryData<MusicPreferencesState>(queryKeys.profile.musicPreferences(userId), old =>
+            old ? { ...old, [prefKey]: newValue } : { ...DEFAULT_PREFERENCES, [prefKey]: newValue }
+          );
           return true;
         } catch (error) {
           lastError = error;
@@ -249,8 +252,8 @@ export function useMusicPreferences(userId: string | undefined): UseMusicPrefere
           return false;
         }
 
-        invalidateOnEvent(queryClient, { type: 'PROFILE_UPDATED' });
-        invalidateOnEvent(queryClient, { type: 'MUSIC_PREFERENCES_UPDATED' });
+        // Directly update cache to avoid stale gateway response cache
+        queryClient.setQueryData<MusicPreferencesState>(queryKeys.profile.musicPreferences(userId), prefsToSave);
         return true;
       } catch (error) {
         logger.error('Bulk preference save error', error);
