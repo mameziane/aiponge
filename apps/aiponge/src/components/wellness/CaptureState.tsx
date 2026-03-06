@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useThemeColors } from '../../theme';
 import type { SpeechToTextResult } from '../../hooks/wellness';
@@ -102,6 +102,28 @@ export function CaptureState({ speech, onDone, onCancel }: CaptureStateProps) {
       {/* Error */}
       {speech.error && (
         <Text style={{ color: '#FF4444', fontSize: 13, marginTop: 8, textAlign: 'center' }}>{speech.error}</Text>
+      )}
+
+      {/* Debug overlay — TEMPORARY: remove after fixing speech recognition */}
+      {speech._debugLog && speech._debugLog.length > 0 && (
+        <ScrollView
+          style={{
+            marginTop: 8,
+            padding: 8,
+            backgroundColor: '#1a1a2e',
+            borderRadius: 8,
+            maxHeight: 180,
+          }}
+        >
+          <Text style={{ color: '#00ff88', fontSize: 10, fontWeight: '700', marginBottom: 2 }}>
+            SR Debug ({speech._debugLog.length})
+          </Text>
+          {speech._debugLog.map((line, i) => (
+            <Text key={i} style={{ color: '#aaffcc', fontSize: 9 }}>
+              {line}
+            </Text>
+          ))}
+        </ScrollView>
       )}
 
       {/* Action Buttons */}

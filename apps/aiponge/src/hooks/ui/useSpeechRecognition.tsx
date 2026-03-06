@@ -56,7 +56,7 @@ export function useSpeechRecognition(options: SpeechRecognitionOptions = {}) {
   // Debug log visible on screen (temporary — remove after debugging)
   const [_debugLog, setDebugLog] = useState<string[]>([]);
   const addDebug = useCallback((msg: string) => {
-    setDebugLog(prev => [...prev.slice(-9), `${new Date().toISOString().slice(11, 19)} ${msg}`]);
+    setDebugLog(prev => [...prev.slice(-14), `${new Date().toISOString().slice(11, 19)} ${msg}`]);
   }, []);
 
   const optionsRef = useRef(options);
@@ -66,16 +66,33 @@ export function useSpeechRecognition(options: SpeechRecognitionOptions = {}) {
   // ── Expo event listeners (Expo event system via useEventListener) ──
 
   useSpeechRecognitionEvent('start', () => {
-    addDebug('EVENT: start');
+    addDebug('EVT start');
     setState(prev => ({ ...prev, isListening: true, error: null }));
     isListeningRef.current = true;
+  });
+
+  // Audio pipeline events — diagnose whether mic actually activates
+  useSpeechRecognitionEvent('audiostart', () => {
+    addDebug('EVT audiostart (mic ON)');
+  });
+
+  useSpeechRecognitionEvent('audioend', () => {
+    addDebug('EVT audioend (mic OFF)');
+  });
+
+  useSpeechRecognitionEvent('speechstart', () => {
+    addDebug('EVT speechstart (voice detected)');
+  });
+
+  useSpeechRecognitionEvent('speechend', () => {
+    addDebug('EVT speechend (voice stopped)');
   });
 
   useSpeechRecognitionEvent('result', event => {
     const results = event.results;
     const isFinal = event.isFinal;
     const txt = results?.[0]?.transcript?.slice(0, 40) ?? '<empty>';
-    addDebug(`EVENT: result final=${isFinal} "${txt}"`);
+    addDebug(`EVT result final=${isFinal} "${txt}"`);
     if (!isListeningRef.current) {
       addDebug('SKIP: isListeningRef=false');
       return;
@@ -104,7 +121,7 @@ export function useSpeechRecognition(options: SpeechRecognitionOptions = {}) {
 
   useSpeechRecognitionEvent('error', event => {
     const errorMessage = event.message || event.error || 'Speech recognition error';
-    addDebug(`EVENT: error "${errorMessage}"`);
+    addDebug(`EVT error "${errorMessage}"`);
     setState(prev => ({
       ...prev,
       isListening: false,
@@ -118,7 +135,7 @@ export function useSpeechRecognition(options: SpeechRecognitionOptions = {}) {
   });
 
   useSpeechRecognitionEvent('end', () => {
-    addDebug('EVENT: end');
+    addDebug('EVT end');
     setState(prev => ({ ...prev, isListening: false }));
     isListeningRef.current = false;
     optionsRef.current.onEnd?.();
@@ -162,18 +179,23 @@ export function useSpeechRecognition(options: SpeechRecognitionOptions = {}) {
           interimResults: optionsRef.current.interimResults ?? true,
           maxAlternatives: optionsRef.current.maxAlternatives ?? 1,
           continuous: optionsRef.current.continuous ?? false,
-          requiresOnDeviceRecognition: false,
+          // On-device recognition avoids Apple server rate-limits and network
+          // round-trips that can cause instant "no-speech" failures.
+          requiresOnDeviceRecognition: true,
+          addsPunctuation: true,
         };
 
-        // iOS: Override the audio session to avoid conflicts with expo-audio's
-        // doNotMix playback session. The default `measurement` mode forces the
-        // built-in mic and can crash on iOS 26. Use `default` mode instead.
         if (Platform.OS === 'ios') {
+          // voiceChat mode explicitly enables voice input routing and Bluetooth.
+          // The default `measurement` mode forces the built-in mic only and can
+          // conflict with expo-audio's doNotMix playback session.
           startOptions.iosCategory = {
             category: 'playAndRecord',
             categoryOptions: ['defaultToSpeaker', 'allowBluetooth', 'allowBluetoothA2DP'],
-            mode: 'default',
+            mode: 'voiceChat',
           };
+          // Hint: dictation optimizes for longer-form spoken input
+          startOptions.iosTaskHint = 'dictation';
         }
 
         // Android: Use the default microphone source
@@ -181,7 +203,7 @@ export function useSpeechRecognition(options: SpeechRecognitionOptions = {}) {
           startOptions.androidIntentOptions = ['EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS'];
         }
 
-        addDebug(`start() lang=${startOptions.lang} cont=${startOptions.continuous}`);
+        addDebug(`start() lang=${mappedLang} onDevice=true`);
 
         // Clear state before starting — but do NOT set isListening yet.
         // The 'start' event from the native module will confirm it's actually listening.
