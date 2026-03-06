@@ -117,7 +117,9 @@ export function useExploreData() {
     },
     ...STANDARD_QUERY_CONFIG,
     staleTime: 60 * 1000, // Consider explore data stale after 1 minute
-    refetchOnMount: 'always', // Refetch in background, but show cached data immediately
+    refetchOnMount: true, // Refetch only when stale (>60s), not every mount — 'always' caused
+    // new array references on every tab switch that cascaded through trackIdentities →
+    // handlePlayTrack (19 deps) → auto-advance effect rebuild → render storm
     placeholderData: keepPreviousData, // Keep showing previous data during refetch to prevent empty state flash
   });
 

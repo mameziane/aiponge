@@ -395,12 +395,23 @@ export function useTrackPlayback<T extends PlayableTrack>(
   // Sync playback phase with actual player state
   // Transitions: buffering → playing when player starts, playing → paused when player stops
   // IMPORTANT: Do NOT transition buffering → paused automatically (buffering is optimistic, wait for player to start)
+  //
+  // CRITICAL: playbackPhase is read via a ref (not a dependency) to prevent a feedback loop.
+  // This effect WRITES to playbackPhase via updatePlaybackPhase. If playbackPhase were a dep,
+  // each write would re-trigger the effect → update PlaybackContext → re-render all consumers
+  // (DiscoverScreen, QueueAutoAdvanceController, AuthPlaybackController) → cascade exceeding
+  // React 19's 50-update depth limit. The ref breaks this cycle.
+  const playbackPhaseRef = useRef(playbackPhase);
+  playbackPhaseRef.current = playbackPhase;
+
   useEffect(() => {
     // Skip when no track is loaded — expo-audio on iOS can emit spurious player.playing
     // changes during audio session setup, which would trigger unwanted phase transitions
     if (!currentTrack) return;
 
-    if (player.playing && playbackPhase === 'buffering') {
+    const phase = playbackPhaseRef.current;
+
+    if (player.playing && phase === 'buffering') {
       // Player successfully started, transition from buffering to playing
       updatePlaybackPhase('playing');
 
@@ -410,12 +421,14 @@ export function useTrackPlayback<T extends PlayableTrack>(
         isLoadingNewTrack.current = false;
         loadingTimeoutRef.current = null;
       }, 500);
-    } else if (!player.playing && playbackPhase === 'playing' && !isLoadingNewTrack.current) {
+    } else if (!player.playing && phase === 'playing' && !isLoadingNewTrack.current) {
       // Player stopped while playing, update phase to paused
       // BUT only if we're not in the middle of loading a new track
       updatePlaybackPhase('paused');
     }
-  }, [player.playing, playbackPhase, updatePlaybackPhase, currentTrack]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- playbackPhase intentionally read via
+    // ref to prevent self-triggering feedback loop (this effect writes to playbackPhase)
+  }, [player.playing, updatePlaybackPhase, currentTrack]);
 
   /**
    * Auto-advance to next track when current track finishes
