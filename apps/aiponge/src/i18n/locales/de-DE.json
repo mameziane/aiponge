@@ -164,7 +164,8 @@
     "reflect": "Reflektieren",
     "reflectDisabledTitle": "Noch keine Einträge",
     "reflectDisabledMessage": "Schreibe zuerst einige Tagebucheinträge — Reflektieren analysiert deine Einträge, um Muster und Erkenntnisse zu finden.",
-    "studio": "Studio"
+    "studio": "Studio",
+    "myCreations": "Meine Kreationen"
   },
   "librarian": {
     "title": "Bibliothekar",

@@ -47,23 +47,24 @@ export const PrivacyDataTab: React.FC<PrivacyDataTabProps> = ({ userId }) => {
         return;
       }
 
-      // Step 2: Write to file and share
+      // Step 2: Write to file and share using standard FileSystem API
       const jsonString = JSON.stringify(data, null, 2);
       const fileName = `aiponge-data-export-${new Date().toISOString().split('T')[0]}.json`;
 
-      const { File, Paths } = await import('expo-file-system');
-      const file = new File(Paths.document, fileName);
-      file.create();
-      file.write(jsonString);
+      const FileSystem = await import('expo-file-system');
+      const fileUri = FileSystem.documentDirectory + fileName;
+      await FileSystem.writeAsStringAsync(fileUri, jsonString, {
+        encoding: FileSystem.EncodingType.UTF8,
+      });
 
       const canShare = await Sharing.isAvailableAsync();
       if (canShare) {
-        await Sharing.shareAsync(file.uri, {
+        await Sharing.shareAsync(fileUri, {
           mimeType: 'application/json',
           dialogTitle: t('privacy.exportComplete'),
         });
       } else {
-        Alert.alert(t('privacy.exportComplete'), t('privacy.exportSavedTo', { path: file.uri }));
+        Alert.alert(t('privacy.exportComplete'), t('privacy.exportSavedTo', { path: fileUri }));
       }
 
       logger.info('Data export completed successfully', { userId });

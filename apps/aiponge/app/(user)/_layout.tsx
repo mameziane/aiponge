@@ -323,6 +323,7 @@ export default function TabLayout() {
           name="studio"
           options={{
             href: null,
+            title: t('navigation.studio'),
           }}
         />
       </Tabs>

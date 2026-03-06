@@ -131,9 +131,14 @@ export class PlanOrchestrationFlowUseCase {
         return { success: false, error: 'LLM returned invalid JSON' };
       }
 
+      // 7a. Normalize LLM output before validation — LLMs often produce
+      // out-of-range numbers, missing fields, or slightly wrong structures.
+      // Clamp and fill defaults so validation doesn't reject otherwise usable plans.
+      this.normalizeLLMOutput(parsedPlan);
+
       const validation = WellnessLLMPlanOutputSchema.safeParse(parsedPlan);
       if (!validation.success) {
-        logger.warn('LLM plan validation failed', {
+        logger.warn('LLM plan validation failed after normalization', {
           errors: validation.error.message,
           receivedKeys: Object.keys(parsedPlan),
         });
@@ -233,6 +238,70 @@ export class PlanOrchestrationFlowUseCase {
       const errorMsg = error instanceof Error ? error.message : 'Unknown error';
       logger.error('Plan orchestration flow failed', { error: errorMsg, creatorId });
       return { success: false, error: errorMsg };
+    }
+  }
+
+  /**
+   * Normalize LLM output before Zod validation.
+   * LLMs often produce slightly out-of-spec values that are still usable:
+   * - chapterCount/trackCount outside 1-20 range → clamp
+   * - Missing interpretation fields → fill defaults
+   * - chapterThemes/genres as empty arrays → fill with placeholder
+   * - Numeric strings instead of numbers → coerce
+   */
+  private normalizeLLMOutput(plan: Record<string, unknown>): void {
+    // Ensure interpretation exists with required fields
+    if (!plan.interpretation || typeof plan.interpretation !== 'object') {
+      plan.interpretation = {
+        summary: 'Based on your recording',
+        detectedRecipientName: null,
+        emotionalState: 'reflective',
+        coreNeeds: ['wellness'],
+      };
+    } else {
+      const interp = plan.interpretation as Record<string, unknown>;
+      if (!interp.summary) interp.summary = 'Based on your recording';
+      if (interp.detectedRecipientName === undefined) interp.detectedRecipientName = null;
+      if (!interp.emotionalState) interp.emotionalState = 'reflective';
+      if (!Array.isArray(interp.coreNeeds) || interp.coreNeeds.length === 0) {
+        interp.coreNeeds = ['wellness'];
+      }
+    }
+
+    // Normalize book plan
+    if (plan.book && typeof plan.book === 'object') {
+      const book = plan.book as Record<string, unknown>;
+      if (!book.bookTypeId) book.bookTypeId = 'affirmation';
+      if (!book.bookTypeName) book.bookTypeName = 'Affirmation Book';
+      if (!book.suggestedTitle) book.suggestedTitle = 'Your Wellness Journey';
+
+      // Coerce and clamp chapterCount
+      const rawCount = Number(book.chapterCount);
+      book.chapterCount = Math.max(1, Math.min(20, Number.isFinite(rawCount) ? rawCount : 5));
+
+      // Ensure chapterThemes exists and has entries
+      if (!Array.isArray(book.chapterThemes) || book.chapterThemes.length === 0) {
+        book.chapterThemes = ['Reflection', 'Growth', 'Gratitude', 'Healing', 'Hope'].slice(
+          0,
+          book.chapterCount as number
+        );
+      }
+    }
+
+    // Normalize album plan
+    if (plan.album && typeof plan.album === 'object') {
+      const album = plan.album as Record<string, unknown>;
+      if (!album.suggestedTitle) album.suggestedTitle = 'Wellness Sounds';
+
+      // Coerce and clamp trackCount
+      const rawCount = Number(album.trackCount);
+      album.trackCount = Math.max(1, Math.min(20, Number.isFinite(rawCount) ? rawCount : 5));
+
+      if (!Array.isArray(album.genres) || album.genres.length === 0) {
+        album.genres = ['ambient'];
+      }
+      if (!album.mood) album.mood = 'calm';
+      if (!album.style) album.style = 'soothing and reflective';
     }
   }
 }

@@ -80,10 +80,13 @@ export const ProfileBasicsTab: React.FC<ProfileBasicsTabProps> = ({
     }
   }, [showDatePicker, birthdateValue]);
 
-  // Sync nameValue when profileForm.name changes
+  // Sync nameValue when profileForm.name changes — but NOT while user is editing,
+  // otherwise a background cache refresh can overwrite the user's input mid-edit
   useEffect(() => {
-    setNameValue(profileForm.name);
-  }, [profileForm.name]);
+    if (!editingName) {
+      setNameValue(profileForm.name);
+    }
+  }, [profileForm.name, editingName]);
 
   // Reset local avatar state when save completes
   useEffect(() => {
@@ -97,15 +100,22 @@ export const ProfileBasicsTab: React.FC<ProfileBasicsTabProps> = ({
   const minDate = new Date(1900, 0, 1);
 
   const handleNameSave = async () => {
-    if (onNameSave && nameValue.trim() !== profileForm.name) {
+    const trimmed = nameValue.trim();
+    if (onNameSave && trimmed !== profileForm.name) {
       setIsSavingName(true);
       try {
-        await onNameSave(nameValue.trim());
+        await onNameSave(trimmed);
+        // Only close editing mode AFTER successful save
+        setEditingName(false);
+      } catch {
+        // Keep edit mode open on failure so user can retry
       } finally {
         setIsSavingName(false);
       }
+    } else {
+      // No changes — just close editing
+      setEditingName(false);
     }
-    setEditingName(false);
   };
 
   const handleNameCancel = () => {

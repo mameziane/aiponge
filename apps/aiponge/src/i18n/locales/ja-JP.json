@@ -163,7 +163,8 @@
     "reflect": "振り返り",
     "reflectDisabledTitle": "まだエントリーがありません",
     "reflectDisabledMessage": "まずジャーナルエントリーを書いてください。振り返りはエントリーを分析してパターンとインサイトを見つけます。",
-    "studio": "スタジオ"
+    "studio": "スタジオ",
+    "myCreations": "マイ作品"
   },
   "librarian": {
     "title": "ライブラリアン",

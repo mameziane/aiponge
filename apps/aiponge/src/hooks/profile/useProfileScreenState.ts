@@ -136,6 +136,8 @@ export function useProfileScreenState() {
         description: t('profileSettings.saveFailed'),
         variant: 'destructive',
       });
+      // Re-throw so ProfileBasicsTab can keep edit mode open on failure
+      throw error;
     }
   };
 
