@@ -194,10 +194,15 @@ export function useSpeechRecognition(options: SpeechRecognitionOptions = {}) {
           addDebug(`diag err: ${e}`);
         }
 
-        // Yield expo-audio's exclusive doNotMix session
+        // Yield expo-audio's exclusive doNotMix session, then wait for iOS
+        // to settle the audio route change. On iOS 26, the AVAudioEngine's
+        // input node isn't ready immediately after a session reconfiguration
+        // (fixed in expo-speech-recognition 3.1.1, but we add the delay as
+        // a safety net for the current 3.1.0 binary).
         if (Platform.OS === 'ios') {
           await yieldAudioSessionForRecording();
-          addDebug('session yielded');
+          await new Promise(resolve => setTimeout(resolve, 500));
+          addDebug('session yielded + 500ms');
         }
 
         const startOptions: Record<string, unknown> = {
