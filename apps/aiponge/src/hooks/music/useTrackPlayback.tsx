@@ -465,7 +465,10 @@ export function useTrackPlayback<T extends PlayableTrack>(
       const curTrack = currentTrackRef.current;
       if (!curTrack) return;
 
-      const hasFinished = player.currentTime >= player.duration - 0.1 && player.duration > 0 && !player.playing;
+      // Guard: require player.duration > 1 (not just > 0) to prevent false positives from
+      // tracks with duration=0 in the DB whose actual audio may briefly report a tiny duration
+      // during initial load. Real songs are always > 1 second.
+      const hasFinished = player.currentTime >= player.duration - 0.1 && player.duration > 1 && !player.playing;
 
       if (hasFinished && !isHandlingTrackEnd.current) {
         isHandlingTrackEnd.current = true;

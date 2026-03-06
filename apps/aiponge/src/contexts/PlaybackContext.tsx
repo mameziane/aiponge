@@ -345,6 +345,11 @@ export function PlaybackProvider({ children }: { children: ReactNode }) {
 
   const autoAdvanceCallbacks = useRef<Set<AutoAdvanceCallback>>(new Set());
   const isAdvancingRef = useRef(false);
+  // Tracks the timestamp of the last auto-advance to prevent rapid-fire cascades
+  // when multiple tracks have duration=0 (expo-audio fires didJustFinish instantly)
+  const lastAdvanceTimeRef = useRef(0);
+  // Counts consecutive rapid advances to detect runaway loops
+  const rapidAdvanceCountRef = useRef(0);
 
   const registerAutoAdvanceCallback = useCallback((callback: AutoAdvanceCallback): (() => void) => {
     autoAdvanceCallbacks.current.add(callback);
@@ -358,6 +363,35 @@ export function PlaybackProvider({ children }: { children: ReactNode }) {
       logger.debug('[PlaybackQueue] Skipping re-entrant auto-advance call');
       return;
     }
+
+    // Guard against rapid-fire auto-advance cascades caused by tracks with duration=0.
+    // When expo-audio loads a zero/near-zero-duration track, it fires didJustFinish
+    // almost immediately, which triggers another advance, creating a tight loop that
+    // exceeds React's maximum update depth. This guard rate-limits advances to at most
+    // one per second, and halts entirely after 3 consecutive rapid advances.
+    const now = Date.now();
+    const timeSinceLastAdvance = now - lastAdvanceTimeRef.current;
+    if (timeSinceLastAdvance < 1000) {
+      rapidAdvanceCountRef.current++;
+      if (rapidAdvanceCountRef.current >= 3) {
+        logger.warn('[PlaybackQueue] Halting auto-advance: detected rapid cascade (likely duration=0 tracks)', {
+          rapidCount: rapidAdvanceCountRef.current,
+          timeSinceLastMs: timeSinceLastAdvance,
+        });
+        rapidAdvanceCountRef.current = 0;
+        setCurrentTrack(null);
+        setPlaybackPhase('idle');
+        return;
+      }
+      logger.debug('[PlaybackQueue] Rapid advance detected, throttling', {
+        rapidCount: rapidAdvanceCountRef.current,
+        timeSinceLastMs: timeSinceLastAdvance,
+      });
+    } else {
+      // Normal pace — reset counter
+      rapidAdvanceCountRef.current = 0;
+    }
+    lastAdvanceTimeRef.current = now;
 
     logger.debug('[PlaybackQueue] Track ended, checking auto-advance', {
       repeatMode,

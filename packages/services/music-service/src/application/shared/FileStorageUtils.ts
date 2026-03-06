@@ -268,7 +268,34 @@ export class FileStorageUtils {
     }
 
     // Fallback: estimate duration from file size assuming 320kbps MP3
-    return FileStorageUtils.estimateDurationFromFileSize(fileSize);
+    if (fileSize && fileSize > 0) {
+      return FileStorageUtils.estimateDurationFromFileSize(fileSize);
+    }
+
+    // Second fallback: when fileSize wasn't provided, try HTTP HEAD to get Content-Length.
+    // This covers the common case on Railway where ffprobe isn't installed AND the storage
+    // service didn't return a fileSize in the upload response.
+    try {
+      const headResponse = await fetch(resolvedUrl, { method: 'HEAD', signal: AbortSignal.timeout(10000) });
+      const contentLength = headResponse.headers.get('content-length');
+      if (contentLength) {
+        const headFileSize = parseInt(contentLength, 10);
+        if (headFileSize > 0) {
+          logger.info('Got file size via HTTP HEAD for duration estimation', {
+            resolvedUrl: resolvedUrl.substring(0, 50) + '...',
+            headFileSize,
+          });
+          return FileStorageUtils.estimateDurationFromFileSize(headFileSize);
+        }
+      }
+    } catch (headError) {
+      logger.warn('HTTP HEAD fallback for file size failed', {
+        error: headError instanceof Error ? headError.message : String(headError),
+        audioUrl: audioUrl.substring(0, 50) + '...',
+      });
+    }
+
+    return 0;
   }
 
   /**

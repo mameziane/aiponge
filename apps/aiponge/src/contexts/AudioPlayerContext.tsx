@@ -75,18 +75,37 @@ function AudioPlayerProviderReal({ children }: { children: ReactNode }) {
   // which is MORE reliable because player state changes through our memoized context don't
   // trigger consumer re-renders — making player.playing in useEffect deps unreliable.
   const wasPlayingRef = useRef(false);
+  // Timestamp when playback last started — used to suppress spurious didJustFinish
+  // events from tracks with duration=0 that "finish" instantly after loading
+  const playbackStartTimeRef = useRef(0);
 
   useEffect(() => {
     const handleStatusUpdate = (status: { didJustFinish?: boolean }) => {
-      // Track end detection
+      // Track end detection — guarded against spurious instant-finish events.
+      // When a track has duration=0 in the DB but valid audio on CDN, expo-audio
+      // may fire didJustFinish almost instantly during load. Without this guard,
+      // each instant finish triggers auto-advance to the next track, creating a
+      // cascading setState storm that exceeds React's maximum update depth.
       if (status.didJustFinish) {
-        trackEndListeners.current.forEach(cb => cb());
+        const timeSincePlayStart = Date.now() - playbackStartTimeRef.current;
+        if (timeSincePlayStart < 500) {
+          logger.warn('[AudioPlayer] Suppressing didJustFinish — track finished too quickly', {
+            timeSincePlayStartMs: timeSincePlayStart,
+            playerDuration: player.duration,
+          });
+        } else {
+          trackEndListeners.current.forEach(cb => cb());
+        }
       }
 
       // Play/pause state change detection
       const isNowPlaying = player.playing;
       if (isNowPlaying !== wasPlayingRef.current) {
         wasPlayingRef.current = isNowPlaying;
+        // Track when playback starts for the didJustFinish guard
+        if (isNowPlaying) {
+          playbackStartTimeRef.current = Date.now();
+        }
         playingChangeListeners.current.forEach(cb => cb(isNowPlaying));
       }
     };
