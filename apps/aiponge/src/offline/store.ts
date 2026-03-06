@@ -503,6 +503,18 @@ export const selectDownloadProgress = (trackId: string) => (state: DownloadStore
   const dl = state.downloads[trackId];
   return dl && isOwnedByCurrentUser(dl, state.currentUserId) ? dl.progress : 0;
 };
+// Primitive count selector — returns a number so Zustand's Object.is comparison works
+// correctly. Use this instead of selectDownloads when you only need the count (e.g., UI badges).
+export const selectCompletedDownloadCount = (state: DownloadStore) => {
+  const { downloads, currentUserId } = state;
+  let count = 0;
+  for (const dl of Object.values(downloads)) {
+    if (dl.status === 'completed' && dl.localAudioPath && isOwnedByCurrentUser(dl, currentUserId)) {
+      count++;
+    }
+  }
+  return count;
+};
 
 // Export directory constant for use in download hook
 export { OFFLINE_DIR, ensureTrackDir };

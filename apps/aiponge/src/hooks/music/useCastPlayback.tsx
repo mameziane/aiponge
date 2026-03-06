@@ -204,13 +204,17 @@ export function useCastPlayback(): UseCastPlaybackReturn {
     [isSupported, isConnected, player, setPlaybackPhase, castMedia, toast, t]
   );
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- currentTrack intentionally read via
+  // ref. Previously, depending on currentTrack caused startCasting to be recreated on every
+  // PlaybackContext update, cascading through useMemo return → all consumers re-rendered.
   const startCasting = useCallback(async (): Promise<boolean> => {
     if (!isSupported) {
       Alert.alert(t('audioOutput.castUnavailable'), t('audioOutput.requiresProductionBuild'));
       return false;
     }
 
-    if (currentTrack) {
+    const track = currentTrackRef.current;
+    if (track) {
       setPendingCastTransfer(true);
       logger.info('[useCastPlayback] Pending Cast transfer set, waiting for connection');
     }
@@ -221,12 +225,12 @@ export function useCastPlayback(): UseCastPlaybackReturn {
       return false;
     }
 
-    if (isConnected && currentTrack) {
-      return transferToCast(currentTrack);
+    if (isConnected && track) {
+      return transferToCast(track);
     }
 
     return true;
-  }, [isSupported, showCastDialog, currentTrack, isConnected, transferToCast, t]);
+  }, [isSupported, showCastDialog, isConnected, transferToCast, t]);
 
   const stopCasting = useCallback(async (): Promise<boolean> => {
     if (!isConnected) {

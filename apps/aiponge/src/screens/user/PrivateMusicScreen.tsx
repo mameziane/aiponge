@@ -24,7 +24,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { logger } from '../../lib/logger';
 import { invalidateOnEvent } from '../../lib/cacheManager';
 import { queryKeys } from '../../lib/queryKeys';
-import { useDownloadStore, selectDownloads } from '../../offline/store';
+import { useDownloadStore, selectCompletedDownloadCount } from '../../offline/store';
 import { LiquidGlassCard } from '../../components/ui';
 import { usePlaybackQueue } from '../../contexts/PlaybackContext';
 
@@ -364,8 +364,10 @@ export function PrivateMusicScreen() {
   }, [router]);
 
   // Offline downloads count (filtered to current user)
-  const downloads = useDownloadStore(selectDownloads);
-  const downloadCount = Object.values(downloads).filter(d => d.status === 'completed' && d.localAudioPath).length;
+  // Uses a primitive (number) selector so Zustand's Object.is comparison works correctly.
+  // The previous selectDownloads selector created a new object on every store update,
+  // causing re-renders on ANY store change even when the download count hadn't changed.
+  const downloadCount = useDownloadStore(selectCompletedDownloadCount);
 
   const renderTrackItem = useCallback(
     ({ item: track }: { item: MyMusicTrack }) => {
