@@ -10,6 +10,7 @@ import { LiquidGlassCard } from '../ui';
 import { DraftAlbumCard } from '../playlists/DraftAlbumCard';
 import { useThemeColors, BORDER_RADIUS, type ColorScheme } from '../../theme';
 import { spacing } from '../../theme/spacing';
+import { useAuthState } from '../../hooks/auth';
 import type { UserAlbum, SharedAlbum, AlbumGenerationProgress } from './types';
 
 interface AlbumsSectionProps {
@@ -36,6 +37,7 @@ export const AlbumsSection = memo(function AlbumsSection({
   const { t } = useTranslation();
   const router = useRouter();
   const colors = useThemeColors();
+  const { userId } = useAuthState();
   const styles = useMemo(() => createStyles(colors), [colors]);
 
   const showPrivateAlbums = albums.length > 0 || hasDraftAlbum;
@@ -105,6 +107,12 @@ export const AlbumsSection = memo(function AlbumsSection({
                       <Text style={styles.albumCardSubtitle}>
                         {t('albums.trackCount', { count: album.totalTracks })}
                       </Text>
+                      {album.dedicatedToMemberId && album.dedicatedToMemberId === userId && (
+                        <View style={styles.dedicatedBadge}>
+                          <Ionicons name="gift" size={10} color={colors.brand.primary} />
+                          <Text style={styles.dedicatedText}>{t('wellness.createdForYou')}</Text>
+                        </View>
+                      )}
                     </View>
                   </View>
                 </LiquidGlassCard>
@@ -185,6 +193,14 @@ export const AlbumsSection = memo(function AlbumsSection({
                           {t('albums.trackCount', { count: album.totalTracks })}
                         </Text>
                       </View>
+                      {album.dedicatedToMemberId && album.dedicatedToMemberId === userId && (
+                        <View style={styles.dedicatedBadge}>
+                          <Ionicons name="gift" size={10} color={colors.brand.primary} />
+                          <Text style={styles.dedicatedText}>
+                            {t('wellness.createdForYouBy', { name: album.displayName })}
+                          </Text>
+                        </View>
+                      )}
                     </View>
                   </View>
                 </LiquidGlassCard>
@@ -263,5 +279,16 @@ const createStyles = (colors: ColorScheme) =>
     albumCardSubtitle: {
       fontSize: 12,
       color: colors.text.secondary,
+    },
+    dedicatedBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 3,
+      marginTop: 4,
+    },
+    dedicatedText: {
+      fontSize: 10,
+      fontWeight: '500',
+      color: colors.brand.primary,
     },
   });

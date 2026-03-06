@@ -14,6 +14,7 @@ export function registerUserProfileRoutes(router: Router, deps: UserProfileRoute
   router.post('/users', (req, res) => userController.createUser(req, res));
   router.get('/users/:id', (req, res) => userController.getUser(req, res));
   router.patch('/users/:id', (req, res) => userController.updateUser(req, res));
+  router.get('/users/:id/preferences', (req, res) => userController.getUserPreferences(req, res));
   router.patch('/users/:id/preferences', (req, res) => userController.updateUserPreferences(req, res));
   router.delete('/users/:id', (req, res) => userController.deleteUser(req, res));
 

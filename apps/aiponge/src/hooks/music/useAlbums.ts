@@ -18,6 +18,7 @@ export interface UserAlbum {
   genres?: string[];
   status: 'active' | 'archived';
   metadata?: Record<string, unknown>;
+  dedicatedToMemberId?: string;
   createdAt: string;
   updatedAt: string;
 }

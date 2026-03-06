@@ -29,6 +29,7 @@ import {
   failFastValidation,
   initTracing,
   initResponseHelpers,
+  SchedulerRegistry,
 } from '@aiponge/platform-core';
 import { contractRegistry, CURRENT_CONTRACT_VERSION } from '@aiponge/shared-contracts';
 import express from 'express';
@@ -59,6 +60,7 @@ import { ContentTemplateService } from './domains/services/ContentTemplateServic
 
 // Infrastructure clients
 import { ProvidersServiceClient } from './infrastructure/clients/ProvidersServiceClient';
+import { UserServiceClient } from './infrastructure/clients/UserServiceClient';
 
 // Use cases
 import {
@@ -69,9 +71,21 @@ import {
   GenerateQuoteUseCase,
   GenerateImageUseCase,
 } from './application/use-cases';
+import { PlanOrchestrationFlowUseCase } from './application/use-cases/PlanOrchestrationFlowUseCase';
+import { ConfirmOrchestrationFlowUseCase } from './application/use-cases/ConfirmOrchestrationFlowUseCase';
+import { CancelOrchestrationFlowUseCase } from './application/use-cases/CancelOrchestrationFlowUseCase';
+
+// Orchestration
+import { OrchestrationFlowController } from './presentation/controllers/OrchestrationFlowController';
+import { createOrchestrationFlowRoutes } from './presentation/routes/orchestration-flow-routes';
+import { OrchestrationSessionRepository } from './infrastructure/database/repositories/OrchestrationSessionRepository';
 
 // Event subscribers
 import { startConfigEventSubscriber } from './infrastructure/events/ConfigEventSubscriber';
+import { startOrchestrationCompletionSubscriber } from './infrastructure/events/OrchestrationCompletionSubscriber';
+
+// Schedulers — self-register with SchedulerRegistry on import
+import './infrastructure/scheduling/OrchestrationSessionTimeoutScheduler';
 
 // Database schema
 import * as schema from './schema/content-schema';
@@ -191,6 +205,24 @@ async function main(): Promise<void> {
     const imageController = new ImageController(generateImageUseCase);
     const healthController = new HealthController();
 
+    // Initialize orchestration flow dependencies
+    const userServiceClient = new UserServiceClient();
+    const orchestrationSessionRepository = new OrchestrationSessionRepository(getDatabase());
+    const planOrchestrationFlowUseCase = new PlanOrchestrationFlowUseCase(
+      userServiceClient,
+      contentTemplateService,
+      providersServiceClient,
+      orchestrationSessionRepository
+    );
+    const confirmOrchestrationFlowUseCase = new ConfirmOrchestrationFlowUseCase(orchestrationSessionRepository);
+    const cancelOrchestrationFlowUseCase = new CancelOrchestrationFlowUseCase(orchestrationSessionRepository);
+    const orchestrationFlowController = new OrchestrationFlowController(
+      planOrchestrationFlowUseCase,
+      confirmOrchestrationFlowUseCase,
+      cancelOrchestrationFlowUseCase
+    );
+    const orchestrationFlowRoutes = createOrchestrationFlowRoutes(orchestrationFlowController);
+
     // Mount API routes using proper routing
     const contentRoutes = createContentRoutes(contentController, templateController, healthController);
     const aiRoutes = createAIRoutes(
@@ -277,6 +309,7 @@ async function main(): Promise<void> {
         }
 
         // Register all routes
+        bootstrapApp.use('/api/orchestration', orchestrationFlowRoutes);
         bootstrapApp.use('/api', contentRoutes);
         bootstrapApp.use('/api/ai', aiRoutes);
         bootstrapApp.use('/', statusRouter);
@@ -315,6 +348,17 @@ async function main(): Promise<void> {
       logger.warn('Failed to start config event subscriber (non-critical)', {
         error: err instanceof Error ? err.message : String(err),
       });
+    });
+    startOrchestrationCompletionSubscriber().catch(err => {
+      logger.warn('Failed to start orchestration completion subscriber (non-critical)', {
+        error: err instanceof Error ? err.message : String(err),
+      });
+    });
+
+    // Start schedulers (session timeout, etc.)
+    SchedulerRegistry.startAll();
+    logger.info('Orchestration schedulers started', {
+      count: SchedulerRegistry.getAllInfo().length,
     });
   } catch (error) {
     const { correlationId } = logAndTrackError(

@@ -1806,5 +1806,40 @@
     "created_at": "2026-03-01T19:00:00.000000",
     "updated_at": "2026-03-01T19:00:00.000000",
     "visibility": "shared"
+  },
+  {
+    "id": "wellness-flow-planner",
+    "name": "Wellness Flow Planner",
+    "description": "Analyzes a creator's natural language wellness request and produces a structured content plan (book + album + preview track) tailored to the recipient's preferences",
+    "content_type": "creative",
+    "category": "orchestration",
+    "tags": ["wellness", "orchestration", "planning", "agentic", "book", "album"],
+    "system_prompt": "You are the wellness content planner for aiponge, a personalized wellness platform.\n\nYour job: analyze a creator's natural language request and produce a structured content plan.\n\nRULES:\n1. Select ONE book type from the available list that best matches the person's needs\n2. Plan 4-8 book chapters with therapeutic progression (start where they are → end where they want to be)\n3. Plan a music album (6-10 tracks) that complements the book's emotional journey\n4. Match music to the RECIPIENT's preferences (genres, cultural style, language, vocal preference)\n5. If the creator mentions a specific person by name, extract that name\n6. Infer emotional state and core needs from the language used\n7. Keep chapter themes concise (5-10 words each)\n8. Album mood should progress: match current emotional state early → desired state later\n9. Generate a preview track prompt that captures the album's opening mood\n\nOUTPUT: Valid JSON only. No markdown, no explanation.",
+    "user_prompt_structure": "CREATOR'S REQUEST:\n\"{{transcript}}\"\n\n{{#if recipientName}}\nCREATING FOR: {{recipientName}} (not themselves)\n{{else}}\nCREATING FOR: Themselves\n{{/if}}\n\nRECIPIENT'S PREFERENCES:\n- Music genres: {{recipientPreferences.musicGenre}}\n- Music style: {{recipientPreferences.musicPreferences}}\n- Cultural style: {{recipientPreferences.culturalLanguages}}\n- Language: {{recipientPreferences.language}}\n- Vocal preference: {{recipientPreferences.vocalGender}}\n- Instruments: {{recipientPreferences.musicInstruments}}\n- Recent moods: {{recipientPreferences.currentMood}}\n\nAVAILABLE BOOK TYPES:\n{{#each availableBookTypes}}\n- {{this.id}}: {{this.name}} — {{this.description}}\n{{/each}}\n\n{{#if previousPlan}}\nPREVIOUS PLAN (creator is adjusting):\n{{previousPlan}}\n{{/if}}\n\nProduce the content plan as JSON with this structure:\n{\n  \"interpretation\": {\n    \"summary\": \"1-2 sentence summary\",\n    \"detectedRecipientName\": \"name or null\",\n    \"emotionalState\": \"inferred current state\",\n    \"coreNeeds\": [\"need1\", \"need2\", \"need3\"]\n  },\n  \"book\": {\n    \"bookTypeId\": \"one of the available IDs\",\n    \"bookTypeName\": \"display name\",\n    \"suggestedTitle\": \"short title (max 50 chars)\",\n    \"chapterCount\": 6,\n    \"chapterThemes\": [\"theme1\", \"theme2\"]\n  },\n  \"album\": {\n    \"suggestedTitle\": \"short title\",\n    \"trackCount\": 8,\n    \"genres\": [\"genre1\", \"genre2\"],\n    \"mood\": \"overall mood\",\n    \"style\": \"musical style\"\n  },\n  \"firstTrack\": {\n    \"prompt\": \"detailed generation prompt for preview track\",\n    \"mood\": \"track mood\",\n    \"genre\": \"primary genre\",\n    \"style\": \"track style\"\n  }\n}",
+    "required_variables": ["transcript", "recipientPreferences", "availableBookTypes"],
+    "optional_variables": ["recipientName", "creatorName", "previousPlan"],
+    "configuration": {
+      "expectedOutputFormat": "json",
+      "postProcessingRules": [],
+      "supportedStrategies": [],
+      "defaultParameters": {
+        "temperature": 0.3,
+        "maxLength": 1000
+      },
+      "qualityMetrics": []
+    },
+    "context_analysis_rules": null,
+    "inference_rules": null,
+    "cultural_adaptations": null,
+    "llm_compatibility": null,
+    "metadata": {
+      "author": "system",
+      "version": "1.0.0"
+    },
+    "is_active": true,
+    "created_by": "system",
+    "created_at": "2026-03-05T00:00:00.000000",
+    "updated_at": "2026-03-05T00:00:00.000000",
+    "visibility": "shared"
   }
 ]

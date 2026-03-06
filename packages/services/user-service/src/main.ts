@@ -45,6 +45,10 @@ import {
   startStorageEventSubscriber,
   stopStorageEventSubscriber,
 } from './infrastructure/events/StorageEventSubscriber';
+import {
+  startOrchestrationBookSubscriber,
+  stopOrchestrationBookSubscriber,
+} from './infrastructure/events/OrchestrationBookSubscriber';
 
 const logger = createLogger('user-service');
 
@@ -259,10 +263,16 @@ async function startServer() {
         error: err instanceof Error ? err.message : String(err),
       });
     });
+    startOrchestrationBookSubscriber().catch(err => {
+      logger.warn('Failed to start orchestration book subscriber (non-critical)', {
+        error: err instanceof Error ? err.message : String(err),
+      });
+    });
 
     setupGracefulShutdown(server);
     registerShutdownHook(async () => {
       await stopStorageEventSubscriber();
+      await stopOrchestrationBookSubscriber();
       SchedulerRegistry.stopAll();
       const { DatabaseConnectionFactory } = await import('./infrastructure/database/DatabaseConnectionFactory');
       await DatabaseConnectionFactory.close();

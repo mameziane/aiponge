@@ -25,12 +25,20 @@ export function setupSse(app: express.Application, ctx: GatewayAppContext): void
         'music.generation.failed',
         'notification:new',
         'credits:updated',
+        'orchestration.flow.completed',
+        'orchestration.flow.delivered',
       ];
 
       for (const eventType of bridgeEvents) {
         await eventBus.subscribe(eventType, async event => {
-          if (event.data?.userId) {
-            getSSEManager().sendToUser(event.data.userId as string, eventType, event.data);
+          // Standard events use userId; orchestration events use creatorId
+          const targetUserId = (event.data?.userId || event.data?.creatorId) as string | undefined;
+          if (targetUserId) {
+            getSSEManager().sendToUser(targetUserId, eventType, event.data);
+          }
+          // For orchestration events, also notify the recipient if different from creator
+          if (event.data?.recipientId && event.data.recipientId !== event.data?.creatorId) {
+            getSSEManager().sendToUser(event.data.recipientId as string, eventType, event.data);
           }
         });
       }

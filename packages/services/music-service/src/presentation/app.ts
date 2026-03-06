@@ -22,6 +22,7 @@ import artworkRoutes from './routes/artwork-routes';
 
 const { ServiceErrors } = getResponseHelpers();
 import { createFeedbackRoutes } from './routes/feedback-routes';
+import { createOrchestrationPreviewRoutes } from './routes/orchestration-preview-routes';
 
 import { DrizzleAudioProcessingJobRepository } from '../infrastructure/database/DrizzleAudioProcessingJobRepository';
 import { DrizzlePlaylistRepository } from '../infrastructure/database/DrizzlePlaylistRepository';
@@ -42,6 +43,10 @@ import {
   stopMusicEventSubscriber,
   isMusicEventSubscriberReady,
 } from '../infrastructure/events/MusicEventSubscriber';
+import {
+  startOrchestrationEventSubscriber,
+  stopOrchestrationEventSubscriber,
+} from '../infrastructure/events/OrchestrationEventSubscriber';
 
 const logger = getLogger('music-service-app');
 
@@ -157,6 +162,10 @@ async function setupRoutes(app: Express): Promise<void> {
   const { createTestPlaylistsRoutes } = await import('./routes/test-playlists-direct');
   const testRoutes = createTestPlaylistsRoutes();
 
+  // Orchestration preview routes (wellness flow)
+  const orchestrationRoutes = createOrchestrationPreviewRoutes();
+  app.use('/api/orchestration', orchestrationRoutes);
+
   // IMPORTANT: Mount more specific routes first!
   // /api/music/library must be before /api/music to avoid route shadowing
   app.use('/api/music/library', libraryRoutes);
@@ -207,8 +216,16 @@ export async function initializeEventSubscriber(_playlistService?: PlaylistServi
   }
 
   await startMusicEventSubscriber();
+
+  // Start orchestration subscriber (handles confirmed + content_ready events)
+  startOrchestrationEventSubscriber().catch(err => {
+    logger.warn('Failed to start orchestration event subscriber (non-critical)', {
+      error: err instanceof Error ? err.message : String(err),
+    });
+  });
 }
 
 export async function shutdownEventSubscriber(): Promise<void> {
   await stopMusicEventSubscriber();
+  await stopOrchestrationEventSubscriber();
 }

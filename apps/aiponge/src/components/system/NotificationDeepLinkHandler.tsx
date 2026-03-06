@@ -1,17 +1,17 @@
 /**
  * Notification Deep Link Handler
- * Navigates to the appropriate screen when a user taps a reminder notification.
+ * Navigates to the appropriate screen when a user taps a notification.
  *
  * Handles two scenarios:
  *   1. Cold start — app was killed, user taps notification → getLastNotificationResponseAsync()
  *   2. Runtime — app is running/backgrounded, user taps notification → response listener
  *
  * Routing:
- *   - reminderType "listening" → music tab
- *   - reminderType "reading" or default → books tab
+ *   - type "reminder" + reminderType "listening" → music tab
+ *   - type "reminder" + reminderType "reading" or default → books tab
+ *   - type "orchestration_completed" → album-detail (if albumId) or music tab
  *
  * Note: track_alarm notifications are handled by TrackAlarmHandler (separate component).
- * This component only handles `type: 'reminder'` notifications.
  */
 
 import { useEffect, useRef, useCallback } from 'react';
@@ -25,8 +25,20 @@ interface ReminderNotificationData {
   reminderType?: 'reading' | 'listening' | string;
 }
 
+interface OrchestrationNotificationData {
+  type: 'orchestration_completed';
+  flowType: string;
+  sessionId: string;
+  albumId?: string;
+  bookId?: string;
+}
+
 function isReminderNotification(data: unknown): data is ReminderNotificationData {
   return (data as Record<string, unknown> | undefined)?.type === 'reminder';
+}
+
+function isOrchestrationNotification(data: unknown): data is OrchestrationNotificationData {
+  return (data as Record<string, unknown> | undefined)?.type === 'orchestration_completed';
 }
 
 export function NotificationDeepLinkHandler() {
@@ -42,7 +54,6 @@ export function NotificationDeepLinkHandler() {
         });
         router.push('/(user)/music');
       } else {
-        // Default: reading reminders → books tab
         logger.info(`[DeepLink] ${source} reminder → books`, {
           reminderId: data.reminderId,
           reminderType: data.reminderType,
@@ -53,6 +64,38 @@ export function NotificationDeepLinkHandler() {
     [router]
   );
 
+  const handleOrchestrationTap = useCallback(
+    (data: OrchestrationNotificationData, source: string) => {
+      if (data.albumId) {
+        logger.info(`[DeepLink] ${source} orchestration → album-detail`, {
+          albumId: data.albumId,
+          flowType: data.flowType,
+        });
+        router.push({
+          pathname: '/album-detail',
+          params: { albumId: data.albumId },
+        });
+      } else {
+        logger.info(`[DeepLink] ${source} orchestration → music`, {
+          flowType: data.flowType,
+        });
+        router.push('/(user)/music');
+      }
+    },
+    [router]
+  );
+
+  const handleNotificationData = useCallback(
+    (data: unknown, source: string) => {
+      if (isReminderNotification(data)) {
+        handleReminderTap(data, source);
+      } else if (isOrchestrationNotification(data)) {
+        handleOrchestrationTap(data, source);
+      }
+    },
+    [handleReminderTap, handleOrchestrationTap]
+  );
+
   // Runtime: handle notification taps while app is running or backgrounded
   useEffect(() => {
     const subscription = Notifications.addNotificationResponseReceivedListener(response => {
@@ -61,13 +104,11 @@ export function NotificationDeepLinkHandler() {
       handledIdsRef.current.add(id);
 
       const data = response.notification.request.content.data as unknown;
-      if (isReminderNotification(data)) {
-        handleReminderTap(data, 'Runtime');
-      }
+      handleNotificationData(data, 'Runtime');
     });
 
     return () => subscription.remove();
-  }, [handleReminderTap]);
+  }, [handleNotificationData]);
 
   // Cold-start: check for the notification that launched the app
   useEffect(() => {
@@ -81,16 +122,14 @@ export function NotificationDeepLinkHandler() {
         handledIdsRef.current.add(id);
 
         const data = response.notification.request.content.data as unknown;
-        if (isReminderNotification(data)) {
-          handleReminderTap(data, 'Cold-start');
-        }
+        handleNotificationData(data, 'Cold-start');
       } catch (error) {
         logger.error('[DeepLink] Failed to check cold-start notification', { error });
       }
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [handleReminderTap]);
+  }, [handleNotificationData]);
 
   return null;
 }

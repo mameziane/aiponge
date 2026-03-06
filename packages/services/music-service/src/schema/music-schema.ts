@@ -53,6 +53,7 @@ export const albums = pgTable(
     isSystem: boolean('is_system').default(false).notNull(), // Platform-provisioned content — filtered by language
     status: varchar('status').notNull(), // draft, published, archived'
     playCount: integer('play_count').notNull().default(0),
+    dedicatedToMemberId: uuid('dedicated_to_member_id'), // Display hint: "Created for you" badge (no FK, no access control)
     metadata: jsonb('metadata').notNull().default({}), // Includes chapterSnapshot for fallback
     createdBy: uuid('created_by'),
     updatedBy: uuid('updated_by'),
@@ -123,6 +124,7 @@ export const tracks = pgTable(
     playOnDate: timestamp('play_on_date'), // Date when track should be auto-played in Radio mode (unified from user tracks)
     sourceUserTrackId: uuid('source_user_track_id'), // Link back to original personal track when promoted to shared library
     generatedByUserId: uuid('generated_by_user_id'), // User who generated this track
+    dedicatedToMemberId: uuid('dedicated_to_member_id'), // Display hint: "Created for you" badge (no FK, no access control)
     metadata: jsonb('metadata').notNull().default({}),
     createdBy: uuid('created_by'),
     updatedBy: uuid('updated_by'),

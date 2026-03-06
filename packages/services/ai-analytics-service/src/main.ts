@@ -37,6 +37,10 @@ import {
   startUserLifecycleSubscriber,
   stopUserLifecycleSubscriber,
 } from './infrastructure/events/UserLifecycleSubscriber';
+import {
+  startOrchestrationAnalyticsSubscriber,
+  stopOrchestrationAnalyticsSubscriber,
+} from './infrastructure/events/OrchestrationAnalyticsSubscriber';
 
 // Import schedulers — they self-register with SchedulerRegistry on import
 import './infrastructure/schedulers/DailyMetricsScheduler';
@@ -171,6 +175,7 @@ async function main(): Promise<void> {
         });
 
         registerShutdownHook(async () => {
+          await stopOrchestrationAnalyticsSubscriber();
           const { closeTracePool } = await import('./presentation/controllers/TraceController');
           await closeTracePool();
           const { DatabaseConnectionFactory } = await import('./infrastructure/database/DatabaseConnectionFactory');
@@ -186,6 +191,12 @@ async function main(): Promise<void> {
 
         startUserLifecycleSubscriber().catch(err => {
           logger.warn('Failed to start user lifecycle subscriber (non-critical)', {
+            error: err instanceof Error ? err.message : String(err),
+          });
+        });
+
+        startOrchestrationAnalyticsSubscriber().catch(err => {
+          logger.warn('Failed to start orchestration analytics subscriber (non-critical)', {
             error: err instanceof Error ? err.message : String(err),
           });
         });

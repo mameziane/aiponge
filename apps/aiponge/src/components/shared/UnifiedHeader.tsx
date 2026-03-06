@@ -2,12 +2,14 @@ import { View, Text, TouchableOpacity, TextInput, Animated, Keyboard } from 'rea
 import { router, type Href } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useThemeColors, BORDER_RADIUS } from '../../theme';
 import { AccountIconMenu } from '../profile/AccountIconMenu';
 import { MoreMenu } from './MoreMenu';
 import { NetworkStatusBanner } from '../system/NetworkStatusBanner';
 import { useSearch } from '../../stores';
+import { useAuthState } from '../../hooks/auth';
+import { WellnessFlowModal } from '../wellness/WellnessFlowModal';
 
 interface UnifiedHeaderProps {
   title: string;
@@ -18,6 +20,8 @@ export function UnifiedHeader({ title, showBackButton = false }: UnifiedHeaderPr
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
   const { query, setQuery, isSearchActive, setIsSearchActive, currentConfig } = useSearch();
+  const { isGuest } = useAuthState();
+  const [isWellnessFlowOpen, setIsWellnessFlowOpen] = useState(false);
   const searchInputRef = useRef<TextInput>(null);
   const searchWidthAnim = useRef(new Animated.Value(0)).current;
 
@@ -145,12 +149,18 @@ export function UnifiedHeader({ title, showBackButton = false }: UnifiedHeaderPr
                   <Ionicons name="search" size={22} color={colors.text.primary} />
                 </TouchableOpacity>
               )}
+              {!isGuest && (
+                <TouchableOpacity onPress={() => setIsWellnessFlowOpen(true)} testID="header-wellness-button">
+                  <Ionicons name="mic-outline" size={22} color={colors.text.primary} />
+                </TouchableOpacity>
+              )}
               <MoreMenu />
             </View>
           </>
         )}
       </View>
       <NetworkStatusBanner />
+      <WellnessFlowModal visible={isWellnessFlowOpen} onClose={() => setIsWellnessFlowOpen(false)} />
     </>
   );
 }

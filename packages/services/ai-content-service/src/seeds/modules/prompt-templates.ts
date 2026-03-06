@@ -37,7 +37,7 @@ export const promptTemplatesSeed: SeedModule = {
   description: 'Seed aic_prompt_templates with all AI content prompt templates',
   priority: 25,
   dependencies: ['book-types'],
-  version: '1.0.0',
+  version: '1.1.0',
 
   async seed(ctx: SeedContext): Promise<SeedResult> {
     const result: SeedResult = { created: 0, updated: 0, skipped: 0, deleted: 0, details: [] };

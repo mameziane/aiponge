@@ -124,6 +124,37 @@ export class UserController {
     });
   }
 
+  async getUserPreferences(req: Request, res: Response): Promise<void> {
+    try {
+      const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+
+      const { AuthRepository } = await import('@infrastructure/repositories');
+      const authRepo = createDrizzleRepository(AuthRepository);
+      const user = await authRepo.findUserById(id);
+
+      if (!user) {
+        ServiceErrors.notFound(res, 'User', req);
+        return;
+      }
+
+      const rawPreferences =
+        typeof user.preferences === 'string' ? JSON.parse(user.preferences) : user.preferences || {};
+
+      sendSuccess(res, {
+        musicGenre: rawPreferences.musicGenre || null,
+        musicPreferences: rawPreferences.musicPreferences || null,
+        culturalLanguages: rawPreferences.culturalLanguages || null,
+        language: rawPreferences.language || rawPreferences.languagePreference || null,
+        vocalGender: rawPreferences.vocalGender || null,
+        musicInstruments: rawPreferences.musicInstruments || null,
+        currentMood: rawPreferences.currentMood || null,
+      });
+    } catch (error) {
+      logger.error('Get user preferences error', { error: serializeError(error) });
+      ServiceErrors.fromException(res, error, 'Failed to get user preferences', req);
+    }
+  }
+
   async updateUserPreferences(req: Request, res: Response): Promise<void> {
     const startTime = Date.now();
     try {

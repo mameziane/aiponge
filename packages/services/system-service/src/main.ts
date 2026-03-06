@@ -56,6 +56,10 @@ import { TrackAlarmScheduler, TRACK_ALARM_QUEUE } from './infrastructure/notific
 import { QueueManager } from '@aiponge/platform-core';
 import { processTrackAlarmJob } from './infrastructure/notification/jobs/trackAlarmProcessor';
 import { processBookReminderJob } from './infrastructure/notification/jobs/bookReminderProcessor';
+import {
+  startOrchestrationNotificationSubscriber,
+  stopOrchestrationNotificationSubscriber,
+} from './infrastructure/events/OrchestrationNotificationSubscriber';
 
 // Configuration
 const SERVICE_NAME = 'system-service';
@@ -212,6 +216,13 @@ async function main(): Promise<void> {
         logger.debug('All schedulers started via SchedulerRegistry', {
           schedulerCount: SchedulerRegistry.getAllInfo().length,
         });
+
+        // Start orchestration notification subscriber (fire-and-forget)
+        startOrchestrationNotificationSubscriber().catch(err => {
+          logger.warn('Failed to start orchestration notification subscriber (non-critical)', {
+            error: err instanceof Error ? err.message : String(err),
+          });
+        });
       },
     });
 
@@ -225,7 +236,8 @@ async function main(): Promise<void> {
 
     setupGracefulShutdown(bootstrap.getServer());
     registerShutdownHook(async () => {
-      logger.info('Shutting down schedulers and queues...');
+      logger.info('Shutting down schedulers, queues, and subscribers...');
+      await stopOrchestrationNotificationSubscriber();
       await SchedulerRegistry.shutdownAll();
       logger.info('Scheduler and queue shutdown complete');
       logger.info('Closing database connections...');

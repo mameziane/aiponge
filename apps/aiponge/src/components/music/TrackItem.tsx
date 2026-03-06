@@ -29,6 +29,7 @@ import { ArtworkImage } from '../shared/ArtworkImage';
 import { TrackOptionsMenu } from './TrackOptionsMenu';
 import { useTrackOptionsMenu, PlayingOverlay, LikeButton, MoreOptionsButton } from '../shared/TrackComponents';
 import { OfflineIndicator } from '../shared/OfflineIndicator';
+import { useAuthState } from '../../hooks/auth';
 import type { IconProps } from '../../types';
 
 type SimpleIconProps = Omit<IconProps, 'name'>;
@@ -47,6 +48,7 @@ interface TrackItemProps {
     hasSyncedLyrics?: boolean;
     isUserGenerated?: boolean;
     playOnDate?: string | null;
+    dedicatedToMemberId?: string;
   };
   isActive: boolean;
   isPlaying: boolean;
@@ -82,6 +84,8 @@ function TrackItemComponent({
   const colors = useThemeColors();
   const trackStyles = useMemo(() => createTrackStyles(colors), [colors]);
   const { t } = useTranslation();
+  const { userId } = useAuthState();
+  const isDedicatedToMe = track.dedicatedToMemberId && track.dedicatedToMemberId === userId;
 
   const accessibilityLabel = useMemo(() => {
     if (track.displayName && isActive) {
@@ -139,6 +143,16 @@ function TrackItemComponent({
               {track.displayName}
               {subtitleExtra ? ` ${subtitleExtra}` : ''}
             </Text>
+          )}
+          {isDedicatedToMe && (
+            <View style={styles.dedicatedBadge}>
+              <Ionicons name="gift" size={10} color={colors.brand.primary} />
+              <Text style={[styles.dedicatedText, { color: colors.brand.primary }]}>
+                {track.displayName
+                  ? t('wellness.createdForYouBy', { name: track.displayName })
+                  : t('wellness.createdForYou')}
+              </Text>
+            </View>
           )}
         </View>
 
@@ -199,6 +213,16 @@ const styles = StyleSheet.create({
     padding: 8,
     marginLeft: 4,
   },
+  dedicatedBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 2,
+  },
+  dedicatedText: {
+    fontSize: 11,
+    fontWeight: '500',
+  },
 });
 
 export const TrackItem = memo(TrackItemComponent, (prevProps, nextProps) => {
@@ -212,6 +236,7 @@ export const TrackItem = memo(TrackItemComponent, (prevProps, nextProps) => {
     prevProps.track.hasSyncedLyrics === nextProps.track.hasSyncedLyrics &&
     prevProps.track.isUserGenerated === nextProps.track.isUserGenerated &&
     prevProps.track.playOnDate === nextProps.track.playOnDate &&
+    prevProps.track.dedicatedToMemberId === nextProps.track.dedicatedToMemberId &&
     prevProps.isActive === nextProps.isActive &&
     prevProps.isPlaying === nextProps.isPlaying &&
     prevProps.isFavorite === nextProps.isFavorite &&

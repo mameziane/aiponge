@@ -15,6 +15,7 @@ export interface SharedAlbum {
   totalTracks: number;
   releaseDate?: string;
   displayName: string;
+  dedicatedToMemberId?: string;
   createdAt: string;
   updatedAt: string;
 }

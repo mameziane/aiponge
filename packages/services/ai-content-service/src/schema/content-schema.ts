@@ -21,6 +21,10 @@ import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { CONTENT_VISIBILITY } from '@aiponge/shared-contracts';
 
+// Re-export orchestration session schema for consolidated access
+export { orchestrationSessions } from './orchestration-session-schema';
+export type { InsertOrchestrationSession, SelectOrchestrationSession } from './orchestration-session-schema';
+
 // =============================================================================
 // CONTENT REQUESTS
 // =============================================================================

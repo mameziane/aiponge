@@ -65,6 +65,7 @@ import moodCheckinsRouter from './app/mood-checkins.routes';
 import narrativesRouter from './app/narratives.routes';
 import creatorMembersRouter from './app/creator-members.routes';
 import frameworksRouter from './app/frameworks.routes';
+import wellnessRouter from './app/wellness.routes';
 import { savedLibraryRouter, libraryBooksRouter, contentLibraryRouter, booksGenerateRouter } from './app/books.routes';
 import { ProvidersServiceClient } from '../../clients/ProvidersServiceClient';
 
@@ -589,6 +590,7 @@ router.use('/library/books', libraryBooksRouter); // Unified library: book detai
 router.use('/library', contentLibraryRouter); // Content library: book-types, chapters, entries, write operations
 router.use('/privacy', privacyRouter); // GDPR privacy endpoints (data export/deletion)
 router.use('/frameworks', frameworksRouter); // Psychological frameworks from ai-config-service
+router.use('/wellness', wellnessRouter); // Wellness orchestration flow (voice → book + album)
 
 // ================================================
 // ANALYTICS TRACKING - Inline route

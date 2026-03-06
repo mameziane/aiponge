@@ -1052,7 +1052,9 @@
     "trendStable": "Stable",
     "trendDeclining": "Declining",
     "starterDescription": "Wellness insights are available with a Starter subscription or higher",
-    "starterRequired": "Starter Required"
+    "starterRequired": "Starter Required",
+    "createdForYou": "Created for you",
+    "createdForYouBy": "Created for you by {{name}}"
   },
   "reflect": {
     "generateInsight": "Generate Insight",
