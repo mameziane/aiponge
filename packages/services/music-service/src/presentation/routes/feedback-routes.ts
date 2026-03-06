@@ -116,11 +116,16 @@ export function createFeedbackRoutes(db?: DatabaseConnection): Router {
         .limit(1);
 
       if (!feedback) {
-        ServiceErrors.notFound(res, 'Feedback', req);
+        // No feedback yet is a valid state, not a 404.
+        // Return 200 with hasFeedback: false so the frontend doesn't show an error toast.
+        sendSuccess(res, { hasFeedback: false });
         return;
       }
 
-      sendSuccess(res, feedback);
+      sendSuccess(res, {
+        ...feedback,
+        hasFeedback: true,
+      });
     } catch (error) {
       logger.error('[FEEDBACK] Error checking feedback', {
         requestId,

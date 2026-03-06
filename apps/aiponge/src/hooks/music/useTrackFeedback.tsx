@@ -32,6 +32,9 @@ export function useTrackFeedback(trackId: string | undefined, userId: string | u
     queryKey: queryKeys.tracks.feedback(trackId ?? ''),
     context: 'Track Feedback',
     enabled: !!trackId && !!userId,
+    // Feedback check is non-critical — don't show error toast if it fails.
+    // The modal still works fine without knowing prior feedback status.
+    silentError: true,
     queryOptions: { staleTime: QUERY_STALE_TIME.medium },
   });
 
