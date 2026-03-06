@@ -63,16 +63,17 @@ export class CreatorMemberRepository implements ICreatorMemberRepository {
     const [relationship] = await this.db
       .insert(creatorMembers)
       .values({ creatorId, memberId, status })
-      .onConflictDoNothing()
+      .onConflictDoUpdate({
+        target: [creatorMembers.creatorId, creatorMembers.memberId],
+        set: { status, acceptedAt: new Date(), deletedAt: null },
+      })
       .returning();
 
     if (!relationship) {
-      const existing = await this.findRelationship(creatorId, memberId);
-      if (existing) return existing;
       throw ProfileError.internalError('Failed to create relationship');
     }
 
-    logger.info('Creator-member relationship created', { creatorId, memberId });
+    logger.info('Creator-member relationship created or reactivated', { creatorId, memberId, status });
     return relationship;
   }
 

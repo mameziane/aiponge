@@ -67,6 +67,9 @@ function createInsertChain(returnValue: unknown[]) {
       onConflictDoNothing: vi.fn().mockReturnValue({
         returning: vi.fn().mockResolvedValue(returnValue),
       }),
+      onConflictDoUpdate: vi.fn().mockReturnValue({
+        returning: vi.fn().mockResolvedValue(returnValue),
+      }),
       returning: vi.fn().mockResolvedValue(returnValue),
     }),
   };
@@ -168,17 +171,15 @@ describe('CreatorMemberRepository', () => {
       expect(valuesArg.memberId).toBe(TEST_MEMBER_ID);
     });
 
-    it('should return existing relationship on duplicate (idempotent)', async () => {
-      const existingRel = createMockRelationship({ id: 'existing-rel-id' });
-      mockDb.insert.mockReturnValue(createInsertChain([]));
-      mockDb.select.mockReturnValue(createSelectChainWhereLimit([existingRel]));
+    it('should reactivate a revoked relationship on duplicate (upsert)', async () => {
+      const reactivatedRel = createMockRelationship({ id: 'existing-rel-id', status: 'active' });
+      mockDb.insert.mockReturnValue(createInsertChain([reactivatedRel]));
 
       const result = await repo.createRelationship(TEST_CREATOR_ID, TEST_MEMBER_ID);
 
       expect(result).toBeDefined();
       expect(result.id).toBe('existing-rel-id');
-      expect(result.creatorId).toBe(TEST_CREATOR_ID);
-      expect(result.memberId).toBe(TEST_MEMBER_ID);
+      expect(result.status).toBe('active');
     });
   });
 

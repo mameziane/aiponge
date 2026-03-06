@@ -17,6 +17,7 @@ import {
   TRACK_LIFECYCLE,
   type LibrarySource,
 } from '@aiponge/shared-contracts';
+import { getMusicVisibilityService, MusicVisibilityService } from '../../services/MusicVisibilityService';
 
 const logger = getLogger('music-service-getuserlibraryusecase');
 
@@ -207,8 +208,32 @@ export class GetUserLibraryUseCase {
       // For 'all', fetch all to properly merge and sort before pagination
       if (source === LIBRARY_SOURCE.SHARED || source === LIBRARY_SOURCE.ALL) {
         try {
+          // Resolve which creators' shared content this user can see
+          const visibilityService = getMusicVisibilityService();
+          const effectiveUserId = request.userId === 'anonymous' ? null : request.userId;
+          const { accessibleCreatorIds } = await visibilityService.resolveAccessibleCreatorIds(effectiveUserId);
+
           // Build WHERE conditions array
           const whereConditions = [eq(tracks.status, TRACK_LIFECYCLE.PUBLISHED)];
+
+          // Content visibility: own content (any visibility), shared content from followed creators, public content
+          const arrayLiteral = MusicVisibilityService.buildPostgresArrayLiteral(accessibleCreatorIds);
+          if (effectiveUserId) {
+            whereConditions.push(
+              sql`(
+                (${tracks.visibility} = ${CONTENT_VISIBILITY.PERSONAL} AND ${tracks.userId} = ${effectiveUserId})
+                OR (${tracks.visibility} = ${CONTENT_VISIBILITY.SHARED} AND ${tracks.userId} = ANY(${sql.raw(arrayLiteral)}))
+                OR ${tracks.visibility} = ${CONTENT_VISIBILITY.PUBLIC}
+              )`
+            );
+          } else {
+            whereConditions.push(
+              sql`(
+                (${tracks.visibility} = ${CONTENT_VISIBILITY.SHARED} AND ${tracks.userId} = ANY(${sql.raw(arrayLiteral)}))
+                OR ${tracks.visibility} = ${CONTENT_VISIBILITY.PUBLIC}
+              )`
+            );
+          }
 
           // Add search filter (title only - displayName is in metadata)
           if (request.search) {
