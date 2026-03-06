@@ -181,43 +181,37 @@ export function useSpeechRecognition(options: SpeechRecognitionOptions = {}) {
         const recognitionLang = lang || optionsRef.current.lang || 'en-US';
         const mappedLang = LANGUAGE_MAP[recognitionLang] || recognitionLang;
 
-        // Yield expo-audio's exclusive doNotMix session BEFORE speech recognition
-        // tries to create its own AVAudioEngine. Without this, the engine "starts"
-        // but gets silent buffers because iOS won't route mic data to a competing
-        // audio category.
-        if (Platform.OS === 'ios') {
-          addDebug('yielding audio session...');
-          await yieldAudioSessionForRecording();
-          addDebug('audio session yielded');
+        // ── Pre-flight diagnostics ──
+        const iOSVer = Platform.OS === 'ios' ? String(Platform.Version) : '?';
+        addDebug(`iOS ${iOSVer}`);
+
+        try {
+          const available = ExpoSpeechRecognitionModule.isRecognitionAvailable();
+          const onDevice = ExpoSpeechRecognitionModule.supportsOnDeviceRecognition();
+          const state = await ExpoSpeechRecognitionModule.getStateAsync();
+          addDebug(`avail=${available} onDev=${onDevice} state=${state}`);
+        } catch (e) {
+          addDebug(`diag err: ${e}`);
         }
 
+        // Yield expo-audio's exclusive doNotMix session
+        if (Platform.OS === 'ios') {
+          await yieldAudioSessionForRecording();
+          addDebug('session yielded');
+        }
+
+        // MINIMAL config — no iosCategory, no taskHint, no on-device.
+        // Let the library use its proven defaults to isolate the issue.
         const startOptions: Record<string, unknown> = {
           lang: mappedLang,
           interimResults: optionsRef.current.interimResults ?? true,
-          maxAlternatives: optionsRef.current.maxAlternatives ?? 1,
-          continuous: optionsRef.current.continuous ?? false,
-          requiresOnDeviceRecognition: true,
-          addsPunctuation: true,
-          // Enable volume monitoring so we can see actual mic input levels
-          volumeChangeEventOptions: { enabled: true, intervalMillis: 300 },
+          maxAlternatives: 1,
+          continuous: false,
+          requiresOnDeviceRecognition: false,
+          volumeChangeEventOptions: { enabled: true, intervalMillis: 50 },
         };
 
-        if (Platform.OS === 'ios') {
-          // Use playAndRecord with default mode — least invasive config
-          startOptions.iosCategory = {
-            category: 'playAndRecord',
-            categoryOptions: ['defaultToSpeaker', 'allowBluetooth', 'allowBluetoothA2DP'],
-            mode: 'default',
-          };
-          startOptions.iosTaskHint = 'dictation';
-        }
-
-        // Android: Use the default microphone source
-        if (Platform.OS === 'android') {
-          startOptions.androidIntentOptions = ['EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS'];
-        }
-
-        addDebug(`start() lang=${mappedLang} onDevice=true`);
+        addDebug(`start() lang=${mappedLang} server cont=false`);
 
         // Clear state before starting — but do NOT set isListening yet.
         // The 'start' event from the native module will confirm it's actually listening.
