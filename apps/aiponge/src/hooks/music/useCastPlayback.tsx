@@ -52,11 +52,19 @@ export function useCastPlayback(): UseCastPlaybackReturn {
   const lastLocalPositionRef = useRef(0);
   const [pendingCastTransfer, setPendingCastTransfer] = useState(false);
 
+  // CRITICAL: Read currentTrack via ref to prevent these effects from re-running on every
+  // PlaybackContext update. Previously, currentTrack in deps caused 3 instances of this hook
+  // (DiscoverScreen + MiniPlayer + QueueAutoAdvance) to re-run effects on every track change,
+  // contributing to the cascading update storm.
+  const currentTrackRef = useRef(currentTrack);
+  currentTrackRef.current = currentTrack;
+
   useEffect(() => {
     if (wasCastingRef.current && !isConnected) {
       logger.info('[useCastPlayback] Cast disconnected, resuming local playback');
 
-      if (currentTrack && lastLocalPositionRef.current > 0) {
+      const track = currentTrackRef.current;
+      if (track && lastLocalPositionRef.current > 0) {
         try {
           player.seekTo(lastLocalPositionRef.current);
           player.play();
@@ -73,10 +81,13 @@ export function useCastPlayback(): UseCastPlaybackReturn {
     if (isConnected && !wasCastingRef.current) {
       wasCastingRef.current = true;
     }
-  }, [isConnected, currentTrack, player, setPlaybackPhase]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- currentTrack intentionally read via
+    // ref. This effect only needs to act on isConnected changes (Cast connect/disconnect).
+  }, [isConnected, player, setPlaybackPhase]);
 
   useEffect(() => {
-    if (pendingCastTransfer && isConnected && currentTrack) {
+    const track = currentTrackRef.current;
+    if (pendingCastTransfer && isConnected && track) {
       logger.info('[useCastPlayback] Connection established, transferring playback');
 
       const doTransfer = async () => {
@@ -85,24 +96,24 @@ export function useCastPlayback(): UseCastPlaybackReturn {
           player.pause();
           setPlaybackPhase('buffering');
 
-          const mediaUrl = normalizeMediaUrl(currentTrack.audioUrl) || currentTrack.audioUrl;
+          const mediaUrl = normalizeMediaUrl(track.audioUrl) || track.audioUrl;
 
           const castParams: Parameters<typeof castMedia>[0] = {
             mediaUrl,
-            title: currentTrack.title || 'Unknown Track',
-            subtitle: currentTrack.displayName || '',
-            duration: currentTrack.duration,
+            title: track.title || 'Unknown Track',
+            subtitle: track.displayName || '',
+            duration: track.duration,
             contentType: 'audio/mpeg',
           };
 
-          if (currentTrack.artworkUrl) {
-            castParams.artworkUrl = normalizeMediaUrl(currentTrack.artworkUrl);
+          if (track.artworkUrl) {
+            castParams.artworkUrl = normalizeMediaUrl(track.artworkUrl);
           }
 
           const success = await castMedia(castParams);
 
           if (success) {
-            logger.info('[useCastPlayback] Track transferred to Cast', { title: currentTrack.title });
+            logger.info('[useCastPlayback] Track transferred to Cast', { title: track.title });
             setPlaybackPhase('playing');
           } else {
             logger.error('[useCastPlayback] Failed to transfer track to Cast');
@@ -130,7 +141,9 @@ export function useCastPlayback(): UseCastPlaybackReturn {
 
       doTransfer();
     }
-  }, [pendingCastTransfer, isConnected, currentTrack, player, setPlaybackPhase, castMedia, toast, t]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- currentTrack intentionally read via
+    // ref. This effect acts on pendingCastTransfer + isConnected changes.
+  }, [pendingCastTransfer, isConnected, player, setPlaybackPhase, castMedia, toast, t]);
 
   const transferToCast = useCallback(
     async (track: PlaybackTrack): Promise<boolean> => {

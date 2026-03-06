@@ -19,7 +19,7 @@ import { configureAudioSession } from './audioSession';
 import { logError, getTranslatedFriendlyMessage } from '../../utils/errorSerialization';
 import { logger } from '../../lib/logger';
 import { getNextTrack } from '../../utils/trackUtils';
-import { useGlobalAudioPlayer } from '../../contexts/AudioPlayerContext';
+import { useGlobalAudioPlayer, usePlayerPlayingChange } from '../../contexts/AudioPlayerContext';
 import { usePlaybackState, type PlaybackTrack } from '../../contexts/PlaybackContext';
 import { useCastPlayback } from './useCastPlayback';
 import { apiRequest } from '../../lib/axiosApiClient';
@@ -155,6 +155,17 @@ export function useTrackPlayback<T extends PlayableTrack>(
   const loadingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const interactionCountsRef = useRef({ skipCount: 0, pauseCount: 0, seekCount: 0 });
 
+  // CRITICAL: Refs for values that change frequently but are only READ inside handlePlayTrack.
+  // Using refs instead of useCallback deps prevents handlePlayTrack from being recreated on every
+  // PlaybackContext update (currentTrack/isPlaying change). Without this, handlePlayTrack had 19
+  // deps and was recreated on every play/pause/track change, causing the auto-advance effect to
+  // tear down and recreate its setInterval — contributing to the cascading update storm that
+  // triggers "Maximum update depth exceeded".
+  const currentTrackRef = useRef(currentTrack);
+  currentTrackRef.current = currentTrack;
+  const isPlayingRef = useRef(isPlaying);
+  isPlayingRef.current = isPlaying;
+
   /**
    * Helper to update playback phase.
    * expo-audio natively syncs play/pause state with the lock screen — no manual sync needed.
@@ -208,17 +219,22 @@ export function useTrackPlayback<T extends PlayableTrack>(
    */
   const handlePlayTrack = useCallback(
     async (track: T, forceRestart: boolean = false) => {
+      // Read from refs to avoid depending on currentTrack/isPlaying in useCallback deps.
+      // This makes handlePlayTrack stable across PlaybackContext updates.
+      const curTrack = currentTrackRef.current;
+      const playing = isPlayingRef.current;
+
       try {
-        if (currentTrack && currentTrack.id !== track.id && isPlaying) {
+        if (curTrack && curTrack.id !== track.id && playing) {
           interactionCountsRef.current.skipCount++;
-          recordTrackPlay(currentTrack.id, player.duration, interactionCountsRef.current).catch(e =>
+          recordTrackPlay(curTrack.id, player.duration, interactionCountsRef.current).catch(e =>
             logger.warn('[Playback] Failed to record track play', e)
           );
           interactionCountsRef.current = { skipCount: 0, pauseCount: 0, seekCount: 0 };
         }
 
         // If clicking same track that's playing, pause it (unless forcing restart)
-        if (currentTrack?.id === track.id && isPlaying && !forceRestart) {
+        if (curTrack?.id === track.id && playing && !forceRestart) {
           if (isCasting) {
             logger.debug('[Playback] Toggle pause via Cast');
             await castPause();
@@ -230,7 +246,7 @@ export function useTrackPlayback<T extends PlayableTrack>(
         }
 
         // If same track but paused (or forcing restart), handle accordingly
-        if (currentTrack?.id === track.id && !forceRestart) {
+        if (curTrack?.id === track.id && !forceRestart) {
           // Resume from current position
           if (isCasting) {
             logger.debug('[Playback] Toggle resume via Cast');
@@ -245,7 +261,7 @@ export function useTrackPlayback<T extends PlayableTrack>(
         }
 
         // If forcing restart of same track (repeat mode), seek to beginning
-        if (currentTrack?.id === track.id && forceRestart) {
+        if (curTrack?.id === track.id && forceRestart) {
           // Cancel any pending loading timeout and mark as loading
           if (loadingTimeoutRef.current) clearTimeout(loadingTimeoutRef.current);
           isLoadingNewTrack.current = true;
@@ -370,9 +386,11 @@ export function useTrackPlayback<T extends PlayableTrack>(
         });
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- currentTrack and isPlaying
+    // intentionally read via refs (currentTrackRef, isPlayingRef) to prevent this callback
+    // from being recreated on every PlaybackContext update. Previously had 19 deps which
+    // meant the auto-advance effect's setInterval was constantly torn down and recreated.
     [
-      currentTrack,
-      isPlaying,
       player,
       setCurrentTrack,
       updatePlaybackPhase,
@@ -392,26 +410,25 @@ export function useTrackPlayback<T extends PlayableTrack>(
     ]
   );
 
-  // Sync playback phase with actual player state
-  // Transitions: buffering → playing when player starts, playing → paused when player stops
-  // IMPORTANT: Do NOT transition buffering → paused automatically (buffering is optimistic, wait for player to start)
+  // Sync playback phase with actual player state via EVENT-BASED listener (not effect deps).
   //
-  // CRITICAL: playbackPhase is read via a ref (not a dependency) to prevent a feedback loop.
-  // This effect WRITES to playbackPhase via updatePlaybackPhase. If playbackPhase were a dep,
-  // each write would re-trigger the effect → update PlaybackContext → re-render all consumers
-  // (DiscoverScreen, QueueAutoAdvanceController, AuthPlaybackController) → cascade exceeding
-  // React 19's 50-update depth limit. The ref breaks this cycle.
+  // Why events instead of useEffect deps:
+  // 1. player.playing changes don't trigger re-renders in DiscoverScreen because our
+  //    AudioPlayerContext is memoized — so player.playing in effect deps was unreliable
+  // 2. The old approach had a feedback loop risk: effect writes playbackPhase → PlaybackContext
+  //    updates → consumers re-render → effect re-evaluates → potentially writes again
+  // 3. Event-based: fires exactly once per actual play/pause transition, no re-render needed
   const playbackPhaseRef = useRef(playbackPhase);
   playbackPhaseRef.current = playbackPhase;
 
-  useEffect(() => {
+  usePlayerPlayingChange((isNowPlaying: boolean) => {
     // Skip when no track is loaded — expo-audio on iOS can emit spurious player.playing
     // changes during audio session setup, which would trigger unwanted phase transitions
-    if (!currentTrack) return;
+    if (!currentTrackRef.current) return;
 
     const phase = playbackPhaseRef.current;
 
-    if (player.playing && phase === 'buffering') {
+    if (isNowPlaying && phase === 'buffering') {
       // Player successfully started, transition from buffering to playing
       updatePlaybackPhase('playing');
 
@@ -421,40 +438,50 @@ export function useTrackPlayback<T extends PlayableTrack>(
         isLoadingNewTrack.current = false;
         loadingTimeoutRef.current = null;
       }, 500);
-    } else if (!player.playing && phase === 'playing' && !isLoadingNewTrack.current) {
+    } else if (!isNowPlaying && phase === 'playing' && !isLoadingNewTrack.current) {
       // Player stopped while playing, update phase to paused
       // BUT only if we're not in the middle of loading a new track
       updatePlaybackPhase('paused');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- playbackPhase intentionally read via
-    // ref to prevent self-triggering feedback loop (this effect writes to playbackPhase)
-  }, [player.playing, updatePlaybackPhase, currentTrack]);
+  });
 
   /**
    * Auto-advance to next track when current track finishes
    * Monitors playback status and plays next track based on shuffle/repeat settings
+   *
+   * Uses refs for currentTrack and availableTracks to minimize how often this effect
+   * re-creates its setInterval. Previously, every PlaybackContext or data-refetch update
+   * tore down and recreated this interval, adding to the render cascade.
    */
+  const availableTracksRef = useRef(availableTracks);
+  availableTracksRef.current = availableTracks;
+  const onTrackFinishedRef = useRef(onTrackFinished);
+  onTrackFinishedRef.current = onTrackFinished;
+
   useEffect(() => {
-    if (!currentTrack) return;
+    if (!currentTrackRef.current) return;
 
     const checkInterval = setInterval(() => {
+      const curTrack = currentTrackRef.current;
+      if (!curTrack) return;
+
       const hasFinished = player.currentTime >= player.duration - 0.1 && player.duration > 0 && !player.playing;
 
       if (hasFinished && !isHandlingTrackEnd.current) {
         isHandlingTrackEnd.current = true;
 
-        if (onTrackFinished) {
-          onTrackFinished(currentTrack.id, currentTrack.title);
+        if (onTrackFinishedRef.current) {
+          onTrackFinishedRef.current(curTrack.id, curTrack.title);
         }
-        recordTrackPlay(currentTrack.id, player.duration, interactionCountsRef.current).catch(e =>
+        recordTrackPlay(curTrack.id, player.duration, interactionCountsRef.current).catch(e =>
           logger.warn('[Playback] Failed to record track play', e)
         );
         interactionCountsRef.current = { skipCount: 0, pauseCount: 0, seekCount: 0 };
 
-        const nextTrack = getNextTrack<T>(availableTracks as T[], currentTrack, shuffleEnabled, repeatMode);
+        const nextTrack = getNextTrack<T>(availableTracksRef.current as T[], curTrack, shuffleEnabled, repeatMode);
 
         if (nextTrack) {
-          const isReplayingSameTrack = nextTrack.id === currentTrack.id;
+          const isReplayingSameTrack = nextTrack.id === curTrack.id;
           setTimeout(() => {
             handlePlayTrack(nextTrack, isReplayingSameTrack).finally(() => {
               isHandlingTrackEnd.current = false;
@@ -474,19 +501,10 @@ export function useTrackPlayback<T extends PlayableTrack>(
       clearInterval(checkInterval);
       isHandlingTrackEnd.current = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- player.currentTime/duration/playing
-    // are intentionally omitted: the setInterval already polls them every 500ms. Including them
-    // here would cause the effect to tear down and re-create on every frame during playback,
-    // creating a render storm that triggers "Maximum update depth exceeded".
-  }, [
-    currentTrack,
-    shuffleEnabled,
-    repeatMode,
-    availableTracks,
-    updatePlaybackPhase,
-    handlePlayTrack,
-    onTrackFinished,
-  ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- currentTrack, availableTracks,
+    // and onTrackFinished are read via refs. player.currentTime/duration/playing are polled
+    // by setInterval every 500ms. Minimizing deps prevents constant effect teardown/recreation.
+  }, [shuffleEnabled, repeatMode, updatePlaybackPhase, handlePlayTrack, setCurrentTrack]);
 
   /**
    * Pause current track (Cast-aware)
@@ -516,7 +534,7 @@ export function useTrackPlayback<T extends PlayableTrack>(
         player.play();
       }
     } catch (error) {
-      const serialized = logError(error, 'Track Resume', currentTrack?.audioUrl || 'unknown');
+      const serialized = logError(error, 'Track Resume', currentTrackRef.current?.audioUrl || 'unknown');
       updatePlaybackPhase('idle');
       toast({
         title: t('hooks.playback.playbackError'),
@@ -524,7 +542,7 @@ export function useTrackPlayback<T extends PlayableTrack>(
         variant: 'destructive',
       });
     }
-  }, [player, updatePlaybackPhase, currentTrack, toast, t, isCasting, castPlay]);
+  }, [player, updatePlaybackPhase, toast, t, isCasting, castPlay]);
 
   /**
    * Clear current track and reset player state

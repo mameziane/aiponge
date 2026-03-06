@@ -104,11 +104,19 @@ export function PlaybackProvider({ children }: { children: ReactNode }) {
 
   const isPlaying = playbackPhase === 'playing' || playbackPhase === 'buffering';
 
+  // CRITICAL: Read currentTrack via ref so isCurrentTrack has a stable identity.
+  // Previously, isCurrentTrack depended on [currentTrack], which meant it was recreated
+  // every time the track changed. Since isCurrentTrack is in the stateValue memo deps,
+  // this caused the entire PlaybackStateContext value to change even when only the callback
+  // identity changed — forcing ALL consumers to re-render for no functional reason.
+  const currentTrackRef = useRef(currentTrack);
+  currentTrackRef.current = currentTrack;
+
   const isCurrentTrack = useCallback(
     (trackId: string) => {
-      return currentTrack?.id === trackId;
+      return currentTrackRef.current?.id === trackId;
     },
-    [currentTrack]
+    [] // Stable — reads currentTrack from ref
   );
 
   const setCurrentTrack = useCallback((track: PlaybackTrack | null) => {

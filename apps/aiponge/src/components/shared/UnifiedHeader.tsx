@@ -7,7 +7,7 @@ import { useThemeColors, BORDER_RADIUS } from '../../theme';
 import { AccountIconMenu } from '../profile/AccountIconMenu';
 import { MoreMenu } from './MoreMenu';
 import { NetworkStatusBanner } from '../system/NetworkStatusBanner';
-import { useSearch } from '../../stores';
+import { useSearchStore } from '../../stores/searchStore';
 import { useAuthState } from '../../hooks/auth';
 import { WellnessFlowModal } from '../wellness/WellnessFlowModal';
 
@@ -19,13 +19,20 @@ interface UnifiedHeaderProps {
 export function UnifiedHeader({ title, showBackButton = false }: UnifiedHeaderProps) {
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
-  const { query, setQuery, isSearchActive, setIsSearchActive, currentConfig } = useSearch();
+  // Individual selectors prevent re-renders when registerSearch() is called with a new config
+  // object. Previously used useSearch() which selected the full currentConfig reference —
+  // this caused UnifiedHeader to re-render on every tab focus (registerSearch creates a new
+  // config object), cascading through the render tree toward the 50-update depth limit.
+  const query = useSearchStore(state => state.query);
+  const setQuery = useSearchStore(state => state.setQuery);
+  const isSearchActive = useSearchStore(state => state.isSearchActive);
+  const setIsSearchActive = useSearchStore(state => state.setIsSearchActive);
+  const searchEnabled = useSearchStore(state => state.currentConfig?.enabled ?? false);
+  const searchPlaceholder = useSearchStore(state => state.currentConfig?.placeholder || 'Search...');
   const { isGuest } = useAuthState();
   const [isWellnessFlowOpen, setIsWellnessFlowOpen] = useState(false);
   const searchInputRef = useRef<TextInput>(null);
   const searchWidthAnim = useRef(new Animated.Value(0)).current;
-
-  const searchEnabled = currentConfig?.enabled ?? false;
 
   useEffect(() => {
     Animated.timing(searchWidthAnim, {
@@ -97,7 +104,7 @@ export function UnifiedHeader({ title, showBackButton = false }: UnifiedHeaderPr
                 ref={searchInputRef}
                 value={query}
                 onChangeText={setQuery}
-                placeholder={currentConfig?.placeholder || 'Search...'}
+                placeholder={searchPlaceholder}
                 placeholderTextColor={colors.text.secondary}
                 style={{
                   flex: 1,
