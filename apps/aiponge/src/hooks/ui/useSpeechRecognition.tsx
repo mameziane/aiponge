@@ -8,8 +8,10 @@
  */
 
 import { useState, useCallback, useRef } from 'react';
+import { Platform } from 'react-native';
 import { ExpoSpeechRecognitionModule, useSpeechRecognitionEvent } from 'expo-speech-recognition';
 import { logger } from '../../lib/logger';
+import { resetAudioSession } from '../music/audioSession';
 
 export interface SpeechRecognitionState {
   isListening: boolean;
@@ -51,6 +53,12 @@ export function useSpeechRecognition(options: SpeechRecognitionOptions = {}) {
     isSupported: true,
   });
 
+  // Debug log visible on screen (temporary — remove after debugging)
+  const [_debugLog, setDebugLog] = useState<string[]>([]);
+  const addDebug = useCallback((msg: string) => {
+    setDebugLog(prev => [...prev.slice(-9), `${new Date().toISOString().slice(11, 19)} ${msg}`]);
+  }, []);
+
   const optionsRef = useRef(options);
   optionsRef.current = options;
   const isListeningRef = useRef(false);
@@ -58,7 +66,7 @@ export function useSpeechRecognition(options: SpeechRecognitionOptions = {}) {
   // ── Expo event listeners (Expo event system via useEventListener) ──
 
   useSpeechRecognitionEvent('start', () => {
-    logger.info('[SR] start event fired');
+    addDebug('EVENT: start');
     setState(prev => ({ ...prev, isListening: true, error: null }));
     isListeningRef.current = true;
   });
@@ -66,13 +74,12 @@ export function useSpeechRecognition(options: SpeechRecognitionOptions = {}) {
   useSpeechRecognitionEvent('result', event => {
     const results = event.results;
     const isFinal = event.isFinal;
-    logger.info('[SR] result event', {
-      isFinal,
-      resultCount: results?.length ?? 0,
-      transcript: results?.[0]?.transcript?.slice(0, 60) ?? '<empty>',
-      isListeningRef: isListeningRef.current,
-    });
-    if (!isListeningRef.current) return;
+    const txt = results?.[0]?.transcript?.slice(0, 40) ?? '<empty>';
+    addDebug(`EVENT: result final=${isFinal} "${txt}"`);
+    if (!isListeningRef.current) {
+      addDebug('SKIP: isListeningRef=false');
+      return;
+    }
 
     const result = results?.[0];
     if (result) {
@@ -97,7 +104,7 @@ export function useSpeechRecognition(options: SpeechRecognitionOptions = {}) {
 
   useSpeechRecognitionEvent('error', event => {
     const errorMessage = event.message || event.error || 'Speech recognition error';
-    logger.error('[SR] error event', { error: errorMessage, code: event.error });
+    addDebug(`EVENT: error "${errorMessage}"`);
     setState(prev => ({
       ...prev,
       isListening: false,
@@ -105,13 +112,21 @@ export function useSpeechRecognition(options: SpeechRecognitionOptions = {}) {
     }));
     isListeningRef.current = false;
     optionsRef.current.onError?.(errorMessage);
+
+    // Reset audio session so music player can reconfigure on next play
+    resetAudioSession();
   });
 
   useSpeechRecognitionEvent('end', () => {
-    logger.info('[SR] end event fired');
+    addDebug('EVENT: end');
     setState(prev => ({ ...prev, isListening: false }));
     isListeningRef.current = false;
     optionsRef.current.onEnd?.();
+
+    // Speech recognition changed the audio session to playAndRecord.
+    // Reset the flag so the music player reconfigures its session (doNotMix +
+    // playsInSilentMode) on the next track play/resume.
+    resetAudioSession();
   });
 
   // ── Actions ──
@@ -142,27 +157,49 @@ export function useSpeechRecognition(options: SpeechRecognitionOptions = {}) {
         const recognitionLang = lang || optionsRef.current.lang || 'en-US';
         const mappedLang = LANGUAGE_MAP[recognitionLang] || recognitionLang;
 
-        const startOptions = {
+        const startOptions: Record<string, unknown> = {
           lang: mappedLang,
           interimResults: optionsRef.current.interimResults ?? true,
           maxAlternatives: optionsRef.current.maxAlternatives ?? 1,
           continuous: optionsRef.current.continuous ?? false,
           requiresOnDeviceRecognition: false,
         };
-        logger.info('[SR] startListening — calling native start()', { startOptions });
 
+        // iOS: Override the audio session to avoid conflicts with expo-audio's
+        // doNotMix playback session. The default `measurement` mode forces the
+        // built-in mic and can crash on iOS 26. Use `default` mode instead.
+        if (Platform.OS === 'ios') {
+          startOptions.iosCategory = {
+            category: 'playAndRecord',
+            categoryOptions: ['defaultToSpeaker', 'allowBluetooth', 'allowBluetoothA2DP'],
+            mode: 'default',
+          };
+        }
+
+        // Android: Use the default microphone source
+        if (Platform.OS === 'android') {
+          startOptions.androidIntentOptions = ['EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS'];
+        }
+
+        addDebug(`start() lang=${startOptions.lang} cont=${startOptions.continuous}`);
+
+        // Clear state before starting — but do NOT set isListening yet.
+        // The 'start' event from the native module will confirm it's actually listening.
         setState(prev => ({
           ...prev,
-          isListening: true,
           transcript: '',
           interimTranscript: '',
           error: null,
         }));
-        isListeningRef.current = true;
 
         ExpoSpeechRecognitionModule.start(startOptions);
 
-        logger.info('[SR] startListening — native start() returned (no throw)');
+        // If start() didn't throw, the native module accepted the request.
+        // The 'start' event will set isListening = true when recognition begins.
+        isListeningRef.current = true;
+        setState(prev => ({ ...prev, isListening: true }));
+
+        addDebug('start() returned OK');
         return true;
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Failed to start speech recognition';
@@ -226,5 +263,6 @@ export function useSpeechRecognition(options: SpeechRecognitionOptions = {}) {
     clearTranscript,
     clearError,
     requestPermissions,
+    _debugLog,
   };
 }
