@@ -55,20 +55,28 @@ export function useSpeechRecognition(options: SpeechRecognitionOptions = {}) {
   optionsRef.current = options;
   const isListeningRef = useRef(false);
 
-  // ── Expo event listeners (replace old NativeEventEmitter approach) ──
+  // ── Expo event listeners (Expo event system via useEventListener) ──
 
   useSpeechRecognitionEvent('start', () => {
+    logger.info('[SR] start event fired');
     setState(prev => ({ ...prev, isListening: true, error: null }));
     isListeningRef.current = true;
   });
 
   useSpeechRecognitionEvent('result', event => {
+    const results = event.results;
+    const isFinal = event.isFinal;
+    logger.info('[SR] result event', {
+      isFinal,
+      resultCount: results?.length ?? 0,
+      transcript: results?.[0]?.transcript?.slice(0, 60) ?? '<empty>',
+      isListeningRef: isListeningRef.current,
+    });
     if (!isListeningRef.current) return;
 
-    const result = event.results?.[0];
+    const result = results?.[0];
     if (result) {
       const transcript = result.transcript || '';
-      const isFinal = event.isFinal ?? false;
 
       if (isFinal) {
         setState(prev => ({
@@ -89,7 +97,7 @@ export function useSpeechRecognition(options: SpeechRecognitionOptions = {}) {
 
   useSpeechRecognitionEvent('error', event => {
     const errorMessage = event.message || event.error || 'Speech recognition error';
-    logger.error('[useSpeechRecognition] Recognition error', { event });
+    logger.error('[SR] error event', { error: errorMessage, code: event.error });
     setState(prev => ({
       ...prev,
       isListening: false,
@@ -100,6 +108,7 @@ export function useSpeechRecognition(options: SpeechRecognitionOptions = {}) {
   });
 
   useSpeechRecognitionEvent('end', () => {
+    logger.info('[SR] end event fired');
     setState(prev => ({ ...prev, isListening: false }));
     isListeningRef.current = false;
     optionsRef.current.onEnd?.();
@@ -133,6 +142,15 @@ export function useSpeechRecognition(options: SpeechRecognitionOptions = {}) {
         const recognitionLang = lang || optionsRef.current.lang || 'en-US';
         const mappedLang = LANGUAGE_MAP[recognitionLang] || recognitionLang;
 
+        const startOptions = {
+          lang: mappedLang,
+          interimResults: optionsRef.current.interimResults ?? true,
+          maxAlternatives: optionsRef.current.maxAlternatives ?? 1,
+          continuous: optionsRef.current.continuous ?? false,
+          requiresOnDeviceRecognition: false,
+        };
+        logger.info('[SR] startListening — calling native start()', { startOptions });
+
         setState(prev => ({
           ...prev,
           isListening: true,
@@ -142,14 +160,9 @@ export function useSpeechRecognition(options: SpeechRecognitionOptions = {}) {
         }));
         isListeningRef.current = true;
 
-        ExpoSpeechRecognitionModule.start({
-          lang: mappedLang,
-          interimResults: optionsRef.current.interimResults ?? true,
-          maxAlternatives: optionsRef.current.maxAlternatives ?? 1,
-          continuous: optionsRef.current.continuous ?? false,
-          requiresOnDeviceRecognition: false,
-        });
+        ExpoSpeechRecognitionModule.start(startOptions);
 
+        logger.info('[SR] startListening — native start() returned (no throw)');
         return true;
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Failed to start speech recognition';

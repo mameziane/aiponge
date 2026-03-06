@@ -2,6 +2,13 @@
  * Wellness Speech-to-Text Hook
  * Wraps useSpeechRecognition with auto-stop on 30s silence and min-length validation.
  * Falls back to text-only if speech recognition is unavailable.
+ *
+ * Uses refs for speech methods to avoid a dependency cascade:
+ *   useSpeechRecognition returns a new object on every state change
+ *   → all useCallbacks depending on `speech` recreate
+ *   → onResult/onEnd closures capture stale or transitioning references.
+ *
+ * By storing methods in speechRef, our callbacks remain stable.
  */
 
 import { useState, useCallback, useRef, useEffect } from 'react';
@@ -27,21 +34,10 @@ export function useSpeechToText(): SpeechToTextResult {
   const [manualTranscript, setManualTranscript] = useState('');
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const speech = useSpeechRecognition({
-    continuous: true,
-    interimResults: true,
-    onResult: (_transcript, isFinal) => {
-      // Reset silence timer on every result
-      resetSilenceTimer();
-      if (isFinal) {
-        setManualTranscript('');
-      }
-    },
-    onEnd: () => {
-      clearSilenceTimer();
-    },
-  });
+  // ── Ref to hold speech methods (stable across re-renders) ──
+  const speechRef = useRef<ReturnType<typeof useSpeechRecognition> | null>(null);
 
+  // ── Silence timer helpers (must be declared before useSpeechRecognition call) ──
   const clearSilenceTimer = useCallback(() => {
     if (silenceTimerRef.current) {
       clearTimeout(silenceTimerRef.current);
@@ -52,45 +48,64 @@ export function useSpeechToText(): SpeechToTextResult {
   const resetSilenceTimer = useCallback(() => {
     clearSilenceTimer();
     silenceTimerRef.current = setTimeout(() => {
-      speech.stopListening();
+      speechRef.current?.stopListening();
     }, SILENCE_TIMEOUT_MS);
-  }, [clearSilenceTimer, speech]);
+  }, [clearSilenceTimer]);
+
+  // ── Core speech recognition ──
+  const speech = useSpeechRecognition({
+    continuous: true,
+    interimResults: true,
+    onResult: (_transcript, isFinal) => {
+      // Reset silence timer on every result (interim or final)
+      resetSilenceTimer();
+      if (isFinal) {
+        setManualTranscript('');
+      }
+    },
+    onEnd: () => {
+      clearSilenceTimer();
+    },
+  });
+
+  // Keep ref in sync — always points to latest speech methods
+  speechRef.current = speech;
 
   // Cleanup on unmount
   useEffect(() => {
     return () => clearSilenceTimer();
   }, [clearSilenceTimer]);
 
+  // ── Stable actions (depend on refs, not the speech object) ──
+
   const start = useCallback(async (): Promise<boolean> => {
-    if (!speech.isAvailable) return false;
+    const s = speechRef.current;
+    if (!s?.isAvailable) return false;
     setManualTranscript('');
-    const started = await speech.startListening();
+    const started = await s.startListening();
     if (started) resetSilenceTimer();
     return started ?? false;
-  }, [speech, resetSilenceTimer]);
+  }, [resetSilenceTimer]);
 
   const stop = useCallback(() => {
     clearSilenceTimer();
-    speech.stopListening();
-  }, [speech, clearSilenceTimer]);
+    speechRef.current?.stopListening();
+  }, [clearSilenceTimer]);
 
   const reset = useCallback(() => {
     clearSilenceTimer();
-    speech.cancelListening();
-    speech.clearTranscript();
+    speechRef.current?.cancelListening();
+    speechRef.current?.clearTranscript();
     setManualTranscript('');
-  }, [speech, clearSilenceTimer]);
+  }, [clearSilenceTimer]);
 
-  const setTranscript = useCallback(
-    (text: string) => {
-      setManualTranscript(text);
-      // If user types manually, clear the speech transcript
-      if (text && speech.transcript) {
-        speech.clearTranscript();
-      }
-    },
-    [speech]
-  );
+  const setTranscript = useCallback((text: string) => {
+    setManualTranscript(text);
+    // If user types manually, clear the speech transcript
+    if (text && speechRef.current?.transcript) {
+      speechRef.current.clearTranscript();
+    }
+  }, []);
 
   // Combine speech + manual transcript (manual overrides speech if set)
   const effectiveTranscript = manualTranscript || speech.transcript;
