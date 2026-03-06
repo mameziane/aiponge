@@ -188,7 +188,11 @@ export const DraftTrackCard = memo(
         });
         if (isPlayingPreviewRef.current && !wasCompleted) {
           logger.debug('[DraftTrackCard] Pausing preview on unmount (not completed)');
-          player.pause();
+          try {
+            player.pause();
+          } catch {
+            // Native player object may already be deallocated during navigation
+          }
           clearStreamingPreviewPlaying(generationId);
         } else if (isPlayingPreviewRef.current && wasCompleted) {
           logger.debug('[DraftTrackCard] NOT pausing - track completed, MusicScreen will handle transition');
@@ -199,7 +203,11 @@ export const DraftTrackCard = memo(
     // Handle failure case - stop playback
     useEffect(() => {
       if (generation.status === 'failed' && isPlayingPreview) {
-        player.pause();
+        try {
+          player.pause();
+        } catch {
+          // Native player object may already be deallocated
+        }
         setIsPlayingPreview(false);
         clearStreamingPreviewPlaying(generation.id);
       }
