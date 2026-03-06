@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { trackGenerationEvents, type TrackCompletionEvent } from '../../stores';
 import { useTranslation } from '../../i18n';
 import { useToast } from '../ui/use-toast';
@@ -58,5 +58,5 @@ export function useTrackCompletionHandler({ refetch, onAutoPlayReady }: UseTrack
     return unsubscribe;
   }, [toast, t, refetch, onAutoPlayReady]);
 
-  return { isRefetchingAfterCompletion };
+  return useMemo(() => ({ isRefetchingAfterCompletion }), [isRefetchingAfterCompletion]);
 }

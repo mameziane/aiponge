@@ -5,7 +5,7 @@
  * Users can personalize their screen by collapsing sections they don't need.
  */
 
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useAsyncStorageState } from './useAsyncStorageState';
 
 export interface CollapsibleSectionsState {
@@ -71,12 +71,15 @@ export function useCollapsibleSections(screenKey: string) {
     await setSectionsState(DEFAULT_SECTIONS_STATE);
   }, [setSectionsState]);
 
-  return {
-    isSectionExpanded,
-    toggleSection,
-    expandSection,
-    collapseSection,
-    resetAll,
-    isLoading,
-  };
+  return useMemo(
+    () => ({
+      isSectionExpanded,
+      toggleSection,
+      expandSection,
+      collapseSection,
+      resetAll,
+      isLoading,
+    }),
+    [isSectionExpanded, toggleSection, expandSection, collapseSection, resetAll, isLoading]
+  );
 }

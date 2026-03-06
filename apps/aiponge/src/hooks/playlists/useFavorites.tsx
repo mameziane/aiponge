@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { CONTENT_VISIBILITY, type ServiceResponse } from '@aiponge/shared-contracts';
 import { apiRequest } from '../../lib/axiosApiClient';
@@ -250,15 +250,29 @@ export function useFavorites(userId: string) {
     [trackIdsInFavorites]
   );
 
-  return {
-    favoritesPlaylist,
-    isLoading: isLoadingPlaylists || isLoadingTracks,
-    isFavorite,
-    toggleFavorite,
-    toggleFavoritesBatch,
-    isToggling: addToFavoritesMutation.isPending || removeFromFavoritesMutation.isPending,
-    isBatchToggling: batchFavorites.isPending,
-  };
+  const isToggling = addToFavoritesMutation.isPending || removeFromFavoritesMutation.isPending;
+  const isLoadingFavorites = isLoadingPlaylists || isLoadingTracks;
+
+  return useMemo(
+    () => ({
+      favoritesPlaylist,
+      isLoading: isLoadingFavorites,
+      isFavorite,
+      toggleFavorite,
+      toggleFavoritesBatch,
+      isToggling,
+      isBatchToggling: batchFavorites.isPending,
+    }),
+    [
+      favoritesPlaylist,
+      isLoadingFavorites,
+      isFavorite,
+      toggleFavorite,
+      toggleFavoritesBatch,
+      isToggling,
+      batchFavorites.isPending,
+    ]
+  );
 }
 
 export function useAlbumFavorites(userId: string | undefined) {

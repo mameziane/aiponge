@@ -3,7 +3,7 @@ import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-nati
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useFocusEffect, type Href } from 'expo-router';
 import { useTranslation } from '../../i18n';
-import { useSearch } from '../../stores';
+import { useSearchStore } from '../../stores/searchStore';
 import { useGlobalAudioPlayer } from '../../contexts/AudioPlayerContext';
 import { usePlaybackState, usePlaybackQueue } from '../../contexts/PlaybackContext';
 import { useExploreData, type ExploreTrack, type UserCreation } from '../../hooks/playlists/useExploreData';
@@ -63,8 +63,12 @@ export function DiscoverScreen() {
   // Position to seek to when auto-playing (for seamless resume from preview)
   const pendingSeekPosition = useRef<number>(0);
 
-  // Search functionality
-  const { query: searchQuery, isSearchActive, registerSearch, unregisterSearch } = useSearch();
+  // Search functionality — use individual selectors to avoid re-renders from
+  // currentConfig changes (useSearch() selects currentConfig which changes on registerSearch)
+  const searchQuery = useSearchStore(state => state.query);
+  const isSearchActive = useSearchStore(state => state.isSearchActive);
+  const registerSearch = useSearchStore(state => state.registerSearch);
+  const unregisterSearch = useSearchStore(state => state.unregisterSearch);
   const [localSearchQuery, setLocalSearchQuery] = useState('');
 
   // Playback controls state
