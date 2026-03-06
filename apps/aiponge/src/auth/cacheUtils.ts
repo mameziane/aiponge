@@ -6,7 +6,6 @@
 import { QueryClient } from '@tanstack/react-query';
 import type { ServiceResponse } from '@aiponge/shared-contracts';
 import { queryClient } from '../lib/reactQueryClient';
-import { apiClient } from '../lib/axiosApiClient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { queryKeys } from '../lib/queryKeys';
 import { logger } from '../lib/logger';
@@ -158,20 +157,14 @@ export function shouldBypassExploreCache(): boolean {
  */
 export async function forceRefreshExplore(): Promise<void> {
   // Mark that explore should bypass cache for the full cache lifetime (7 minutes)
+  // The queryFn in useExploreData checks shouldBypassExploreCache() and adds the
+  // x-cache-revalidate header automatically, so we just need to invalidate.
   exploreCacheBypassUntil = Date.now() + API_GATEWAY_FULL_CACHE_LIFETIME_MS;
 
-  try {
-    // Make a fresh request with cache bypass header to bypass API Gateway cache
-    const freshData = await apiClient.get('/api/v1/app/library/explore', {
-      headers: {
-        'x-cache-revalidate': 'true',
-      },
-    });
-    // Directly update React Query cache with fresh data - no refetch needed
-    queryClient.setQueryData(queryKeys.tracks.explore(), freshData);
-  } catch {
-    // Silent fail - explore will update on next natural refresh
-  }
+  // Let React Query re-execute the queryFn which runs normalizeTracks() on the data.
+  // Previously this used setQueryData with raw API data, bypassing normalization
+  // (URL normalization, field fallbacks) and causing cache shape mismatches.
+  await queryClient.invalidateQueries({ queryKey: queryKeys.tracks.explore() });
 }
 
 /**
@@ -182,16 +175,9 @@ export async function forceRefreshExplore(): Promise<void> {
  * appear immediately — invalidateQueries alone may fetch stale gateway-cached data.
  */
 export async function forceRefreshPublicAlbums(): Promise<void> {
-  try {
-    const freshData = await apiClient.get('/api/v1/app/library/public-albums', {
-      headers: {
-        'x-cache-revalidate': 'true',
-      },
-    });
-    queryClient.setQueryData(queryKeys.albums.public(), freshData);
-  } catch {
-    // Silent fail - albums will update on next natural refresh
-  }
+  // Same pattern as forceRefreshExplore: let React Query re-execute the queryFn
+  // so data goes through proper normalization (normalizeMediaUrl, etc.)
+  await queryClient.invalidateQueries({ queryKey: queryKeys.albums.public() });
 }
 
 /**

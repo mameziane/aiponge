@@ -160,7 +160,12 @@ export function UnifiedHeader({ title, showBackButton = false }: UnifiedHeaderPr
         )}
       </View>
       <NetworkStatusBanner />
-      <WellnessFlowModal visible={isWellnessFlowOpen} onClose={() => setIsWellnessFlowOpen(false)} />
+      {/* Lazy-mount: only render WellnessFlowModal when user opens it.
+          This prevents 5 wellness hooks from running on every screen mount,
+          which was causing "Maximum update depth exceeded" on heavy screens. */}
+      {isWellnessFlowOpen && (
+        <WellnessFlowModal visible={isWellnessFlowOpen} onClose={() => setIsWellnessFlowOpen(false)} />
+      )}
     </>
   );
 }

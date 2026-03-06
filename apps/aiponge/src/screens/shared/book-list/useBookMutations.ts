@@ -67,13 +67,44 @@ export function useBookMutations({ refetchManageBooks, t, userId }: BookMutation
           // Personal books must be writable so the user can edit generated entries
           ...(vis === CONTENT_VISIBILITY.PERSONAL && { isReadOnly: false }),
         },
-      })) as { data?: { book?: { id: string }; id?: string }; book?: { id: string }; id?: string };
+      })) as { success?: boolean; data?: { book?: { id: string }; id?: string }; book?: { id: string }; id?: string };
+
+      // Always invalidate book caches — even if bookId extraction fails the book may exist
       invalidateOnEvent(queryClient, { type: 'LIBRARY_BOOK_CREATED' });
+
+      if (response?.success === false) {
+        logger.warn('[useBookMutations] Book creation returned success:false', {
+          blueprintTitle: blueprint.title,
+          responseKeys: response ? Object.keys(response) : [],
+        });
+        toast({
+          title: t('common.error'),
+          description: t('librarian.books.createFailed') || 'Failed to create book',
+          variant: 'destructive',
+        });
+        return;
+      }
+
       const bookId = response?.data?.book?.id || response?.data?.id || response?.book?.id || response?.id;
+      if (!bookId) {
+        // Book likely created but response shape unexpected — log for debugging
+        logger.warn('[useBookMutations] Book created but bookId not found in response', {
+          blueprintTitle: blueprint.title,
+          responseKeys: response ? Object.keys(response) : [],
+          dataKeys: response?.data ? Object.keys(response.data) : [],
+        });
+      }
       if (bookId && !options?.skipNavigation) {
         router.push(`/book-detail?bookId=${bookId}` as Href);
       }
     } catch (error) {
+      // Invalidate caches even on error — the server may have created the book
+      // before the error occurred (timeout, partial failure, etc.)
+      try {
+        invalidateOnEvent(queryClient, { type: 'LIBRARY_BOOK_CREATED' });
+      } catch {
+        // Best-effort cache invalidation
+      }
       logger.error('[useBookMutations] Create book from blueprint failed', error instanceof Error ? error : undefined, {
         blueprintTitle: blueprint.title,
         bookTypeId,
