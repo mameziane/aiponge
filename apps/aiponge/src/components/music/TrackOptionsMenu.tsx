@@ -12,7 +12,8 @@ import { logger } from '../../lib/logger';
 import { LiquidGlassView } from '../ui';
 import { useAuthStore, selectUser } from '../../auth/store';
 import { useIsAdmin } from '../../hooks/admin/useAdminQuery';
-import { useTrackDownload } from '../../offline/useTrackDownload';
+import { useDownloadStore, selectIsDownloaded, selectDownloadStatus } from '../../offline/store';
+import { isOfflineSupported } from '../../offline/offlineEnv';
 import { useSubscriptionData } from '../../contexts/SubscriptionContext';
 
 export interface TrackForMenu {
@@ -73,25 +74,12 @@ export function TrackOptionsMenu({
   const isAdmin = useIsAdmin();
   const { tierConfig } = useSubscriptionData();
 
-  // Offline download support
-  const trackDownloadInfo = useMemo(() => {
-    if (!track.audioUrl) return null;
-    return {
-      trackId: track.id,
-      title: track.title,
-      displayName: track.displayName || 'Unknown',
-      duration: track.duration || 0,
-      artworkUrl: track.artworkUrl,
-      audioUrl: track.audioUrl,
-    };
-  }, [track]);
-
-  const {
-    state: downloadState,
-    isOfflineSupported,
-    startDownload,
-    removeDownload,
-  } = useTrackDownload(trackDownloadInfo);
+  // Offline download — use lightweight selectors (primitive values) instead of
+  // useTrackDownload/useOfflineDownload which subscribe to the entire Zustand store
+  // and cause infinite re-render cascades.
+  const trackIsDownloaded = useDownloadStore(selectIsDownloaded(track.id));
+  const trackDownloadStatus = useDownloadStore(selectDownloadStatus(track.id));
+  const trackIsDownloading = trackDownloadStatus === 'downloading' || trackDownloadStatus === 'pending';
 
   const handleSetReminder = () => {
     onClose();
@@ -171,25 +159,36 @@ export function TrackOptionsMenu({
       return;
     }
 
-    if (downloadState.isDownloaded) {
-      // Already downloaded - offer to remove
+    const store = useDownloadStore.getState();
+
+    if (trackIsDownloaded) {
       Alert.alert(t('offline.removeDownload'), t('offline.removeDownloadConfirm', { title: track.title }), [
         { text: t('common.cancel'), style: 'cancel' },
         {
           text: t('common.remove'),
           style: 'destructive',
           onPress: async () => {
-            await removeDownload();
+            await store.removeDownload(track.id);
             onClose();
           },
         },
       ]);
-    } else if (downloadState.isDownloading) {
-      // Already downloading - just close
+    } else if (trackIsDownloading) {
       onClose();
-    } else {
-      // Start download
-      await startDownload();
+    } else if (track.audioUrl) {
+      try {
+        await store.addToQueue({
+          id: track.id,
+          title: track.title,
+          displayName: track.displayName || 'Unknown',
+          duration: track.duration || 0,
+          artworkUrl: track.artworkUrl,
+          audioUrl: track.audioUrl,
+        });
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : 'Download failed';
+        logger.error('Failed to start download', { trackId: track.id, error: msg });
+      }
       onClose();
     }
   };
@@ -293,19 +292,15 @@ export function TrackOptionsMenu({
     },
     {
       id: 'download',
-      icon: downloadState.isDownloaded
-        ? 'checkmark-circle'
-        : downloadState.isDownloading
-          ? 'cloud-download'
-          : 'cloud-download-outline',
-      label: downloadState.isDownloaded
+      icon: trackIsDownloaded ? 'checkmark-circle' : trackIsDownloading ? 'cloud-download' : 'cloud-download-outline',
+      label: trackIsDownloaded
         ? t('offline.downloaded')
-        : downloadState.isDownloading
+        : trackIsDownloading
           ? t('offline.downloading')
           : t('offline.downloadForOffline'),
       onPress: handleDownload,
       hidden: !track.audioUrl || !tierConfig.canDownload,
-      iconColor: downloadState.isDownloaded ? colors.semantic.success : undefined,
+      iconColor: trackIsDownloaded ? colors.semantic.success : undefined,
     },
     {
       id: 'lyrics',

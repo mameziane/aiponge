@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { View, TouchableOpacity, StyleSheet, GestureResponderEvent } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useThemeColors } from '../../theme';
@@ -43,18 +43,32 @@ export function useTrackOptionsMenu(track: TrackMenuData): UseTrackOptionsMenuRe
     setShowOptionsMenu(true);
   }, []);
 
-  const trackForMenu: TrackForMenu = {
-    id: track.id,
-    title: track.title,
-    displayName: track.displayName || undefined,
-    artworkUrl: track.artworkUrl,
-    audioUrl: track.audioUrl,
-    duration: track.duration,
-    lyricsId: track.lyricsId,
-    hasSyncedLyrics: track.hasSyncedLyrics,
-    isUserGenerated: track.isUserGenerated,
-    playOnDate: track.playOnDate,
-  };
+  const trackForMenu: TrackForMenu = useMemo(
+    () => ({
+      id: track.id,
+      title: track.title,
+      displayName: track.displayName || undefined,
+      artworkUrl: track.artworkUrl,
+      audioUrl: track.audioUrl,
+      duration: track.duration,
+      lyricsId: track.lyricsId,
+      hasSyncedLyrics: track.hasSyncedLyrics,
+      isUserGenerated: track.isUserGenerated,
+      playOnDate: track.playOnDate,
+    }),
+    [
+      track.id,
+      track.title,
+      track.displayName,
+      track.artworkUrl,
+      track.audioUrl,
+      track.duration,
+      track.lyricsId,
+      track.hasSyncedLyrics,
+      track.isUserGenerated,
+      track.playOnDate,
+    ]
+  );
 
   return {
     showOptionsMenu,

@@ -64,20 +64,22 @@ function TrackCard({ track, index, playing, onPlay, onDelete, styles, colors }: 
           style={styles.moreButton}
         />
       </TouchableOpacity>
-      <TrackOptionsMenu
-        visible={showMenu}
-        onClose={() => setShowMenu(false)}
-        track={{
-          id: track.id,
-          title: track.title,
-          displayName: track.displayName || '',
-          artworkUrl: track.artworkUrl,
-          audioUrl: track.audioUrl,
-          duration: track.duration,
-        }}
-        onRemoveFromLibrary={() => onDelete(track.id, track.title)}
-        showEditOption={false}
-      />
+      {showMenu && (
+        <TrackOptionsMenu
+          visible
+          onClose={() => setShowMenu(false)}
+          track={{
+            id: track.id,
+            title: track.title,
+            displayName: track.displayName || '',
+            artworkUrl: track.artworkUrl,
+            audioUrl: track.audioUrl,
+            duration: track.duration,
+          }}
+          onRemoveFromLibrary={() => onDelete(track.id, track.title)}
+          showEditOption={false}
+        />
+      )}
     </>
   );
 }

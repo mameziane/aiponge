@@ -3,10 +3,10 @@
  * [Cancel] [Done] — Done disabled until 5+ chars.
  */
 
-import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useThemeColors } from '../../theme';
+import { AnimatedWaveform } from '../music/AnimatedWaveform';
 import type { SpeechToTextResult } from '../../hooks/wellness';
 
 interface CaptureStateProps {
@@ -46,16 +46,16 @@ export function CaptureState({ speech, onDone, onCancel }: CaptureStateProps) {
               width: 80,
               height: 80,
               borderRadius: 40,
-              backgroundColor: speech.isListening ? colors.brand.primary : colors.background.subtle,
+              backgroundColor: speech.isListening ? '#EF4444' : colors.background.subtle,
               justifyContent: 'center',
               alignItems: 'center',
             }}
             testID="wellness-mic-button"
           >
             {speech.isListening ? (
-              <ActivityIndicator color="#fff" size="small" />
+              <AnimatedWaveform size="large" color="#fff" />
             ) : (
-              <Ionicons name="mic" size={36} color={speech.isListening ? '#fff' : colors.text.primary} />
+              <Ionicons name="mic" size={36} color={colors.text.primary} />
             )}
           </TouchableOpacity>
           {speech.isListening && (
@@ -64,24 +64,9 @@ export function CaptureState({ speech, onDone, onCancel }: CaptureStateProps) {
         </View>
       )}
 
-      {/* Interim transcript */}
-      {speech.interimTranscript ? (
-        <Text
-          style={{
-            fontSize: 14,
-            color: colors.text.secondary,
-            fontStyle: 'italic',
-            textAlign: 'center',
-            marginBottom: 12,
-          }}
-        >
-          {speech.interimTranscript}
-        </Text>
-      ) : null}
-
-      {/* Text input (manual or displays speech result) */}
+      {/* Text input — shows speech transcript + interim results inline */}
       <TextInput
-        value={speech.transcript}
+        value={speech.interimTranscript ? `${speech.transcript} ${speech.interimTranscript}`.trim() : speech.transcript}
         onChangeText={speech.setTranscript}
         placeholder="Or type here..."
         placeholderTextColor={colors.text.secondary}
@@ -102,28 +87,6 @@ export function CaptureState({ speech, onDone, onCancel }: CaptureStateProps) {
       {/* Error */}
       {speech.error && (
         <Text style={{ color: '#FF4444', fontSize: 13, marginTop: 8, textAlign: 'center' }}>{speech.error}</Text>
-      )}
-
-      {/* Debug overlay — TEMPORARY: remove after fixing speech recognition */}
-      {speech._debugLog && speech._debugLog.length > 0 && (
-        <ScrollView
-          style={{
-            marginTop: 8,
-            padding: 8,
-            backgroundColor: '#1a1a2e',
-            borderRadius: 8,
-            maxHeight: 180,
-          }}
-        >
-          <Text style={{ color: '#00ff88', fontSize: 10, fontWeight: '700', marginBottom: 2 }}>
-            SR Debug ({speech._debugLog.length})
-          </Text>
-          {speech._debugLog.map((line, i) => (
-            <Text key={i} style={{ color: '#aaffcc', fontSize: 9 }}>
-              {line}
-            </Text>
-          ))}
-        </ScrollView>
       )}
 
       {/* Action Buttons */}

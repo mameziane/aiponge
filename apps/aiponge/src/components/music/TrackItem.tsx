@@ -190,17 +190,19 @@ function TrackItemComponent({
         {children}
       </TouchableOpacity>
 
-      <TrackOptionsMenu
-        visible={showOptionsMenu}
-        onClose={closeOptionsMenu}
-        track={trackForMenu}
-        isFavorite={isFavorite}
-        onToggleFavorite={onToggleFavorite}
-        onShowLyrics={onShowLyrics}
-        onRemoveFromLibrary={onRemoveFromLibrary}
-        onTrackUpdated={onTrackUpdated}
-        showEditOption={showEditOption}
-      />
+      {showOptionsMenu && (
+        <TrackOptionsMenu
+          visible
+          onClose={closeOptionsMenu}
+          track={trackForMenu}
+          isFavorite={isFavorite}
+          onToggleFavorite={onToggleFavorite}
+          onShowLyrics={onShowLyrics}
+          onRemoveFromLibrary={onRemoveFromLibrary}
+          onTrackUpdated={onTrackUpdated}
+          showEditOption={showEditOption}
+        />
+      )}
     </>
   );
 }
