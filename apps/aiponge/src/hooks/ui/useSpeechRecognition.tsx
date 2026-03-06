@@ -200,18 +200,34 @@ export function useSpeechRecognition(options: SpeechRecognitionOptions = {}) {
           addDebug('session yielded');
         }
 
-        // MINIMAL config — no iosCategory, no taskHint, no on-device.
-        // Let the library use its proven defaults to isolate the issue.
         const startOptions: Record<string, unknown> = {
           lang: mappedLang,
           interimResults: optionsRef.current.interimResults ?? true,
           maxAlternatives: 1,
-          continuous: false,
+          continuous: optionsRef.current.continuous ?? false,
           requiresOnDeviceRecognition: false,
+          addsPunctuation: true,
           volumeChangeEventOptions: { enabled: true, intervalMillis: 50 },
         };
 
-        addDebug(`start() lang=${mappedLang} server cont=false`);
+        if (Platform.OS === 'ios') {
+          // Force LOCAL-ONLY audio routing. Without this, iOS routes the
+          // playAndRecord session to the HomePod (or other AirPlay/Bluetooth
+          // output device), which hijacks the mic input and triggers Siri.
+          //
+          // - defaultToSpeaker: routes output to iPhone speaker (not HomePod)
+          // - NO allowBluetooth: prevents routing to BT devices
+          // - NO allowBluetoothA2DP: prevents routing to BT streaming devices
+          // - NO allowAirPlay: prevents routing to HomePod/AirPlay
+          startOptions.iosCategory = {
+            category: 'playAndRecord',
+            categoryOptions: ['defaultToSpeaker'],
+            mode: 'default',
+          };
+          startOptions.iosTaskHint = 'dictation';
+        }
+
+        addDebug(`start() lang=${mappedLang} LOCAL-ONLY`);
 
         // Clear state before starting — but do NOT set isListening yet.
         // The 'start' event from the native module will confirm it's actually listening.
