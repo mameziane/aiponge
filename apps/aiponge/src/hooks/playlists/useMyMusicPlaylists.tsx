@@ -1,7 +1,12 @@
+import { useMemo } from 'react';
 import type { ContentVisibility, ServiceResponse } from '@aiponge/shared-contracts';
 import { useAuthStore, selectUserId } from '../../auth/store';
 import { useApiQuery } from '../system/useAppQuery';
 import { queryKeys } from '../../lib/queryKeys';
+
+// Module-level empty array — stable reference prevents re-renders when no playlists exist.
+// Without this, `?? []` creates a new array on every render, cascading through all consumers.
+const EMPTY_PLAYLISTS: MyPlaylist[] = [];
 
 export interface MyPlaylist {
   id: string;
@@ -36,13 +41,22 @@ export function useMyMusicPlaylists() {
     silentError: true,
   });
 
-  const playlists = playlistsResponse?.data?.playlists ?? [];
+  // Memoize playlists to prevent new array references on every render.
+  // The raw `?? []` would create a new empty array each render, cascading through
+  // all callbacks that depend on playlists (handleTrackTap, ListHeaderComponent, etc.)
+  const playlists = useMemo(
+    () => playlistsResponse?.data?.playlists ?? EMPTY_PLAYLISTS,
+    [playlistsResponse?.data?.playlists]
+  );
   const total = playlistsResponse?.data?.total ?? 0;
 
-  return {
-    playlists,
-    total,
-    isLoadingPlaylists,
-    isPlaylistsError,
-  };
+  return useMemo(
+    () => ({
+      playlists,
+      total,
+      isLoadingPlaylists,
+      isPlaylistsError,
+    }),
+    [playlists, total, isLoadingPlaylists, isPlaylistsError]
+  );
 }

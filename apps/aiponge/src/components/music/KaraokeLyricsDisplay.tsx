@@ -69,10 +69,18 @@ function cleanLinesPreservingStructure(lines: SyncedLine[]): CleanedLine[] {
 
       if (cleanedWords.length === 0) continue;
 
+      // Reconstruct line text by joining words as-is (preserving original spacing from MusicAPI.ai).
+      // MusicAPI returns syllable-level alignment where new words start with a space (" und")
+      // and syllable continuations have no space ("en" for the second syllable of "Einsen").
+      // Using .trim().join(' ') was WRONG — it forced spaces between syllables, producing
+      // "Eins en" instead of "Einsen", "K opf" instead of "Kopf", etc.
       result.push({
         startTime: getWordStartSeconds(cleanedWords[0]),
         endTime: getWordEndSeconds(cleanedWords[cleanedWords.length - 1]),
-        text: cleanedWords.map(w => w.word.trim()).join(' '),
+        text: cleanedWords
+          .map(w => w.word.replace(/\n/g, ''))
+          .join('')
+          .trim(),
         words: cleanedWords,
       });
     } else {
@@ -302,8 +310,7 @@ function KaraokeLyricsDisplayInner({
                     >
                       {line.words!.map((word, wordIndex) => (
                         <Text key={wordIndex} style={getWordStyle(lineIndex, wordIndex)}>
-                          {wordIndex > 0 && !word.word.startsWith(' ') ? ' ' : ''}
-                          {word.word}
+                          {wordIndex === 0 ? word.word.trimStart() : word.word}
                         </Text>
                       ))}
                     </Text>

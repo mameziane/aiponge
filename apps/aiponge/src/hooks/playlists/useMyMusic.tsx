@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '../../lib/axiosApiClient';
 import { useToast } from '../ui/use-toast';
@@ -77,6 +77,19 @@ export function useMyMusic() {
       availableTracks: tracks, // Pass current track list for auto-advance
     });
 
+  // CRITICAL: Refs for values that change frequently but are only READ inside callbacks.
+  // Using refs instead of useCallback deps prevents handleNextTrack/handlePreviousTrack/
+  // handleTogglePlayPause from being recreated on every PlaybackContext update (currentTrack/
+  // isPlaying change) or React Query refetch (tracks change). Without this, every playback
+  // state change cascades through all callbacks and their consumers, contributing to the
+  // "Maximum update depth exceeded" crash — the same pattern fixed in useTrackPlayback.
+  const tracksRef = useRef(tracks);
+  tracksRef.current = tracks;
+  const currentTrackRef = useRef(currentTrack);
+  currentTrackRef.current = currentTrack;
+  const isPlayingRef = useRef(isPlaying);
+  isPlayingRef.current = isPlaying;
+
   // Delete track mutation with optimistic updates for instant UI feedback
   const deleteMutation = useMutation({
     mutationFn: async (trackId: string) => {
@@ -128,7 +141,7 @@ export function useMyMusic() {
 
       // Stop playback and clear state if deleted track is currently loaded
       // This prevents stale playback state from blocking future track playback
-      if (currentTrack?.id === trackId) {
+      if (currentTrackRef.current?.id === trackId) {
         clearCurrentTrack();
       }
 
@@ -170,35 +183,42 @@ export function useMyMusic() {
   );
 
   // Navigate to next track
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- tracks and currentTrack read via refs
+  // to prevent callback recreation on every PlaybackContext update or data refetch
   const handleNextTrack = useCallback(() => {
-    const nextTrack = getNextTrack(tracks, currentTrack, shuffleEnabled, repeatMode);
+    const nextTrack = getNextTrack(tracksRef.current, currentTrackRef.current, shuffleEnabled, repeatMode);
     if (nextTrack) {
       handlePlayTrack(nextTrack);
     }
-  }, [tracks, currentTrack, shuffleEnabled, repeatMode, handlePlayTrack]);
+  }, [shuffleEnabled, repeatMode, handlePlayTrack]);
 
   // Navigate to previous track
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- tracks and currentTrack read via refs
   const handlePreviousTrack = useCallback(() => {
-    const prevTrack = getPreviousTrack(tracks, currentTrack, shuffleEnabled, repeatMode);
+    const prevTrack = getPreviousTrack(tracksRef.current, currentTrackRef.current, shuffleEnabled, repeatMode);
     if (prevTrack) {
       handlePlayTrack(prevTrack);
     }
-  }, [tracks, currentTrack, shuffleEnabled, repeatMode, handlePlayTrack]);
+  }, [shuffleEnabled, repeatMode, handlePlayTrack]);
 
   // Toggle play/pause
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- currentTrack, tracks, isPlaying read via refs
   const handleTogglePlayPause = useCallback(() => {
-    if (!currentTrack && tracks.length > 0) {
+    const curTrack = currentTrackRef.current;
+    const curTracks = tracksRef.current;
+    const playing = isPlayingRef.current;
+    if (!curTrack && curTracks.length > 0) {
       // No track playing, start from first track
-      handlePlayTrack(tracks[0]);
-    } else if (currentTrack) {
+      handlePlayTrack(curTracks[0]);
+    } else if (curTrack) {
       // Toggle current track play/pause
-      if (isPlaying) {
+      if (playing) {
         pause();
       } else {
         resume();
       }
     }
-  }, [currentTrack, tracks, isPlaying, handlePlayTrack, pause, resume]);
+  }, [handlePlayTrack, pause, resume]);
 
   return {
     // Data

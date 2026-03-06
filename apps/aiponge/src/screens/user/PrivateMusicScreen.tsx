@@ -1,5 +1,5 @@
 import type { ServiceResponse } from '@aiponge/shared-contracts';
-import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { View, Text, TouchableOpacity, FlatList, StyleSheet, Animated, Alert, Share } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
@@ -229,6 +229,16 @@ export function PrivateMusicScreen() {
   // Playback queue context for cross-screen navigation
   const { setQueue } = usePlaybackQueue();
 
+  // CRITICAL: Refs for values that change frequently but are only READ inside callbacks.
+  // Reading via refs prevents handleTrackTap/handleTrackLongPress from being recreated
+  // on every data refetch or playback state change, breaking the re-render cascade.
+  const tracksRef = useRef(tracks);
+  tracksRef.current = tracks;
+  const playlistsRef = useRef(playlists);
+  playlistsRef.current = playlists;
+  const currentTrackRef = useRef(currentTrack);
+  currentTrackRef.current = currentTrack;
+
   // Convert tracks to queue format
   const queueTracks = useMemo(
     () =>
@@ -244,14 +254,17 @@ export function PrivateMusicScreen() {
       })),
     [tracks]
   );
+  const queueTracksRef = useRef(queueTracks);
+  queueTracksRef.current = queueTracks;
 
   // Handle track tap: toggle play/pause and set queue
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- tracks, queueTracks, playlists read via refs
   const handleTrackTap = useCallback(
     (track: MyMusicTrack) => {
-      const trackIndex = tracks.findIndex(t => t.id === track.id);
-      const playlistTitle = playlists.find(p => p.id === selectedPlaylistId)?.name;
+      const trackIndex = tracksRef.current.findIndex(t => t.id === track.id);
+      const playlistTitle = playlistsRef.current.find(p => p.id === selectedPlaylistId)?.name;
       setQueue(
-        queueTracks,
+        queueTracksRef.current,
         {
           type: selectedPlaylistId ? 'playlist' : 'library',
           id: selectedPlaylistId || 'my-music',
@@ -261,16 +274,17 @@ export function PrivateMusicScreen() {
       );
       handlePlayTrack(track);
     },
-    [handlePlayTrack, tracks, queueTracks, setQueue, selectedPlaylistId, playlists, t]
+    [handlePlayTrack, setQueue, selectedPlaylistId, t]
   );
 
   // Handle long press: navigate to track detail screen
   // If track is already playing, just show full screen without restarting
   // If different track, start playing it first
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- currentTrack read via ref
   const handleTrackLongPress = useCallback(
     async (track: MyMusicTrack) => {
       // Only start playing if it's a different track
-      if (currentTrack?.id !== track.id) {
+      if (currentTrackRef.current?.id !== track.id) {
         await handlePlayTrack(track);
       }
       router.push({
@@ -278,7 +292,7 @@ export function PrivateMusicScreen() {
         params: { track: JSON.stringify(track) },
       });
     },
-    [router, handlePlayTrack, currentTrack]
+    [router, handlePlayTrack]
   );
 
   const styles = useMemo(() => createStyles(colors), [colors]);

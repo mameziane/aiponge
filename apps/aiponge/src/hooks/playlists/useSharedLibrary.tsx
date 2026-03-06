@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { logger } from '../../lib/logger';
 import { SUPPORTED_LANGUAGES } from '../../i18n/types';
 import { formatTrackDuration, getNextTrack, getPreviousTrack } from '../../utils/trackUtils';
@@ -55,31 +55,47 @@ export function useSharedLibrary() {
 
   const { handleDeleteTrack, isDeletingTrack } = useSharedLibraryAdminActions();
 
+  // CRITICAL: Refs for values that change frequently but are only READ inside callbacks.
+  // Same pattern as useMyMusic — prevents callback recreation on every PlaybackContext
+  // update or React Query refetch, avoiding the "Maximum update depth exceeded" crash.
+  const tracksRef = useRef(tracks);
+  tracksRef.current = tracks;
+  const currentTrackRef = useRef(currentTrack);
+  currentTrackRef.current = currentTrack;
+  const isPlayingRef = useRef(isPlaying);
+  isPlayingRef.current = isPlaying;
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- tracks and currentTrack read via refs
   const handleNextTrack = useCallback(() => {
-    const nextTrack = getNextTrack(tracks, currentTrack, shuffleEnabled, repeatMode);
+    const nextTrack = getNextTrack(tracksRef.current, currentTrackRef.current, shuffleEnabled, repeatMode);
     if (nextTrack) {
       handlePlayTrack(nextTrack);
     }
-  }, [tracks, currentTrack, shuffleEnabled, repeatMode, handlePlayTrack]);
+  }, [shuffleEnabled, repeatMode, handlePlayTrack]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- tracks and currentTrack read via refs
   const handlePreviousTrack = useCallback(() => {
-    const prevTrack = getPreviousTrack(tracks, currentTrack, shuffleEnabled, repeatMode);
+    const prevTrack = getPreviousTrack(tracksRef.current, currentTrackRef.current, shuffleEnabled, repeatMode);
     if (prevTrack) {
       handlePlayTrack(prevTrack);
     }
-  }, [tracks, currentTrack, shuffleEnabled, repeatMode, handlePlayTrack]);
+  }, [shuffleEnabled, repeatMode, handlePlayTrack]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- currentTrack, tracks, isPlaying read via refs
   const handleTogglePlayPause = useCallback(() => {
-    if (!currentTrack && tracks.length > 0) {
-      handlePlayTrack(tracks[0]);
-    } else if (currentTrack) {
-      if (isPlaying) {
+    const curTrack = currentTrackRef.current;
+    const curTracks = tracksRef.current;
+    const playing = isPlayingRef.current;
+    if (!curTrack && curTracks.length > 0) {
+      handlePlayTrack(curTracks[0]);
+    } else if (curTrack) {
+      if (playing) {
         pause();
       } else {
         resume();
       }
     }
-  }, [currentTrack, tracks, isPlaying, handlePlayTrack, pause, resume]);
+  }, [handlePlayTrack, pause, resume]);
 
   // Client-side filtering — works for all endpoint types (shared library, smart playlists, regular playlists)
   const filteredTracks = useMemo(() => {
