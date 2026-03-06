@@ -1,10 +1,14 @@
 /**
  * Speech Recognition Hook
  * Converts spoken voice to text input using expo-speech-recognition.
+ *
+ * Uses the library's useSpeechRecognitionEvent hook (Expo event system)
+ * instead of React Native's NativeEventEmitter which is incompatible
+ * with Expo modules.
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { NativeEventEmitter, NativeModules, NativeModule, Platform } from 'react-native';
+import { useState, useCallback, useRef } from 'react';
+import { ExpoSpeechRecognitionModule, useSpeechRecognitionEvent } from 'expo-speech-recognition';
 import { logger } from '../../lib/logger';
 
 export interface SpeechRecognitionState {
@@ -26,68 +30,6 @@ interface SpeechRecognitionOptions {
   onEnd?: () => void;
 }
 
-interface SpeechResult {
-  results: Array<{
-    transcript: string;
-    confidence: number;
-    isFinal?: boolean;
-  }>;
-  isFinal?: boolean;
-}
-
-interface SpeechError {
-  error: string;
-  message?: string;
-}
-
-// Stub module interface matching expo-speech-recognition
-interface ExpoSpeechRecognitionModuleInterface {
-  start: (options: {
-    lang: string;
-    interimResults: boolean;
-    maxAlternatives: number;
-    continuous: boolean;
-    requiresOnDeviceRecognition: boolean;
-  }) => void;
-  stop: () => void;
-  abort: () => void;
-  getStateAsync: () => Promise<string>;
-  getSupportedLocales: () => Promise<{ locales: string[] }>;
-  isRecognitionAvailable: () => Promise<boolean>;
-  requestPermissionsAsync: () => Promise<{ granted: boolean; status: string }>;
-  addListener?: (eventName: string) => void;
-  removeListeners?: (count: number) => void;
-}
-
-// Stub implementation (fallback if native module fails to load)
-const speechRecognitionStub: ExpoSpeechRecognitionModuleInterface = {
-  start: () => {},
-  stop: () => {},
-  abort: () => {},
-  getStateAsync: async () => 'inactive',
-  getSupportedLocales: async () => ({ locales: [] }),
-  isRecognitionAvailable: async () => false,
-  requestPermissionsAsync: async () => ({ granted: false, status: 'undetermined' }),
-};
-
-// Dynamic module loading
-let ExpoSpeechRecognitionModule: ExpoSpeechRecognitionModuleInterface = speechRecognitionStub;
-let speechEventEmitter: NativeEventEmitter | null = null;
-
-try {
-  const speechModule = require('expo-speech-recognition');
-  ExpoSpeechRecognitionModule = speechModule.ExpoSpeechRecognitionModule || speechRecognitionStub;
-
-  // Create event emitter if the module supports it
-  if (ExpoSpeechRecognitionModule && ExpoSpeechRecognitionModule.addListener) {
-    speechEventEmitter = new NativeEventEmitter(ExpoSpeechRecognitionModule as NativeModule);
-  }
-
-  logger.info('[useSpeechRecognition] Loaded expo-speech-recognition module');
-} catch (error) {
-  logger.warn('[useSpeechRecognition] Failed to load expo-speech-recognition, using stub', { error });
-}
-
 // Map language codes to speech recognition locales
 const LANGUAGE_MAP: Record<string, string> = {
   en: 'en-US',
@@ -105,7 +47,7 @@ export function useSpeechRecognition(options: SpeechRecognitionOptions = {}) {
     transcript: '',
     interimTranscript: '',
     error: null,
-    isAvailable: false,
+    isAvailable: true, // Expo module is always loadable; actual check at permission time
     isSupported: true,
   });
 
@@ -113,84 +55,57 @@ export function useSpeechRecognition(options: SpeechRecognitionOptions = {}) {
   optionsRef.current = options;
   const isListeningRef = useRef(false);
 
-  // Check availability on mount
-  useEffect(() => {
-    async function checkAvailability() {
-      try {
-        const available = await ExpoSpeechRecognitionModule.isRecognitionAvailable();
-        setState(prev => ({ ...prev, isAvailable: available, isSupported: true }));
-      } catch (error) {
-        logger.warn('[useSpeechRecognition] Error checking availability', { error });
-        setState(prev => ({ ...prev, isAvailable: false }));
+  // ── Expo event listeners (replace old NativeEventEmitter approach) ──
+
+  useSpeechRecognitionEvent('start', () => {
+    setState(prev => ({ ...prev, isListening: true, error: null }));
+    isListeningRef.current = true;
+  });
+
+  useSpeechRecognitionEvent('result', event => {
+    if (!isListeningRef.current) return;
+
+    const result = event.results?.[0];
+    if (result) {
+      const transcript = result.transcript || '';
+      const isFinal = event.isFinal ?? false;
+
+      if (isFinal) {
+        setState(prev => ({
+          ...prev,
+          transcript: prev.transcript ? `${prev.transcript} ${transcript}` : transcript,
+          interimTranscript: '',
+        }));
+        optionsRef.current.onResult?.(transcript, true);
+      } else {
+        setState(prev => ({
+          ...prev,
+          interimTranscript: transcript,
+        }));
+        optionsRef.current.onResult?.(transcript, false);
       }
     }
+  });
 
-    checkAvailability();
-  }, []);
+  useSpeechRecognitionEvent('error', event => {
+    const errorMessage = event.message || event.error || 'Speech recognition error';
+    logger.error('[useSpeechRecognition] Recognition error', { event });
+    setState(prev => ({
+      ...prev,
+      isListening: false,
+      error: errorMessage,
+    }));
+    isListeningRef.current = false;
+    optionsRef.current.onError?.(errorMessage);
+  });
 
-  // Set up event listeners for speech recognition
-  useEffect(() => {
-    if (!speechEventEmitter) return;
+  useSpeechRecognitionEvent('end', () => {
+    setState(prev => ({ ...prev, isListening: false }));
+    isListeningRef.current = false;
+    optionsRef.current.onEnd?.();
+  });
 
-    // Handle speech results
-    const resultSubscription = speechEventEmitter.addListener('result', (event: SpeechResult) => {
-      if (!isListeningRef.current) return;
-
-      const result = event.results?.[0];
-      if (result) {
-        const transcript = result.transcript || '';
-        const isFinal = result.isFinal ?? event.isFinal ?? false;
-
-        if (isFinal) {
-          setState(prev => ({
-            ...prev,
-            transcript: transcript,
-            interimTranscript: '',
-          }));
-          optionsRef.current.onResult?.(transcript, true);
-        } else {
-          setState(prev => ({
-            ...prev,
-            interimTranscript: transcript,
-          }));
-          optionsRef.current.onResult?.(transcript, false);
-        }
-      }
-    });
-
-    // Handle errors
-    const errorSubscription = speechEventEmitter.addListener('error', (event: SpeechError) => {
-      const errorMessage = event.message || event.error || 'Speech recognition error';
-      logger.error('[useSpeechRecognition] Recognition error', { event });
-      setState(prev => ({
-        ...prev,
-        isListening: false,
-        error: errorMessage,
-      }));
-      isListeningRef.current = false;
-      optionsRef.current.onError?.(errorMessage);
-    });
-
-    // Handle end of speech
-    const endSubscription = speechEventEmitter.addListener('end', () => {
-      setState(prev => ({ ...prev, isListening: false }));
-      isListeningRef.current = false;
-      optionsRef.current.onEnd?.();
-    });
-
-    // Handle start
-    const startSubscription = speechEventEmitter.addListener('start', () => {
-      setState(prev => ({ ...prev, isListening: true, error: null }));
-      isListeningRef.current = true;
-    });
-
-    return () => {
-      resultSubscription?.remove();
-      errorSubscription?.remove();
-      endSubscription?.remove();
-      startSubscription?.remove();
-    };
-  }, []);
+  // ── Actions ──
 
   const requestPermissions = useCallback(async (): Promise<boolean> => {
     try {
