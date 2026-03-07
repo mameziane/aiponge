@@ -2,6 +2,7 @@ import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import prettier from 'eslint-plugin-prettier';
 import sonarjs from 'eslint-plugin-sonarjs';
+import reactHooks from 'eslint-plugin-react-hooks';
 import localRules from './tools/eslint/eslint-local-rules.js';
 
 export default [
@@ -91,6 +92,7 @@ export default [
       prettier: prettier,
       'local-rules': localRules,
       sonarjs: sonarjs,
+      'react-hooks': reactHooks,
     },
     rules: {
       'local-rules/no-direct-fetch': 'warn',
@@ -98,6 +100,9 @@ export default [
       'local-rules/no-ui-in-services': 'warn',
       'local-rules/enforce-typed-responses': 'warn',
       'local-rules/hook-naming-convention': 'warn',
+
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
 
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
       'no-unused-vars': 'off',
