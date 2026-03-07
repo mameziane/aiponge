@@ -21,6 +21,7 @@ import { logger } from '../../lib/logger';
 import { getNextTrack } from '../../utils/trackUtils';
 import { useGlobalAudioPlayer, usePlayerPlayingChange } from '../../contexts/AudioPlayerContext';
 import { usePlaybackState, type PlaybackTrack } from '../../contexts/PlaybackContext';
+import { useNetworkStatus } from '../system/useNetworkStatus';
 import { useCastPlayback } from './useCastPlayback';
 import { apiRequest } from '../../lib/axiosApiClient';
 import { useDownloadStore } from '../../offline/store';
@@ -157,6 +158,13 @@ export function useTrackPlayback<T extends PlayableTrack>(
   const loadingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const interactionCountsRef = useRef({ skipCount: 0, pauseCount: 0, seekCount: 0 });
 
+  // Network-aware playback recovery (WiFi↔cellular transition, stream stall)
+  const network = useNetworkStatus();
+  const lastNetworkTypeRef = useRef(network.type);
+  const lastRecoveryTimeRef = useRef(0);
+  const stallTickCountRef = useRef(0);
+  const lastCurrentTimeRef = useRef(0);
+
   // CRITICAL: Refs for values that change frequently but are only READ inside handlePlayTrack.
   // Using refs instead of useCallback deps prevents handlePlayTrack from being recreated on every
   // PlaybackContext update (currentTrack/isPlaying change) or data refetch (availableTracks change).
@@ -200,6 +208,65 @@ export function useTrackPlayback<T extends PlayableTrack>(
     },
     [getLocalAudioPath]
   );
+
+  /**
+   * Recover playback after network change or stream stall.
+   * Saves current position, re-replaces the audio source, seeks back, and resumes.
+   * 5-second cooldown prevents rapid re-recovery loops.
+   */
+  const recoverPlayback = useCallback(async () => {
+    const track = currentTrackRef.current;
+    if (!track || isCasting) return;
+
+    const now = Date.now();
+    if (now - lastRecoveryTimeRef.current < 5000) {
+      logger.debug('[Playback] Recovery skipped — cooldown active');
+      return;
+    }
+
+    const position = player.currentTime;
+    lastRecoveryTimeRef.current = now;
+    stallTickCountRef.current = 0;
+
+    logger.info('[Playback] Recovering playback stream', { trackId: track.id, position });
+    updatePlaybackPhase('buffering');
+
+    try {
+      await configureAudioSession();
+      const { uri } = resolveAudioUrl(track as T);
+      player.replace({ uri });
+      await player.seekTo(position);
+      player.play();
+    } catch (error) {
+      logger.warn('[Playback] Stream recovery failed', { error });
+    }
+  }, [player, resolveAudioUrl, isCasting, updatePlaybackPhase]);
+
+  /**
+   * Network type change recovery.
+   * When WiFi↔cellular transition happens during active playback, the TCP connection
+   * for the audio stream breaks. Automatically recover by re-loading at current position.
+   */
+  useEffect(() => {
+    const prevType = lastNetworkTypeRef.current;
+    lastNetworkTypeRef.current = network.type;
+
+    // Skip initial render or no actual change
+    if (!prevType || prevType === network.type) return;
+    // Skip if nothing is actively playing
+    if (!currentTrackRef.current || !isPlayingRef.current) return;
+    // Skip if we went offline (nothing to recover to)
+    if (network.isOffline) return;
+    // Skip offline tracks — local files don't need network recovery
+    const { isOffline } = resolveAudioUrl(currentTrackRef.current as T);
+    if (isOffline) return;
+
+    logger.info('[Playback] Network type changed during playback', {
+      from: prevType,
+      to: network.type,
+    });
+    void recoverPlayback();
+  }, [network.type, network.isOffline, resolveAudioUrl, recoverPlayback]);
 
   /**
    * Update the lock screen with track metadata via expo-audio's native API.
@@ -445,6 +512,10 @@ export function useTrackPlayback<T extends PlayableTrack>(
       // Player successfully started, transition from buffering to playing
       updatePlaybackPhase('playing');
 
+      // Reset stall tracking — new playback starts clean
+      stallTickCountRef.current = 0;
+      lastCurrentTimeRef.current = 0;
+
       // Clear loading flag after a short delay to ignore transient player.playing=false during load
       if (loadingTimeoutRef.current) clearTimeout(loadingTimeoutRef.current);
       loadingTimeoutRef.current = setTimeout(() => {
@@ -477,6 +548,24 @@ export function useTrackPlayback<T extends PlayableTrack>(
     const checkInterval = setInterval(() => {
       const curTrack = currentTrackRef.current;
       if (!curTrack) return;
+
+      // Stall detection: player reports "playing" but currentTime is frozen.
+      // 6 ticks × 500ms = 3 seconds of stall before triggering recovery.
+      if (player.playing && player.currentTime > 0) {
+        if (Math.abs(player.currentTime - lastCurrentTimeRef.current) < 0.01) {
+          stallTickCountRef.current++;
+          if (stallTickCountRef.current >= 6) {
+            logger.info('[Playback] Stream stall detected', {
+              currentTime: player.currentTime,
+              stallTicks: stallTickCountRef.current,
+            });
+            void recoverPlayback();
+          }
+        } else {
+          stallTickCountRef.current = 0;
+        }
+        lastCurrentTimeRef.current = player.currentTime;
+      }
 
       // Guard: require player.duration > 1 (not just > 0) to prevent false positives from
       // tracks with duration=0 in the DB whose actual audio may briefly report a tiny duration
@@ -519,8 +608,8 @@ export function useTrackPlayback<T extends PlayableTrack>(
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- currentTrack, availableTracks,
     // and onTrackFinished are read via refs. player.currentTime/duration/playing are polled
-    // by setInterval every 500ms. Minimizing deps prevents constant effect teardown/recreation.
-  }, [shuffleEnabled, repeatMode, updatePlaybackPhase, handlePlayTrack, setCurrentTrack]);
+    // by setInterval every 500ms. recoverPlayback is stable (deps are all memoized).
+  }, [shuffleEnabled, repeatMode, updatePlaybackPhase, handlePlayTrack, setCurrentTrack, recoverPlayback]);
 
   /**
    * Pause current track (Cast-aware)
