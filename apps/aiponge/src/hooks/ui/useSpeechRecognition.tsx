@@ -41,6 +41,8 @@ const LANGUAGE_MAP: Record<string, string> = {
   pt: 'pt-BR',
   zh: 'zh-CN',
   ar: 'ar-SA',
+  ja: 'ja-JP',
+  hi: 'hi-IN',
 };
 
 export function useSpeechRecognition(options: SpeechRecognitionOptions = {}) {

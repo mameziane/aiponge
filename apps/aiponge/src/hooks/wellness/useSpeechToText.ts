@@ -30,9 +30,16 @@ export interface SpeechToTextResult {
   setTranscript: (text: string) => void;
 }
 
-export function useSpeechToText(): SpeechToTextResult {
+interface SpeechToTextOptions {
+  /** BCP 47 language code or short code (e.g. 'fr', 'ja'). Falls back to device default. */
+  lang?: string;
+}
+
+export function useSpeechToText(options: SpeechToTextOptions = {}): SpeechToTextResult {
   const [manualTranscript, setManualTranscript] = useState('');
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const langRef = useRef(options.lang);
+  langRef.current = options.lang;
 
   // ── Ref to hold speech methods (stable across re-renders) ──
   const speechRef = useRef<ReturnType<typeof useSpeechRecognition> | null>(null);
@@ -82,7 +89,7 @@ export function useSpeechToText(): SpeechToTextResult {
     const s = speechRef.current;
     if (!s?.isAvailable) return false;
     setManualTranscript('');
-    const started = await s.startListening();
+    const started = await s.startListening(langRef.current);
     if (started) resetSilenceTimer();
     return started ?? false;
   }, [resetSilenceTimer]);

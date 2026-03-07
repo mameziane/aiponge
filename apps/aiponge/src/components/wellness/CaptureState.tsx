@@ -7,6 +7,7 @@ import { View, Text, TextInput, TouchableOpacity, Keyboard, Pressable } from 're
 import { Ionicons } from '@expo/vector-icons';
 import { useThemeColors } from '../../theme';
 import { AnimatedWaveform } from '../music/AnimatedWaveform';
+import { useTranslation } from '../../i18n';
 import type { SpeechToTextResult } from '../../hooks/wellness';
 
 interface CaptureStateProps {
@@ -17,6 +18,7 @@ interface CaptureStateProps {
 
 export function CaptureState({ speech, onDone, onCancel }: CaptureStateProps) {
   const colors = useThemeColors();
+  const { t } = useTranslation();
 
   const handleMicPress = async () => {
     if (speech.isListening) {
@@ -37,10 +39,10 @@ export function CaptureState({ speech, onDone, onCancel }: CaptureStateProps) {
         <Text
           style={{ fontSize: 20, fontWeight: '600', color: colors.text.primary, textAlign: 'center', marginBottom: 8 }}
         >
-          How are you feeling?
+          {t('wellness.capture.title', { defaultValue: 'How are you feeling?' })}
         </Text>
         <Text style={{ fontSize: 14, color: colors.text.secondary, textAlign: 'center', marginBottom: 24 }}>
-          Speak or type what&apos;s on your mind
+          {t('wellness.capture.subtitle', { defaultValue: 'Speak or type what\u2019s on your mind' })}
         </Text>
 
         {/* Mic Button */}
@@ -65,7 +67,9 @@ export function CaptureState({ speech, onDone, onCancel }: CaptureStateProps) {
               )}
             </TouchableOpacity>
             {speech.isListening && (
-              <Text style={{ fontSize: 12, color: colors.text.secondary, marginTop: 8 }}>Listening...</Text>
+              <Text style={{ fontSize: 12, color: colors.text.secondary, marginTop: 8 }}>
+                {t('wellness.capture.listening', { defaultValue: 'Listening...' })}
+              </Text>
             )}
           </View>
         )}
@@ -76,7 +80,7 @@ export function CaptureState({ speech, onDone, onCancel }: CaptureStateProps) {
             speech.interimTranscript ? `${speech.transcript} ${speech.interimTranscript}`.trim() : speech.transcript
           }
           onChangeText={speech.setTranscript}
-          placeholder="Or type here..."
+          placeholder={t('wellness.capture.placeholder', { defaultValue: 'Or type here...' })}
           placeholderTextColor={colors.text.secondary}
           multiline
           style={{
@@ -110,7 +114,7 @@ export function CaptureState({ speech, onDone, onCancel }: CaptureStateProps) {
             }}
             testID="wellness-cancel-button"
           >
-            <Text style={{ fontSize: 16, color: colors.text.secondary }}>Cancel</Text>
+            <Text style={{ fontSize: 16, color: colors.text.secondary }}>{t('common.cancel')}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={handleDoneWithDismiss}
@@ -126,7 +130,7 @@ export function CaptureState({ speech, onDone, onCancel }: CaptureStateProps) {
             testID="wellness-done-button"
           >
             <Text style={{ fontSize: 16, fontWeight: '600', color: speech.isValid ? '#fff' : colors.text.secondary }}>
-              Done
+              {t('common.done')}
             </Text>
           </TouchableOpacity>
         </View>

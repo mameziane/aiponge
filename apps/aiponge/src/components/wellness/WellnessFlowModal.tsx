@@ -8,14 +8,15 @@ import { View, ActivityIndicator, Text, Modal } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useThemeColors } from '../../theme';
 import { apiRequest } from '../../lib/axiosApiClient';
+import { useTranslation } from '../../i18n';
 import {
   useSpeechToText,
   useWellnessPlan,
   useWellnessGenerate,
   useWellnessConfirm,
   useWellnessFlowStateMachine,
+  type WellnessPlanResponse,
 } from '../../hooks/wellness';
-import type { WellnessPlanResponse } from '../../hooks/wellness';
 import { CaptureState } from './CaptureState';
 import { ReviewState } from './ReviewState';
 import { GeneratingState } from './GeneratingState';
@@ -30,7 +31,8 @@ interface WellnessFlowModalProps {
 export function WellnessFlowModal({ visible, onClose }: WellnessFlowModalProps) {
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
-  const speech = useSpeechToText();
+  const { i18n } = useTranslation();
+  const speech = useSpeechToText({ lang: i18n.language });
   const { state, error: flowError, dispatch, resetFlow } = useWellnessFlowStateMachine();
   const wellnessPlan = useWellnessPlan();
   const wellnessGenerate = useWellnessGenerate();
