@@ -328,7 +328,7 @@ export const ProfileBasicsTab: React.FC<ProfileBasicsTabProps> = ({
                   onChange={handleDateChange}
                   maximumDate={maxDate}
                   minimumDate={minDate}
-                  textColor={colors.text.dark}
+                  textColor={colors.text.primary}
                   style={datePickerStyles.datePicker}
                 />
               </LiquidGlassView>
@@ -472,16 +472,16 @@ const createDatePickerStyles = (colors: ColorScheme) =>
       paddingHorizontal: 16,
       paddingVertical: 12,
       borderBottomWidth: 1,
-      borderBottomColor: colors.border.light,
+      borderBottomColor: colors.border.muted,
     },
     datePickerCancel: {
       fontSize: 16,
-      color: colors.text.muted,
+      color: colors.text.secondary,
     },
     datePickerDone: {
       fontSize: 16,
       fontWeight: '600',
-      color: colors.brand.primary,
+      color: colors.text.primary,
     },
     datePicker: {
       height: 200,
