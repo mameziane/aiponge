@@ -15,16 +15,16 @@ import { sql } from 'drizzle-orm';
 import { createInsertSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { users } from '../user-schema';
-import { libEntries } from '../library-schema';
-import type {
-  Entry,
-  InsertEntry,
-  Chapter,
-  InsertChapter,
-  Illustration,
-  InsertIllustration,
-  Book,
-  InsertBook,
+import {
+  libEntries,
+  type Entry,
+  type InsertEntry,
+  type Chapter,
+  type InsertChapter,
+  type Illustration,
+  type InsertIllustration,
+  type Book,
+  type InsertBook,
 } from '../library-schema';
 
 export type { Entry, InsertEntry, Chapter, InsertChapter, Illustration, InsertIllustration, Book, InsertBook };

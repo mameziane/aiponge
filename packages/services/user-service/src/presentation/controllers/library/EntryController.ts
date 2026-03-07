@@ -7,13 +7,13 @@ import {
   LibEntryUpdateSchema as entryUpdateSchema,
   AutoAssignBookmarkSchema as autoAssignBookmarkSchema,
 } from '@aiponge/shared-contracts';
-import type { LibraryControllerDeps } from './library-helpers';
 import {
   handleRequest,
   formatZodErrors,
   buildContext,
   handleUseCaseResult,
   buildEnrichedContext,
+  type LibraryControllerDeps,
 } from './library-helpers';
 
 export class EntryController {

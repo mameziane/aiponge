@@ -32,13 +32,11 @@ export const ProviderCapabilitiesSchema = z.object({
 });
 export type ProviderCapabilities = z.infer<typeof ProviderCapabilitiesSchema>;
 
-export const ProviderMetadataSchema = z
-  .object({
-    processingTimeMs: z.coerce.number(),
-    tokensUsed: z.coerce.number().optional(),
-    cost: z.coerce.number().optional(),
-  })
-  .passthrough();
+export const ProviderMetadataSchema = z.object({
+  processingTimeMs: z.coerce.number(),
+  tokensUsed: z.coerce.number().optional(),
+  cost: z.coerce.number().optional(),
+});
 export type ProviderMetadata = z.infer<typeof ProviderMetadataSchema>;
 
 // =============================================================================
@@ -86,7 +84,7 @@ export type SelectProviderRequest = z.infer<typeof SelectProviderRequestSchema>;
 
 export const TestProviderRequestSchema = z.object({
   providerId: z.string(),
-  testPayload: z.record(z.any()).optional(),
+  testPayload: z.record(z.unknown()).optional(),
 });
 export type TestProviderRequest = z.infer<typeof TestProviderRequestSchema>;
 

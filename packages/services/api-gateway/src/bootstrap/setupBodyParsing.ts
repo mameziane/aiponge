@@ -1,5 +1,4 @@
-import express from 'express';
-import type { Application } from 'express';
+import express, { type Application } from 'express';
 import { paginationMiddleware } from '../presentation/middleware/PaginationMiddleware';
 import type { GatewayAppContext } from './context';
 

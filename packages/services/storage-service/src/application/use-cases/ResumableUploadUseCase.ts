@@ -9,8 +9,7 @@ import { StorageLocation } from '../../domains/value-objects/StorageLocation';
 import { IStorageRepository } from '../interfaces/IStorageRepository';
 import { IStorageProvider } from '../interfaces/IStorageProvider';
 import { getLogger } from '../../config/service-urls';
-import { createIntervalScheduler } from '@aiponge/platform-core';
-import type { IntervalScheduler } from '@aiponge/platform-core';
+import { createIntervalScheduler, type IntervalScheduler } from '@aiponge/platform-core';
 
 // Use default environment settings for now
 

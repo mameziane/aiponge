@@ -1,9 +1,4 @@
-// Load environment variables first (never override Replit Secrets)
-import { config } from 'dotenv';
-import { resolve } from 'path';
-config({ path: resolve(process.cwd(), '.env'), override: false });
-
-// FINAL FIX: Set MaxListeners before any imports or EventEmitter setup
+// Set MaxListeners before any imports or EventEmitter setup
 process.setMaxListeners(15);
 
 // Migrated to use platform-core consistently
@@ -24,6 +19,7 @@ import {
   registerShutdownHook,
   failFastValidation,
   initTracing,
+  QueueManager,
 } from '@aiponge/platform-core';
 
 initSentry('system-service');
@@ -53,7 +49,6 @@ import { DLQCleanupScheduler } from './infrastructure/queue/DLQCleanupScheduler'
 import { MetricsAggregationScheduler } from './infrastructure/jobs/MetricsAggregationScheduler.js';
 import { HealthCheckScheduler } from './infrastructure/jobs/HealthCheckScheduler';
 import { TrackAlarmScheduler, TRACK_ALARM_QUEUE } from './infrastructure/notification/schedulers/TrackAlarmScheduler';
-import { QueueManager } from '@aiponge/platform-core';
 import { processTrackAlarmJob } from './infrastructure/notification/jobs/trackAlarmProcessor';
 import { processBookReminderJob } from './infrastructure/notification/jobs/bookReminderProcessor';
 import {
@@ -139,11 +134,11 @@ async function main(): Promise<void> {
         }
       },
       customRoutes: (app: express.Application) => {
-        app.use('/api/discovery', discoveryApp);
-        app.use('/api/monitoring', monitoringApp);
-        app.use('/api/notifications', notificationApp);
-        app.use('/api/orchestration', orchestrationRoutes);
-        app.use('/api/config', configRoutes);
+        app.use('/api/discovery', internalAuthMiddleware, discoveryApp);
+        app.use('/api/monitoring', internalAuthMiddleware, monitoringApp);
+        app.use('/api/notifications', internalAuthMiddleware, notificationApp);
+        app.use('/api/orchestration', internalAuthMiddleware, orchestrationRoutes);
+        app.use('/api/config', internalAuthMiddleware, configRoutes);
         app.use('/api/dlq', internalAuthMiddleware, dlqRoutes);
         app.use('/api/audit', internalAuthMiddleware, auditRoutes);
 

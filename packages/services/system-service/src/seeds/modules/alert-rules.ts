@@ -22,6 +22,7 @@ function toSqlTextArray(arr: string[]): string {
   return `ARRAY[${items}]::text[]`;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function loadBackup(): Record<string, any>[] {
   const filePath = resolve(__dirname, '../data/sys_alert_rules_backup.json');
   return JSON.parse(readFileSync(filePath, 'utf-8'));

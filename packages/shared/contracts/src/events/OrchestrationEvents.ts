@@ -200,11 +200,11 @@ export type OrchestrationEvent =
 // --- Helper Functions ---
 
 function generateOrchestrationEventId(): string {
-  return `orch_evt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  return `orch_evt_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
 }
 
 function generateCorrelationId(): string {
-  return `cor_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  return `cor_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
 }
 
 export function createOrchestrationEvent<T extends OrchestrationEvent['type']>(

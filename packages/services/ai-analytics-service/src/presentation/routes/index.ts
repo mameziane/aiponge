@@ -6,6 +6,7 @@
 import type { Express } from 'express';
 import { getResponseHelpers } from '@aiponge/platform-core';
 import type { AnalyticsServiceRegistry } from '../../infrastructure/ServiceFactory';
+import { internalAuthMiddleware } from '../middleware/internalAuthMiddleware';
 import { createHealthRoutes } from './health.routes';
 import { createAnalyticsRoutes } from './analytics.routes';
 import { createTraceRoutes } from './traces.routes';
@@ -18,14 +19,16 @@ import { createDashboardAnalyticsRoutes } from './dashboard.routes';
 const { sendSuccess, ServiceErrors } = getResponseHelpers();
 
 export function setupRoutes(app: Express, registry: AnalyticsServiceRegistry): void {
+  // Health routes remain public for Docker/k8s probes
   app.use('/', createHealthRoutes(registry));
-  app.use('/', createAnalyticsRoutes(registry));
-  app.use('/', createTraceRoutes());
-  app.use('/', createReportRoutes());
-  app.use('/', createGdprRoutes(registry));
-  app.use('/', createFraudRoutes(registry));
-  app.use('/', createLifecycleRoutes());
-  app.use('/', createDashboardAnalyticsRoutes());
+  // All other routes require internal service auth
+  app.use('/', internalAuthMiddleware, createAnalyticsRoutes(registry));
+  app.use('/', internalAuthMiddleware, createTraceRoutes());
+  app.use('/', internalAuthMiddleware, createReportRoutes());
+  app.use('/', internalAuthMiddleware, createGdprRoutes(registry));
+  app.use('/', internalAuthMiddleware, createFraudRoutes(registry));
+  app.use('/', internalAuthMiddleware, createLifecycleRoutes());
+  app.use('/', internalAuthMiddleware, createDashboardAnalyticsRoutes());
 
   // Root endpoint
   app.get('/', (req, res) => {

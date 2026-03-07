@@ -1,7 +1,3 @@
-import { config } from 'dotenv';
-import { resolve } from 'path';
-config({ path: resolve(process.cwd(), '.env'), override: false });
-
 process.setMaxListeners(15);
 
 /**

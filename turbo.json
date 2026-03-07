@@ -28,6 +28,7 @@
     "AI_CONFIG_DATABASE_URL",
     "AI_CONTENT_DATABASE_URL",
     "AI_ANALYTICS_DATABASE_URL",
+    "USER_DATABASE_URL",
     "SYSTEM_SERVICE_URL",
     "STORAGE_SERVICE_URL",
     "API_GATEWAY_PORT",
@@ -63,7 +64,7 @@
       "outputLogs": "new-only"
     },
     "test": {
-      "dependsOn": ["build"],
+      "dependsOn": [],
       "inputs": ["$TURBO_ROOT$/package.json", "$TURBO_DEFAULT$", "vitest.config.*"],
       "outputs": ["coverage/**"]
     },

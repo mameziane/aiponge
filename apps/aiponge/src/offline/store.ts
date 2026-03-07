@@ -1,20 +1,21 @@
 /**
  * Offline Download Manager Store
- * Zustand store for managing offline downloads with persistence
+ * Zustand store for managing offline downloads with persistence.
  *
- * Environment Detection:
- * - Expo Go: Uses stub implementations (FileSystem not available)
- * - Development Build: Uses expo-file-system for real file operations
+ * Uses expo-file-system v19 class-based API (File, Directory, Paths)
+ * for all filesystem operations. Directory creation is idempotent
+ * and synchronous — eliminates the folder-creation race conditions
+ * that plagued the legacy implementation.
  */
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { File, Directory } from 'expo-file-system';
 import { logger } from '../lib/logger';
-import { FileSystem, isOfflineSupported, getOfflineDirectory } from './offlineEnv';
+import { isOfflineSupported, offlineDir } from './offlineEnv';
 import type { DownloadStore, DownloadManagerState, OfflineTrack, DownloadJob, DownloadStatus } from './types';
 
-const OFFLINE_DIR = getOfflineDirectory() || '';
 const DEFAULT_STORAGE_LIMIT = 2 * 1024 * 1024 * 1024; // 2GB default
 
 const initialState: DownloadManagerState = {
@@ -30,40 +31,29 @@ const initialState: DownloadManagerState = {
   storageLimit: DEFAULT_STORAGE_LIMIT,
 };
 
-async function ensureOfflineDir(): Promise<void> {
-  if (!isOfflineSupported || !OFFLINE_DIR) return;
-  const dirInfo = await FileSystem.getInfoAsync(OFFLINE_DIR);
-  if (!dirInfo.exists) {
-    await FileSystem.makeDirectoryAsync(OFFLINE_DIR, { intermediates: true });
-  }
-}
-
-async function ensureTrackDir(trackId: string): Promise<string> {
-  if (!isOfflineSupported || !OFFLINE_DIR) return '';
-  await ensureOfflineDir();
-  const trackDir = OFFLINE_DIR + trackId + '/';
-  const dirInfo = await FileSystem.getInfoAsync(trackDir);
-  if (!dirInfo.exists) {
-    await FileSystem.makeDirectoryAsync(trackDir, { intermediates: true });
-  }
-  return trackDir;
-}
-
-async function getFileSize(path: string): Promise<number> {
+/**
+ * Get the size of a file at the given URI.
+ * Returns 0 if the file doesn't exist or an error occurs.
+ */
+function getFileSize(path: string): number {
   if (!isOfflineSupported) return 0;
   try {
-    const info = await FileSystem.getInfoAsync(path);
-    return info.exists && 'size' in info ? info.size || 0 : 0;
+    const file = new File(path);
+    return file.exists ? file.size : 0;
   } catch {
     return 0;
   }
 }
 
-async function deleteTrackFiles(trackId: string): Promise<void> {
-  if (!isOfflineSupported || !OFFLINE_DIR) return;
-  const trackDir = OFFLINE_DIR + trackId + '/';
+/**
+ * Delete the per-track directory and all its contents.
+ * No-ops if the directory doesn't exist.
+ */
+function deleteTrackFiles(trackId: string): void {
+  if (!isOfflineSupported) return;
   try {
-    await FileSystem.deleteAsync(trackDir, { idempotent: true });
+    const trackDir = new Directory(offlineDir, trackId);
+    if (trackDir.exists) trackDir.delete();
   } catch (error) {
     logger.warn('[OfflineStore] Error deleting track files', { trackId, error });
   }
@@ -150,11 +140,11 @@ export const useDownloadStore = create<DownloadStore>()(
       removeDownload: async trackId => {
         // Delete files first (only if offline supported)
         if (isOfflineSupported) {
-          await deleteTrackFiles(trackId);
+          deleteTrackFiles(trackId);
         }
 
         set(state => {
-          const { [trackId]: removed, ...remainingDownloads } = state.downloads;
+          const { [trackId]: _removed, ...remainingDownloads } = state.downloads;
           return {
             downloads: remainingDownloads,
             queue: state.queue.filter(job => job.trackId !== trackId),
@@ -163,28 +153,23 @@ export const useDownloadStore = create<DownloadStore>()(
 
         // Refresh storage info (only if offline supported)
         if (isOfflineSupported) {
-          await get().refreshStorageInfo();
+          get().refreshStorageInfo();
         }
 
         logger.info('[OfflineStore] Removed download', { trackId });
       },
 
       pauseDownload: trackId => {
-        set(state => ({
-          downloads: {
-            ...state.downloads,
-            [trackId]: state.downloads[trackId]
-              ? { ...state.downloads[trackId], status: 'paused' as DownloadStatus }
-              : state.downloads[trackId],
-          },
-        }));
+        // v19 API does not support resumable downloads — pause redirects to cancel
+        logger.info('[OfflineStore] Pause not supported with v19 API, cancelling instead', { trackId });
+        get().cancelDownload(trackId);
       },
 
       resumeDownload: trackId => {
         const { downloads, queue } = get();
         const download = downloads[trackId];
 
-        if (!download || download.status !== 'paused') return;
+        if (!download || (download.status !== 'paused' && download.status !== 'failed')) return;
 
         // Re-add to queue if not already there
         if (!queue.some(job => job.trackId === trackId)) {
@@ -215,10 +200,8 @@ export const useDownloadStore = create<DownloadStore>()(
 
       cancelDownload: trackId => {
         // Remove the download entry entirely and clean up files.
-        // Previously this set status to 'pending' which left orphaned entries
-        // that could never be completed, restarted, or cleared from the UI.
         set(state => {
-          const { [trackId]: removed, ...remainingDownloads } = state.downloads;
+          const { [trackId]: _removed, ...remainingDownloads } = state.downloads;
           return {
             queue: state.queue.filter(job => job.trackId !== trackId),
             downloads: remainingDownloads,
@@ -226,9 +209,7 @@ export const useDownloadStore = create<DownloadStore>()(
         });
 
         // Clean up any partially downloaded files
-        deleteTrackFiles(trackId).catch(error => {
-          logger.warn('[OfflineStore] Error cleaning up cancelled download files', { trackId, error });
-        });
+        deleteTrackFiles(trackId);
       },
 
       retryDownload: trackId => {
@@ -266,7 +247,9 @@ export const useDownloadStore = create<DownloadStore>()(
         }
 
         // Delete file directories for current user's tracks only
-        await Promise.all(ownedTrackIds.map(trackId => deleteTrackFiles(trackId)));
+        for (const trackId of ownedTrackIds) {
+          deleteTrackFiles(trackId);
+        }
 
         set(state => ({
           downloads: remainingDownloads,
@@ -361,7 +344,7 @@ export const useDownloadStore = create<DownloadStore>()(
         });
       },
 
-      refreshStorageInfo: async () => {
+      refreshStorageInfo: () => {
         // Skip file operations in Expo Go
         if (!isOfflineSupported) {
           logger.debug('[OfflineStore] Skipping storage refresh in Expo Go');
@@ -374,8 +357,7 @@ export const useDownloadStore = create<DownloadStore>()(
 
         for (const download of Object.values(downloads)) {
           if (download.status === 'completed' && download.localAudioPath) {
-            const size = await getFileSize(download.localAudioPath);
-            usedBytes += size;
+            usedBytes += getFileSize(download.localAudioPath);
             totalTracks++;
           }
         }
@@ -410,23 +392,22 @@ export const useDownloadStore = create<DownloadStore>()(
         );
       },
 
-      loadFromStorage: async () => {
+      loadFromStorage: () => {
         // Skip file verification in Expo Go
         if (!isOfflineSupported) {
           logger.debug('[OfflineStore] Skipping file verification in Expo Go');
           return;
         }
 
-        // This is handled by zustand persist middleware
-        // But we can verify files still exist
+        // Verify that previously-downloaded files still exist on disk
         const { downloads } = get();
         const verifiedDownloads = { ...downloads };
         let hasChanges = false;
 
         for (const [trackId, download] of Object.entries(downloads)) {
           if (download.status === 'completed' && download.localAudioPath) {
-            const fileInfo = await FileSystem.getInfoAsync(download.localAudioPath);
-            if (!fileInfo.exists) {
+            const file = new File(download.localAudioPath);
+            if (!file.exists) {
               // File was deleted externally, mark as failed
               verifiedDownloads[trackId] = {
                 ...download,
@@ -436,6 +417,14 @@ export const useDownloadStore = create<DownloadStore>()(
               };
               hasChanges = true;
             }
+          }
+          // Migrate any 'paused' downloads from pre-v19 to 'pending' (resumable no longer supported)
+          if (download.status === ('paused' as DownloadStatus)) {
+            verifiedDownloads[trackId] = {
+              ...download,
+              status: 'pending' as DownloadStatus,
+            };
+            hasChanges = true;
           }
         }
 
@@ -516,8 +505,6 @@ export const selectCompletedDownloadCount = (state: DownloadStore) => {
   return count;
 };
 
-// Export directory constant for use in download hook
-export { OFFLINE_DIR, ensureTrackDir };
-
-// Re-export Expo Go detection for UI components
+// Re-export for use in download hook and UI components
+export { ensureTrackDir } from './offlineEnv';
 export { isOfflineSupported } from './offlineEnv';

@@ -176,11 +176,11 @@ export function createMusicEvent<T extends MusicEvent['type']>(
  * Generate a unique event ID
  */
 function generateEventId(): string {
-  return `music_evt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  return `music_evt_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
 }
 
 function generateCorrelationId(): string {
-  return `cor_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  return `cor_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
 }
 
 // Event validation helper

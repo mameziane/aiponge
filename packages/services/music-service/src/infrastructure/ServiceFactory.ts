@@ -1,5 +1,5 @@
 import { getLogger } from '../config/service-urls';
-import { getDatabase } from './database/DatabaseConnectionFactory';
+import { getDatabase, type DatabaseConnection } from './database/DatabaseConnectionFactory';
 import type { IUserServiceClient } from '../domains/music-catalog/ports/IUserServiceClient';
 import type { IStorageServiceClient } from '../domains/music-catalog/ports/IStorageServiceClient';
 import type { IAnalyticsServiceClient } from '../domains/music-catalog/ports/IAnalyticsServiceClient';
@@ -9,7 +9,6 @@ import type { IAudioProcessingClient } from '../domains/music-catalog/ports/IAud
 import type { IProvidersClient } from '../domains/ai-music/ports/IProvidersClient';
 import type { ILyricsTimelineClient } from '../domains/ai-music/ports/ILyricsTimelineClient';
 import type { ITemplateServiceClient } from '../domains/ai-music/ports/ITemplateServiceClient';
-import type { DatabaseConnection } from './database/DatabaseConnectionFactory';
 import { UserServiceClient } from '../infrastructure/clients/UserServiceClient';
 import { StorageServiceClient } from '../infrastructure/clients/StorageServiceClient';
 import { AnalyticsServiceClient } from '../infrastructure/clients/AnalyticsServiceClient';

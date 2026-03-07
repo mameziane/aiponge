@@ -193,57 +193,53 @@ export type LibBookVisibility = z.infer<typeof LibBookVisibilitySchema>;
 export const LibBookStatusSchema = BookLifecycleSchema;
 export type LibBookStatus = z.infer<typeof LibBookStatusSchema>;
 
-export const LibBookSchema = z
-  .object({
-    id: z.string(),
-    typeId: z.string(),
-    userId: z.string(),
-    title: z.string(),
-    subtitle: z.string().nullable().optional(),
-    author: z.string().nullable().optional(),
-    description: z.string().nullable().optional(),
-    language: z.string().optional().default('en'),
-    visibility: ContentVisibilityWithDefaultSchema.optional(),
-    status: z.string().optional().default(BOOK_LIFECYCLE.ACTIVE),
-    isReadOnly: z.boolean().optional().default(false),
-    isSystem: z.boolean().optional(),
-    systemType: z.string().nullable().optional(),
-    category: z.string().nullable().optional(),
-    sortOrder: z.number().optional().default(0),
-    chapterCount: z.number().optional().default(0),
-    entryCount: z.number().optional().default(0),
-    tags: z.array(z.string()).optional().default([]),
-    themes: z.array(z.string()).optional().default([]),
-    metadata: z.record(z.unknown()).optional().default({}),
-    publishedAt: z.string().nullable().optional(),
-    createdAt: z.string().optional(),
-    updatedAt: z.string().optional(),
-    displayAuthor: z.string().nullable().optional(),
-  })
-  .passthrough();
+export const LibBookSchema = z.object({
+  id: z.string(),
+  typeId: z.string(),
+  userId: z.string(),
+  title: z.string(),
+  subtitle: z.string().nullable().optional(),
+  author: z.string().nullable().optional(),
+  description: z.string().nullable().optional(),
+  language: z.string().optional().default('en'),
+  visibility: ContentVisibilityWithDefaultSchema.optional(),
+  status: z.string().optional().default(BOOK_LIFECYCLE.ACTIVE),
+  isReadOnly: z.boolean().optional().default(false),
+  isSystem: z.boolean().optional(),
+  systemType: z.string().nullable().optional(),
+  category: z.string().nullable().optional(),
+  sortOrder: z.number().optional().default(0),
+  chapterCount: z.number().optional().default(0),
+  entryCount: z.number().optional().default(0),
+  tags: z.array(z.string()).optional().default([]),
+  themes: z.array(z.string()).optional().default([]),
+  metadata: z.record(z.unknown()).optional().default({}),
+  publishedAt: z.string().nullable().optional(),
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
+  displayAuthor: z.string().nullable().optional(),
+});
 export type LibBook = z.infer<typeof LibBookSchema>;
 
 // =============================================================================
 // CHAPTER CONTRACTS
 // =============================================================================
 
-export const LibChapterSchema = z
-  .object({
-    id: z.string(),
-    bookId: z.string(),
-    userId: z.string().optional(),
-    title: z.string(),
-    description: z.string().nullable().optional(),
-    sortOrder: z.number().optional().default(0),
-    isLocked: z.boolean().optional().default(false),
-    unlockTrigger: z.string().nullable().optional(),
-    unlockedAt: z.string().nullable().optional(),
-    entryCount: z.number().optional().default(0),
-    metadata: z.record(z.unknown()).optional().default({}),
-    createdAt: z.string().optional(),
-    updatedAt: z.string().optional(),
-  })
-  .passthrough();
+export const LibChapterSchema = z.object({
+  id: z.string(),
+  bookId: z.string(),
+  userId: z.string().optional(),
+  title: z.string(),
+  description: z.string().nullable().optional(),
+  sortOrder: z.number().optional().default(0),
+  isLocked: z.boolean().optional().default(false),
+  unlockTrigger: z.string().nullable().optional(),
+  unlockedAt: z.string().nullable().optional(),
+  entryCount: z.number().optional().default(0),
+  metadata: z.record(z.unknown()).optional().default({}),
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
+});
 export type LibChapter = z.infer<typeof LibChapterSchema>;
 
 // =============================================================================
@@ -281,35 +277,33 @@ export type LibSentiment = z.infer<typeof LibSentimentSchema>;
 export const DepthLevelSchema = z.enum(['brief', 'standard', 'deep']);
 export type DepthLevel = z.infer<typeof DepthLevelSchema>;
 
-export const LibEntrySchema = z
-  .object({
-    id: z.string(),
-    chapterId: z.string(),
-    bookId: z.string().optional(),
-    userId: z.string().optional(),
-    content: z.string(),
-    entryType: z.string().optional().default('reflection'),
-    sortOrder: z.number().optional().default(0),
-    sourceTitle: z.string().nullable().optional(),
-    sourceAuthor: z.string().nullable().optional(),
-    sourceChapter: z.string().nullable().optional(),
-    attribution: z.string().nullable().optional(),
-    moodContext: z.string().nullable().optional(),
-    sentiment: z.string().nullable().optional(),
-    emotionalIntensity: z.number().nullable().optional(),
-    tags: z.array(z.string()).optional().default([]),
-    themes: z.array(z.string()).optional().default([]),
-    musicHints: z.record(z.unknown()).optional().default({}),
-    depthLevel: z.string().nullable().optional(),
-    metadata: z.record(z.unknown()).optional().default({}),
-    processingStatus: z.string().nullable().optional(),
-    illustrationUrl: z.string().nullable().optional(),
-    chapterSortOrder: z.number().optional(),
-    userDate: z.string().nullable().optional(),
-    createdAt: z.string().optional(),
-    updatedAt: z.string().optional(),
-  })
-  .passthrough();
+export const LibEntrySchema = z.object({
+  id: z.string(),
+  chapterId: z.string(),
+  bookId: z.string().optional(),
+  userId: z.string().optional(),
+  content: z.string(),
+  entryType: z.string().optional().default('reflection'),
+  sortOrder: z.number().optional().default(0),
+  sourceTitle: z.string().nullable().optional(),
+  sourceAuthor: z.string().nullable().optional(),
+  sourceChapter: z.string().nullable().optional(),
+  attribution: z.string().nullable().optional(),
+  moodContext: z.string().nullable().optional(),
+  sentiment: z.string().nullable().optional(),
+  emotionalIntensity: z.number().nullable().optional(),
+  tags: z.array(z.string()).optional().default([]),
+  themes: z.array(z.string()).optional().default([]),
+  musicHints: z.record(z.unknown()).optional().default({}),
+  depthLevel: z.string().nullable().optional(),
+  metadata: z.record(z.unknown()).optional().default({}),
+  processingStatus: z.string().nullable().optional(),
+  illustrationUrl: z.string().nullable().optional(),
+  chapterSortOrder: z.number().optional(),
+  userDate: z.string().nullable().optional(),
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
+});
 export type LibEntry = z.infer<typeof LibEntrySchema>;
 
 // =============================================================================
@@ -322,25 +316,23 @@ export type LibIllustrationType = z.infer<typeof LibIllustrationTypeSchema>;
 export const LibIllustrationSourceSchema = z.enum(['uploaded', 'ai_generated', 'stock']);
 export type LibIllustrationSource = z.infer<typeof LibIllustrationSourceSchema>;
 
-export const LibIllustrationSchema = z
-  .object({
-    id: z.string(),
-    bookId: z.string().nullable().optional(),
-    chapterId: z.string().nullable().optional(),
-    entryId: z.string().nullable().optional(),
-    url: z.string(),
-    artworkUrl: z.string().nullable().optional(),
-    altText: z.string().nullable().optional(),
-    illustrationType: z.string(),
-    source: z.string(),
-    sortOrder: z.number().optional().default(0),
-    generationPrompt: z.string().nullable().optional(),
-    generationMetadata: z.record(z.unknown()).optional().default({}),
-    width: z.number().nullable().optional(),
-    height: z.number().nullable().optional(),
-    createdAt: z.string().optional(),
-  })
-  .passthrough();
+export const LibIllustrationSchema = z.object({
+  id: z.string(),
+  bookId: z.string().nullable().optional(),
+  chapterId: z.string().nullable().optional(),
+  entryId: z.string().nullable().optional(),
+  url: z.string(),
+  artworkUrl: z.string().nullable().optional(),
+  altText: z.string().nullable().optional(),
+  illustrationType: z.string(),
+  source: z.string(),
+  sortOrder: z.number().optional().default(0),
+  generationPrompt: z.string().nullable().optional(),
+  generationMetadata: z.record(z.unknown()).optional().default({}),
+  width: z.number().nullable().optional(),
+  height: z.number().nullable().optional(),
+  createdAt: z.string().optional(),
+});
 export type LibIllustration = z.infer<typeof LibIllustrationSchema>;
 
 // =============================================================================
@@ -368,7 +360,7 @@ export type LibEntryWithIllustrations = z.infer<typeof LibEntryWithIllustrations
 // API RESPONSE CONTRACTS - These are the critical contracts for frontend-backend sync
 // =============================================================================
 
-export const ListBooksResponseDataSchema = z.array(LibBookSchema.passthrough());
+export const ListBooksResponseDataSchema = z.array(LibBookSchema);
 export type ListBooksResponseData = z.infer<typeof ListBooksResponseDataSchema>;
 
 export const ListBooksResponseSchema = z.object({
@@ -383,12 +375,10 @@ export type ListBooksResponse = z.infer<typeof ListBooksResponseSchema>;
 
 export const ListChaptersResponseDataSchema = z.object({
   chapters: z.array(
-    z
-      .object({
-        chapter: LibChapterSchema,
-        entity: z.record(z.unknown()).optional(),
-      })
-      .passthrough()
+    z.object({
+      chapter: LibChapterSchema,
+      entity: z.record(z.unknown()).optional(),
+    })
   ),
   total: z.number().optional(),
 });
@@ -406,15 +396,13 @@ export type ListEntriesResponseData = z.infer<typeof ListEntriesResponseDataSche
 export const ListEntriesResponseSchema = ServiceResponseSchema(ListEntriesResponseDataSchema);
 export type ListEntriesResponse = z.infer<typeof ListEntriesResponseSchema>;
 
-export const CreateBookResponseSchema = ServiceResponseSchema(LibBookSchema.passthrough());
+export const CreateBookResponseSchema = ServiceResponseSchema(LibBookSchema);
 export type CreateBookResponse = z.infer<typeof CreateBookResponseSchema>;
 
-export const BookWithEntityResponseDataSchema = z
-  .object({
-    book: LibBookSchema.passthrough(),
-    entity: z.record(z.unknown()).optional(),
-  })
-  .passthrough();
+export const BookWithEntityResponseDataSchema = z.object({
+  book: LibBookSchema,
+  entity: z.record(z.unknown()).optional(),
+});
 
 export const BookResponseSchema = ServiceResponseSchema(BookWithEntityResponseDataSchema);
 export type BookResponse = z.infer<typeof BookResponseSchema>;

@@ -28,82 +28,48 @@ export type SongRequestPhase = z.infer<typeof SongRequestPhaseSchema>;
 // SONG REQUEST PROGRESS SCHEMA
 // =============================================================================
 
-export const SongRequestProgressSchema = z
-  .object({
-    id: z.string(),
-    userId: z.string(),
-    entryId: z.string().nullable().optional(),
-    status: z.string(),
-    phase: SongRequestPhaseSchema,
-    percentComplete: z.number().min(0).max(100),
-    visibility: ContentVisibilitySchema.optional(),
-    errorMessage: z.string().nullable().optional(),
-    artworkError: z.string().nullable().optional(),
-    trackId: z.string().nullable().optional(),
-    trackTitle: z.string().nullable().optional(),
-    artworkUrl: z.string().nullable().optional(),
-    streamingUrl: z.string().nullable().optional(),
-    lyrics: z.string().nullable().optional(),
-    createdAt: z.string(),
-    updatedAt: z.string(),
-    startedAt: z.string().nullable().optional(),
-    completedAt: z.string().nullable().optional(),
-  })
-  .passthrough();
+export const SongRequestProgressSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  entryId: z.string().nullable().optional(),
+  status: z.string(),
+  phase: SongRequestPhaseSchema,
+  percentComplete: z.number().min(0).max(100),
+  visibility: ContentVisibilitySchema.optional(),
+  errorMessage: z.string().nullable().optional(),
+  artworkError: z.string().nullable().optional(),
+  trackId: z.string().nullable().optional(),
+  trackTitle: z.string().nullable().optional(),
+  artworkUrl: z.string().nullable().optional(),
+  streamingUrl: z.string().nullable().optional(),
+  lyrics: z.string().nullable().optional(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  startedAt: z.string().nullable().optional(),
+  completedAt: z.string().nullable().optional(),
+});
 export type SongRequestProgress = z.infer<typeof SongRequestProgressSchema>;
 
 // =============================================================================
-// SONG GENERATION REQUEST SCHEMA (mirrors MusicGenerateSchema from input-schemas)
+// SONG GENERATION REQUEST SCHEMA — re-exported from input-schemas (single source of truth)
 // =============================================================================
 
-export const SongGenerationRequestSchema = z
-  .object({
-    entryId: z.string().uuid().optional(),
-    lyricsId: z.string().uuid().optional(),
-    entryContent: z.string().max(10000).optional(),
-    sourceArtworkUrl: z.string().url().optional(),
-    pictureContext: z.string().max(2000).optional(),
-    sourceEntryId: z.string().optional(),
-    sourceText: z.string().max(10000).optional(),
-    sourceReference: z.string().max(500).optional(),
-    sourceBookTitle: z.string().max(500).optional(),
-    genre: z.string().max(100).optional(),
-    mood: z.string().max(100).optional(),
-    style: z.string().max(100).optional(),
-    culturalStyle: z.string().max(100).optional(),
-    instrumentType: z.string().max(500).optional(),
-    vocalGender: z.enum(['f', 'm']).optional(),
-    language: z.string().max(10).optional(),
-    targetLanguages: z.array(z.string().max(10)).optional(),
-    isBilingual: z.boolean().optional(),
-    negativeTags: z.string().max(500).optional(),
-    styleWeight: z.number().min(0).max(1).optional(),
-    quality: z.string().max(50).optional(),
-    priority: z.string().max(50).optional(),
-    musicType: z.string().max(50).optional(),
-    artworkUrl: z.string().max(2000).optional(),
-    chapterId: z.string().optional(),
-    title: z.string().max(255).optional(),
-    customInstructions: z.string().max(1000).optional(),
-    useCredits: z.boolean().optional(),
-    idempotencyKey: z.string().uuid().optional(),
-  })
-  .passthrough();
-export type SongGenerationRequest = z.infer<typeof SongGenerationRequestSchema>;
+export {
+  MusicGenerateSchema as SongGenerationRequestSchema,
+  type MusicGenerateInput as SongGenerationRequest,
+} from './input-schemas.js';
 
 // =============================================================================
 // SONG GENERATION RESPONSE SCHEMAS (using ServiceResponseSchema pattern)
 // =============================================================================
 
-export const SongGenerationDataSchema = z
-  .object({
-    requestId: z.string(),
-    status: z.string(),
-    message: z.string().optional(),
-    creditsUsed: z.number().optional(),
-    creditsRemaining: z.number().optional(),
-  })
-  .passthrough();
+export const SongGenerationDataSchema = z.object({
+  requestId: z.string(),
+  status: z.string(),
+  message: z.string().optional(),
+  creditsUsed: z.number().optional(),
+  creditsRemaining: z.number().optional(),
+});
 export type SongGenerationData = z.infer<typeof SongGenerationDataSchema>;
 
 export const SongGenerationResponseSchema = ServiceResponseSchema(SongGenerationDataSchema);

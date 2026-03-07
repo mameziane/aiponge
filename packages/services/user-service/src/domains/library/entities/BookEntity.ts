@@ -1,6 +1,6 @@
 import { Book, BOOK_TYPE_IDS } from '@domains/library/types';
-import { CONTENT_VISIBILITY } from '@aiponge/shared-contracts';
 import {
+  CONTENT_VISIBILITY,
   canViewContent,
   canEditContent,
   canDeleteContent,

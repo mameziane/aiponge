@@ -3,8 +3,7 @@
  * Handles comprehensive user profile retrieval combining basic profile data with derived insights
  */
 
-import { IProfileRepository } from '@domains/profile';
-import { IEntryRepository } from '@domains/profile';
+import { IProfileRepository, IEntryRepository } from '@domains/profile';
 import { getLogger } from '@config/service-urls';
 import { ProfileError } from '@application/errors';
 import { PROFILE_VISIBILITY, USER_STATUS, type ProfileVisibility } from '@aiponge/shared-contracts';

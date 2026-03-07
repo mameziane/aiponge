@@ -7,8 +7,7 @@
 import { Redis } from 'ioredis';
 import { RedisMusicTaskTracker, TaskState } from '../../infrastructure/tracking';
 import { MusicApiDownloadProvider } from './MusicApiDownloadProvider';
-import { HttpClient, createIntervalScheduler } from '@aiponge/platform-core';
-import type { IntervalScheduler } from '@aiponge/platform-core';
+import { HttpClient, createIntervalScheduler, type IntervalScheduler } from '@aiponge/platform-core';
 import { getLogger } from '../../config/service-urls';
 import { PipelineError } from '../errors';
 

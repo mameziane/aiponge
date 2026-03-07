@@ -1,6 +1,12 @@
-import type { UserRole, AuthContext, ContentAccessContext } from '@aiponge/shared-contracts';
-import type { TierId } from '@aiponge/shared-contracts';
-import { createAuthContext, buildContentAccessContext, TIER_IDS } from '@aiponge/shared-contracts';
+import {
+  createAuthContext,
+  buildContentAccessContext,
+  TIER_IDS,
+  type UserRole,
+  type AuthContext,
+  type ContentAccessContext,
+  type TierId,
+} from '@aiponge/shared-contracts';
 
 export type { UserRole, AuthContext, ContentAccessContext };
 

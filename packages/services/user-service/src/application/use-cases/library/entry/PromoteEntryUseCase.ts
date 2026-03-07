@@ -8,7 +8,7 @@ import { z } from 'zod';
 import { BookRepository, ChapterRepository, EntryRepository } from '@infrastructure/repositories';
 import { Entry } from '@infrastructure/database/schemas/library-schema';
 import { BookEntity, ChapterEntity, EntryEntity } from '@domains/library/entities';
-import type { ContentAccessContext } from '@aiponge/shared-contracts';
+import { isContentPubliclyAccessible, CONTENT_VISIBILITY, type ContentAccessContext } from '@aiponge/shared-contracts';
 import {
   LibraryResponse,
   success,
@@ -18,7 +18,6 @@ import {
   operationFailed,
 } from '../shared/LibraryErrors';
 import { getLogger } from '@config/service-urls';
-import { isContentPubliclyAccessible, CONTENT_VISIBILITY } from '@aiponge/shared-contracts';
 import { serializeError } from '@aiponge/platform-core';
 
 const logger = getLogger('promote-entry-use-case');

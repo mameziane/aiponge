@@ -7,7 +7,12 @@
 import { and, eq, sql, isNull } from 'drizzle-orm';
 import { DatabaseConnection } from '../../infrastructure/database/DatabaseConnectionFactory';
 import { getLogger } from '../../config/service-urls';
-import { users } from '../../infrastructure/database/schemas/user-schema';
+import {
+  users,
+  userCredits,
+  creditTransactions,
+  creditOrders,
+} from '../../infrastructure/database/schemas/user-schema';
 import {
   usrInsights,
   usrReflections,
@@ -29,7 +34,6 @@ import {
   usrGuestDataMigrations,
   usrSubscriptionEvents,
 } from '../../infrastructure/database/schemas/subscription-schema';
-import { userCredits, creditTransactions, creditOrders } from '../../infrastructure/database/schemas/user-schema';
 import { CONTENT_VISIBILITY } from '@aiponge/shared-contracts';
 import { serializeError } from '@aiponge/platform-core';
 

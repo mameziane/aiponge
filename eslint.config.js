@@ -80,6 +80,10 @@ export default [
         require: 'readonly',
         __DEV__: 'readonly',
         window: 'readonly',
+        crypto: 'readonly',
+        setImmediate: 'readonly',
+        Headers: 'readonly',
+        globalThis: 'readonly',
       },
     },
     plugins: {

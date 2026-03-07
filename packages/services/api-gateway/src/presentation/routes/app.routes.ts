@@ -29,11 +29,10 @@ import {
 } from '@aiponge/platform-core';
 import { getLogger } from '../../config/service-urls';
 const { validateQuery } = getValidation();
-import { PaginationSchema, CACHE } from '@aiponge/shared-contracts';
+import { PaginationSchema, CACHE, sendStructuredError, createStructuredError } from '@aiponge/shared-contracts';
 import { injectAuthenticatedUserId } from '../middleware/authorizationMiddleware';
 import { jwtAuthMiddleware } from '../middleware/jwtAuthMiddleware';
 import { sendSuccess, sendCreated, ServiceErrors } from '../utils/response-helpers';
-import { sendStructuredError, createStructuredError } from '@aiponge/shared-contracts';
 import { gatewayFetch } from '@services/gatewayFetch';
 
 // Domain-specific route modules

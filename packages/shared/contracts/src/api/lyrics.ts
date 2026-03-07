@@ -27,17 +27,15 @@ export type SyncedWord = z.infer<typeof SyncedWordSchema>;
 export const LYRICS_LINE_TYPES = ['line', 'section', 'backing', 'instrumental'] as const;
 export type LyricsLineType = (typeof LYRICS_LINE_TYPES)[number];
 
-export const SyncedLineSchema = z
-  .object({
-    text: z.string(),
-    startTime: z.number().optional(),
-    endTime: z.number().optional(),
-    startMs: z.number().optional(),
-    endMs: z.number().optional(),
-    type: z.enum(LYRICS_LINE_TYPES).optional(),
-    words: z.array(SyncedWordSchema).optional(),
-  })
-  .passthrough();
+export const SyncedLineSchema = z.object({
+  text: z.string(),
+  startTime: z.number().optional(),
+  endTime: z.number().optional(),
+  startMs: z.number().optional(),
+  endMs: z.number().optional(),
+  type: z.enum(LYRICS_LINE_TYPES).optional(),
+  words: z.array(SyncedWordSchema).optional(),
+});
 export type SyncedLine = z.infer<typeof SyncedLineSchema>;
 
 // =============================================================================
@@ -143,54 +141,50 @@ export function findActiveLineByTime(lines: SyncedLine[], timeSeconds: number): 
 // LYRICS SCHEMA
 // =============================================================================
 
-export const LyricsSchema = z
-  .object({
-    id: z.string(),
-    userId: z.string().nullable().optional(), // Creator of the lyrics
-    content: z.string(),
-    syncedLines: z.array(SyncedLineSchema).nullable().optional(),
-    synced_lines: z.array(SyncedLineSchema).nullable().optional(),
-    timedLyricsJson: z.unknown().nullable().optional(),
-    clipId: z.string().nullable().optional(),
-    title: z.string().nullable().optional(),
-    style: z.string().nullable().optional(),
-    mood: z.string().nullable().optional(),
-    language: z.string().nullable().optional(),
-    themes: z.array(z.string()).nullable().optional(),
-    hasStructureTags: z.boolean().optional(),
-    aiProvider: z.string().nullable().optional(),
-    aiModel: z.string().nullable().optional(),
-    generationPrompt: z.string().nullable().optional(),
-    metadata: z.record(z.unknown()).optional(),
-    createdAt: z.string().optional(),
-    updatedAt: z.string().optional(),
-  })
-  .passthrough();
+export const LyricsSchema = z.object({
+  id: z.string(),
+  userId: z.string().nullable().optional(), // Creator of the lyrics
+  content: z.string(),
+  syncedLines: z.array(SyncedLineSchema).nullable().optional(),
+  synced_lines: z.array(SyncedLineSchema).nullable().optional(),
+  timedLyricsJson: z.unknown().nullable().optional(),
+  clipId: z.string().nullable().optional(),
+  title: z.string().nullable().optional(),
+  style: z.string().nullable().optional(),
+  mood: z.string().nullable().optional(),
+  language: z.string().nullable().optional(),
+  themes: z.array(z.string()).nullable().optional(),
+  hasStructureTags: z.boolean().optional(),
+  aiProvider: z.string().nullable().optional(),
+  aiModel: z.string().nullable().optional(),
+  generationPrompt: z.string().nullable().optional(),
+  metadata: z.record(z.unknown()).optional(),
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
+});
 export type Lyrics = z.infer<typeof LyricsSchema>;
 
 // =============================================================================
 // USER LYRICS SCHEMA (user-owned lyrics)
 // =============================================================================
 
-export const UserLyricsSchema = z
-  .object({
-    id: z.string(),
-    userId: z.string(),
-    entryId: z.string().nullable().optional(),
-    content: z.string(),
-    syncedLines: z.array(SyncedLineSchema).nullable().optional(),
-    title: z.string().nullable().optional(),
-    style: z.string().nullable().optional(),
-    mood: z.string().nullable().optional(),
-    language: z.string().nullable().optional(),
-    themes: z.array(z.string()).nullable().optional(),
-    usageCount: z.number().optional(),
-    aiProvider: z.string().nullable().optional(),
-    aiModel: z.string().nullable().optional(),
-    createdAt: z.string().optional(),
-    updatedAt: z.string().optional(),
-  })
-  .passthrough();
+export const UserLyricsSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  entryId: z.string().nullable().optional(),
+  content: z.string(),
+  syncedLines: z.array(SyncedLineSchema).nullable().optional(),
+  title: z.string().nullable().optional(),
+  style: z.string().nullable().optional(),
+  mood: z.string().nullable().optional(),
+  language: z.string().nullable().optional(),
+  themes: z.array(z.string()).nullable().optional(),
+  usageCount: z.number().optional(),
+  aiProvider: z.string().nullable().optional(),
+  aiModel: z.string().nullable().optional(),
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
+});
 export type UserLyrics = z.infer<typeof UserLyricsSchema>;
 
 // =============================================================================
@@ -216,18 +210,16 @@ export type LyricsListResponse = z.infer<typeof LyricsListResponseSchema>;
 // LYRICS GENERATION REQUEST SCHEMA
 // =============================================================================
 
-export const GenerateLyricsRequestSchema = z
-  .object({
-    userId: z.string().uuid().optional(),
-    entryId: z.string().uuid().optional(),
-    content: z.string().max(10000).optional(),
-    style: z.string().max(100).optional(),
-    mood: z.string().max(100).optional(),
-    language: z.string().max(10).optional(),
-    genre: z.string().max(100).optional(),
-    title: z.string().max(255).optional(),
-  })
-  .passthrough();
+export const GenerateLyricsRequestSchema = z.object({
+  userId: z.string().uuid().optional(),
+  entryId: z.string().uuid().optional(),
+  content: z.string().max(10000).optional(),
+  style: z.string().max(100).optional(),
+  mood: z.string().max(100).optional(),
+  language: z.string().max(10).optional(),
+  genre: z.string().max(100).optional(),
+  title: z.string().max(255).optional(),
+});
 export type GenerateLyricsRequest = z.infer<typeof GenerateLyricsRequestSchema>;
 
 // =============================================================================

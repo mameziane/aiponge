@@ -3,9 +3,7 @@
  * Extracts key moments from user journey, identifies breakthrough insights, creates profile highlights reel
  */
 
-import { IProfileRepository } from '@domains/profile';
-import { IEntryRepository } from '@domains/profile';
-import { IAnalysisRepository } from '@domains/profile';
+import { IProfileRepository, IEntryRepository, IAnalysisRepository } from '@domains/profile';
 import { ProfileError } from '@application/errors';
 import { type ContentVisibility } from '@aiponge/shared-contracts';
 import { getLogger } from '@config/service-urls';

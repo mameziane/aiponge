@@ -3,9 +3,7 @@
  * Calculates overall wellness metrics, aggregates emotional and cognitive data, provides wellness trends and recommendations
  */
 
-import { IProfileRepository } from '@domains/profile';
-import { IEntryRepository } from '@domains/profile';
-import { IAnalysisRepository } from '@domains/profile';
+import { IProfileRepository, IEntryRepository, IAnalysisRepository } from '@domains/profile';
 import { getLogger } from '@config/service-urls';
 import { InsightsError } from '@application/errors';
 import { serializeError } from '@aiponge/platform-core';

@@ -2,7 +2,7 @@
  * Credit Store - Purchase song packs via RevenueCat in-app purchases
  */
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { View, Text, ScrollView, StyleSheet, ActivityIndicator, RefreshControl, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -10,18 +10,10 @@ import { PurchasesStoreProduct } from 'react-native-purchases';
 import { useTranslation } from '../../i18n';
 import { useThemeColors, type ColorScheme, commonStyles, BORDER_RADIUS } from '../../theme';
 import { LoadingState } from '../../components/shared';
-import { apiClient } from '../../lib/axiosApiClient';
-import type { ServiceResponse } from '@aiponge/shared-contracts';
-import { useAuthStore, selectUserId } from '../../auth/store';
 import { useSubscriptionData, useSubscriptionActions } from '../../contexts/SubscriptionContext';
 import { useCredits } from '../../hooks/commerce/useCredits';
 import { logger } from '../../lib/logger';
 import { LiquidGlassCard } from '../../components/ui';
-
-interface CreditBalance {
-  currentBalance: number;
-  totalSpent: number;
-}
 
 export default function CreditStoreScreen() {
   const colors = useThemeColors();
@@ -30,61 +22,23 @@ export default function CreditStoreScreen() {
   const ACCENT = colors.brand.accent;
   const PRIMARY = colors.brand.primary;
   const { t } = useTranslation();
-  const userId = useAuthStore(selectUserId);
   const { creditsOffering, isLoading: subscriptionLoading } = useSubscriptionData();
   const { purchaseCredits, refreshOfferings } = useSubscriptionActions();
-  const { creditCostPerSong } = useCredits();
-  const [loading, setLoading] = useState(true);
+  const { balance, loading, creditCostPerSong, refreshBalance } = useCredits();
   const [refreshing, setRefreshing] = useState(false);
   const [purchasing, setPurchasing] = useState<string | null>(null);
 
-  const [balance, setBalance] = useState<CreditBalance | null>(null);
-
   const revenueCatProducts = creditsOffering?.availablePackages.map(pkg => pkg.product) || [];
 
-  const fetchData = async (showRefreshing = false) => {
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
     try {
-      if (showRefreshing) {
-        setRefreshing(true);
-      } else {
-        setLoading(true);
-      }
-
-      // Refresh RevenueCat offerings + credit balance in parallel
-      // This recovers from network failures during initial RevenueCat initialization
-      const promises: Promise<void>[] = [refreshOfferings()];
-
-      if (userId) {
-        promises.push(
-          apiClient
-            .get<ServiceResponse<{ currentBalance: number; totalSpent: number }>>('/api/v1/app/credits/balance')
-            .then(balanceResponse => {
-              if (balanceResponse.success && balanceResponse.data) {
-                setBalance({
-                  currentBalance: balanceResponse.data.currentBalance,
-                  totalSpent: balanceResponse.data.totalSpent,
-                });
-              }
-            })
-        );
-      }
-
-      await Promise.allSettled(promises);
-    } catch (error) {
-      logger.error('Failed to fetch store data', error);
+      await refreshOfferings();
+      refreshBalance();
     } finally {
-      setLoading(false);
       setRefreshing(false);
     }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const onRefresh = () => {
-    fetchData(true);
-  };
+  }, [refreshOfferings, refreshBalance]);
 
   const handlePurchase = async (product: PurchasesStoreProduct) => {
     setPurchasing(product.identifier);
@@ -92,7 +46,8 @@ export default function CreditStoreScreen() {
       const result = await purchaseCredits(product);
 
       if (result.success) {
-        await fetchData();
+        refreshBalance();
+        await refreshOfferings();
       }
     } catch (error) {
       logger.error('Purchase failed', error);

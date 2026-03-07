@@ -23,6 +23,7 @@ export enum PlaylistType {
 }
 
 export const PlaylistStatus = PLAYLIST_LIFECYCLE;
+// eslint-disable-next-line no-redeclare
 export type PlaylistStatus = PlaylistLifecycleStatus;
 
 export interface SmartPlaylistRules {

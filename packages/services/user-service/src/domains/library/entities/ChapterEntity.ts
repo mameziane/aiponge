@@ -1,6 +1,5 @@
 import { Chapter } from '@domains/library/types';
-import { contextIsAdmin } from '@aiponge/shared-contracts';
-import type { ContentAccessContext } from '@aiponge/shared-contracts';
+import { contextIsAdmin, type ContentAccessContext } from '@aiponge/shared-contracts';
 import { BookEntity } from './BookEntity';
 
 export class ChapterEntity {

@@ -26,10 +26,28 @@ export type UsageLimitsResponse = ServiceResponse<UsageLimits>;
 
 export const SubscriptionTierFeaturesResponseSchema = z.object({
   canGenerateMusic: z.boolean(),
+  canGenerateBooks: z.boolean(),
+  maxBookDepth: z.enum(['brief', 'standard', 'deep']).nullable(),
   canAccessLibrary: z.boolean(),
   canAccessActivityCalendar: z.boolean(),
   canAccessMentorLine: z.boolean(),
   canAccessInsightsReports: z.boolean(),
+  canSelectFramework: z.boolean(),
+  canSelectMusicStyle: z.boolean(),
+  canShareSongs: z.boolean(),
+  canAccessJournal: z.boolean(),
+  canDownloadSongs: z.boolean().optional(),
+  canAccessWellness: z.boolean().optional(),
+  canCreateCustomBooks: z.boolean().optional(),
+  canSwitchTiers: z.boolean().optional(),
+  hasPrioritySupport: z.boolean().optional(),
+  canShareWithClients: z.boolean().optional(),
+  canViewClientReflections: z.boolean().optional(),
+  canViewClientEngagement: z.boolean().optional(),
+  canBatchGenerate: z.boolean().optional(),
+  canWhiteLabel: z.boolean().optional(),
+  canAccessAPI: z.boolean().optional(),
+  songBranding: z.enum(['aiponge', 'custom']).nullable().optional(),
 });
 export type SubscriptionTierFeaturesResponse = z.infer<typeof SubscriptionTierFeaturesResponseSchema>;
 
@@ -37,6 +55,7 @@ export const SubscriptionTierLimitsResponseSchema = z.object({
   songsPerMonth: z.number(),
   lyricsPerMonth: z.number(),
   insightsPerMonth: z.number(),
+  booksPerMonth: z.number(),
 });
 export type SubscriptionTierLimitsResponse = z.infer<typeof SubscriptionTierLimitsResponseSchema>;
 

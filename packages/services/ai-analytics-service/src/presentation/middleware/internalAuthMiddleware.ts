@@ -1,5 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
-import { ServiceErrors } from '../utils/response-helpers';
+import { getResponseHelpers } from '@aiponge/platform-core';
+
+const { ServiceErrors } = getResponseHelpers();
 
 export function internalAuthMiddleware(req: Request, res: Response, next: NextFunction): void {
   const internalSecret = process.env.INTERNAL_SERVICE_SECRET;
@@ -8,7 +10,6 @@ export function internalAuthMiddleware(req: Request, res: Response, next: NextFu
       ServiceErrors.internal(res, 'INTERNAL_SERVICE_SECRET is not configured', undefined, req);
       return;
     }
-    // Allow in development without secret for local testing
     next();
     return;
   }

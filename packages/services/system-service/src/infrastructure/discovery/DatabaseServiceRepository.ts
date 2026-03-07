@@ -15,8 +15,7 @@ import {
   type NewServiceDependency,
 } from '../../schema/system-schema';
 import { INFRASTRUCTURE, HEALTH_STATUS } from '@aiponge/shared-contracts';
-import { createIntervalScheduler } from '@aiponge/platform-core';
-import type { IntervalScheduler } from '@aiponge/platform-core';
+import { createIntervalScheduler, type IntervalScheduler } from '@aiponge/platform-core';
 
 const defaultDb = getDatabase('system-service', schema);
 type DatabaseConnection = typeof defaultDb;

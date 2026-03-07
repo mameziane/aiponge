@@ -4,8 +4,7 @@ import { getDatabase, type DatabaseConnection } from '@infrastructure/database/D
 import { getLogger } from '@config/service-urls';
 import { sendSuccess, sendCreated, ServiceErrors } from '../../utils/response-helpers';
 import { createControllerHelpers, extractAuthContext } from '@aiponge/platform-core';
-import { normalizeRole } from '@aiponge/shared-contracts';
-import type { ContentAccessContext } from '@aiponge/shared-contracts';
+import { normalizeRole, type ContentAccessContext } from '@aiponge/shared-contracts';
 import {
   BookTypeRepository,
   BookRepository,

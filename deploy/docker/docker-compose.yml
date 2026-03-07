@@ -13,7 +13,7 @@ services:
     environment:
       NODE_ENV: development
     volumes:
-      - ../../packages/services/system-service:/app/src
+      - ../../packages/services/system-service/src:/app/src
 
   storage-service:
     build:
@@ -25,7 +25,7 @@ services:
     environment:
       NODE_ENV: development
     volumes:
-      - ../../packages/services/storage-service:/app/src
+      - ../../packages/services/storage-service/src:/app/src
       - storage-data:/app/storage
 
   user-service:
@@ -38,7 +38,7 @@ services:
     environment:
       NODE_ENV: development
     volumes:
-      - ../../packages/services/user-service:/app/src
+      - ../../packages/services/user-service/src:/app/src
 
   ai-config-service:
     build:
@@ -50,7 +50,7 @@ services:
     environment:
       NODE_ENV: development
     volumes:
-      - ../../packages/services/ai-config-service:/app/src
+      - ../../packages/services/ai-config-service/src:/app/src
 
   ai-content-service:
     build:
@@ -62,7 +62,7 @@ services:
     environment:
       NODE_ENV: development
     volumes:
-      - ../../packages/services/ai-content-service:/app/src
+      - ../../packages/services/ai-content-service/src:/app/src
 
   ai-analytics-service:
     build:
@@ -74,7 +74,7 @@ services:
     environment:
       NODE_ENV: development
     volumes:
-      - ../../packages/services/ai-analytics-service:/app/src
+      - ../../packages/services/ai-analytics-service/src:/app/src
 
   music-service:
     build:
@@ -86,7 +86,7 @@ services:
     environment:
       NODE_ENV: development
     volumes:
-      - ../../packages/services/music-service:/app/src
+      - ../../packages/services/music-service/src:/app/src
 
   api-gateway:
     build:
@@ -98,11 +98,7 @@ services:
     environment:
       NODE_ENV: development
     volumes:
-      - ../../packages/services/api-gateway:/app/src
-
-  zookeeper:
-    ports:
-      - '2181:2181'
+      - ../../packages/services/api-gateway/src:/app/src
 
   jaeger:
     image: jaegertracing/all-in-one:1.54

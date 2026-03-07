@@ -1,9 +1,4 @@
-// Load environment variables first (never override Replit Secrets)
-import { config } from 'dotenv';
-import { resolve } from 'path';
-config({ path: resolve(process.cwd(), '.env'), override: false });
-
-// FINAL FIX: Set MaxListeners before any imports or EventEmitter setup
+// Set MaxListeners before any imports or EventEmitter setup
 process.setMaxListeners(15);
 
 // Fix EventEmitter warnings - MUST be first import

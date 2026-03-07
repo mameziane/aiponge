@@ -20,7 +20,7 @@ export type BaseEvent = z.infer<typeof baseEventSchema>;
 
 // Helper function to create event IDs
 export function generateEventId(prefix: string = 'evt'): string {
-  return `${prefix}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  return `${prefix}_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
 }
 
 // Helper function to create base event structure
@@ -31,7 +31,7 @@ export function createBaseEvent(
 ): Omit<BaseEvent & { type: string }, 'data'> {
   return {
     eventId: options?.eventId || generateEventId(),
-    correlationId: options?.correlationId || `cor_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    correlationId: options?.correlationId || `cor_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
     type,
     timestamp: new Date().toISOString(),
     version: '1.0',

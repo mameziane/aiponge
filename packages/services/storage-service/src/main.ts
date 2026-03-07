@@ -1,20 +1,6 @@
-// Load environment variables first (never override Replit Secrets)
-import { config } from 'dotenv';
 import { resolve } from 'path';
-config({ path: resolve(process.cwd(), '.env'), override: false });
-
-import { findWorkspaceRoot } from '@aiponge/platform-core';
-const WORKSPACE_ROOT = findWorkspaceRoot();
-
-// FINAL FIX: Set MaxListeners before any imports or EventEmitter setup
-process.setMaxListeners(15);
-
-/**
- * Storage Service - Refactored with Local Platform Pattern
- * Microservice bootstrap and startup logic
- */
-
 import {
+  findWorkspaceRoot,
   createLogger,
   createOrchestrationBootstrap,
   createStandardHealthManager,
@@ -34,6 +20,15 @@ import {
   DomainError,
   extractAuthContext,
 } from '@aiponge/platform-core';
+const WORKSPACE_ROOT = findWorkspaceRoot();
+
+// FINAL FIX: Set MaxListeners before any imports or EventEmitter setup
+process.setMaxListeners(15);
+
+/**
+ * Storage Service - Refactored with Local Platform Pattern
+ * Microservice bootstrap and startup logic
+ */
 
 initSentry('storage-service');
 failFastValidation('storage-service');

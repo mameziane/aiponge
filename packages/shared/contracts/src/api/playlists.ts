@@ -26,50 +26,46 @@ export type PlaylistCategory = z.infer<typeof PlaylistCategorySchema>;
 // PLAYLIST SCHEMA
 // =============================================================================
 
-export const PlaylistSchema = z
-  .object({
-    id: z.string(),
-    name: z.string(),
-    description: z.string().nullable().optional(),
-    userId: z.string().nullable().optional(),
-    visibility: ContentVisibilitySchema.optional(),
-    artworkUrl: z.string().nullable().optional(),
-    totalDuration: z.number().optional(),
-    playCount: z.number().optional(),
-    likeCount: z.number().optional(),
-    followerCount: z.number().optional(),
-    tags: z.array(z.string()).optional(),
-    category: PlaylistCategorySchema.or(z.string()).nullable().optional(),
-    mood: z.string().nullable().optional(),
-    genre: z.string().nullable().optional(),
-    status: PlaylistStatusSchema.or(z.string()).optional(),
-    playlistType: PlaylistTypeSchema.or(z.string()).optional(),
-    isSystem: z.boolean().optional(),
-    icon: z.string().nullable().optional(),
-    color: z.string().nullable().optional(),
-    smartKey: z.string().nullable().optional(),
-    metadata: z.record(z.unknown()).optional(),
-    createdAt: z.string().optional(),
-    updatedAt: z.string().optional(),
-  })
-  .passthrough();
+export const PlaylistSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string().nullable().optional(),
+  userId: z.string().nullable().optional(),
+  visibility: ContentVisibilitySchema.optional(),
+  artworkUrl: z.string().nullable().optional(),
+  totalDuration: z.number().optional(),
+  playCount: z.number().optional(),
+  likeCount: z.number().optional(),
+  followerCount: z.number().optional(),
+  tags: z.array(z.string()).optional(),
+  category: PlaylistCategorySchema.or(z.string()).nullable().optional(),
+  mood: z.string().nullable().optional(),
+  genre: z.string().nullable().optional(),
+  status: PlaylistStatusSchema.or(z.string()).optional(),
+  playlistType: PlaylistTypeSchema.or(z.string()).optional(),
+  isSystem: z.boolean().optional(),
+  icon: z.string().nullable().optional(),
+  color: z.string().nullable().optional(),
+  smartKey: z.string().nullable().optional(),
+  metadata: z.record(z.unknown()).optional(),
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
+});
 export type Playlist = z.infer<typeof PlaylistSchema>;
 
 // =============================================================================
 // PLAYLIST TRACK SCHEMA (junction with ordering)
 // =============================================================================
 
-export const PlaylistTrackSchema = z
-  .object({
-    id: z.string().optional(),
-    playlistId: z.string(),
-    trackId: z.string(),
-    position: z.number().optional(),
-    addedAt: z.string().optional(),
-    addedBy: z.string().nullable().optional(),
-    track: TrackSchema.optional(),
-  })
-  .passthrough();
+export const PlaylistTrackSchema = z.object({
+  id: z.string().optional(),
+  playlistId: z.string(),
+  trackId: z.string(),
+  position: z.number().optional(),
+  addedAt: z.string().optional(),
+  addedBy: z.string().nullable().optional(),
+  track: TrackSchema.optional(),
+});
 export type PlaylistTrack = z.infer<typeof PlaylistTrackSchema>;
 
 // =============================================================================

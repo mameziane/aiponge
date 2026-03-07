@@ -1,6 +1,5 @@
 import { Entry } from '@domains/library/types';
-import { ENTRY_TYPES } from '@aiponge/shared-contracts';
-import type { ContentAccessContext } from '@aiponge/shared-contracts';
+import { ENTRY_TYPES, type ContentAccessContext } from '@aiponge/shared-contracts';
 import { ChapterEntity } from './ChapterEntity';
 import { BookEntity } from './BookEntity';
 

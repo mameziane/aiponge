@@ -6,7 +6,7 @@
 export type DownloadStatus =
   | 'pending' // Queued for download
   | 'downloading' // Currently downloading
-  | 'paused' // Download paused by user
+  | 'paused' // Deprecated: v19 API does not support resumable downloads. Migrated to 'pending' on rehydration.
   | 'completed' // Successfully downloaded
   | 'failed' // Download failed
   | 'expired'; // Download expired (subscription lapsed)
@@ -75,10 +75,10 @@ export interface DownloadManagerActions {
   setLocalPaths: (trackId: string, audioPath: string, artworkPath?: string) => void;
   updateLastPlayed: (trackId: string) => void;
   setStorageLimit: (limitBytes: number) => void;
-  refreshStorageInfo: () => Promise<void>;
+  refreshStorageInfo: () => void;
   getLocalAudioPath: (trackId: string) => string | undefined;
   isDownloaded: (trackId: string) => boolean;
-  loadFromStorage: () => Promise<void>;
+  loadFromStorage: () => void;
 }
 
 export type DownloadStore = DownloadManagerState & DownloadManagerActions;

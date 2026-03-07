@@ -4,8 +4,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { getValidation } from '@aiponge/platform-core';
-import { serializeError } from '@aiponge/platform-core';
+import { getValidation, serializeError } from '@aiponge/platform-core';
 import { StructuredErrors, getCorrelationId } from '@aiponge/shared-contracts';
 import { getLogger } from '../../config/service-urls';
 import { ServiceErrors } from '../utils/response-helpers';

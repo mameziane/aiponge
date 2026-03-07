@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import * as Sharing from 'expo-sharing';
-import * as FileSystem from 'expo-file-system/legacy';
+import { File, Paths } from 'expo-file-system';
 import { Alert } from 'react-native';
 
 // expo-print is imported lazily to avoid a route-level crash if the native
@@ -85,13 +85,10 @@ async function imageUrlToBase64(url: string): Promise<string | null> {
       gif: 'image/gif',
     };
     const mimeType = mimeMap[ext] || 'image/jpeg';
-    const tmpPath = `${FileSystem.cacheDirectory}book_cover_${Date.now()}.${ext}`;
-    const { status } = await FileSystem.downloadAsync(normalized, tmpPath);
-    if (status !== 200) return null;
-    const base64 = await FileSystem.readAsStringAsync(tmpPath, {
-      encoding: FileSystem.EncodingType.Base64,
-    });
-    await FileSystem.deleteAsync(tmpPath, { idempotent: true });
+    const destination = new File(Paths.cache, `book_cover_${Date.now()}.${ext}`);
+    const downloadedFile = await File.downloadFileAsync(normalized, destination, { idempotent: true });
+    const base64 = await downloadedFile.base64();
+    if (downloadedFile.exists) downloadedFile.delete();
     return `data:${mimeType};base64,${base64}`;
   } catch {
     return null;
@@ -544,18 +541,19 @@ export function useBookPDF(book: BookDisplay | null) {
       if (!Print) throw new Error('PDF printing is not available on this device.');
       const { uri } = await Print.printToFileAsync({ html, base64: false });
       const fileName = `${book.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`;
-      const destUri = `${FileSystem.cacheDirectory}${fileName}`;
-      await FileSystem.moveAsync({ from: uri, to: destUri });
+      const source = new File(uri);
+      const dest = new File(Paths.cache, fileName);
+      source.move(dest);
 
       const canShare = await Sharing.isAvailableAsync();
       if (canShare) {
-        await Sharing.shareAsync(destUri, {
+        await Sharing.shareAsync(dest.uri, {
           mimeType: 'application/pdf',
           dialogTitle: `Share "${book.title}"`,
           UTI: 'com.adobe.pdf',
         });
       } else {
-        Alert.alert('PDF Generated', `Saved to: ${destUri}`);
+        Alert.alert('PDF Generated', `Saved to: ${dest.uri}`);
       }
     } catch (err) {
       // Share sheet can also reject when user dismisses it — not a real failure

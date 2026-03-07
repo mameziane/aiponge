@@ -536,7 +536,9 @@ export async function getCacheStats(): Promise<typeof cacheStats & { memoryCache
         redisErrors: parseInt(values[3] ?? '0') || 0,
         memoryCacheSize: memoryCache.size,
       };
-    } catch {}
+    } catch {
+      /* ignore redis stats errors */
+    }
   }
   return { ...cacheStats, memoryCacheSize: memoryCache.size };
 }

@@ -19,54 +19,50 @@ export const AlbumStatusSchema = AlbumLifecycleSchema;
 // ALBUM SCHEMA
 // =============================================================================
 
-export const AlbumSchema = z
-  .object({
-    id: z.string(),
-    title: z.string(),
-    userId: z.string(),
-    displayName: z.string().optional(), // Display name stored in metadata
-    description: z.string().nullable().optional(),
-    genres: z.array(z.string()).optional(),
-    artworkUrl: z.string().nullable().optional(),
-    releaseDate: z.string().nullable().optional(),
-    type: AlbumTypeSchema.or(z.string()),
-    totalTracks: z.number().optional(),
-    totalDuration: z.number().optional(),
-    isExplicit: z.boolean().optional(),
-    visibility: ContentVisibilitySchema.optional(),
-    chapterId: z.string().nullable().optional(),
-    status: AlbumStatusSchema.or(z.string()),
-    playCount: z.number().optional(),
-    metadata: z.record(z.unknown()).optional(),
-    createdAt: z.string().optional(),
-    updatedAt: z.string().optional(),
-  })
-  .passthrough();
+export const AlbumSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  userId: z.string(),
+  displayName: z.string().optional(), // Display name stored in metadata
+  description: z.string().nullable().optional(),
+  genres: z.array(z.string()).optional(),
+  artworkUrl: z.string().nullable().optional(),
+  releaseDate: z.string().nullable().optional(),
+  type: AlbumTypeSchema.or(z.string()),
+  totalTracks: z.number().optional(),
+  totalDuration: z.number().optional(),
+  isExplicit: z.boolean().optional(),
+  visibility: ContentVisibilitySchema.optional(),
+  chapterId: z.string().nullable().optional(),
+  status: AlbumStatusSchema.or(z.string()),
+  playCount: z.number().optional(),
+  metadata: z.record(z.unknown()).optional(),
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
+});
 export type Album = z.infer<typeof AlbumSchema>;
 
 // =============================================================================
 // USER ALBUM SCHEMA
 // =============================================================================
 
-export const UserAlbumSchema = z
-  .object({
-    id: z.string(),
-    userId: z.string(),
-    title: z.string(),
-    displayName: z.string().optional(), // Display name stored in metadata
-    description: z.string().nullable().optional(),
-    artworkUrl: z.string().nullable().optional(),
-    chapterId: z.string().nullable().optional(),
-    bookId: z.string().nullable().optional(),
-    totalTracks: z.number().optional(),
-    totalDuration: z.number().optional(),
-    status: z.string().optional(),
-    playCount: z.number().optional(),
-    metadata: z.record(z.unknown()).optional(),
-    createdAt: z.string().optional(),
-    updatedAt: z.string().optional(),
-  })
-  .passthrough();
+export const UserAlbumSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  title: z.string(),
+  displayName: z.string().optional(), // Display name stored in metadata
+  description: z.string().nullable().optional(),
+  artworkUrl: z.string().nullable().optional(),
+  chapterId: z.string().nullable().optional(),
+  bookId: z.string().nullable().optional(),
+  totalTracks: z.number().optional(),
+  totalDuration: z.number().optional(),
+  status: z.string().optional(),
+  playCount: z.number().optional(),
+  metadata: z.record(z.unknown()).optional(),
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
+});
 export type UserAlbum = z.infer<typeof UserAlbumSchema>;
 
 // =============================================================================

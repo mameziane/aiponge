@@ -1,6 +1,5 @@
 import { BaseScheduler, SchedulerExecutionResult, QueueManager } from '@aiponge/platform-core';
-import { processTrackAlarmJob } from '../jobs/trackAlarmProcessor';
-import type { TrackAlarmJobData } from '../jobs/trackAlarmProcessor';
+import { processTrackAlarmJob, type TrackAlarmJobData } from '../jobs/trackAlarmProcessor';
 
 export const TRACK_ALARM_QUEUE = 'track-alarm';
 

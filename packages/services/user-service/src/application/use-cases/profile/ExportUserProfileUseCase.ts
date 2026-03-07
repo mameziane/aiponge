@@ -3,9 +3,7 @@
  * Exports complete user profiles including insights, patterns, and analytics in multiple formats
  */
 
-import { IProfileRepository } from '@domains/profile';
-import { IEntryRepository } from '@domains/profile';
-import { IAnalysisRepository } from '@domains/profile';
+import { IProfileRepository, IEntryRepository, IAnalysisRepository } from '@domains/profile';
 import { getLogger } from '@config/service-urls';
 import { ProfileError } from '@application/errors';
 import { PROFILE_VISIBILITY } from '@aiponge/shared-contracts';

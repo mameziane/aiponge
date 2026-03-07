@@ -1,6 +1,5 @@
 import { BaseScheduler, SchedulerExecutionResult, QueueManager } from '@aiponge/platform-core';
-import { processBookReminderJob } from '../jobs/bookReminderProcessor';
-import type { BookReminderJobData } from '../jobs/bookReminderProcessor';
+import { processBookReminderJob, type BookReminderJobData } from '../jobs/bookReminderProcessor';
 
 export const BOOK_REMINDER_QUEUE = 'book-reminder';
 

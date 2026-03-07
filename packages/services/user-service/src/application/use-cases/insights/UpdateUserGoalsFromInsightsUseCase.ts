@@ -3,9 +3,7 @@
  * Derives user goals from insights, updates goal recommendations, tracks goal progression
  */
 
-import { IProfileRepository } from '@domains/profile';
-import { IEntryRepository, InsightRecord } from '@domains/profile';
-import { IAnalysisRepository } from '@domains/profile';
+import { IProfileRepository, IEntryRepository, InsightRecord, IAnalysisRepository } from '@domains/profile';
 import { getLogger } from '@config/service-urls';
 import { GoalAnalysisData } from '../profile/highlight-types';
 import { InsightsError } from '@application/errors';

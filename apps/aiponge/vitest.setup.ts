@@ -247,16 +247,58 @@ vi.mock('expo-device', () => ({
   isDevice: true,
 }));
 
-vi.mock('expo-file-system', () => ({
-  documentDirectory: '/mock/documents/',
-  cacheDirectory: '/mock/cache/',
-  readAsStringAsync: vi.fn(() => Promise.resolve('')),
-  writeAsStringAsync: vi.fn(() => Promise.resolve()),
-  deleteAsync: vi.fn(() => Promise.resolve()),
-  getInfoAsync: vi.fn(() => Promise.resolve({ exists: false, isDirectory: false, size: 0 })),
-  makeDirectoryAsync: vi.fn(() => Promise.resolve()),
-  EncodingType: { UTF8: 'utf8', Base64: 'base64' },
-}));
+// expo-file-system v19 class-based API mock
+vi.mock('expo-file-system', () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const MockFile: any = vi.fn().mockImplementation((..._uris: unknown[]) => ({
+    uri: '/mock/cache/mockfile',
+    exists: false,
+    size: 0,
+    name: 'mockfile',
+    extension: '',
+    md5: null,
+    modificationTime: null,
+    creationTime: null,
+    type: '',
+    write: vi.fn(),
+    text: vi.fn(() => Promise.resolve('')),
+    base64: vi.fn(() => Promise.resolve('')),
+    bytes: vi.fn(() => Promise.resolve(new Uint8Array())),
+    delete: vi.fn(),
+    move: vi.fn(),
+    copy: vi.fn(),
+    create: vi.fn(),
+    rename: vi.fn(),
+    info: vi.fn(() => ({ exists: false })),
+  }));
+  MockFile.downloadFileAsync = vi.fn((_url: string, destination: unknown) => Promise.resolve(destination));
+
+  const MockDirectory = vi.fn().mockImplementation((..._uris: unknown[]) => ({
+    uri: '/mock/documents/offline/',
+    exists: false,
+    name: 'offline',
+    size: null,
+    create: vi.fn(),
+    delete: vi.fn(),
+    list: vi.fn(() => []),
+    copy: vi.fn(),
+    move: vi.fn(),
+    rename: vi.fn(),
+    info: vi.fn(() => ({ exists: false })),
+  }));
+
+  return {
+    File: MockFile,
+    Directory: MockDirectory,
+    Paths: {
+      document: { uri: '/mock/documents/' },
+      cache: { uri: '/mock/cache/' },
+      bundle: { uri: '/mock/bundle/' },
+      totalDiskSpace: 64 * 1024 * 1024 * 1024,
+      availableDiskSpace: 32 * 1024 * 1024 * 1024,
+    },
+  };
+});
 
 vi.mock('expo-image-picker', () => ({
   launchImageLibraryAsync: vi.fn(() => Promise.resolve({ canceled: true, assets: [] })),

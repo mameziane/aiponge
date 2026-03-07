@@ -3,9 +3,7 @@
  * Imports user profile data, validates and merges imported data, handles data migration scenarios
  */
 
-import { IProfileRepository } from '@domains/profile';
-import { IEntryRepository } from '@domains/profile';
-import { IAnalysisRepository } from '@domains/profile';
+import { IProfileRepository, IEntryRepository, IAnalysisRepository } from '@domains/profile';
 import { getLogger } from '@config/service-urls';
 import { ImportedDataRecord, ImportedEntry, ImportedInsight } from './highlight-types';
 import { ProfileError } from '@application/errors';

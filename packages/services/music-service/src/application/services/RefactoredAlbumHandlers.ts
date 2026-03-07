@@ -16,12 +16,11 @@ import { UnifiedLyricsRepository } from '../../infrastructure/database/UnifiedLy
 import { Track } from '../../domains/music-catalog/entities/Track';
 import { v4 as uuidv4 } from 'uuid';
 import { MusicGenerationUtils, FileStorageUtils, type StoragePathConfig } from '../shared';
-import type { CachedUserContextInput } from './LyricsPreparationService';
+import type { CachedUserContextInput, LyricsPreparationService } from './LyricsPreparationService';
 import { isPubliclyAccessibleContext } from '../shared/persistence-types';
 import { CONTENT_VISIBILITY, TRACK_LIFECYCLE } from '@aiponge/shared-contracts';
 import type { StorageServiceClient } from '../../infrastructure/clients/StorageServiceClient';
 import type { GenerateArtworkUseCase } from '../use-cases/music/GenerateArtworkUseCase';
-import type { LyricsPreparationService } from './LyricsPreparationService';
 import type {
   TrackGenerationHandler,
   LyricsSyncHandler,

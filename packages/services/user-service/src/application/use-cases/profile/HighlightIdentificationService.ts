@@ -1,5 +1,4 @@
-import { EntryRecord, InsightRecord } from '@domains/profile';
-import { PatternRecord, ProfileAnalyticsRecord } from '@domains/profile';
+import { EntryRecord, InsightRecord, PatternRecord, ProfileAnalyticsRecord } from '@domains/profile';
 import { UserHighlightData, HighlightCategory, parseConfidence, getHighConfidenceInsights } from './highlight-types';
 import type { ProfileHighlight } from './GenerateProfileHighlightsUseCase';
 

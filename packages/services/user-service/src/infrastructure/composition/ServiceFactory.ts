@@ -66,6 +66,9 @@ import {
   CreateInsightUseCase,
   CreateReflectionUseCase,
   GetInsightsUseCase,
+  UpdateUserGoalsFromInsightsUseCase,
+  CalculateUserWellnessScoreUseCase,
+  GetNarrativeSeedsUseCase,
 } from '../../application/use-cases/insights';
 import { ContinueReflectionDialogueUseCase } from '../../application/use-cases/insights/ContinueReflectionDialogueUseCase';
 import { ExplorePatternUseCase } from '../../application/use-cases/insights/ExplorePatternUseCase';
@@ -95,12 +98,6 @@ import {
   GetEntryImagesUseCase,
   ReorderEntryImagesUseCase,
 } from '../../application/use-cases/library/entry';
-
-// Insights Use Cases (wellness, goals, insights)
-import {
-  UpdateUserGoalsFromInsightsUseCase,
-  CalculateUserWellnessScoreUseCase,
-} from '../../application/use-cases/insights';
 
 // Profile Management Use Cases
 import { GetUserProfileUseCase } from '../../application/use-cases/profile/GetUserProfileUseCase';
@@ -140,9 +137,6 @@ import {
   CheckUsageEligibilityUseCase,
   CheckQuotaUseCase,
 } from '../../application/use-cases/billing';
-
-// Narrative Seeds Use Cases
-import { GetNarrativeSeedsUseCase } from '../../application/use-cases/insights';
 
 // Import Backup Repository
 import { ImportBackupRepository } from '../repositories/ImportBackupRepository';

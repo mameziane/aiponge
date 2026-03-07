@@ -40,7 +40,6 @@ export const ProviderConfigurationDataSchema = z.object({
     .object({
       creditCost: z.number().optional(),
     })
-    .passthrough()
     .optional(),
   providerId: z.string().optional(),
   providerName: z.string().optional(),
@@ -55,7 +54,6 @@ export const ProviderConfigurationResponseSchema = z.object({
     .object({
       creditCost: z.number().optional(),
     })
-    .passthrough()
     .optional(),
 });
 export type ProviderConfigurationResponse = z.infer<typeof ProviderConfigurationResponseSchema>;
@@ -74,7 +72,6 @@ export const ImageGenerationResponseSchema = z.object({
       processingTimeMs: z.number().optional(),
       imageType: z.string().optional(),
     })
-    .passthrough()
     .optional(),
   error: z.string().optional(),
   timestamp: z.string().optional(),

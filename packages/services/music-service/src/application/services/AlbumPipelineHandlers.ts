@@ -9,9 +9,8 @@ import { getLogger, getServiceUrl, createServiceHttpClient, type HttpClient } fr
 import { getDatabase } from '../../infrastructure/database/DatabaseConnectionFactory';
 import { getServiceRegistry } from '../../infrastructure/ServiceFactory';
 import { albums, tracks as tracksTable } from '../../schema/music-schema';
-import { eq, inArray, sum } from 'drizzle-orm';
+import { eq, inArray, sum, max } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
-import { max } from 'drizzle-orm';
 import { isPubliclyAccessibleContext } from '../shared/persistence-types';
 import { CONTENT_VISIBILITY, isContentPubliclyAccessible, ALBUM_LIFECYCLE } from '@aiponge/shared-contracts';
 import type {

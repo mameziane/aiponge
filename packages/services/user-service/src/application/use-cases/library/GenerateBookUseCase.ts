@@ -14,10 +14,10 @@ import {
   BookGenerationRepository,
   GeneratedBookData,
   BookTypeRepository,
+  SubscriptionRepository,
+  AuthRepository,
   type Source,
 } from '@infrastructure/repositories';
-import { SubscriptionRepository } from '@infrastructure/repositories';
-import { AuthRepository } from '@infrastructure/repositories';
 import { createDrizzleRepository } from '@infrastructure/database/DatabaseConnectionFactory';
 import { getLogger, SERVICE_URLS, createServiceHttpClient } from '@config/service-urls';
 import {

@@ -1,30 +1,26 @@
 /**
  * Offline Download Hook
- * Handles file download operations with progress tracking
+ * Handles file download operations using expo-file-system v19 class-based API.
  *
- * Environment Detection:
- * - Expo Go: Returns disabled state (native FileSystem not available)
- * - Development Build: Uses expo-file-system for real file operations
+ * Downloads use File.downloadFileAsync (non-resumable). Progress is indeterminate
+ * during download — the UI should show a spinner rather than a percentage bar.
+ * If a download fails, the user re-initiates it. Track audio files are typically
+ * 5-20 MB and download in seconds on modern connections.
  */
 
-import { useCallback, useRef, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { Alert } from 'react-native';
+import { File } from 'expo-file-system';
 import { useDownloadStore, ensureTrackDir, selectDownloads } from './store';
 import { useNetworkStatus } from '../hooks/system/useNetworkStatus';
 import { useAuthStore } from '../auth/store';
 import { normalizeMediaUrl } from '../lib/apiConfig';
 import { logger } from '../lib/logger';
-import { FileSystem, isOfflineSupported } from './offlineEnv';
+import { isOfflineSupported } from './offlineEnv';
 import type { OfflineTrack } from './types';
-
-interface DownloadResumableRef {
-  trackId: string;
-  resumable: ReturnType<typeof FileSystem.createDownloadResumable>;
-}
 
 export function useOfflineDownload() {
   const networkStatus = useNetworkStatus();
-  const activeDownloadsRef = useRef<Map<string, DownloadResumableRef>>(new Map());
 
   // Filtered downloads scoped to the current user (for UI display)
   const userDownloads = useDownloadStore(selectDownloads);
@@ -83,12 +79,8 @@ export function useOfflineDownload() {
         throw new Error('Could not resolve audio URL for download');
       }
 
-      // Create track directory
-      const trackDir = await ensureTrackDir(job.trackId);
-      if (!trackDir) {
-        throw new Error('Could not create offline storage directory');
-      }
-      const audioPath = trackDir + 'audio.m4a';
+      // Create track directory (sync, idempotent — fixes the old folder creation bug)
+      const trackDir = ensureTrackDir(job.trackId);
 
       // Build download options with auth header for API-gateway URLs
       const currentToken = useAuthStore.getState().token;
@@ -98,68 +90,52 @@ export function useOfflineDownload() {
         downloadHeaders['Authorization'] = `Bearer ${currentToken}`;
       }
 
-      // Create download resumable
-      const downloadResumable = FileSystem.createDownloadResumable(
-        resolvedUrl,
-        audioPath,
-        { headers: downloadHeaders },
-        downloadProgress => {
-          const progress =
-            downloadProgress.totalBytesExpectedToWrite > 0
-              ? downloadProgress.totalBytesWritten / downloadProgress.totalBytesExpectedToWrite
-              : 0;
-          useDownloadStore.getState().updateProgress(job.trackId, progress);
-        }
-      );
-
-      // Store reference for pause/cancel
-      activeDownloadsRef.current.set(job.trackId, {
-        trackId: job.trackId,
-        resumable: downloadResumable,
+      // Start download — v19 File.downloadFileAsync is non-resumable but simpler
+      useDownloadStore.getState().setDownloadStatus(job.trackId, 'downloading');
+      const audioFile = new File(trackDir, 'audio.m4a');
+      const downloadedAudio = await File.downloadFileAsync(resolvedUrl, audioFile, {
+        headers: downloadHeaders,
+        idempotent: true,
       });
 
-      // Start download
-      useDownloadStore.getState().setDownloadStatus(job.trackId, 'downloading');
-      const result = await downloadResumable.downloadAsync();
-
-      if (result?.uri) {
-        // Download artwork if available
-        let artworkPath: string | undefined;
-        const resolvedArtworkUrl = normalizeMediaUrl(job.track.artworkUrl);
-        if (resolvedArtworkUrl) {
-          try {
-            artworkPath = trackDir + 'artwork.jpg';
-            await FileSystem.downloadAsync(resolvedArtworkUrl, artworkPath);
-          } catch (artworkError) {
-            logger.warn('[OfflineDownload] Artwork download failed', {
-              trackId: job.trackId,
-              error: artworkError,
-            });
-          }
+      // Download artwork if available
+      let artworkPath: string | undefined;
+      const resolvedArtworkUrl = normalizeMediaUrl(job.track.artworkUrl);
+      if (resolvedArtworkUrl) {
+        try {
+          const artworkFile = new File(trackDir, 'artwork.jpg');
+          const downloadedArtwork = await File.downloadFileAsync(resolvedArtworkUrl, artworkFile, {
+            idempotent: true,
+          });
+          artworkPath = downloadedArtwork.uri;
+        } catch (artworkError) {
+          logger.warn('[OfflineDownload] Artwork download failed', {
+            trackId: job.trackId,
+            error: artworkError,
+          });
         }
-
-        // Get file size
-        const fileInfo = await FileSystem.getInfoAsync(result.uri);
-        const size = fileInfo.exists && 'size' in fileInfo ? fileInfo.size || 0 : 0;
-
-        // Update store with success
-        useDownloadStore.getState().setLocalPaths(job.trackId, result.uri, artworkPath);
-        useDownloadStore.setState(state => ({
-          downloads: {
-            ...state.downloads,
-            [job.trackId]: {
-              ...state.downloads[job.trackId],
-              size: size as number,
-            },
-          },
-        }));
-        useDownloadStore.getState().setDownloadStatus(job.trackId, 'completed');
-
-        logger.info('[OfflineDownload] Download completed', {
-          trackId: job.trackId,
-          size,
-        });
       }
+
+      // Get file size (sync property in v19)
+      const size = downloadedAudio.size;
+
+      // Update store with success
+      useDownloadStore.getState().setLocalPaths(job.trackId, downloadedAudio.uri, artworkPath);
+      useDownloadStore.setState(state => ({
+        downloads: {
+          ...state.downloads,
+          [job.trackId]: {
+            ...state.downloads[job.trackId],
+            size,
+          },
+        },
+      }));
+      useDownloadStore.getState().setDownloadStatus(job.trackId, 'completed');
+
+      logger.info('[OfflineDownload] Download completed', {
+        trackId: job.trackId,
+        size,
+      });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Download failed';
       logger.error('[OfflineDownload] Download failed', {
@@ -170,9 +146,6 @@ export function useOfflineDownload() {
       useDownloadStore.getState().setDownloadStatus(job.trackId, 'failed', errorMessage);
       Alert.alert('Download Failed', `"${job.track.title}" could not be downloaded.\n\n${errorMessage}`);
     } finally {
-      // Remove from active downloads
-      activeDownloadsRef.current.delete(job.trackId);
-
       // Mark as not processing and continue with next
       useDownloadStore.setState({ isProcessing: false });
 
@@ -193,39 +166,25 @@ export function useOfflineDownload() {
     }
   }, [queue.length, isProcessing, networkStatus.isConnected, processQueue]);
 
-  // Pause download
-  const pauseDownload = useCallback(async (trackId: string) => {
-    const activeDownload = activeDownloadsRef.current.get(trackId);
-    if (activeDownload) {
-      try {
-        await activeDownload.resumable.pauseAsync();
-        useDownloadStore.getState().pauseDownload(trackId);
-        logger.info('[OfflineDownload] Download paused', { trackId });
-      } catch (error) {
-        logger.warn('[OfflineDownload] Error pausing download', { trackId, error });
-      }
-    }
-  }, []);
-
-  // Resume download
-  const resumeDownload = useCallback(async (trackId: string) => {
-    useDownloadStore.getState().resumeDownload(trackId);
-    // Queue will be processed automatically
-  }, []);
-
-  // Cancel download
-  const cancelDownload = useCallback(async (trackId: string) => {
-    const activeDownload = activeDownloadsRef.current.get(trackId);
-    if (activeDownload) {
-      try {
-        await activeDownload.resumable.pauseAsync();
-      } catch {
-        // Ignore errors when canceling
-      }
-      activeDownloadsRef.current.delete(trackId);
-    }
+  // Cancel download — v19 has no mid-flight abort, so we cancel at the store level.
+  // The in-flight promise resolves but the result is discarded (track removed from store).
+  const cancelDownload = useCallback((trackId: string) => {
     useDownloadStore.getState().cancelDownload(trackId);
     logger.info('[OfflineDownload] Download cancelled', { trackId });
+  }, []);
+
+  // Pause redirects to cancel (v19 does not support resumable downloads)
+  const pauseDownload = useCallback(
+    (trackId: string) => {
+      cancelDownload(trackId);
+    },
+    [cancelDownload]
+  );
+
+  // Resume download — re-queues a failed or cancelled track
+  const resumeDownload = useCallback((trackId: string) => {
+    useDownloadStore.getState().resumeDownload(trackId);
+    // Queue will be processed automatically
   }, []);
 
   // Remove download wrapper
@@ -234,8 +193,8 @@ export function useOfflineDownload() {
   }, []);
 
   // Refresh storage info wrapper
-  const refreshStorageInfo = useCallback(async () => {
-    await useDownloadStore.getState().refreshStorageInfo();
+  const refreshStorageInfo = useCallback(() => {
+    useDownloadStore.getState().refreshStorageInfo();
   }, []);
 
   // Download a track - returns success status and optional error message

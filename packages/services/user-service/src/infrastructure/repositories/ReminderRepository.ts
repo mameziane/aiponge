@@ -11,8 +11,9 @@ import {
   ReminderType,
   insertReminderSchema,
   updateReminderSchema,
+  type Reminder,
+  type ReminderTypeValue,
 } from '../database/schemas/profile-schema';
-import type { Reminder, ReminderTypeValue } from '../database/schemas/profile-schema';
 import type { z } from 'zod';
 import { getLogger } from '../../config/service-urls';
 

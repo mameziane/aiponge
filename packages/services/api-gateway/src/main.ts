@@ -1,13 +1,3 @@
-// Load environment variables first (never override Replit Secrets)
-import { config } from 'dotenv';
-import { resolve, dirname } from 'path';
-import { fileURLToPath } from 'url';
-config({ path: resolve(process.cwd(), '.env'), override: false });
-
-// ES module __dirname equivalent
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
 // Set MaxListeners before any imports or EventEmitter setup
 process.setMaxListeners(15);
 

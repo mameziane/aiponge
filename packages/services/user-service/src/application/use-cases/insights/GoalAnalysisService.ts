@@ -1,5 +1,4 @@
-import { InsightRecord } from '@domains/profile';
-import { PatternRecord, ProfileAnalyticsRecord } from '@domains/profile';
+import { InsightRecord, PatternRecord, ProfileAnalyticsRecord } from '@domains/profile';
 import { parseConfidence, parseStrength } from '../profile/highlight-types';
 import { GoalRecommendation } from './UpdateUserGoalsFromInsightsUseCase';
 

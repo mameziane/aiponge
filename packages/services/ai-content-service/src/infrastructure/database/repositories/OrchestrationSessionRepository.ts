@@ -6,10 +6,10 @@
 
 import { eq, and, isNull, desc } from 'drizzle-orm';
 import { getLogger } from '../../../config/service-urls';
-import { orchestrationSessions } from '../../../schema/orchestration-session-schema';
-import type {
-  InsertOrchestrationSession,
-  SelectOrchestrationSession,
+import {
+  orchestrationSessions,
+  type InsertOrchestrationSession,
+  type SelectOrchestrationSession,
 } from '../../../schema/orchestration-session-schema';
 import type { DatabaseConnection } from '../DatabaseConnectionFactory';
 

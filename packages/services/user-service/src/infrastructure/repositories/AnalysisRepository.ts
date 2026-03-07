@@ -9,7 +9,13 @@
 
 import { and, desc, eq, gte, lte, sql, inArray, isNull, type SQL } from 'drizzle-orm';
 import { DatabaseConnection } from '../database/DatabaseConnectionFactory';
-import { usrInsights, usrUserPatterns, usrProfileAnalytics } from '../database/schemas/profile-schema';
+import {
+  usrInsights,
+  usrUserPatterns,
+  usrProfileAnalytics,
+  type UserPattern,
+  type NewUserPattern,
+} from '../database/schemas/profile-schema';
 import { libBooks, libEntries, Entry } from '../database/schemas/library-schema';
 import { encryptionService } from '../services/EncryptionService';
 import type {
@@ -21,7 +27,6 @@ import type {
   AnalyticsEventData,
 } from '../../domains/profile/repositories/IAnalysisRepository';
 import type { InsightRecord } from '../../domains/profile/repositories/IEntryRepository';
-import { UserPattern, NewUserPattern } from '../database/schemas/profile-schema';
 
 export type {
   PatternFilter,

@@ -121,22 +121,31 @@ export class SubscriptionController {
     try {
       // Verify webhook authenticity via Authorization header
       const webhookSecret = process.env.REVENUECAT_WEBHOOK_SECRET;
-      if (webhookSecret) {
-        const authHeader = req.headers.authorization;
-        if (!authHeader || authHeader !== `Bearer ${webhookSecret}`) {
-          logger.warn('RevenueCat webhook rejected: invalid or missing Authorization header');
-          res.status(401).json({
-            success: false,
-            error: {
-              type: 'AuthenticationError',
-              code: 'WEBHOOK_AUTH_FAILED',
-              message: 'Invalid webhook authorization',
-            },
-          });
-          return;
-        }
-      } else {
-        logger.warn('REVENUECAT_WEBHOOK_SECRET is not configured — webhook authentication is disabled');
+      if (!webhookSecret) {
+        logger.error('REVENUECAT_WEBHOOK_SECRET is not configured — rejecting webhook');
+        res.status(503).json({
+          success: false,
+          error: {
+            type: 'ConfigurationError',
+            code: 'WEBHOOK_SECRET_MISSING',
+            message: 'Webhook authentication is not configured',
+          },
+        });
+        return;
+      }
+
+      const authHeader = req.headers.authorization;
+      if (!authHeader || authHeader !== `Bearer ${webhookSecret}`) {
+        logger.warn('RevenueCat webhook rejected: invalid or missing Authorization header');
+        res.status(401).json({
+          success: false,
+          error: {
+            type: 'AuthenticationError',
+            code: 'WEBHOOK_AUTH_FAILED',
+            message: 'Invalid webhook authorization',
+          },
+        });
+        return;
       }
 
       const webhookData = req.body;

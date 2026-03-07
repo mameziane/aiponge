@@ -8,9 +8,13 @@ import {
 } from '@infrastructure/repositories';
 import { Book, Chapter, Entry, Illustration } from '@infrastructure/database/schemas/library-schema';
 import { BookEntity } from '@domains/library/entities';
-import { CONTENT_VISIBILITY, ContentVisibilitySchema, toShortLanguageCode } from '@aiponge/shared-contracts';
-import type { ContentAccessContext } from '@aiponge/shared-contracts';
-import { contextIsPrivileged } from '@aiponge/shared-contracts';
+import {
+  CONTENT_VISIBILITY,
+  ContentVisibilitySchema,
+  toShortLanguageCode,
+  contextIsPrivileged,
+  type ContentAccessContext,
+} from '@aiponge/shared-contracts';
 import {
   LibraryResponse,
   success,

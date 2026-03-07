@@ -1,6 +1,5 @@
-import { InsightRecord } from '@domains/profile';
+import { InsightRecord, IAnalysisRepository } from '@domains/profile';
 import { GOAL_STATUS } from '@aiponge/shared-contracts';
-import { IAnalysisRepository } from '@domains/profile';
 import { getLogger } from '@config/service-urls';
 import { GoalAnalysisData, parseConfidence } from '../profile/highlight-types';
 import { serializeError } from '@aiponge/platform-core';

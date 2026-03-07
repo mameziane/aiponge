@@ -158,10 +158,6 @@ async function setupRoutes(app: Express): Promise<void> {
 
   const playlistRoutes = createPlaylistRoutes(playlistService);
 
-  // Direct test route for debugging
-  const { createTestPlaylistsRoutes } = await import('./routes/test-playlists-direct');
-  const testRoutes = createTestPlaylistsRoutes();
-
   // Orchestration preview routes (wellness flow)
   const orchestrationRoutes = createOrchestrationPreviewRoutes();
   app.use('/api/orchestration', orchestrationRoutes);
@@ -171,8 +167,6 @@ async function setupRoutes(app: Express): Promise<void> {
   app.use('/api/music/library', libraryRoutes);
   app.use('/api/music', musicRoutes);
   app.use('/api/music', artworkRoutes); // Artwork generation endpoint
-  app.use('/api/playlists-test', testRoutes); // Test route
-
   // Feedback routes for user helpfulness tracking
   const feedbackRoutes = createFeedbackRoutes(db);
   app.use('/api/feedback', feedbackRoutes);

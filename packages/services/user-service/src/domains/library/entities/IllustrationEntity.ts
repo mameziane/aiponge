@@ -1,6 +1,5 @@
 import { Illustration, ILLUSTRATION_TYPES, ILLUSTRATION_SOURCES } from '@domains/library/types';
-import { contextIsAdmin } from '@aiponge/shared-contracts';
-import type { ContentAccessContext } from '@aiponge/shared-contracts';
+import { contextIsAdmin, type ContentAccessContext } from '@aiponge/shared-contracts';
 import { BookEntity } from './BookEntity';
 import { ChapterEntity } from './ChapterEntity';
 import { EntryEntity } from './EntryEntity';

@@ -2,7 +2,7 @@
  * Profile Repository Implementation
  */
 
-import { eq, desc, and, isNull } from 'drizzle-orm';
+import { eq, desc, and, isNull, sql } from 'drizzle-orm';
 import { DatabaseConnection } from '../database/DatabaseConnectionFactory';
 import {
   IProfileRepository,
@@ -10,11 +10,14 @@ import {
   ProfileSummary,
   PublicMemberStats,
 } from '../../domains/profile/repositories/IProfileRepository';
-import { usrProfileThemeFrequencies } from '../database/schemas/profile-schema';
-import { Profile, NewProfile, usrProfiles } from '../database/schemas/profile-schema';
+import {
+  usrProfileThemeFrequencies,
+  type Profile,
+  type NewProfile,
+  usrProfiles,
+} from '../database/schemas/profile-schema';
 import { users } from '../database/schemas/user-schema';
 import { getLogger } from '../../config/service-urls';
-import { sql } from 'drizzle-orm';
 import { ProfileError } from '../../application/errors/errors';
 
 const logger = getLogger('profile-repository');

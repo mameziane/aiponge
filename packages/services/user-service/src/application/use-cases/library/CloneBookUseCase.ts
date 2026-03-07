@@ -25,8 +25,7 @@ import {
   type UserRole,
 } from '@aiponge/shared-contracts';
 import { TierConfigClient } from '@aiponge/platform-core';
-import type { Book, Chapter } from '@infrastructure/database/schemas/library-schema';
-import { BOOK_TYPE_IDS } from '@infrastructure/database/schemas/library-schema';
+import { BOOK_TYPE_IDS, type Book, type Chapter } from '@infrastructure/database/schemas/library-schema';
 
 const logger = getLogger('clone-book-usecase');
 const httpClient = createServiceHttpClient('internal');

@@ -1,7 +1,12 @@
 import { randomUUID } from 'crypto';
-import { QueueManager, type JobProcessor, createLogger } from '@aiponge/platform-core';
-import { isFeatureEnabled, createIntervalScheduler } from '@aiponge/platform-core';
-import type { IntervalScheduler } from '@aiponge/platform-core';
+import {
+  QueueManager,
+  type JobProcessor,
+  createLogger,
+  isFeatureEnabled,
+  createIntervalScheduler,
+  type IntervalScheduler,
+} from '@aiponge/platform-core';
 import { MusicEventPublisher } from '../../infrastructure/events/MusicEventPublisher';
 import { FEATURE_FLAGS, type ContentVisibility } from '@aiponge/shared-contracts/common';
 import type { Job } from 'bullmq';

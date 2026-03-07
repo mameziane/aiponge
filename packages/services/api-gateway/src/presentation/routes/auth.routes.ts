@@ -6,8 +6,7 @@
  * and forward client IP for audit trails. Rate limiting applied at mount point in app.ts.
  */
 
-import express from 'express';
-import type { Request } from 'express';
+import express, { type Request } from 'express';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import { getLogger } from '../../config/service-urls';
 

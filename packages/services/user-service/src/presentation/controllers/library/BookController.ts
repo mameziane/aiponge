@@ -10,12 +10,19 @@ import {
   LibBookCreateSchema as bookCreateSchema,
   LibBookUpdateSchema as bookUpdateSchema,
   LibTemplateChapterSchema as templateChapterSchema,
+  GENERATION_STATUS,
+  toShortLanguageCode,
+  type ContentAccessContext,
 } from '@aiponge/shared-contracts';
-import type { ContentAccessContext } from '@aiponge/shared-contracts';
-import { GENERATION_STATUS, toShortLanguageCode } from '@aiponge/shared-contracts';
 import { CreatorMemberRepository } from '@infrastructure/repositories/CreatorMemberRepository';
-import type { LibraryControllerDeps } from './library-helpers';
-import { logger, formatZodErrors, buildContext, handleUseCaseResult, buildEnrichedContext } from './library-helpers';
+import {
+  logger,
+  formatZodErrors,
+  buildContext,
+  handleUseCaseResult,
+  buildEnrichedContext,
+  type LibraryControllerDeps,
+} from './library-helpers';
 
 export class BookController {
   constructor(private readonly deps: LibraryControllerDeps) {}

@@ -1,8 +1,3 @@
-// Load environment variables first (never override Replit Secrets)
-import { config } from 'dotenv';
-import { resolve } from 'path';
-config({ path: resolve(process.cwd(), '.env'), override: false });
-
 // Set MaxListeners before any imports or EventEmitter setup
 process.setMaxListeners(20);
 
@@ -29,11 +24,14 @@ import {
   registerShutdownHook,
   failFastValidation,
   initTracing,
+  serviceAuthMiddleware,
+  extractAuthContext,
+  initResponseHelpers,
+  initValidation,
 } from '@aiponge/platform-core';
 
 initSentry('music-service');
 failFastValidation('music-service');
-import { serviceAuthMiddleware, extractAuthContext, initResponseHelpers, initValidation } from '@aiponge/platform-core';
 import express, { type Express } from 'express';
 import type { DatabaseConnection } from './infrastructure/database/DatabaseConnectionFactory';
 import { contractRegistry, CURRENT_CONTRACT_VERSION } from '@aiponge/shared-contracts';

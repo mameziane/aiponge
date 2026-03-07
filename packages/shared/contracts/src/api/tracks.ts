@@ -22,75 +22,71 @@ export type TrackQuality = z.infer<typeof TrackQualitySchema>;
 // TRACK SCHEMA (shared library tracks)
 // =============================================================================
 
-export const TrackSchema = z
-  .object({
-    id: z.string(),
-    title: z.string(),
-    userId: z.string(),
-    displayName: z.string().optional(), // Display name stored in metadata
-    albumId: z.string(),
-    albumTitle: z.string().optional(),
-    duration: z.number(),
-    fileUrl: z.string(),
-    artworkUrl: z.string().nullable().optional(),
-    lyricsId: z.string().nullable().optional(),
-    hasSyncedLyrics: z.boolean().optional(),
-    genres: z.array(z.string()).optional(),
-    tags: z.array(z.string()).optional(),
-    trackNumber: z.number().nullable().optional(),
-    generationNumber: z.number().optional(),
-    status: TrackStatusSchema.or(z.string()),
-    quality: TrackQualitySchema.or(z.string()),
-    fileSize: z.number().optional(),
-    mimeType: z.string().optional(),
-    isExplicit: z.boolean().optional(),
-    playCount: z.number().optional(),
-    likeCount: z.number().optional(),
-    language: z.string().optional(),
-    variantGroupId: z.string().nullable().optional(),
-    sourceUserTrackId: z.string().nullable().optional(),
-    generatedByUserId: z.string().nullable().optional(),
-    metadata: z.record(z.unknown()).optional(),
-    createdAt: z.string().optional(),
-    updatedAt: z.string().optional(),
-  })
-  .passthrough();
+export const TrackSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  userId: z.string(),
+  displayName: z.string().optional(), // Display name stored in metadata
+  albumId: z.string(),
+  albumTitle: z.string().optional(),
+  duration: z.number(),
+  fileUrl: z.string(),
+  artworkUrl: z.string().nullable().optional(),
+  lyricsId: z.string().nullable().optional(),
+  hasSyncedLyrics: z.boolean().optional(),
+  genres: z.array(z.string()).optional(),
+  tags: z.array(z.string()).optional(),
+  trackNumber: z.number().nullable().optional(),
+  generationNumber: z.number().optional(),
+  status: TrackStatusSchema.or(z.string()),
+  quality: TrackQualitySchema.or(z.string()),
+  fileSize: z.number().optional(),
+  mimeType: z.string().optional(),
+  isExplicit: z.boolean().optional(),
+  playCount: z.number().optional(),
+  likeCount: z.number().optional(),
+  language: z.string().optional(),
+  variantGroupId: z.string().nullable().optional(),
+  sourceUserTrackId: z.string().nullable().optional(),
+  generatedByUserId: z.string().nullable().optional(),
+  metadata: z.record(z.unknown()).optional(),
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
+});
 export type Track = z.infer<typeof TrackSchema>;
 
 // =============================================================================
 // USER TRACK SCHEMA (user-owned tracks)
 // =============================================================================
 
-export const UserTrackSchema = z
-  .object({
-    id: z.string(),
-    userId: z.string(),
-    displayName: z.string().optional(), // Display name stored in metadata
-    trackNumber: z.number().nullable().optional(),
-    title: z.string(),
-    duration: z.number(),
-    fileUrl: z.string(),
-    artworkUrl: z.string().nullable().optional(),
-    lyricsId: z.string().nullable().optional(),
-    entryId: z.string().nullable().optional(),
-    chapterId: z.string().nullable().optional(),
-    hasSyncedLyrics: z.boolean().optional(),
-    genre: z.string().nullable().optional(),
-    mood: z.string().nullable().optional(),
-    style: z.string().nullable().optional(),
-    language: z.string().optional(),
-    status: z.string().optional(),
-    quality: z.string().optional(),
-    fileSize: z.number().optional(),
-    mimeType: z.string().optional(),
-    playCount: z.number().optional(),
-    likeCount: z.number().optional(),
-    visibility: ContentVisibilitySchema.optional(),
-    metadata: z.record(z.unknown()).optional(),
-    createdAt: z.string().optional(),
-    updatedAt: z.string().optional(),
-  })
-  .passthrough();
+export const UserTrackSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  displayName: z.string().optional(), // Display name stored in metadata
+  trackNumber: z.number().nullable().optional(),
+  title: z.string(),
+  duration: z.number(),
+  fileUrl: z.string(),
+  artworkUrl: z.string().nullable().optional(),
+  lyricsId: z.string().nullable().optional(),
+  entryId: z.string().nullable().optional(),
+  chapterId: z.string().nullable().optional(),
+  hasSyncedLyrics: z.boolean().optional(),
+  genre: z.string().nullable().optional(),
+  mood: z.string().nullable().optional(),
+  style: z.string().nullable().optional(),
+  language: z.string().optional(),
+  status: z.string().optional(),
+  quality: z.string().optional(),
+  fileSize: z.number().optional(),
+  mimeType: z.string().optional(),
+  playCount: z.number().optional(),
+  likeCount: z.number().optional(),
+  visibility: ContentVisibilitySchema.optional(),
+  metadata: z.record(z.unknown()).optional(),
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
+});
 export type UserTrack = z.infer<typeof UserTrackSchema>;
 
 // =============================================================================

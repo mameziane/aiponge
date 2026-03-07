@@ -14,11 +14,10 @@ import {
 } from '@infrastructure/repositories';
 import { Illustration } from '@infrastructure/database/schemas/library-schema';
 import { BookEntity } from '@domains/library/entities';
-import type { ContentAccessContext } from '@aiponge/shared-contracts';
+import { CONTENT_VISIBILITY, type ContentAccessContext } from '@aiponge/shared-contracts';
 import { LibraryResponse, success, notFound, forbidden, operationFailed } from '../shared/LibraryErrors';
 import { getLogger } from '@config/service-urls';
 import { AiContentServiceClient } from '@infrastructure/clients';
-import { CONTENT_VISIBILITY } from '@aiponge/shared-contracts';
 
 const logger = getLogger('generate-book-cover-use-case');
 

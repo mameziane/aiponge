@@ -1,11 +1,10 @@
 import express from 'express';
-import { AuditLogService } from '../../domains/audit/AuditLogService';
+import { AuditLogService, type ActorType, type SeverityLevel } from '../../domains/audit/AuditLogService';
 import { getLogger } from '../../config/service-urls';
 import { getDatabase } from '../../infrastructure/database/DatabaseConnectionFactory';
 import { serializeError } from '@aiponge/platform-core';
 import { getCorrelationId } from '@aiponge/shared-contracts';
 import { sendSuccess, sendCreated, ServiceErrors } from '../utils/response-helpers';
-import type { ActorType, SeverityLevel } from '../../domains/audit/AuditLogService';
 
 const db = getDatabase('audit-routes');
 const logger = getLogger('system-audit-routes');

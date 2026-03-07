@@ -6,7 +6,7 @@ export const UserRoleSchema = z.enum(VALID_ROLES as unknown as [string, ...strin
 
 export const AuthUserSchema = z.object({
   id: z.string(),
-  email: z.string(),
+  email: z.string().email(),
   username: z.string().optional(),
   name: z.string().optional(),
   birthdate: z.string().optional(),

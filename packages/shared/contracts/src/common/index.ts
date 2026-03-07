@@ -34,12 +34,6 @@ export type ServiceResponse<T> = {
   timestamp?: string;
 };
 
-export const PaginationParamsSchema = z.object({
-  limit: z.number().min(1).max(100).default(20),
-  offset: z.number().min(0).default(0),
-});
-export type PaginationParams = z.infer<typeof PaginationParamsSchema>;
-
 export const PaginatedResponseSchema = <T extends z.ZodTypeAny>(itemSchema: T) =>
   z.object({
     items: z.array(itemSchema),

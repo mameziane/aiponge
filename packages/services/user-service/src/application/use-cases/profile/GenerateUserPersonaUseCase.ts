@@ -4,9 +4,7 @@
  * Refactored to use dedicated analyzer services for each analysis domain
  */
 
-import type { IProfileRepository } from '@domains/profile';
-import type { IEntryRepository } from '@domains/profile';
-import type { IAnalysisRepository } from '@domains/profile';
+import type { IProfileRepository, IEntryRepository, IAnalysisRepository } from '@domains/profile';
 import type { IPersonalityAnalyzer } from '../../services/persona/interfaces/IPersonalityAnalyzer';
 import type { IBehaviorAnalyzer } from '../../services/persona/interfaces/IBehaviorAnalyzer';
 import type { ICognitiveAnalyzer } from '../../services/persona/interfaces/ICognitiveAnalyzer';

@@ -4,9 +4,7 @@
  * Provides unified profile view with intelligence and growth tracking
  */
 
-import { IProfileRepository } from '@domains/profile';
-import { IEntryRepository } from '@domains/profile';
-import { IAnalysisRepository } from '@domains/profile';
+import { IProfileRepository, IEntryRepository, IAnalysisRepository } from '@domains/profile';
 import { getLogger } from '@config/service-urls';
 import { ProfileError } from '@application/errors';
 
