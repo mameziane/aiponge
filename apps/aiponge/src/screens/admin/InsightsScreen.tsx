@@ -1,6 +1,5 @@
-import React from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { View, ScrollView, StyleSheet, RefreshControl, Text, TouchableOpacity } from 'react-native';
-import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useRouter, useLocalSearchParams, type Href } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -148,7 +147,7 @@ function EngagementContent() {
             <MetricCard label={t('admin.insights.returnRate')} value={formatPercent(engagement?.songReturnRate)} />
             <MetricCard
               label={t('admin.insights.journalPerUserPerMonth')}
-              value={formatNumber(engagement?.journalEntriesPerUserPerMonth)}
+              value={formatNumber(engagement?.entriesPerUserPerMonth)}
             />
           </View>
         )}
@@ -175,7 +174,7 @@ function AdoptionContent() {
           <View style={staticStyles.metricsGrid}>
             <MetricCard
               label={t('admin.insights.multipleJournals')}
-              value={formatPercent(featureUsage?.multipleJournalsRate)}
+              value={formatPercent(featureUsage?.multipleBooksRate)}
             />
             <MetricCard
               label={t('admin.insights.chaptersUsed')}

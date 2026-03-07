@@ -11,6 +11,7 @@ import { useThemeColors, type ColorScheme, commonStyles } from '../../theme';
 import { TabBar, type TabConfig } from '../../components/shared/TabBar';
 import { SubscriptionTab } from '../../components/commerce/SubscriptionTabScreen';
 import { CreditStoreTab, GiftCreditsTab } from '../../components/commerce/CreditsAndPlan';
+import { SendGiftModal } from '../../components/commerce/SendGiftModal';
 
 export default function CreditsAndPlanScreen() {
   const colors = useThemeColors();
@@ -26,6 +27,7 @@ export default function CreditsAndPlanScreen() {
 
   const [activeTab, setActiveTab] = useState(getInitialTab);
   const [refreshing, setRefreshing] = useState(false);
+  const [sendGiftModalVisible, setSendGiftModalVisible] = useState(false);
 
   const TABS: TabConfig[] = useMemo(
     () => [
@@ -69,8 +71,10 @@ export default function CreditsAndPlanScreen() {
       >
         {activeTab === 'plan' && <SubscriptionTab />}
         {activeTab === 'store' && <CreditStoreTab />}
-        {activeTab === 'giftCredits' && <GiftCreditsTab />}
+        {activeTab === 'giftCredits' && <GiftCreditsTab onOpenSendGift={() => setSendGiftModalVisible(true)} />}
       </ScrollView>
+
+      <SendGiftModal visible={sendGiftModalVisible} onClose={() => setSendGiftModalVisible(false)} />
     </View>
   );
 }

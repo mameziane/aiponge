@@ -635,7 +635,7 @@ export interface ProductMetrics {
   engagement?: {
     songsPerActiveUserPerMonth: number | null;
     songReturnRate: number | null;
-    journalEntriesPerUserPerMonth: number | null;
+    entriesPerUserPerMonth: number | null;
   };
   monetization?: {
     freeToPremiumConversionRate: number | null;
@@ -644,7 +644,7 @@ export interface ProductMetrics {
     premiumChurn90Day: number | null;
   };
   featureUsage?: {
-    multipleJournalsRate: number | null;
+    multipleBooksRate: number | null;
     chaptersUsageRate: number | null;
     trackAlarmUsageRate: number | null;
     downloadsPerUser: number | null;

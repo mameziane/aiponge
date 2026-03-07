@@ -16,6 +16,7 @@ export function LibrarianDefaultsSection() {
     defaults: backendDefaults,
     isLoading,
     isError,
+    refetch,
     updateDefaultsAsync,
     isUpdating,
     resetDefaultsAsync,
@@ -183,7 +184,13 @@ export function LibrarianDefaultsSection() {
     return (
       <View style={styles.loadingContainer}>
         <Ionicons name="alert-circle-outline" size={32} color={colors.status.needsAttention} />
-        <Text style={styles.errorText}>{t('common.error')}</Text>
+        <Text style={styles.errorText}>
+          {t('librarian.config.defaultsLoadFailed', { defaultValue: 'Failed to load defaults' })}
+        </Text>
+        <TouchableOpacity style={styles.retryButton} onPress={() => refetch()}>
+          <Ionicons name="refresh" size={16} color={colors.absolute.white} />
+          <Text style={styles.retryButtonText}>{t('common.retry', { defaultValue: 'Retry' })}</Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -470,6 +477,21 @@ const createStyles = (colors: ColorScheme) =>
     errorText: {
       color: colors.text.secondary,
       fontSize: 14,
+    },
+    retryButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      marginTop: 12,
+      backgroundColor: colors.brand.primary,
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: BORDER_RADIUS.sm,
+    },
+    retryButtonText: {
+      color: colors.absolute.white,
+      fontSize: 13,
+      fontWeight: '600',
     },
     section: {
       backgroundColor: colors.background.secondary,

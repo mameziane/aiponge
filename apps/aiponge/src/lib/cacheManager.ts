@@ -274,6 +274,7 @@ const INVALIDATION_RULES: InvalidationMap = {
 
   ALBUM_GENERATION_COMPLETED: [
     t(queryKeys.albums.all, true),
+    t(queryKeys.albums.list(), true),
     t(queryKeys.albums.public(), true),
     t(queryKeys.albums.shared(), true),
     t(queryKeys.tracks.explore(), true),

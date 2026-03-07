@@ -57,6 +57,7 @@ export function useBookMutations({ refetchManageBooks, t, userId }: BookMutation
       const vis = options?.visibility || CONTENT_VISIBILITY.PERSONAL;
       const response = (await apiRequest('/api/v1/app/library/books', {
         method: 'POST',
+        timeout: 30000, // Book creation is slow (creates chapters + entries) — 30s to avoid gateway timeout
         data: {
           ...blueprint,
           // AI can return null for optional string fields; send undefined so the schema accepts them
@@ -105,17 +106,37 @@ export function useBookMutations({ refetchManageBooks, t, userId }: BookMutation
       } catch {
         // Best-effort cache invalidation
       }
+
+      // Detect timeout errors — the book may have been created successfully on the server
+      // despite the client receiving a timeout. Show a softer message instead of "Failed".
+      const isTimeout =
+        error instanceof Error &&
+        (error.message?.includes('timeout') || (error as { code?: string }).code === 'ECONNABORTED');
+
       logger.error('[useBookMutations] Create book from blueprint failed', error instanceof Error ? error : undefined, {
         blueprintTitle: blueprint.title,
         bookTypeId,
         visibility: options?.visibility,
+        isTimeout,
       });
-      toast({
-        title: t('common.error'),
-        description: t('librarian.books.createFailed') || 'Failed to create book',
-        variant: 'destructive',
-      });
-      throw error;
+
+      if (isTimeout) {
+        // Don't show a destructive error — the book is likely being created
+        toast({
+          title: t('common.info', { defaultValue: 'Info' }),
+          description:
+            t('librarian.books.creatingInBackground', {
+              defaultValue: 'Your book is being created. It may take a moment to appear.',
+            }) || 'Your book is being created. It may take a moment to appear.',
+        });
+      } else {
+        toast({
+          title: t('common.error'),
+          description: t('librarian.books.createFailed') || 'Failed to create book',
+          variant: 'destructive',
+        });
+        throw error;
+      }
     }
   };
 

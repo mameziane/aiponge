@@ -41,6 +41,7 @@ export const RecentlyPlayedSection = memo(function RecentlyPlayedSection({
           isPlaying={currentTrackId === track.id && isPlaying}
           isFavorite={isLiked(track.id)}
           lyricsId={'lyricsId' in track ? (track as UserCreation).lyricsId : undefined}
+          createdAt={track.createdAt}
           onPress={() => onTrackPress(track)}
           onLongPress={() => onTrackLongPress(track)}
           onToggleFavorite={canLike ? () => onToggleFavorite?.(track.id) : undefined}

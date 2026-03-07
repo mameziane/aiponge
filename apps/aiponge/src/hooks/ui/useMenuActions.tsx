@@ -27,6 +27,7 @@ type NavigationRoute =
   | '/(librarian)/music'
   | '/(librarian)/discover'
   | '/(user)/books'
+  | '/(settings)/reflect'
   | '/(settings)/reports'
   | '/(settings)/reminders'
   | '/(library)/downloads'

@@ -79,7 +79,7 @@ function AdoptionContent({ metrics, colors }: { metrics: ProductMetrics; colors:
     {
       name: t('admin.features.multipleJournals'),
       icon: 'book-outline',
-      value: metrics.featureUsage?.multipleJournalsRate,
+      value: metrics.featureUsage?.multipleBooksRate,
       type: 'percentage',
     },
     {
@@ -166,7 +166,7 @@ function HealthContent({ metrics, colors }: { metrics: ProductMetrics; colors: R
     },
     {
       label: t('admin.features.journalsPerUser'),
-      value: metrics.engagement?.journalEntriesPerUserPerMonth,
+      value: metrics.engagement?.entriesPerUserPerMonth,
       format: 'number' as const,
     },
   ];

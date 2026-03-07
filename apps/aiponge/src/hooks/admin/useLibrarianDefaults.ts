@@ -33,6 +33,7 @@ export function useLibrarianDefaults() {
     },
     staleTime: DEFAULTS_STALE_TIME,
     gcTime: DEFAULTS_GC_TIME,
+    retry: 2,
   });
 
   const updateMutation = useMutation({

@@ -19,6 +19,7 @@ export interface ExploreTrack {
   sourceType?: string;
   lyricsId?: string;
   hasSyncedLyrics?: boolean;
+  createdAt?: string;
 }
 
 export interface UserCreation extends ExploreTrack {

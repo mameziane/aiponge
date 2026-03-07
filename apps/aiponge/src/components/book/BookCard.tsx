@@ -7,6 +7,7 @@ import { useThemeColors, type ColorScheme, BORDER_RADIUS } from '../../theme';
 import { fontFamilies } from '../../theme/typography';
 import { normalizeMediaUrl } from '../../lib/apiConfig';
 import { useTranslation } from '../../i18n';
+import { NewBadge } from '../shared/NewBadge';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -165,6 +166,8 @@ function GridBookCard({
           </View>
         )}
 
+        <NewBadge createdAt={book.createdAt} />
+
         <LinearGradient
           colors={['transparent', 'rgba(0,0,0,0.55)', 'rgba(0,0,0,0.88)']}
           locations={[0.3, 0.65, 1]}
@@ -248,6 +251,7 @@ export const BookCard = memo(
         <TouchableOpacity style={styles.carouselCard} onPress={() => onPress(book)} activeOpacity={0.85}>
           <View style={styles.carouselCoverContainer}>
             <BookCover coverUrl={book.coverIllustrationUrl} style={styles.carouselCover} category={book.category} />
+            <NewBadge createdAt={book.createdAt} />
             {isSaved && (
               <View style={styles.carouselSavedBadge}>
                 <Ionicons name="bookmark" size={14} color={colors.brand.pink} />
@@ -392,6 +396,7 @@ export const BookCard = memo(
       prevProps.book.chapterCount === nextProps.book.chapterCount &&
       prevProps.book.entryCount === nextProps.book.entryCount &&
       prevProps.book.status === nextProps.book.status &&
+      prevProps.book.createdAt === nextProps.book.createdAt &&
       prevProps.book.progressPercent === nextProps.book.progressPercent &&
       prevProps.layout === nextProps.layout &&
       prevProps.isSaved === nextProps.isSaved &&

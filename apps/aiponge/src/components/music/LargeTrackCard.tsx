@@ -13,6 +13,7 @@ import {
   MoreOptionsButton,
 } from '../shared/TrackComponents';
 import { OfflineIndicator } from '../shared/OfflineIndicator';
+import { NewBadge } from '../shared/NewBadge';
 
 interface LargeTrackCardProps {
   id: string;
@@ -28,6 +29,7 @@ interface LargeTrackCardProps {
   hasSyncedLyrics?: boolean;
   isUserGenerated?: boolean;
   playOnDate?: string | null;
+  createdAt?: string;
   onPress: () => void;
   onLongPress?: () => void;
   onToggleFavorite?: () => void;
@@ -52,6 +54,7 @@ export const LargeTrackCard = memo(function LargeTrackCard({
   hasSyncedLyrics,
   isUserGenerated,
   playOnDate,
+  createdAt,
   onPress,
   onLongPress,
   onToggleFavorite,
@@ -97,6 +100,7 @@ export const LargeTrackCard = memo(function LargeTrackCard({
         >
           {isPlaying && <PlayingOverlay size="medium" backgroundColor="rgba(68, 9, 114, 0.85)" />}
 
+          <NewBadge createdAt={createdAt} />
           <OfflineIndicator trackId={id} size={18} variant="badge" />
 
           {playCount !== undefined && playCount > 0 && !isPlaying && (

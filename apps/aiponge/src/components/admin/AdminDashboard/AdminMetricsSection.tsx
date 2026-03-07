@@ -166,7 +166,7 @@ export function AdminMetricsSection() {
           />
           <MetricTile
             label={t('admin.metrics.journalsPerUserMonth')}
-            value={formatNumber(metrics.engagement?.journalEntriesPerUserPerMonth)}
+            value={formatNumber(metrics.engagement?.entriesPerUserPerMonth)}
             subtitle={t('admin.metrics.entriesCreated')}
           />
         </View>
@@ -203,7 +203,7 @@ export function AdminMetricsSection() {
         <View style={styles.metricsGrid}>
           <MetricTile
             label={t('admin.metrics.multipleJournals')}
-            value={formatPercentage(metrics.featureUsage?.multipleJournalsRate)}
+            value={formatPercentage(metrics.featureUsage?.multipleBooksRate)}
             subtitle={t('admin.metrics.usersWith2PlusJournals')}
           />
           <MetricTile

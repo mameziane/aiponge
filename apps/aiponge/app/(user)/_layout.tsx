@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useThemeColors } from '../../src/theme';
 import { UnifiedHeader } from '../../src/components/shared/UnifiedHeader';
 import { AppTabBar } from '../../src/components/shared/AppTabBar';
-import { View, StyleSheet, Text, Alert } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { setLastVisitedTab } from '../../src/stores';
 import { getUserModeActive, setUserModeActive } from '../../src/stores';
@@ -17,7 +17,6 @@ import { TrackAlarmHandler } from '../../src/components/music/TrackAlarmHandler'
 import { PushNotificationInitializer } from '../../src/components/system/PushNotificationInitializer';
 import { NotificationDeepLinkHandler } from '../../src/components/system/NotificationDeepLinkHandler';
 import { ShareIntentHandler } from '../../src/components/system/ShareIntentHandler';
-import { useProfile } from '../../src/hooks/profile/useProfile';
 import { useSubscriptionData } from '../../src/contexts/SubscriptionContext';
 import { isProfessionalTier } from '@aiponge/shared-contracts';
 
@@ -85,8 +84,6 @@ export default function TabLayout() {
   const isLibrarian = useIsLibrarian();
   const isAdmin = useIsAdmin();
   const isLibrarianOnly = isLibrarian && !isAdmin;
-  const { profileData } = useProfile();
-  const hasEntries = (profileData?.stats?.totalEntries ?? 0) > 0;
   const { currentTier } = useSubscriptionData();
   const isPro = isProfessionalTier(currentTier);
 
@@ -117,8 +114,8 @@ export default function TabLayout() {
       triggerBookCreation();
     } else if (pathname.includes('books')) {
       router.push('/create');
-    } else if (pathname.includes('reflect')) {
-      router.push('/reflect?tab=insights');
+    } else if (pathname.includes('studio')) {
+      router.push('/create');
     } else {
       router.push('/create');
     }
@@ -130,7 +127,7 @@ export default function TabLayout() {
         create: 'navigation.create',
         music: 'navigation.myMusic',
         books: 'navigation.myBooks',
-        reflect: 'navigation.reflect',
+        studio: 'navigation.studio',
         reports: 'navigation.reports',
       };
       return t(titleKeys[routeName] || routeName);
@@ -254,11 +251,9 @@ export default function TabLayout() {
                 ? t('navigation.tabBook')
                 : pathname.includes('books')
                   ? t('navigation.tabEntry')
-                  : pathname.includes('reflect')
-                    ? t('navigation.tabInsight')
-                    : pathname.includes('music')
-                      ? t('navigation.tabSong')
-                      : t('navigation.tabCreate'),
+                  : pathname.includes('music')
+                    ? t('navigation.tabSong')
+                    : t('navigation.tabCreate'),
             tabBarLabelStyle: [styles.bookLabel, pathname.includes('create') && { opacity: 0.4 }],
             tabBarIcon: ({ focused }) => (
               <View style={[styles.createIconWrapper, pathname.includes('create') && { opacity: 0.4 }]}>
@@ -282,25 +277,12 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="reflect"
+          name="studio"
           options={{
-            title: t('navigation.reflect'),
+            title: t('navigation.studio'),
             tabBarIcon: ({ color, size = 24, focused }) => (
-              <Ionicons
-                name={focused ? 'bulb' : 'bulb-outline'}
-                color={hasEntries ? color : colors.text.tertiary}
-                size={size}
-              />
+              <Ionicons name={focused ? 'color-palette' : 'color-palette-outline'} color={color} size={size} />
             ),
-            tabBarLabelStyle: !hasEntries ? { color: colors.text.tertiary } : undefined,
-          }}
-          listeners={{
-            tabPress: e => {
-              if (!hasEntries) {
-                e.preventDefault();
-                Alert.alert(t('navigation.reflectDisabledTitle'), t('navigation.reflectDisabledMessage'));
-              }
-            },
           }}
         />
         <Tabs.Screen
@@ -320,10 +302,10 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="studio"
+          name="reflect"
           options={{
             href: null,
-            title: t('navigation.studio'),
+            title: t('navigation.reflect'),
           }}
         />
       </Tabs>

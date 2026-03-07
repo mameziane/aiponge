@@ -19,12 +19,19 @@ import { TabBar } from '../../shared/TabBar';
 
 type GiftTabType = 'sent' | 'received';
 
-export function GiftCreditsTab() {
+interface GiftCreditsTabProps {
+  /** When provided, the parent renders the SendGiftModal (fixes modal-inside-ScrollView). */
+  onOpenSendGift?: () => void;
+}
+
+export function GiftCreditsTab({ onOpenSendGift }: GiftCreditsTabProps) {
   const { t } = useTranslation();
   const colors = useThemeColors();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const [activeGiftTab, setActiveGiftTab] = useState<GiftTabType>('sent');
-  const [sendModalVisible, setSendModalVisible] = useState(false);
+  // Fallback: internal modal for backward compat when used standalone
+  const [internalModalVisible, setInternalModalVisible] = useState(false);
+  const openSendGift = onOpenSendGift || (() => setInternalModalVisible(true));
 
   const { sentGifts, receivedGifts, pendingReceivedGifts, isLoading, refetch, claimGift, isClaiming } =
     useCreditGifts();
@@ -137,7 +144,7 @@ export function GiftCreditsTab() {
         activeGiftTab === 'sent'
           ? {
               label: t('credits.gifts.sendGift'),
-              onPress: () => setSendModalVisible(true),
+              onPress: openSendGift,
               testID: 'button-send-first-gift',
             }
           : undefined
@@ -154,7 +161,7 @@ export function GiftCreditsTab() {
       {/* Send Gift CTA — prominent, always visible */}
       <TouchableOpacity
         style={styles.sendGiftButton}
-        onPress={() => setSendModalVisible(true)}
+        onPress={openSendGift}
         testID="button-open-send-gift"
         activeOpacity={0.8}
       >
@@ -204,7 +211,10 @@ export function GiftCreditsTab() {
         refreshControl={<RefreshControl refreshing={false} onRefresh={refetch} tintColor={colors.brand.primary} />}
       />
 
-      <SendGiftModal visible={sendModalVisible} onClose={() => setSendModalVisible(false)} />
+      {/* Only render internal modal if parent didn't provide onOpenSendGift */}
+      {!onOpenSendGift && (
+        <SendGiftModal visible={internalModalVisible} onClose={() => setInternalModalVisible(false)} />
+      )}
     </View>
   );
 }

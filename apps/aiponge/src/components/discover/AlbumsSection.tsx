@@ -11,6 +11,7 @@ import { DraftAlbumCard } from '../playlists/DraftAlbumCard';
 import { useThemeColors, BORDER_RADIUS, type ColorScheme } from '../../theme';
 import { spacing } from '../../theme/spacing';
 import { useAuthState } from '../../hooks/auth';
+import { NewBadge } from '../shared/NewBadge';
 import type { UserAlbum, SharedAlbum, AlbumGenerationProgress } from './types';
 
 interface AlbumsSectionProps {
@@ -84,19 +85,22 @@ export const AlbumsSection = memo(function AlbumsSection({
               >
                 <LiquidGlassCard intensity="medium" padding={0}>
                   <View style={styles.albumCardContent}>
-                    {album.coverArtworkUrl ? (
-                      <Image
-                        source={{ uri: album.coverArtworkUrl }}
-                        style={styles.albumArtworkImage}
-                        contentFit="cover"
-                        cachePolicy="memory-disk"
-                        transition={200}
-                      />
-                    ) : (
-                      <View style={styles.albumArtworkPlaceholder}>
-                        <Ionicons name="musical-notes" size={32} color={colors.brand.primary} />
-                      </View>
-                    )}
+                    <View style={styles.albumArtworkContainer}>
+                      {album.coverArtworkUrl ? (
+                        <Image
+                          source={{ uri: album.coverArtworkUrl }}
+                          style={styles.albumArtworkImage}
+                          contentFit="cover"
+                          cachePolicy="memory-disk"
+                          transition={200}
+                        />
+                      ) : (
+                        <View style={styles.albumArtworkPlaceholder}>
+                          <Ionicons name="musical-notes" size={32} color={colors.brand.primary} />
+                        </View>
+                      )}
+                      <NewBadge createdAt={album.createdAt} />
+                    </View>
                     <View style={styles.albumCardInfo}>
                       <Text style={styles.albumCardTitle} numberOfLines={1}>
                         {album.title}
@@ -165,19 +169,22 @@ export const AlbumsSection = memo(function AlbumsSection({
               >
                 <LiquidGlassCard intensity="medium" padding={0}>
                   <View style={styles.albumCardContent}>
-                    {album.coverArtworkUrl ? (
-                      <Image
-                        source={{ uri: album.coverArtworkUrl }}
-                        style={styles.albumArtworkImage}
-                        contentFit="cover"
-                        cachePolicy="memory-disk"
-                        transition={200}
-                      />
-                    ) : (
-                      <View style={styles.albumArtworkPlaceholder}>
-                        <Ionicons name="musical-notes" size={32} color={colors.brand.primary} />
-                      </View>
-                    )}
+                    <View style={styles.albumArtworkContainer}>
+                      {album.coverArtworkUrl ? (
+                        <Image
+                          source={{ uri: album.coverArtworkUrl }}
+                          style={styles.albumArtworkImage}
+                          contentFit="cover"
+                          cachePolicy="memory-disk"
+                          transition={200}
+                        />
+                      ) : (
+                        <View style={styles.albumArtworkPlaceholder}>
+                          <Ionicons name="musical-notes" size={32} color={colors.brand.primary} />
+                        </View>
+                      )}
+                      <NewBadge createdAt={album.createdAt} />
+                    </View>
                     <View style={styles.albumCardInfo}>
                       <Text style={styles.albumCardTitle} numberOfLines={1}>
                         {album.title}
@@ -231,6 +238,9 @@ const createStyles = (colors: ColorScheme) =>
     },
     albumCardContent: {
       width: 160,
+    },
+    albumArtworkContainer: {
+      position: 'relative',
     },
     albumArtworkImage: {
       width: 160,

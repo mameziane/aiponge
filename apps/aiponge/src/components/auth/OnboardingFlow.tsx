@@ -292,8 +292,18 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
   // ─── Step 2: Choose Book Type (accordion) ─────────────────────────────────────
 
+  const handleBackFromChooseBookType = useCallback(() => {
+    setSelectedCategory(null);
+    setStep('welcome');
+  }, []);
+
   const renderAccordionList = () => (
     <>
+      <View style={styles.describeHeader}>
+        <TouchableOpacity onPress={handleBackFromChooseBookType} style={styles.typeBackButton}>
+          <Ionicons name="arrow-back" size={22} color={colors.text.primary} />
+        </TouchableOpacity>
+      </View>
       <View style={styles.preferencesHeader}>
         <Ionicons name="library-outline" size={40} color={colors.text.primary} />
         <Text style={styles.preferencesTitle}>

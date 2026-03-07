@@ -268,40 +268,58 @@ export class PlanOrchestrationFlowUseCase {
       }
     }
 
-    // Normalize book plan
-    if (plan.book && typeof plan.book === 'object') {
-      const book = plan.book as Record<string, unknown>;
-      if (!book.bookTypeId) book.bookTypeId = 'affirmation';
-      if (!book.bookTypeName) book.bookTypeName = 'Affirmation Book';
-      if (!book.suggestedTitle) book.suggestedTitle = 'Your Wellness Journey';
-
-      // Coerce and clamp chapterCount
-      const rawCount = Number(book.chapterCount);
-      book.chapterCount = Math.max(1, Math.min(20, Number.isFinite(rawCount) ? rawCount : 5));
-
-      // Ensure chapterThemes exists and has entries
-      if (!Array.isArray(book.chapterThemes) || book.chapterThemes.length === 0) {
-        book.chapterThemes = ['Reflection', 'Growth', 'Gratitude', 'Healing', 'Hope'].slice(
-          0,
-          book.chapterCount as number
-        );
-      }
+    // Ensure book plan exists (LLMs sometimes omit it entirely)
+    if (!plan.book || typeof plan.book !== 'object') {
+      plan.book = {
+        bookTypeId: 'affirmation',
+        bookTypeName: 'Affirmation Book',
+        suggestedTitle: 'Your Wellness Journey',
+        chapterCount: 5,
+        chapterThemes: ['Reflection', 'Growth', 'Gratitude', 'Healing', 'Hope'],
+      };
     }
 
-    // Normalize album plan
-    if (plan.album && typeof plan.album === 'object') {
-      const album = plan.album as Record<string, unknown>;
-      if (!album.suggestedTitle) album.suggestedTitle = 'Wellness Sounds';
+    // Normalize book plan fields
+    const book = plan.book as Record<string, unknown>;
+    if (!book.bookTypeId) book.bookTypeId = 'affirmation';
+    if (!book.bookTypeName) book.bookTypeName = 'Affirmation Book';
+    if (!book.suggestedTitle) book.suggestedTitle = 'Your Wellness Journey';
 
-      // Coerce and clamp trackCount
-      const rawCount = Number(album.trackCount);
-      album.trackCount = Math.max(1, Math.min(20, Number.isFinite(rawCount) ? rawCount : 5));
+    // Coerce and clamp chapterCount
+    const rawBookCount = Number(book.chapterCount);
+    book.chapterCount = Math.max(1, Math.min(20, Number.isFinite(rawBookCount) ? rawBookCount : 5));
 
-      if (!Array.isArray(album.genres) || album.genres.length === 0) {
-        album.genres = ['ambient'];
-      }
-      if (!album.mood) album.mood = 'calm';
-      if (!album.style) album.style = 'soothing and reflective';
+    // Ensure chapterThemes exists and has entries
+    if (!Array.isArray(book.chapterThemes) || book.chapterThemes.length === 0) {
+      book.chapterThemes = ['Reflection', 'Growth', 'Gratitude', 'Healing', 'Hope'].slice(
+        0,
+        book.chapterCount as number
+      );
     }
+
+    // Ensure album plan exists (LLMs sometimes omit it entirely)
+    if (!plan.album || typeof plan.album !== 'object') {
+      plan.album = {
+        suggestedTitle: 'Wellness Sounds',
+        trackCount: 5,
+        genres: ['ambient'],
+        mood: 'calm',
+        style: 'soothing and reflective',
+      };
+    }
+
+    // Normalize album plan fields
+    const album = plan.album as Record<string, unknown>;
+    if (!album.suggestedTitle) album.suggestedTitle = 'Wellness Sounds';
+
+    // Coerce and clamp trackCount
+    const rawAlbumCount = Number(album.trackCount);
+    album.trackCount = Math.max(1, Math.min(20, Number.isFinite(rawAlbumCount) ? rawAlbumCount : 5));
+
+    if (!Array.isArray(album.genres) || album.genres.length === 0) {
+      album.genres = ['ambient'];
+    }
+    if (!album.mood) album.mood = 'calm';
+    if (!album.style) album.style = 'soothing and reflective';
   }
 }

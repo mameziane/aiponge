@@ -173,6 +173,12 @@ export function AccountIconMenu({ onClose }: AccountIconMenuProps) {
               />
             )}
             <MenuItem
+              icon="bulb-outline"
+              label={t('navigation.reflect')}
+              onPress={() => handleNavigate('/(settings)/reflect')}
+              testID="menu-reflect"
+            />
+            <MenuItem
               icon="analytics-outline"
               label={t('settingsPage.reports', { defaultValue: 'Reports' })}
               onPress={() => handleNavigate('/(settings)/reports')}

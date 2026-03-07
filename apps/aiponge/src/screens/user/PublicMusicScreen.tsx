@@ -9,6 +9,7 @@ import { useFavorites } from '../../hooks/playlists/useFavorites';
 import { useTrackListOptimization } from '../../hooks/music/useTrackListOptimization';
 import { useTrackOptionsScreen } from '../../hooks/music/useTrackOptions';
 import { useAuthStore, selectUserId } from '../../auth/store';
+import { useIsAdmin } from '../../hooks/admin/useAdminQuery';
 import { LyricsModal } from '../../components/music/LyricsModal';
 import { TrackItem } from '../../components/music/TrackItem';
 import { EmptyState } from '../../components/shared/EmptyState';
@@ -26,6 +27,7 @@ export function PublicMusicScreen() {
   const colors = useThemeColors();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const userId = useAuthStore(selectUserId);
+  const isAdmin = useIsAdmin();
   const { isFavorite, toggleFavorite } = useFavorites(userId || '');
 
   const {
@@ -67,12 +69,12 @@ export function PublicMusicScreen() {
     showsVerticalScrollIndicator: true,
   });
 
-  // Centralized track options (admin can delete tracks)
+  // Centralized track options — only admins can delete shared library tracks
   const { getMenuPropsForTrack } = useTrackOptionsScreen<SharedTrack>('sharedLibrary', {
     handleShowLyrics,
     toggleFavorite,
     isFavorite,
-    handleDeleteTrack,
+    handleDeleteTrack: isAdmin ? handleDeleteTrack : undefined,
   });
 
   const handleTrackTap = useCallback(

@@ -3,7 +3,7 @@
 // Run 'npm run generate:config' to regenerate
 
 export const CONFIG_METADATA = {
-  generated: "2026-03-07T14:17:18.461Z",
+  generated: "2026-03-07T17:27:31.040Z",
   sourceHash: "9095217d",
   version: "1.0.0"
 } as const;

@@ -8,6 +8,7 @@ import { CONTENT_VISIBILITY, isContentPubliclyAccessible, type ContentVisibility
 import { logger } from '../lib/logger';
 import { queryClient } from '../lib/reactQueryClient';
 import { invalidateOnEvent } from '../lib/cacheManager';
+import { queryKeys } from '../lib/queryKeys';
 import { forceRefreshExplore, forceRefreshPublicAlbums } from '../auth/cacheUtils';
 import { createGenerationStore, type BaseGenerationProgress, type GenerationStore } from './createGenerationStore';
 
@@ -94,6 +95,8 @@ const { store } = createGenerationStore<AlbumGenerationProgress>({
     // return stale gateway-cached data that doesn't include the newly created album.
     forceRefreshExplore();
     forceRefreshPublicAlbums();
+    // Force-refetch the user's personal album list (used by AlbumsScreen/DiscoverScreen)
+    queryClient.refetchQueries({ queryKey: queryKeys.albums.list() });
     logger.debug('[AlbumGeneration] Invalidated album + credits caches and refreshed explore + albums');
 
     // Follow-up invalidation: gateway cache may still be warm after the first pass.
@@ -101,6 +104,7 @@ const { store } = createGenerationStore<AlbumGenerationProgress>({
       logger.debug('[AlbumGeneration] Delayed follow-up cache invalidation');
       invalidateOnEvent(queryClient, { type: 'ALBUM_GENERATION_COMPLETED' });
       forceRefreshPublicAlbums();
+      queryClient.refetchQueries({ queryKey: queryKeys.albums.list() });
     }, 3000);
   },
 });
