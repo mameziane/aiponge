@@ -46,6 +46,7 @@ uploads/
 *.tsbuildinfo
 
 # Expo / EAS
+.expo/
 .expo-shared/
 eas-build-*.json
 

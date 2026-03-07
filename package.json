@@ -19,7 +19,7 @@
   "scripts": {
     "preinstall": "",
     "prepare": "simple-git-hooks",
-    "postinstall": "npm run generate:config || echo 'Config generation skipped'",
+    "postinstall": "npx patch-package --patch-dir patches || true && [ -f scripts/codegen/generate-all-configs.ts ] && npm run generate:config || echo 'Config generation skipped (not at monorepo root)'",
     "predev": "npm run generate:config || true",
     "prebuild": "npm run generate:config || true",
     "generate:config": "tsx scripts/codegen/generate-all-configs.ts",

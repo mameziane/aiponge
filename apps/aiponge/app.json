@@ -2,7 +2,6 @@
   "expo": {
     "name": "aiponge",
     "slug": "aiponge",
-    "entryPoint": "./index",
     "platforms": ["ios", "android"],
     "version": "1.0.0",
     "runtimeVersion": {
@@ -48,8 +47,6 @@
       },
       "associatedDomains": ["applinks:aiponge.com", "webcredentials:aiponge.com"]
     },
-    "privacy": "https://aiponge.com/privacy",
-    "termsOfService": "https://aiponge.com/terms",
     "android": {
       "package": "com.aiponge",
       "adaptiveIcon": {
@@ -93,8 +90,7 @@
               "host": "aiponge.com",
               "pathPrefix": "/share"
             }
-          ],
-          "categories": ["BROWSABLE", "DEFAULT"]
+          ]
         }
       ]
     },

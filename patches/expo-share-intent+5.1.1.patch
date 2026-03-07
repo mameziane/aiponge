@@ -1,0 +1,13 @@
+diff --git a/node_modules/expo-share-intent/plugin/build/ios/ShareExtensionViewController.swift b/node_modules/expo-share-intent/plugin/build/ios/ShareExtensionViewController.swift
+index 0911a9e..d435108 100644
+--- a/node_modules/expo-share-intent/plugin/build/ios/ShareExtensionViewController.swift
++++ b/node_modules/expo-share-intent/plugin/build/ios/ShareExtensionViewController.swift
+@@ -73,7 +73,7 @@ class ShareViewController: UIViewController {
+         if let url = try? await attachment.loadItem(forTypeIdentifier: self.vcardContentType) as? URL {
+           // ensure a .vcf file extension so mime resolves properly
+           let tmp = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString + ".vcf")
+-          _ = self.copyFile(at: url, to: tmp)
++          await MainActor.run { _ = self.copyFile(at: url, to: tmp) }
+           Task { @MainActor in
+             await self.handleFileURL(content: content, url: tmp, index: index)
+           }
