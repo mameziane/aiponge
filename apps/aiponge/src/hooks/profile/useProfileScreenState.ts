@@ -36,9 +36,11 @@ export function useProfileScreenState() {
   const [refreshing, setRefreshing] = useState(false);
   const [isSavingAvatar, setIsSavingAvatar] = useState(false);
   const [isSavingBirthdate, setIsSavingBirthdate] = useState(false);
-  // Optimistic name override — prevents stale cache flash after save
-  const [optimisticName, setOptimisticName] = useState<string | null>(null);
 
+  // Use auth store's user.name as the source of truth for display name.
+  // The auth store is updated immediately during save (line ~103) and
+  // persists via secureStorage — unlike useState which dies on unmount.
+  // Falls back to profile API data for initial load before auth store has a name.
   const profileData: ProfileData | null = useMemo(() => {
     if (!sharedProfileData || !userId) return null;
     return {
@@ -46,7 +48,7 @@ export function useProfileScreenState() {
       userId: userId,
       email: sharedProfileData.email,
       profile: {
-        name: optimisticName ?? sharedProfileData.profile?.name,
+        name: user?.name ?? sharedProfileData.profile?.name,
         bio: sharedProfileData.profile?.bio,
       },
       preferences: {
@@ -60,12 +62,7 @@ export function useProfileScreenState() {
         totalEntries: sharedProfileData.stats?.totalEntries || 0,
       },
     };
-  }, [sharedProfileData, userId, optimisticName]);
-
-  // Clear optimistic override once server data catches up
-  if (optimisticName !== null && sharedProfileData?.profile?.name === optimisticName) {
-    setOptimisticName(null);
-  }
+  }, [sharedProfileData, userId, user?.name]);
 
   const profileForm = useMemo(
     () => ({
@@ -94,10 +91,9 @@ export function useProfileScreenState() {
       });
 
       if (result.success) {
-        // Set optimistic name to prevent stale cache flash
-        setOptimisticName(name);
-
-        // Update auth store with new display name immediately for local UI
+        // Update auth store with new display name immediately.
+        // The auth store is persisted (secureStorage), so the name survives
+        // navigation and component unmounts — unlike volatile useState.
         const currentUser = useAuthStore.getState().user;
         if (currentUser) {
           useAuthStore.setState({
@@ -117,13 +113,11 @@ export function useProfileScreenState() {
         invalidateProfile();
         await invalidateAuthCaches();
 
-        // Refresh user from server to ensure consistency
-        useAuthStore
-          .getState()
-          .refreshUser()
-          .catch(err => {
-            logger.warn('Failed to refresh user after name change', { error: err });
-          });
+        // NOTE: We intentionally do NOT call refreshUser() here.
+        // The API Gateway may still serve a cached response with the OLD name,
+        // which would overwrite the auth store update we just made above.
+        // The auth store already has the correct name; subsequent token refreshes
+        // or app restarts will eventually sync with the server.
 
         logger.info('Display name updated and caches invalidated', { newName: name });
       } else {
