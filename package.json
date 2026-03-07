@@ -65,20 +65,20 @@
     "*.{json,md,yml,yaml}": "prettier --write"
   },
   "devDependencies": {
-    "@eslint/js": "^9.35.0",
-    "@types/node": "^22.8.7",
-    "chokidar": "^4.0.3",
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^25.3.5",
+    "chokidar": "^5.0.0",
     "dotenv-cli": "^11.0.0",
-    "drizzle-kit": "^0.31.8",
+    "drizzle-kit": "^0.31.9",
     "esbuild": "^0.27.2",
-    "eslint": "^9.39.2",
+    "eslint": "^10.0.3",
     "eslint-plugin-prettier": "^5.5.4",
-    "eslint-plugin-sonarjs": "^3.0.6",
+    "eslint-plugin-sonarjs": "^4.0.1",
     "prettier": "^3.0.0",
     "simple-git-hooks": "^2.13.1",
     "tsx": "^4.20.5",
-    "turbo": "^2.6.1",
+    "turbo": "^2.8.14",
     "typescript": "^5.6.3",
-    "typescript-eslint": "^8.54.0"
+    "typescript-eslint": "^8.56.1"
   }
 }
