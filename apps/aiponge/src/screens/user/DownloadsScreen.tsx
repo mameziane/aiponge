@@ -117,34 +117,6 @@ export function DownloadsScreen() {
     useOfflineDownload();
   const clearAllDownloads = useDownloadStore(state => state.clearAllDownloads);
 
-  // Show Expo Go message if offline downloads are not supported
-  if (!isOfflineSupported) {
-    return (
-      <View style={styles.container}>
-        <View style={styles.expoGoState}>
-          <View style={styles.expoGoIconContainer}>
-            <Ionicons name="construct-outline" size={48} color={colors.brand.primary} />
-          </View>
-          <Text style={styles.expoGoTitle}>{t('downloads.devBuildRequired', 'Development Build Required')}</Text>
-          <Text style={styles.expoGoMessage}>
-            {t(
-              'downloads.expoGoMessage',
-              'Offline downloads require a development build. This feature is not available in Expo Go.'
-            )}
-          </Text>
-          <LiquidGlassCard intensity="light" padding={12} borderRadius={8}>
-            <View style={styles.expoGoInfoContent}>
-              <Ionicons name="information-circle-outline" size={16} color={colors.text.tertiary} />
-              <Text style={styles.expoGoInfoText}>
-                {t('downloads.expoGoHint', 'Create a development build with EAS to enable offline playback.')}
-              </Text>
-            </View>
-          </LiquidGlassCard>
-        </View>
-      </View>
-    );
-  }
-
   const downloadList = useMemo(() => {
     return Object.values(downloads).sort((a, b) => {
       // Completed first, then by download date
@@ -256,6 +228,34 @@ export function DownloadsScreen() {
   );
 
   const keyExtractor = useCallback((item: OfflineTrack) => item.id, []);
+
+  // Show Expo Go message if offline downloads are not supported
+  if (!isOfflineSupported) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.expoGoState}>
+          <View style={styles.expoGoIconContainer}>
+            <Ionicons name="construct-outline" size={48} color={colors.brand.primary} />
+          </View>
+          <Text style={styles.expoGoTitle}>{t('downloads.devBuildRequired', 'Development Build Required')}</Text>
+          <Text style={styles.expoGoMessage}>
+            {t(
+              'downloads.expoGoMessage',
+              'Offline downloads require a development build. This feature is not available in Expo Go.'
+            )}
+          </Text>
+          <LiquidGlassCard intensity="light" padding={12} borderRadius={8}>
+            <View style={styles.expoGoInfoContent}>
+              <Ionicons name="information-circle-outline" size={16} color={colors.text.tertiary} />
+              <Text style={styles.expoGoInfoText}>
+                {t('downloads.expoGoHint', 'Create a development build with EAS to enable offline playback.')}
+              </Text>
+            </View>
+          </LiquidGlassCard>
+        </View>
+      </View>
+    );
+  }
 
   const storagePercentage = storageInfo.limitBytes > 0 ? (storageInfo.usedBytes / storageInfo.limitBytes) * 100 : 0;
 

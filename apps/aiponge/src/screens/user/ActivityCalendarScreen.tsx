@@ -106,36 +106,6 @@ export function ActivityCalendarScreen() {
   const [editingTrack, setEditingTrack] = useState<TrackForEdit | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
 
-  // Paid tier feature gate
-  if (!tierConfig.canAccessActivityCalendar) {
-    return (
-      <SafeAreaView style={styles.container} edges={['top']}>
-        <View style={styles.header}>
-          <TouchableOpacity style={styles.backButton} onPress={() => router.back()} testID="button-back">
-            <Ionicons name="arrow-back" size={24} color={colors.text.primary} />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>{t('activityCalendar.title')}</Text>
-          <View style={{ width: 40 }} />
-        </View>
-        <View style={styles.lockedContainer}>
-          <View style={styles.lockedIconContainer}>
-            <Ionicons name="lock-closed" size={48} color={colors.text.tertiary} />
-          </View>
-          <Text style={styles.lockedTitle}>{t('activityCalendar.premiumRequired')}</Text>
-          <Text style={styles.lockedDescription}>{t('activityCalendar.premiumDescription')}</Text>
-          <TouchableOpacity
-            style={styles.upgradeButton}
-            onPress={() => router.push('/paywall')}
-            testID="button-upgrade"
-          >
-            <Ionicons name="star" size={20} color={colors.text.primary} />
-            <Text style={styles.upgradeButtonText}>{t('common.upgrade')}</Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
   const {
     data: activityData,
     isLoading,
@@ -295,6 +265,36 @@ export function ActivityCalendarScreen() {
   const handleSaveEdit = useCallback(async () => {
     invalidateOnEvent(queryClient, { type: 'ACTIVITY_CALENDAR_UPDATED', date: selectedDate || undefined });
   }, [queryClient, selectedDate]);
+
+  // Paid tier feature gate
+  if (!tierConfig.canAccessActivityCalendar) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.backButton} onPress={() => router.back()} testID="button-back">
+            <Ionicons name="arrow-back" size={24} color={colors.text.primary} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>{t('activityCalendar.title')}</Text>
+          <View style={{ width: 40 }} />
+        </View>
+        <View style={styles.lockedContainer}>
+          <View style={styles.lockedIconContainer}>
+            <Ionicons name="lock-closed" size={48} color={colors.text.tertiary} />
+          </View>
+          <Text style={styles.lockedTitle}>{t('activityCalendar.premiumRequired')}</Text>
+          <Text style={styles.lockedDescription}>{t('activityCalendar.premiumDescription')}</Text>
+          <TouchableOpacity
+            style={styles.upgradeButton}
+            onPress={() => router.push('/paywall')}
+            testID="button-upgrade"
+          >
+            <Ionicons name="star" size={20} color={colors.text.primary} />
+            <Text style={styles.upgradeButtonText}>{t('common.upgrade')}</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container} edges={[]}>

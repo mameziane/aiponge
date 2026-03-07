@@ -160,23 +160,6 @@ export function ActivityCalendarTab() {
     staleTime: QUERY_STALE_TIME.long,
   });
 
-  // Paid tier feature gate - placed after all hooks
-  if (!canAccess) {
-    return (
-      <View style={styles.lockedContainer}>
-        <View style={styles.lockedIconContainer}>
-          <Ionicons name="lock-closed" size={48} color={colors.text.tertiary} />
-        </View>
-        <Text style={styles.lockedTitle}>{t('activityCalendar.premiumRequired')}</Text>
-        <Text style={styles.lockedDescription}>{t('activityCalendar.premiumDescription')}</Text>
-        <TouchableOpacity style={styles.upgradeButton} onPress={() => router.push('/paywall')} testID="button-upgrade">
-          <Ionicons name="star" size={20} color={colors.text.primary} />
-          <Text style={styles.upgradeButtonText}>{t('common.upgrade')}</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
-
   const getAlarmDatesForMonth = useCallback((alarm: AlarmData, targetYear: number, targetMonth: number): string[] => {
     const dates: string[] = [];
     const baseDate = new Date(alarm.baseDate);
@@ -398,6 +381,31 @@ export function ActivityCalendarTab() {
     return alarmsForDate.filter(alarm => !deletedAlarmIds.has(alarm.id));
   }, [selectedDate, getAlarmsForDate, alarmsData, deletedAlarmIds]);
 
+  const activeScheduledTracks = useMemo(() => {
+    return dayDetail?.data?.tracksScheduled?.filter(t => !deletedScheduleIds.has(t.scheduleId || '')) ?? [];
+  }, [dayDetail?.data?.tracksScheduled, deletedScheduleIds]);
+
+  const navigateToTrackDetail = useCallback((trackData: Record<string, unknown>) => {
+    router.push(`/private-track-detail?track=${encodeURIComponent(JSON.stringify(trackData))}`);
+  }, []);
+
+  // Paid tier feature gate
+  if (!canAccess) {
+    return (
+      <View style={styles.lockedContainer}>
+        <View style={styles.lockedIconContainer}>
+          <Ionicons name="lock-closed" size={48} color={colors.text.tertiary} />
+        </View>
+        <Text style={styles.lockedTitle}>{t('activityCalendar.premiumRequired')}</Text>
+        <Text style={styles.lockedDescription}>{t('activityCalendar.premiumDescription')}</Text>
+        <TouchableOpacity style={styles.upgradeButton} onPress={() => router.push('/paywall')} testID="button-upgrade">
+          <Ionicons name="star" size={20} color={colors.text.primary} />
+          <Text style={styles.upgradeButtonText}>{t('common.upgrade')}</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
@@ -406,14 +414,6 @@ export function ActivityCalendarTab() {
       </View>
     );
   }
-
-  const activeScheduledTracks = useMemo(() => {
-    return dayDetail?.data?.tracksScheduled?.filter(t => !deletedScheduleIds.has(t.scheduleId || '')) ?? [];
-  }, [dayDetail?.data?.tracksScheduled, deletedScheduleIds]);
-
-  const navigateToTrackDetail = useCallback((trackData: Record<string, unknown>) => {
-    router.push(`/private-track-detail?track=${encodeURIComponent(JSON.stringify(trackData))}`);
-  }, []);
 
   if (isError) {
     return (
